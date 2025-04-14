@@ -1,18 +1,20 @@
 package com.example.oauthjwt.jwt;
 
-import com.example.oauthjwt.dto.CustomOAuth2User;
-import com.example.oauthjwt.dto.UserDTO;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.example.oauthjwt.dto.CustomOAuth2User;
+import com.example.oauthjwt.dto.UserDTO;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -23,7 +25,9 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         // 🔐 예외 처리: 로그인 및 OAuth2 경로는 JWT 인증 안 함
         String requestUri = request.getRequestURI();
@@ -42,7 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
 
-        //Authorization 헤더 검증
+        // Authorization 헤더 검증
         // 🚫 토큰이 없으면 다음 필터로
         if (authorization == null) {
             System.out.println("token null");
@@ -66,10 +70,12 @@ public class JWTFilter extends OncePerRequestFilter {
         userDTO.setUsername(username);
         userDTO.setRole(role);
 
-        //UserDetails에 회원 정보 객체 담기
+        // UserDetails에 회원 정보 객체 담기
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-        //스프링 시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        // 스프링 시큐리티 인증 토큰 생성
+        Authentication authToken =
+                new UsernamePasswordAuthenticationToken(
+                        customOAuth2User, null, customOAuth2User.getAuthorities());
 
         // 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authToken);
