@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller.auth;
 
 import java.util.Map;
 
+import com.example.oauthjwt.entity.USER_TYPE;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -76,7 +77,7 @@ public class UserController {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setName(userDTO.getName());
-        user.setRole("ROLE_USER");
+        user.setRole(USER_TYPE.USER);
         user.setEmail("");
 
         // 암호화된 비밀번호 저장
@@ -126,7 +127,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 1000L);
+        String token = jwtUtil.createJwt(user.getUsername(), user.getRole().toString(), 60 * 60 * 1000L);
 
         Cookie cookie = new Cookie("Authorization", token);
         cookie.setPath("/");

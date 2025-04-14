@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.entity.USER_TYPE;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -47,14 +48,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setUsername(username);
             user.setEmail(oAuth2Response.getEmail());
             user.setName(oAuth2Response.getName());
-            user.setRole("ROLE_USER");
+            user.setRole(USER_TYPE.USER);
 
             userRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);
             userDTO.setName(oAuth2Response.getName());
-            userDTO.setRole("ROLE_USER");
+            userDTO.setRole(USER_TYPE.USER);
 
             return new CustomOAuth2User(userDTO);
         } else {
