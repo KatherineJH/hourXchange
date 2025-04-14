@@ -25,7 +25,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22"
+          node-version: "20"
 
       - name: Install Node.js dependencies
         working-directory: client-app
@@ -34,6 +34,10 @@ jobs:
       - name: Run Prettier
         working-directory: client-app
         run: npx prettier -w "**/*.html" "**/*.js" "**/*.css"
+
+      - name: Grant execute permission for gradlew
+        working-directory: backend
+        run: chmod +x gradlew
 
       - name: Run Spotless
         working-directory: backend
