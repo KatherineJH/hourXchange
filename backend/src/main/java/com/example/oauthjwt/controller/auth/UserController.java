@@ -1,19 +1,21 @@
 package com.example.oauthjwt.controller.auth;
 
-import com.example.oauthjwt.dto.UserDTO;
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import com.example.oauthjwt.dto.UserDTO;
+import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.jwt.JWTUtil;
+import com.example.oauthjwt.repository.UserRepository;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -84,33 +86,37 @@ public class UserController {
         return "회원가입 성공!";
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
-//        User user = userRepository.findByUsername(userDTO.getUsername());
-//
-//        if (user == null || !passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
-//        }
-//
-//        // JWT 생성
-//        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 1000L); // 1시간
-//
-//        // 쿠키로도 저장 (선택 사항)
-//        Cookie cookie = new Cookie("Authorization", token);
-//        cookie.setHttpOnly(true);
-//        cookie.setPath("/");
-//        cookie.setMaxAge(60 * 60);
-//        response.addCookie(cookie);
-//
-//        // ✅ 토큰을 바디에도 포함시켜서 프론트가 직접 활용 가능하도록
-//        return ResponseEntity.ok().body(Map.of(
-//                "message", "로그인 성공",
-//                "token", token,
-//                "username", user.getUsername(),
-//                "name", user.getName(),
-//                "role", user.getRole()
-//        ));
-//    }
+    //    @PostMapping("/login")
+    //    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response)
+    // {
+    //        User user = userRepository.findByUsername(userDTO.getUsername());
+    //
+    //        if (user == null || !passwordEncoder.matches(userDTO.getPassword(),
+    // user.getPassword())) {
+    //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지
+    // 않습니다.");
+    //        }
+    //
+    //        // JWT 생성
+    //        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 1000L);
+    // // 1시간
+    //
+    //        // 쿠키로도 저장 (선택 사항)
+    //        Cookie cookie = new Cookie("Authorization", token);
+    //        cookie.setHttpOnly(true);
+    //        cookie.setPath("/");
+    //        cookie.setMaxAge(60 * 60);
+    //        response.addCookie(cookie);
+    //
+    //        // ✅ 토큰을 바디에도 포함시켜서 프론트가 직접 활용 가능하도록
+    //        return ResponseEntity.ok().body(Map.of(
+    //                "message", "로그인 성공",
+    //                "token", token,
+    //                "username", user.getUsername(),
+    //                "name", user.getName(),
+    //                "role", user.getRole()
+    //        ));
+    //    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
@@ -128,14 +134,14 @@ public class UserController {
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok().body(Map.of(
-                "message", "로그인 성공",
-                "username", user.getUsername(),
-                "name", user.getName(),
-                "role", user.getRole()
-        ));
+        return ResponseEntity.ok()
+                .body(
+                        Map.of(
+                                "message", "로그인 성공",
+                                "username", user.getUsername(),
+                                "name", user.getName(),
+                                "role", user.getRole()));
     }
-
 
     // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리
     @PostMapping("/logout")
@@ -148,5 +154,3 @@ public class UserController {
         return ResponseEntity.ok("로그아웃 완료");
     }
 }
-
-
