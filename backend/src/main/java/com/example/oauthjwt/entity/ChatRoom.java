@@ -19,8 +19,6 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    private String roomName;
-
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
 
@@ -30,12 +28,21 @@ public class ChatRoom {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = true)
+//    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    @OneToOne
     @JoinColumn(name = "service_product_id", nullable = false)
     private ServiceProduct serviceProduct;
 
-    // Helper method to get participants
     public List<User> getParticipants() {
         return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
+    }
+
+    // Helper to add a user
+    public void addUser(User user, ChatRoomUserStatus status) {
+        ChatRoomUser chatRoomUser = new ChatRoomUser();
+        chatRoomUser.setChatRoom(this);
+        chatRoomUser.setUser(user);
+        chatRoomUser.setStatus(status);
+        chatRoomUsers.add(chatRoomUser);
     }
 }
