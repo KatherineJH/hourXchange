@@ -76,8 +76,8 @@ public class UserController {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setName(userDTO.getName());
+        user.setEmail(userDTO.getUsername()); // getEmail 대신 getUsername를 사용하면 유저는 한 번만 이메일을 입력해도 됨.
         user.setRole("ROLE_USER");
-        user.setEmail("");
 
         // 암호화된 비밀번호 저장
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
@@ -85,38 +85,6 @@ public class UserController {
         userRepository.save(user);
         return "회원가입 성공!";
     }
-
-    //    @PostMapping("/login")
-    //    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response)
-    // {
-    //        User user = userRepository.findByUsername(userDTO.getUsername());
-    //
-    //        if (user == null || !passwordEncoder.matches(userDTO.getPassword(),
-    // user.getPassword())) {
-    //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지
-    // 않습니다.");
-    //        }
-    //
-    //        // JWT 생성
-    //        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 1000L);
-    // // 1시간
-    //
-    //        // 쿠키로도 저장 (선택 사항)
-    //        Cookie cookie = new Cookie("Authorization", token);
-    //        cookie.setHttpOnly(true);
-    //        cookie.setPath("/");
-    //        cookie.setMaxAge(60 * 60);
-    //        response.addCookie(cookie);
-    //
-    //        // ✅ 토큰을 바디에도 포함시켜서 프론트가 직접 활용 가능하도록
-    //        return ResponseEntity.ok().body(Map.of(
-    //                "message", "로그인 성공",
-    //                "token", token,
-    //                "username", user.getUsername(),
-    //                "name", user.getName(),
-    //                "role", user.getRole()
-    //        ));
-    //    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
@@ -126,8 +94,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 1000L);
+        String token =
+                jwtUtil.createJwt(user.getUsername(), user.getRole().toString(), 60 * 60 * 1000L);
 
+        // token을 쿠키에 저장
         Cookie cookie = new Cookie("Authorization", token);
         cookie.setPath("/");
         cookie.setMaxAge(3600);

@@ -22,7 +22,7 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(() -> userDTO.getRole()); // 사용자 역할을 권한으로 설정
+        collection.add(() -> userDTO.getRole().toString()); // 사용자 역할을 권한으로 설정
         return collection;
     }
 

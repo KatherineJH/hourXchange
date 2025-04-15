@@ -24,5 +24,5 @@
 ## PR Checklist
 
 - [ ] ./gradlew spotlessApply
-- [ ] npx prettier -w "**/\*.html" "**/_.js" "\*\*/_.css"
+- [ ] npx prettier --write "**/\*.html" "**/_.js" "\*\*/_.css"
 - [ ] 변경 사항에 대한 테스트를 했습니다.(버그 수정/기능에 대한 테스트).
