@@ -4,6 +4,7 @@ import com.example.oauthjwt.config.SecurityConfig;
 import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.entity.UserRole;
+import com.example.oauthjwt.entity.UserStatus;
 import com.example.oauthjwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService{
                 .password(securityConfig.passwordEncoder().encode(userDTO.getPassword()))
                 .createdAt(LocalDateTime.now())
                 .credit(0)
+                .status(UserStatus.ACTIVE)
                 .role(UserRole.ROLE_USER)
                 .build();
 

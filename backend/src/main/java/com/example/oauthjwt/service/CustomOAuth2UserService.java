@@ -1,6 +1,7 @@
 package com.example.oauthjwt.service;
 
 import com.example.oauthjwt.entity.UserRole;
+import com.example.oauthjwt.entity.UserStatus;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -53,6 +54,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .email(oAuth2Response.getEmail()) // 이메일
                     .name(oAuth2Response.getName())
                     .createdAt(LocalDateTime.now())
+                    .status(UserStatus.ACTIVE)
                     .role(UserRole.ROLE_USER)
                     .build();
 
