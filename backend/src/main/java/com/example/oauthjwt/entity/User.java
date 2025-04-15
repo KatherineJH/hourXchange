@@ -53,6 +53,10 @@ public class User {
     //    @Column(nullable = false)
     //    private int credit;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
 
