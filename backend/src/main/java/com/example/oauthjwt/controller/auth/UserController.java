@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller.auth;
 
 import java.util.Map;
 
+import com.example.oauthjwt.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,67 +24,51 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
     // 로그인된 사용자 정보 반환
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
-        // 쿠키에서 JWT 토큰 가져오기
-        String token = getTokenFromCookies(request);
+//    @GetMapping("/me")
+//    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+//        // 쿠키에서 JWT 토큰 가져오기
+//        String token = jwtUtil.getTokenFromCookies(request);
+//
+//        // 토큰이 없으면 401 Unauthorized 반환
+//        if (token == null || jwtUtil.isExpired(token)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증이 만료되었습니다.");
+//        }
+//
+//        // 토큰에서 사용자 정보 추출
+//        String username = jwtUtil.getUsername(token);
+//
+//        // 사용자 정보 찾기
+//        User user = userRepository.findByUsername(username);
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+//        }
+//
+//        // 사용자 정보 반환 (UserDTO 형태로 반환할 수도 있음)
+//        UserDTO userDTO = new UserDTO();
+//        userDTO.setUsername(user.getUsername());
+//        userDTO.setName(user.getName());
+//        userDTO.setRole(user.getRole());
+//
+//        return ResponseEntity.ok(userDTO);
+//    }
 
-        // 토큰이 없으면 401 Unauthorized 반환
-        if (token == null || jwtUtil.isExpired(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증이 만료되었습니다.");
-        }
-
-        // 토큰에서 사용자 정보 추출
-        String username = jwtUtil.getUsername(token);
-
-        // 사용자 정보 찾기
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-        }
-
-        // 사용자 정보 반환 (UserDTO 형태로 반환할 수도 있음)
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(user.getUsername());
-        userDTO.setName(user.getName());
-        userDTO.setRole(user.getRole());
-
-        return ResponseEntity.ok(userDTO);
-    }
-
-    private String getTokenFromCookies(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     // ✅ 일반 회원가입 처리
     @PostMapping("/signup")
-    public String signup(@RequestBody UserDTO userDTO) {
-        if (userRepository.findByUsername(userDTO.getUsername()) != null) {
-            return "이미 존재하는 사용자입니다.";
+    public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
+        Map<String, String> userExistsCheckResult = userService.userExistsCheck(userDTO);
+        if(userExistsCheckResult.get("error") != null) { // 처리결과에 에러가 존재하는 경우
+            ResponseEntity.ok(userExistsCheckResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setName(userDTO.getName());
-        user.setEmail(userDTO.getUsername()); // getEmail 대신 getUsername를 사용하면 유저는 한 번만 이메일을 입력해도 됨.
-        user.setRole("ROLE_USER");
 
-        // 암호화된 비밀번호 저장
-        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
-        user.setPassword(encodedPassword);
-        userRepository.save(user);
-        return "회원가입 성공!";
+        UserDTO result = userService.signup(userDTO);
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/login")
