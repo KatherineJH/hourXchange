@@ -15,7 +15,7 @@ public class BoardImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String ImgUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

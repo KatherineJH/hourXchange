@@ -36,13 +36,13 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     // 비밀번호는 일반 로그인 사용자의 경우만 필요
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @JsonIgnore private Date birthdate;
