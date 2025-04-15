@@ -10,6 +10,8 @@ import com.example.oauthjwt.dto.*;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.UserRepository;
 
+import java.util.Collections;
+
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -56,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole("ROLE_USER");
 
-            return new CustomOAuth2User(userDTO);
+            return new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.
         } else {
 
             existData.setEmail(oAuth2Response.getEmail());
@@ -69,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole(existData.getRole());
 
-            return new CustomOAuth2User(userDTO);
+            return new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.
         }
     }
 }

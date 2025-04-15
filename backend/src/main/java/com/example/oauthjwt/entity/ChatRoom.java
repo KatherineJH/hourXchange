@@ -28,8 +28,7 @@ public class ChatRoom {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-//    @OneToOne(cascade = CascadeType.ALL, optional = true)
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_product_id", nullable = false)
     private ServiceProduct serviceProduct;
 
@@ -37,7 +36,6 @@ public class ChatRoom {
         return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
     }
 
-    // Helper to add a user
     public void addUser(User user, ChatRoomUserStatus status) {
         ChatRoomUser chatRoomUser = new ChatRoomUser();
         chatRoomUser.setChatRoom(this);

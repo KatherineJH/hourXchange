@@ -1,6 +1,7 @@
 package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -71,7 +72,7 @@ public class JWTFilter extends OncePerRequestFilter {
         userDTO.setRole(role);
 
         // UserDetails에 회원 정보 객체 담기
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.
         // 스프링 시큐리티 인증 토큰 생성
         Authentication authToken =
                 new UsernamePasswordAuthenticationToken(

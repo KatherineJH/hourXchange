@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationF
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 
 import com.example.oauthjwt.jwt.JWTFilter;
 import com.example.oauthjwt.jwt.JWTUtil;
@@ -107,5 +109,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * WebSocket 메시지 보안용
+     * */
+    @Bean
+    public MessageMatcherDelegatingAuthorizationManager messageAuthorizationManager() {
+        return (MessageMatcherDelegatingAuthorizationManager) MessageMatcherDelegatingAuthorizationManager.builder()
+                .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE)
+                .authenticated()
+                .anyMessage()
+                .denyAll()
+                .build();
     }
 }

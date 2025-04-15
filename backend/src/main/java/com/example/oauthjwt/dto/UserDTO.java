@@ -1,12 +1,15 @@
 package com.example.oauthjwt.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
 
+    private Long id;
     private String role;
     private String name;
     private String username;

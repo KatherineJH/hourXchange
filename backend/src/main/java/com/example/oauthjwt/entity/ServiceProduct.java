@@ -57,8 +57,12 @@ public class ServiceProduct {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
 
-    @OneToOne(mappedBy = "serviceProduct")
-    private ChatRoom chatRoom;
+//    @OneToOne(mappedBy = "serviceProduct")
+//    private ChatRoom chatRoom;
+
+    // Changed from @OneToOne to @OneToMany to allow multiple chat rooms
+    @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
     //    @PrePersist
     //    @PreUpdate

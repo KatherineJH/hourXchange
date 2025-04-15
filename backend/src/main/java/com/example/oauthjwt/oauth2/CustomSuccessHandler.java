@@ -47,7 +47,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // JWT 토큰을 쿠키로 전달
         response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:5173/");
+        // 잠시만 주석처리. 채팅 확인 때문.
+//        response.sendRedirect("http://localhost:5173/");
+        response.sendRedirect("http://localhost:8282/ws-test.html");
     }
 
     private Cookie createCookie(String key, String value) {
