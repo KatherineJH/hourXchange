@@ -1,0 +1,54 @@
+package com.example.oauthjwt.service;
+
+import com.example.oauthjwt.config.SecurityConfig;
+import com.example.oauthjwt.dto.UserDTO;
+import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.UserRole;
+import com.example.oauthjwt.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+@Log4j2
+public class UserServiceImpl implements UserService{
+    private final UserRepository userRepository;
+    private final SecurityConfig securityConfig;
+
+    @Override
+    public UserDTO signup(UserDTO userDTO){
+        User user = User.builder()
+                .email(userDTO.getEmail())
+                .username(userDTO.getUsername())
+                .name(userDTO.getName())
+                .password(securityConfig.passwordEncoder().encode(userDTO.getPassword()))
+                .createdAt(LocalDateTime.now())
+                .credit(0)
+                .role(UserRole.ROLE_USER)
+                .build();
+
+        User result = userRepository.save(user);
+
+        return UserDTO.builder()
+                .email(result.getEmail())
+                .username(result.getUsername())
+                .name(result.getName())
+                .password(result.getPassword())
+                .createdAt(result.getCreatedAt())
+                .credit(result.getCredit())
+                .role(result.getRole().toString())
+                .build();
+    }
+
+    @Override
+    public Map<String, String> userExistsCheck(UserDTO userDTO) {
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) { // 이메일로 조회한 정보가 존재하는 경우
+            return Map.of("error", "이미 존재하는 사용자입니다.");
+        }
+        return null;
+    }
+}

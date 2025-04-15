@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller.auth;
 import java.util.Map;
 
 import com.example.oauthjwt.service.UserService;
+import com.example.oauthjwt.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,33 +30,34 @@ public class UserController {
     private final JWTUtil jwtUtil;
 
     // 로그인된 사용자 정보 반환
-//    @GetMapping("/me")
-//    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
-//        // 쿠키에서 JWT 토큰 가져오기
-//        String token = jwtUtil.getTokenFromCookies(request);
-//
-//        // 토큰이 없으면 401 Unauthorized 반환
-//        if (token == null || jwtUtil.isExpired(token)) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증이 만료되었습니다.");
-//        }
-//
-//        // 토큰에서 사용자 정보 추출
-//        String username = jwtUtil.getUsername(token);
-//
-//        // 사용자 정보 찾기
-//        User user = userRepository.findByUsername(username);
-//        if (user == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-//        }
-//
-//        // 사용자 정보 반환 (UserDTO 형태로 반환할 수도 있음)
-//        UserDTO userDTO = new UserDTO();
-//        userDTO.setUsername(user.getUsername());
-//        userDTO.setName(user.getName());
-//        userDTO.setRole(user.getRole());
-//
-//        return ResponseEntity.ok(userDTO);
-//    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        // 쿠키에서 JWT 토큰 가져오기
+        String token = jwtUtil.getTokenFromCookies(request);
+
+        // 토큰이 없으면 401 Unauthorized 반환
+        if (token == null || jwtUtil.isExpired(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증이 만료되었습니다.");
+        }
+
+        // 토큰에서 사용자 정보 추출
+        String username = jwtUtil.getUsername(token);
+
+        // 사용자 정보 찾기
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+
+        // 사용자 정보 반환 (UserDTO 형태로 반환할 수도 있음)
+        UserDTO userDTO = UserDTO.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .role(user.getRole().toString())
+                .build();
+
+        return ResponseEntity.ok(userDTO);
+    }
 
 
     // ✅ 일반 회원가입 처리
@@ -65,7 +67,6 @@ public class UserController {
         if(userExistsCheckResult.get("error") != null) { // 처리결과에 에러가 존재하는 경우
             ResponseEntity.ok(userExistsCheckResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
-
         UserDTO result = userService.signup(userDTO);
 
         return ResponseEntity.ok(result);

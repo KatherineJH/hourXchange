@@ -64,7 +64,7 @@ public class JWTUtil {
                 .compact();
     }
 
-    private String getTokenFromCookies(HttpServletRequest request) {
+    public String getTokenFromCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -73,6 +73,7 @@ public class JWTUtil {
                 }
             }
         }
+
         return null;
     }
 }

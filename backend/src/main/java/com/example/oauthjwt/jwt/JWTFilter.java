@@ -37,6 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         // 🍪 Authorization 쿠키에서 토큰 가져오기
         String authorization = null;
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
