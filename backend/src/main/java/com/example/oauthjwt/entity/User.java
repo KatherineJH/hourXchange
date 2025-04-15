@@ -1,5 +1,6 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,18 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User {
-
-    //    @Id
-    //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //    private Long id;
-    //
-    //    private String username;
-
-    //    private String password;
-    //
-    //    private String email;
-    //
-    //    private String role;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,15 +36,15 @@ public class User {
 
     @JsonIgnore private Date birthdate;
 
-    //    @Column(nullable = false)
-    //    private LocalDateTime createdAt;
-    //
-    //    @Column(nullable = false)
-    //    private int credit;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private int credit;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserStatus status=UserStatus.ACTIVE; //nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
+    private UserStatus status = UserStatus.ACTIVE; // nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
