@@ -1,13 +1,13 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -19,7 +19,7 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private String roomName;
+    //    private String roomName;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
@@ -36,8 +36,6 @@ public class ChatRoom {
 
     // Helper method to get participants
     public List<User> getParticipants() {
-        return chatRoomUsers.stream()
-                .map(ChatRoomUser::getUser)
-                .toList();
+        return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
     }
 }

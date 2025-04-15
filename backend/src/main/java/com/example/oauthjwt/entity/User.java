@@ -1,31 +1,31 @@
 package com.example.oauthjwt.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 public class User {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-//
-//    private String username;
+    //    @Id
+    //    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //    private Long id;
+    //
+    //    private String username;
 
-//    private String password;
-//
-//    private String email;
-//
-//    private String role;
+    //    private String password;
+    //
+    //    private String email;
+    //
+    //    private String role;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,14 +45,13 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    @JsonIgnore
-    private Date birthdate;
+    @JsonIgnore private Date birthdate;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(nullable = false)
-//    private int credit;
+    //    @Column(nullable = false)
+    //    private LocalDateTime createdAt;
+    //
+    //    @Column(nullable = false)
+    //    private int credit;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
@@ -66,8 +65,6 @@ public class User {
 
     // Helper method to get chat rooms
     public List<ChatRoom> getChatRooms() {
-        return chatRoomUsers.stream()
-                .map(ChatRoomUser::getChatRoom)
-                .toList();
+        return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
     }
 }
