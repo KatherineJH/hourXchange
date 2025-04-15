@@ -1,5 +1,6 @@
 package com.example.oauthjwt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,18 +34,18 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private USER_TYPE role;
+    private String role;
 
     @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    // 비밀번호는 일반 로그인 사용자의 경우만 필요
     private String password;
 
     @Column(nullable = false)
     private String email;
 
+    @JsonIgnore
     private Date birthdate;
 
 //    @Column(nullable = false)
@@ -53,8 +54,7 @@ public class User {
 //    @Column(nullable = false)
 //    private int credit;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
 
     // single user can have multiple reviews, but each review belongs to a single user

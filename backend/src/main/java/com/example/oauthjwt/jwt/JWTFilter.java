@@ -2,7 +2,6 @@ package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
 
-import com.example.oauthjwt.entity.USER_TYPE;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,7 +68,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // 사용자 정보 생성 후, 스프링 시큐리티 인증 객체 생성
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername(username);
-        userDTO.setRole(USER_TYPE.USER);
+        userDTO.setRole(role);
 
         // UserDetails에 회원 정보 객체 담기
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
