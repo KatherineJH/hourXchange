@@ -11,13 +11,13 @@ function App() {
   return (
     <>
     <ThemeProvider theme={Theme}>
-            <CssBaseline />
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/email-login" element={<EmailLoginForm />} />
-      </Routes>
+        <CssBaseline />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/email-login" element={<EmailLoginForm />} />
+        </Routes>
       </ThemeProvider>
     </>
   );

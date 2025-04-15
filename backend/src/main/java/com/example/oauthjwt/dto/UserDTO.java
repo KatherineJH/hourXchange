@@ -1,12 +1,14 @@
 package com.example.oauthjwt.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class UserDTO {
 
     private Long id;
@@ -15,4 +17,6 @@ public class UserDTO {
     private String username;
     private String password;
     private String email;
+    private LocalDateTime createdAt;
+    private int credit;
 }

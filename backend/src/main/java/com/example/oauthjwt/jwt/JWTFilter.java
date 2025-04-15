@@ -38,6 +38,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         // 🍪 Authorization 쿠키에서 토큰 가져오기
         String authorization = null;
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -67,9 +68,10 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(authorization);
 
         // 사용자 정보 생성 후, 스프링 시큐리티 인증 객체 생성
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(username);
-        userDTO.setRole(role);
+        UserDTO userDTO = UserDTO.builder()
+                .username(username)
+                .role(role)
+                .build();
 
         // UserDetails에 회원 정보 객체 담기
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.

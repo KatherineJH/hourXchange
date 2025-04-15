@@ -1,5 +1,8 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.entity.UserRole;
+import com.example.oauthjwt.entity.UserStatus;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -10,9 +13,11 @@ import com.example.oauthjwt.dto.*;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.UserRepository;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
+@Log4j2
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
@@ -26,7 +31,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        System.out.println(oAuth2User);
+        log.info(oAuth2User);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
@@ -40,36 +45,41 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return null;
         }
-        String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
-        User existData = userRepository.findByUsername(username);
 
-        if (existData == null) {
+        Optional<User> existData = userRepository.findByEmail(oAuth2Response.getEmail()); // 이메일을 기준으로 조회
 
-            User user = new User();
-            user.setUsername(username);
-            user.setEmail(oAuth2Response.getEmail());
-            user.setName(oAuth2Response.getName());
-            user.setRole("ROLE_USER");
+        if (existData.isEmpty()) { // 테이블에 유저가 없으면
+            User user = User.builder()
+                    .username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
+                    .email(oAuth2Response.getEmail()) // 이메일
+                    .name(oAuth2Response.getName())
+                    .createdAt(LocalDateTime.now())
+                    .status(UserStatus.ACTIVE)
+                    .role(UserRole.ROLE_USER)
+                    .build();
 
-            userRepository.save(user);
+            User result = userRepository.save(user); // 저장 결과
 
-            UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(username);
-            userDTO.setName(oAuth2Response.getName());
-            userDTO.setRole("ROLE_USER");
+            UserDTO userDTO = UserDTO.builder() // 반환값 설정
+                    .username(result.getUsername())
+                    .name(result.getName())
+                    .role(result.getRole().toString())
+                    .build();
 
-            return new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.
-        } else {
+            return new CustomOAuth2User(userDTO);
+        } else { // 있으면 최신화
+            User existUser = existData.get(); // 존재하는 정보 get()
 
-            existData.setEmail(oAuth2Response.getEmail());
-            existData.setName(oAuth2Response.getName());
+            existUser.setEmail(oAuth2Response.getEmail()); // 이메일
+            existUser.setName(oAuth2Response.getName()); // 이름 최신화
 
-            userRepository.save(existData);
+            User result = userRepository.save(existUser); // 저장 결과
 
-            UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(existData.getUsername());
-            userDTO.setName(oAuth2Response.getName());
-            userDTO.setRole(existData.getRole());
+            UserDTO userDTO = UserDTO.builder() // 반환값 설정
+                    .username(result.getUsername())
+                    .name(result.getName())
+                    .role(result.getRole().toString())
+                    .build();
 
             return new CustomOAuth2User(userDTO, Collections.emptyMap()); // 채팅 테스트 때문에 Parameter 개수 늘어난 것에 대한 처리.
         }
