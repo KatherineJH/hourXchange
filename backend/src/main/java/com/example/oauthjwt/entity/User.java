@@ -55,7 +55,7 @@ public class User {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private UserStatus status=UserStatus.ACTIVE; //nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
