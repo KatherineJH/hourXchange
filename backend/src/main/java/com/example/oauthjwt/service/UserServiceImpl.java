@@ -11,6 +11,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 @Service
@@ -48,9 +50,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Map<String, String> userExistsCheck(UserDTO userDTO) {
-        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) { // 이메일로 조회한 정보가 존재하는 경우
+        if (userRepository.existsByEmail(userDTO.getEmail())) { // 이메일로 조회한 정보가 존재하는 경우
             return Map.of("error", "이미 존재하는 사용자입니다.");
         }
-        return null;
+        return Collections.emptyMap();
     }
 }

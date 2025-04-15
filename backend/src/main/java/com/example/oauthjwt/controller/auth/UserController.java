@@ -50,13 +50,13 @@ public class UserController {
         }
 
         // 사용자 정보 반환 (UserDTO 형태로 반환할 수도 있음)
-        UserDTO userDTO = UserDTO.builder()
+        UserDTO result = UserDTO.builder()
                 .username(user.getUsername())
                 .name(user.getName())
                 .role(user.getRole().toString())
                 .build();
 
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(result);
     }
 
 
@@ -64,7 +64,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
         Map<String, String> userExistsCheckResult = userService.userExistsCheck(userDTO);
-        if(userExistsCheckResult.get("error") != null) { // 처리결과에 에러가 존재하는 경우
+        if(userExistsCheckResult.isEmpty()) { // 처리결과에 에러가 존재하는 경우
             ResponseEntity.ok(userExistsCheckResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
         UserDTO result = userService.signup(userDTO);
