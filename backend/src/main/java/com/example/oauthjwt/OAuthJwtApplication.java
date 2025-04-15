@@ -10,3 +10,4 @@ public class OAuthJwtApplication {
         SpringApplication.run(OAuthJwtApplication.class, args);
     }
 }
+

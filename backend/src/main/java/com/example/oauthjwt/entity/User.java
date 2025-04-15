@@ -8,12 +8,14 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -23,7 +25,8 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(nullable = false, unique = true)
     private String username;
