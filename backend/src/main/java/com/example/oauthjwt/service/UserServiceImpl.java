@@ -49,9 +49,17 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Map<String, String> userExistsCheck(UserDTO userDTO) {
-        if (userRepository.existsByEmail(userDTO.getEmail())) { // 이메일로 조회한 정보가 존재하는 경우
-            return Map.of("error", "이미 존재하는 사용자입니다.");
+    public Map<String, String> notExistsByEmail(String email) {
+        if (userRepository.existsByEmail(email)) { // 이메일로 조회한 정보가 존재하는 경우
+            return Map.of("error", "해당 이메일은 이미 사용중입니다.");
+        }
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, String> existsById(Long id) {
+        if (!userRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
+            return Map.of("error", "사용자를 찾을 수 없습니다.");
         }
         return Collections.emptyMap();
     }

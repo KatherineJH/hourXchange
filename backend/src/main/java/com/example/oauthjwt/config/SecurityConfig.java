@@ -90,7 +90,7 @@ public class SecurityConfig {
         // 인가 설정
         http.authorizeHttpRequests(
                 auth ->
-                        auth.requestMatchers("/", "/api/auth/**")
+                        auth.requestMatchers("/", "/api/auth/**", "/api/serviceProduct/**")
                                 .permitAll()
                                 .requestMatchers("/my")
                                 .hasRole("USER")
