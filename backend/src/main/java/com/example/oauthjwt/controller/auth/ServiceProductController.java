@@ -3,7 +3,7 @@ package com.example.oauthjwt.controller.auth;
 import com.example.oauthjwt.dto.ServiceProductDTO;
 import com.example.oauthjwt.entity.ProviderType;
 import com.example.oauthjwt.service.CategoryService;
-import com.example.oauthjwt.service.SPImageService;
+import com.example.oauthjwt.service.SPImageServiceImpl;
 import com.example.oauthjwt.service.ServiceProductService;
 import com.example.oauthjwt.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -25,7 +24,7 @@ public class ServiceProductController {
     private final ServiceProductService serviceProductService;
     private final CategoryService categoryService;
     private final UserService userService;
-    private final SPImageService spImageService;
+    private final SPImageServiceImpl spImageServiceImpl;
 
     @PostMapping("/")
     public ResponseEntity<?> save(@RequestBody ServiceProductDTO serviceProductDTO) {
@@ -42,7 +41,7 @@ public class ServiceProductController {
         }
         // 이미지 주소 조회
         for(int i = 0; i < serviceProductDTO.getImages().size(); i++){
-            Map<String, String> existsByImgUrlCheck = spImageService.existsByImgUrl(serviceProductDTO.getImages().get(i));
+            Map<String, String> existsByImgUrlCheck = spImageServiceImpl.existsByImgUrl(serviceProductDTO.getImages().get(i));
             if(!existsByImgUrlCheck.isEmpty()){
                 return ResponseEntity.badRequest().body(existsByImgUrlCheck);
             }
