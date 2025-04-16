@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ServiceProduct {
 
     @Id
@@ -25,8 +29,8 @@ public class ServiceProduct {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
-    private String imgUrl;
+//    @Column(nullable = false) // 아래 이미지 리스트로 입력받음
+//    private String imgUrl;
 
     @Column(nullable = false)
     private int hours;
@@ -48,13 +52,15 @@ public class ServiceProduct {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProviderType providerType; // SP 글쓴이 타입
+    private ProviderType providerType; // SP 타입 (구매, 판매)
 
     @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<SPImage> images = new ArrayList<>();
 
     // single transaction can have multiple service products
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
 
     @OneToOne(mappedBy = "serviceProduct")

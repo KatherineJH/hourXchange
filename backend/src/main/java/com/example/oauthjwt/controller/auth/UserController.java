@@ -63,9 +63,9 @@ public class UserController {
     // ✅ 일반 회원가입 처리
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
-        Map<String, String> userExistsCheckResult = userService.userExistsCheck(userDTO);
-        if(userExistsCheckResult.isEmpty()) { // 처리결과에 에러가 존재하는 경우
-            ResponseEntity.ok(userExistsCheckResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
+        Map<String, String> notExistsByEmailResult = userService.notExistsByEmail(userDTO.getEmail());
+        if(!notExistsByEmailResult.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
+            ResponseEntity.badRequest().body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
         UserDTO result = userService.signup(userDTO);
 

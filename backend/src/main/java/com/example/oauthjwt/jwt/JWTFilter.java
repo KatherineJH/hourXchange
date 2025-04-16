@@ -25,6 +25,17 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
+        String path = request.getRequestURI();
+
+        if(path.startsWith("/api/serviceProduct/")){ // 서비스 제품은 토큰검사 x
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

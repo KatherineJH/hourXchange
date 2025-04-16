@@ -1,14 +1,11 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.UserDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-public interface UserService {
+public interface CategoryService {
 
-    UserDTO signup(UserDTO userDTO);
-    Map<String, String> notExistsByEmail(String email);
     Map<String, String> existsById(Long id);
 }
