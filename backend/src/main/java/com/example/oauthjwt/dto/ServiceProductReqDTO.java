@@ -1,8 +1,9 @@
 package com.example.oauthjwt.dto;
 
-import com.example.oauthjwt.entity.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
@@ -10,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ServiceProductDTO {
-
-    private Long id; // id값
+public class ServiceProductReqDTO {
 
     private String title; // 제목
 
@@ -27,11 +28,7 @@ public class ServiceProductDTO {
 
     private Long ownerId; // 작성자 id
 
-    private UserDTO owner; // 작성자
-
     private Long categoryId; // 서비스 카테고리 id
-
-    private CategoryDTO category; // 서비스 카테고리
 
     private String providerType; // SP 타입 (구매, 판매)
 

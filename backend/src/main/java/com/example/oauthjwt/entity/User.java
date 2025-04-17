@@ -1,8 +1,8 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,7 +37,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @JsonIgnore private Date birthdate;
+    @JsonIgnore
+    private LocalDate birthdate;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

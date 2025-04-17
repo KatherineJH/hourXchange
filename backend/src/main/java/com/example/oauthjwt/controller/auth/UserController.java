@@ -3,7 +3,6 @@ package com.example.oauthjwt.controller.auth;
 import java.util.Map;
 
 import com.example.oauthjwt.service.UserService;
-import com.example.oauthjwt.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,9 +62,9 @@ public class UserController {
     // ✅ 일반 회원가입 처리
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
-        Map<String, String> notExistsByEmailResult = userService.notExistsByEmail(userDTO.getEmail());
-        if(!notExistsByEmailResult.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
-            ResponseEntity.badRequest().body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
+        Map<String, String> userCheck = userService.notExistsByEmail(userDTO.getEmail());
+        if(!userCheck.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
+            ResponseEntity.badRequest().body(userCheck); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
         UserDTO result = userService.signup(userDTO);
 
