@@ -3,7 +3,6 @@ package com.example.oauthjwt.controller.auth;
 import java.util.Map;
 
 import com.example.oauthjwt.service.UserService;
-import com.example.oauthjwt.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,7 +43,7 @@ public class UserController {
         String username = jwtUtil.getUsername(token);
 
         // 사용자 정보 찾기
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
@@ -65,7 +64,7 @@ public class UserController {
     public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
         Map<String, String> notExistsByEmailResult = userService.notExistsByEmail(userDTO.getEmail());
         if(!notExistsByEmailResult.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
-            ResponseEntity.badRequest().body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
+            return ResponseEntity.badRequest().body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
         }
         UserDTO result = userService.signup(userDTO);
 
@@ -74,7 +73,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
-        User user = userRepository.findByUsername(userDTO.getUsername());
+        User user = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
 
         if (user == null || !passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");

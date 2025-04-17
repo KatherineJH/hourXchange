@@ -1,10 +1,15 @@
 package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
 
+import com.example.oauthjwt.service.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.oauthjwt.dto.CustomOAuth2User;
@@ -19,9 +24,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-    public JWTFilter(JWTUtil jwtUtil) {
+    public JWTFilter(JWTUtil jwtUtil, CustomUserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -29,10 +36,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if(path.startsWith("/api/serviceProduct/")){ // 서비스 제품은 토큰검사 x
-            return true;
-        }
-        return false;
+        // ✅ 다음 경로들은 JWT 인증 없이 통과
+        return Stream.of("/api/auth/", "/api/serviceProduct/")
+                .anyMatch(path::startsWith); // simplify if-else
     }
 
     @Override
@@ -75,24 +81,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // ✅ 유효한 토큰 → 사용자 정보 추출
         String username = jwtUtil.getUsername(authorization);
-        String role = jwtUtil.getRole(authorization);
-
-        // 사용자 정보 생성 후, 스프링 시큐리티 인증 객체 생성
-        UserDTO userDTO = UserDTO.builder()
-                .username(username)
-                .role(role)
-                .build();
-
-        // UserDetails에 회원 정보 객체 담기
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-        // 스프링 시큐리티 인증 토큰 생성
+        // loadUserByUsername이 유저 정보를 조회할 수 있게 함
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         Authentication authToken =
                 new UsernamePasswordAuthenticationToken(
-                        customOAuth2User, null, customOAuth2User.getAuthorities());
+                        userDetails, null, userDetails.getAuthorities());
 
-        // 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
         filterChain.doFilter(request, response);
     }
 }

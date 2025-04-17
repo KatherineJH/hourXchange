@@ -3,6 +3,7 @@ package com.example.oauthjwt.config;
 import java.util.Collections;
 import java.util.List;
 
+import com.example.oauthjwt.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,15 +29,17 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(
             CustomOAuth2UserService customOAuth2UserService,
-            CustomSuccessHandler customSuccessHandler,
+            CustomSuccessHandler customSuccessHandler, CustomUserDetailsService customUserDetailsService,
             JWTUtil jwtUtil) {
 
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
+        this.customUserDetailsService = customUserDetailsService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -85,7 +88,7 @@ public class SecurityConfig {
                 );
 
         // ✅ JWTFilter를 OAuth2 인증 필터 뒤에 추가 (중요)
-        http.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
 
         // 인가 설정
         http.authorizeHttpRequests(
