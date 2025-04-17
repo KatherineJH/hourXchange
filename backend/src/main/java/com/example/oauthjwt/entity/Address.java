@@ -11,26 +11,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Address {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String streetAddress; // 도로명 주소
+  @Column(nullable = false)
+  private String streetAddress; // 도로명 주소
 
-    @Column(nullable = false)
-    private String city; // 고양시
+  @Column(nullable = false)
+  private String city; // 고양시
 
-    @Column(nullable = false)
-    private String state; // 경기도
+  @Column(nullable = false)
+  private String state; // 경기도
 
-    @Column(nullable = false)
-    private String postalCode; // 우편번호
+  @Column(nullable = false)
+  private String postalCode; // 우편번호
 
-    @Column(nullable = false)
-    private String country; // 국가명
+  @Column(nullable = false)
+  private String country; // 국가명
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "user_id")
+  private User user;
 }

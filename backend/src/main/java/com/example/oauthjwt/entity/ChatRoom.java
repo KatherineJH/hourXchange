@@ -17,27 +17,27 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChatRoom {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    //    private String roomName;
+  //    private String roomName;
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
+  @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> messages = new ArrayList<>();
+  @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ChatMessage> messages = new ArrayList<>();
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+  @Column(nullable = false)
+  private LocalDateTime createdAt;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = true)
-    @JoinColumn(name = "service_product_id", nullable = false)
-    private ServiceProduct serviceProduct;
+  @OneToOne(cascade = CascadeType.ALL, optional = true)
+  @JoinColumn(name = "service_product_id", nullable = false)
+  private ServiceProduct serviceProduct;
 
-    // Helper method to get participants
-    public List<User> getParticipants() {
-        return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
-    }
+  // Helper method to get participants
+  public List<User> getParticipants() {
+    return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
+  }
 }
