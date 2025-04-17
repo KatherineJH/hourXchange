@@ -51,35 +51,35 @@ public class AuthController {
     try {
       userDetails = customUserDetailsService.loadUserByUsername(userDTO.getEmail());
     } catch (UsernameNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(Map.of("error", "Invalid email or password"));
     }
 
     if (!passwordEncoder.matches(userDTO.getPassword(), userDetails.getPassword())) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(Map.of("error", "Invalid email or password"));
     }
 
-    String token =
-        jwtUtil.createJwt(
+    String token = jwtUtil.createJwt(
             userDetails.getUsername(),
             userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
             60 * 60 * 1000L);
 
     Cookie cookie = new Cookie("Authorization", token);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
     cookie.setPath("/");
     cookie.setMaxAge(3600);
-    cookie.setHttpOnly(true);
+    cookie.setDomain("localhost");
+    cookie.setAttribute("SameSite", "Lax");
     response.addCookie(cookie);
 
     return ResponseEntity.ok(
-        Map.of(
-            "message",
-            "로그인 성공",
-            "username",
-            userDetails.getUsername(),
-            "role",
-            userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
-            "token",
-            token));
+            Map.of(
+                    "message", "로그인 성공",
+                    "username", userDetails.getUsername(),
+                    "role", userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
+                    "token", token));
   }
 
   // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리

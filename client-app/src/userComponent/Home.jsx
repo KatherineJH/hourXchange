@@ -37,7 +37,8 @@ function Home() {
         <p>사용자 정보를 불러오는 중...</p>
       ) : error ? (
         <p style={{ color: "red" }}>
-          로그인된 사용자 정보를 가져오지 못했습니다: {error}
+          로그인된 사용자 정보를 가져오지 못했습니다:{" "}
+          {typeof error === "string" ? error : JSON.stringify(error)}
         </p>
       ) : user ? (
         <div>

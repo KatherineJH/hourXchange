@@ -18,7 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/email-login" element={<EmailLoginForm />} />
-          <Route path="/chat-room/:id" element={<ChatRoom />} />
+          <Route path="/chat-room/:chatRoomId" element={<ChatRoom />} />
         </Routes>
       </ThemeProvider>
     </>

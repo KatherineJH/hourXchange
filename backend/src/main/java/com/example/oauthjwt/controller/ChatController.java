@@ -8,6 +8,7 @@ import com.example.oauthjwt.entity.ChatRoomUserStatus;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -17,8 +18,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
@@ -31,13 +34,12 @@ public class ChatController {
     public void sendMessage(
             @Payload ChatMessageDTO messageDTO, SimpMessageHeaderAccessor headerAccessor) {
         String username = (String) headerAccessor.getSessionAttributes().get("userId");
-        System.out.println("📩 Received Message: " + messageDTO.getContent() + " from " + username);
-        ChatMessage savedMessage =
-                chatService.saveMessage(
-                        messageDTO.getChatRoomId(),
-                        chatService.getUserIdByUsername(username),
-                        messageDTO.getContent(),
-                        messageDTO.getType());
+        log.info("📩 Received Message: {} from {}", messageDTO.getContent(), username);
+        ChatMessage savedMessage = chatService.saveMessage(
+                messageDTO.getChatRoomId(),
+                chatService.getUserIdByUsername(username),
+                messageDTO.getContent(),
+                messageDTO.getType());
 
         messageDTO.setSenderUsername(username);
         messagingTemplate.convertAndSend("/topic/room/" + messageDTO.getChatRoomId(), messageDTO);
@@ -45,14 +47,38 @@ public class ChatController {
 
     @MessageMapping("/chat.addUser")
     public void addUser(
-            @Payload ChatMessageDTO messageDTO, SimpMessageHeaderAccessor headerAccessor) {
-        String username = (String) headerAccessor.getSessionAttributes().get("userId");
-        headerAccessor.getSessionAttributes().put("userId", username);
+            @Payload ChatMessageDTO messageDTO,
+            SimpMessageHeaderAccessor headerAccessor) {
+
+        Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
+        if (sessionAttributes == null) {
+            log.error("❌ WebSocket 세션 속성이 null입니다.");
+            return;
+        }
+
+        String username = (String) sessionAttributes.get("userId");
+        if (username == null) {
+            log.error("❌ WebSocket 세션에 userId 없음.");
+            return;
+        }
+
+        Long chatRoomId = messageDTO.getChatRoomId();
+        if (chatRoomId == null) {
+            log.error("❌ 클라이언트에서 chatRoomId 누락됨.");
+            return;
+        }
+
+        // 세션에 저장
+        sessionAttributes.put("chatRoomId", chatRoomId);
+
         messageDTO.setSenderUsername(username);
-        messageDTO.setType(ChatRoomUserStatus.JOIN); // ✅ 입장 메시지 타입 지정
+        messageDTO.setType(ChatRoomUserStatus.JOIN);
         messageDTO.setContent(username + "님이 입장하셨습니다.");
-        messagingTemplate.convertAndSend("/topic/room/" + messageDTO.getChatRoomId(), messageDTO);
+
+        messagingTemplate.convertAndSend("/topic/room/" + chatRoomId, messageDTO);
+        log.info("🚪 {} 입장 메시지 브로드캐스트 완료", username);
     }
+
 
     @PostMapping("/initiate/{postId}")
     public ResponseEntity<ChatRoomDTO> initiateChat(

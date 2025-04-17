@@ -87,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Long getUserIdByUsername(String username) {
         return userRepository
-                .findByUsername(username)
+                .findByEmail(username)
                 .map(User::getId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
