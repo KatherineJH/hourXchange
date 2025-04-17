@@ -34,7 +34,6 @@ public class ChatRoom {
     @JoinColumn(name = "service_product_id", nullable = false)
     private ServiceProduct serviceProduct;
 
-    // Helper method to get participants
     public List<User> getParticipants() {
         Set<User> participants = new HashSet<>();
         for (ChatRoomUser cru : chatRoomUsers) {

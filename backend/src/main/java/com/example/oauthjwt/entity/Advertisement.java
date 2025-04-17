@@ -11,18 +11,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Advertisement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    private String description;
+  private String description;
 
-    @Column(nullable = false)
-    private int hours;
+  @Column(nullable = false)
+  private int hours;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User owner;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private User owner;
 }

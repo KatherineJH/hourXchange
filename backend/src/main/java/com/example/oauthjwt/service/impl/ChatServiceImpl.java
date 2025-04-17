@@ -39,8 +39,14 @@ public class ChatServiceImpl implements ChatService {
             return existingChatters.get().getChatRoom();
         }
 
+        // 💬 이름 생성
+        String chatRoomName = requester.getName() + " × " + serviceProduct.getOwner().getName();
+
         // 새로운 채팅방 생성
-        ChatRoom chatRoom = ChatRoom.builder().build();
+        ChatRoom chatRoom = ChatRoom.builder()
+                .name(chatRoomName)
+                .serviceProduct(serviceProduct) // 반드시 필요함
+                .build();
         chatRoom = chatRoomRepository.save(chatRoom);
 
         // Chatters 생성
@@ -84,5 +90,10 @@ public class ChatServiceImpl implements ChatService {
                 .findByUsername(username)
                 .map(User::getId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    @Override
+    public List<ChatRoom> findChatRoomsByUserId(Long userId) {
+        return chatRoomRepository.findChatRoomsByUserId(userId);
     }
 }

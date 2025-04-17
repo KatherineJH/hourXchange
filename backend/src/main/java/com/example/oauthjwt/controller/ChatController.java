@@ -6,12 +6,14 @@ import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.entity.ChatRoomUserStatus;
 import com.example.oauthjwt.service.ChatService;
+import com.example.oauthjwt.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,5 +80,37 @@ public class ChatController {
                                                 .build())
                         .collect(Collectors.toList());
         return ResponseEntity.ok(messageDTOs);
+    }
+
+//    @GetMapping("/rooms")
+//    public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(@RequestParam Long userId) {
+//        List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
+//        List<ChatRoomDTO> result = chatRooms.stream()
+//                .map(room -> ChatRoomDTO.builder()
+//                        .id(room.getId())
+//                        .name(room.getName())
+//                        .serviceProductId(room.getServiceProduct().getId())
+//                        .createdAt(room.getCreatedAt())
+//                        .build())
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(result);
+//    }
+
+    @GetMapping("/rooms")
+    public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+
+        List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
+        List<ChatRoomDTO> result = chatRooms.stream()
+                .map(room -> ChatRoomDTO.builder()
+                        .id(room.getId())
+                        .name(room.getName())
+                        .serviceProductId(room.getServiceProduct().getId())
+                        .createdAt(room.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
 }

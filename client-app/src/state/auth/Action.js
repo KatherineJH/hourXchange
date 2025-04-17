@@ -5,10 +5,10 @@ import api from "../Api";
 // 이메일 로그인 액션
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await api.post("/api/auth/login", {
-        username,
+        email,
         password,
       });
       return response.data;
@@ -36,7 +36,7 @@ export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("/api/auth/me");
+      const response = await api.get("/api/user/me");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "사용자 정보 조회 실패");

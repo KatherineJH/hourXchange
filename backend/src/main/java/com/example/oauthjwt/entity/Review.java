@@ -13,24 +13,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Review {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+  @Column(nullable = false)
+  private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private String content;
+  @Column(nullable = false)
+  private String content;
 
-    @Column(name = "rating", nullable = false)
-    private int rates;
+  @Column(name = "rating", nullable = false)
+  private int rates;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_id", nullable = false)
-    private User reviewer;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "reviewer_id", nullable = false)
+  private User reviewer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private ServiceProduct serviceProduct;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id", nullable = false)
+  private ServiceProduct serviceProduct;
 }

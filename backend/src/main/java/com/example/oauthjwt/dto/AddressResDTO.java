@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto;
 
 import com.example.oauthjwt.entity.Address;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,26 +12,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AddressResDTO {
-    private Long id;
+  private Long id;
 
-    private String streetAddress; // 도로명 주소
+  private String streetAddress; // 도로명 주소
 
-    private String city; // 고양시
+  private String city; // 고양시
 
-    private String state; // 경기도
+  private String state; // 경기도
 
-    private String postalCode; // 우편번호
+  private String postalCode; // 우편번호
 
-    private String country; // 국가명
+  private String country; // 국가명
 
-    public static AddressResDTO toDto(Address address) {
-        return address == null ? null : AddressResDTO.builder()
-                .id(address.getId())
-                .streetAddress(address.getStreetAddress())
-                .city(address.getCity())
-                .state(address.getState())
-                .postalCode(address.getPostalCode())
-                .country(address.getCountry())
-                .build();
-    }
+  public static AddressResDTO toDto(Address address) {
+    return address == null
+        ? null
+        : AddressResDTO.builder()
+            .id(address.getId())
+            .streetAddress(address.getStreetAddress())
+            .city(address.getCity())
+            .state(address.getState())
+            .postalCode(address.getPostalCode())
+            .country(address.getCountry())
+            .build();
+  }
 }

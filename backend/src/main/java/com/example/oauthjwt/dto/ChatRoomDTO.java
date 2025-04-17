@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,5 +13,6 @@ import java.util.List;
 public class ChatRoomDTO {
     private Long id;
     private String name;
-    private List<String> participants;
+    private Long serviceProductId;
+    private LocalDateTime createdAt;
 }
