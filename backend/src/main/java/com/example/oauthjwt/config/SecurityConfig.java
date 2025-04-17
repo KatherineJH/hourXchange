@@ -3,12 +3,10 @@ package com.example.oauthjwt.config;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +22,6 @@ import com.example.oauthjwt.service.CustomOAuth2UserService;
 import com.example.oauthjwt.service.CustomUserDetailsService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -51,40 +48,28 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     // CORS 설정
-    http.cors(corsCustomizer -> corsCustomizer.configurationSource(
-            new CorsConfigurationSource() {
-              @Override
-              public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-                config.setAllowCredentials(true);
-                config.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
-                config.setMaxAge(3600L);
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-                return config;
-              }
-            }));
+    http.cors(
+        corsCustomizer ->
+            corsCustomizer.configurationSource(
+                new CorsConfigurationSource() {
+                  @Override
+                  public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                    config.setAllowedMethods(Collections.singletonList("*")); // 모든 HTTP 메소드 허용
+                    config.setAllowCredentials(true); // 자격 증명 허용
+                    config.setAllowedHeaders(Collections.singletonList("*"));
+                    config.setExposedHeaders(
+                        List.of("Set-Cookie", "Authorization")); // 클라이언트에 노출할 헤더 설정
+                    config.setMaxAge(3600L); // 캐시 최대 시간 설정 (1시간)
+                    return config;
+                  }
+                }));
 
     // CSRF, 기본 로그인 방식 비활성화 (JWT 사용을 위한 설정)
     http.csrf(csrf -> csrf.disable());
     http.formLogin(form -> form.disable());
     http.httpBasic(basic -> basic.disable());
-
-    // ✅ 예외 처리 (핵심 추가 부분)
-    http.exceptionHandling(exception -> exception
-            .authenticationEntryPoint((request, response, authException) -> {
-              response.setContentType("application/json");
-              response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-              response.getWriter().write("{\"error\": \"Unauthorized\"}");
-            })
-            .accessDeniedHandler((request, response, accessDeniedException) -> {
-              response.setContentType("application/json");
-              response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-              response.getWriter().write("{\"error\": \"Forbidden\"}");
-            }));
 
     // OAuth2 설정
     http.oauth2Login(
@@ -103,10 +88,13 @@ public class SecurityConfig {
 
     // 인가 설정
     http.authorizeHttpRequests(
-        auth ->auth
-                .requestMatchers("/", "/api/auth/**", "/oauth2/**", "/login")
+        auth ->
+            auth.requestMatchers("/", "/api/auth/**") // 처음과 같이 변경
                 .permitAll()
-                .requestMatchers("/api/user/**", "/api/chat/**").authenticated()
+                .requestMatchers("/my")
+                .hasRole("USER")
+                .requestMatchers("/api/user/**")
+                .authenticated()
                 .anyRequest()
                 .authenticated());
 
@@ -120,11 +108,5 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  // ✅ "/ws/**" 처리에 대한 추천 방식
-  @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-    return (web) -> web.ignoring().requestMatchers("/ws/**");
   }
 }

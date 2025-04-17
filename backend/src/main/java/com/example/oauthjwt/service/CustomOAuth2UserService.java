@@ -10,6 +10,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.*;
+import com.example.oauthjwt.dto.response.GoogleResponse;
+import com.example.oauthjwt.dto.response.NaverResponse;
+import com.example.oauthjwt.dto.response.OAuth2Response;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.entity.UserRole;
 import com.example.oauthjwt.entity.UserStatus;

@@ -2,6 +2,7 @@ package com.example.oauthjwt.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,7 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -74,5 +75,23 @@ public class JWTUtil {
     }
 
     return null;
+  }
+
+  public Map<String, Object> validateToken(String token) {
+    Map<String, Object> claims = null;
+
+    try {
+
+      claims = Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+    } catch (MalformedJwtException e) {
+      throw new JwtException("MalFormed"); // 형태 이상
+    } catch (ExpiredJwtException e) {
+      throw new JwtException("Expired"); // 만료
+    } catch (InvalidClaimException e) {
+      throw new JwtException("Invalid"); // 유효하지 않은
+    } catch (JwtException e) {
+      throw new JwtException("JWTError"); // JWT에러
+    }
+    return claims;
   }
 }

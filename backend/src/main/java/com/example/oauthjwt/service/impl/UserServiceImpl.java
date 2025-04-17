@@ -66,4 +66,12 @@ public class UserServiceImpl implements UserService {
     }
     return Collections.emptyMap();
   }
+
+  @Override
+  public Map<String, String> isEquals(Long tokenId, Long requestId) {
+    if (!tokenId.equals(requestId)) {
+      return Map.of("error", "요청한 사용자의 아이디가 일치하지 않습니다.");
+    }
+    return Collections.emptyMap();
+  }
 }

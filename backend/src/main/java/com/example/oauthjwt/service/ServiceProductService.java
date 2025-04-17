@@ -4,13 +4,18 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.example.oauthjwt.dto.ServiceProductReqDTO;
-import com.example.oauthjwt.dto.ServiceProductResDTO;
+import com.example.oauthjwt.dto.request.ServiceProductRequest;
+import com.example.oauthjwt.dto.request.ServiceProductUpdateRequest;
+import com.example.oauthjwt.dto.response.ServiceProductResponse;
 
 @Service
 public interface ServiceProductService {
 
-  ServiceProductResDTO save(ServiceProductReqDTO serviceProductReqDTO);
+  ServiceProductResponse save(ServiceProductRequest serviceProductRequest);
 
   Map<String, String> existsById(Long id);
+
+  ServiceProductResponse findById(Long id);
+
+  ServiceProductResponse update(ServiceProductUpdateRequest serviceProductUpdateRequest);
 }

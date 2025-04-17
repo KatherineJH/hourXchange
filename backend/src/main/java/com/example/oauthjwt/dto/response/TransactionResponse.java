@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import java.time.LocalDateTime;
 
@@ -13,18 +13,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionResDTO {
+public class TransactionResponse {
   private Long id;
-  private UserResDTO user;
-  private ServiceProductResDTO product;
+  private UserResponse user;
+  private ServiceProductResponse product;
   private String status;
   private LocalDateTime createdAt;
 
-  public static TransactionResDTO toDto(Transaction transaction) {
-    return TransactionResDTO.builder()
+  public static TransactionResponse toDto(Transaction transaction) {
+    return TransactionResponse.builder()
         .id(transaction.getId())
-        .user(UserResDTO.toDto(transaction.getUser()))
-        .product(ServiceProductResDTO.toDto(transaction.getProduct()))
+        .user(UserResponse.toDto(transaction.getUser()))
+        .product(ServiceProductResponse.toDto(transaction.getProduct()))
         .status(transaction.getStatus().toString())
         .createdAt(transaction.getCreatedAt())
         .build();

@@ -2,11 +2,11 @@ package com.example.oauthjwt.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.oauthjwt.dto.TransactionReqDTO;
-import com.example.oauthjwt.dto.TransactionResDTO;
+import com.example.oauthjwt.dto.request.TransactionRequest;
+import com.example.oauthjwt.dto.response.TransactionResponse;
 
 @Service
 public interface TransactionService {
 
-  TransactionResDTO createTransaction(TransactionReqDTO transactionReqDTO);
+  TransactionResponse createTransaction(TransactionRequest transactionRequest);
 }
