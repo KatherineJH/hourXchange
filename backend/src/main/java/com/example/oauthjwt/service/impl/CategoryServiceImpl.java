@@ -1,6 +1,7 @@
-package com.example.oauthjwt.service;
+package com.example.oauthjwt.service.impl;
 
 import com.example.oauthjwt.repository.CategoryRepository;
+import com.example.oauthjwt.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -29,9 +29,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if(path.startsWith("/api/serviceProduct/")){ // 서비스 제품은 토큰검사 x
+        if(path.startsWith("/api/")){ // 개발 중 토큰 검사 x
             return true;
         }
+
         return false;
     }
 
