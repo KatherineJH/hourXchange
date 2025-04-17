@@ -29,9 +29,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
     String path = request.getRequestURI();
-    return Stream.of("/api/auth/**", "/api/serviceProduct", "/oauth2", "/login/oauth2")
-        .anyMatch(path::startsWith);
+
+    if(path.startsWith("/api/user/me")){
+      return false;
+    }
+    if(path.startsWith("/api/")){ // 개발 중 토큰 검사 x
+      return true;
+    }
+    return false;
   }
 
   @Override

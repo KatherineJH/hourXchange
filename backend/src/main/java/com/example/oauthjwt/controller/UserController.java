@@ -23,12 +23,6 @@ public class UserController {
   public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
 
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-    // 토큰이 없으면 401 Unauthorized 반환
-    if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
-    }
-
     CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 
     return ResponseEntity.ok(
