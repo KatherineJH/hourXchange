@@ -1,4 +1,4 @@
-package com.example.oauthjwt.controller.auth;
+package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.ServiceProductDTO;
 import com.example.oauthjwt.entity.ProviderType;

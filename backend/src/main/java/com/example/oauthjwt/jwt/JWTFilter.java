@@ -33,12 +33,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-
         String path = request.getRequestURI();
-
-        // ✅ 다음 경로들은 JWT 인증 없이 통과
-        return Stream.of("/api/auth/", "/api/serviceProduct/")
-                .anyMatch(path::startsWith); // simplify if-else
+        return Stream.of(
+                "/api/auth/**",
+                "/api/serviceProduct",
+                "/oauth2", "/login/oauth2"
+        ).anyMatch(path::startsWith);
     }
 
     @Override

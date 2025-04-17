@@ -62,6 +62,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             UserDTO userDTO = UserDTO.builder() // 반환값 설정
                     .username(result.getUsername())
+                    .email(result.getEmail())
                     .name(result.getName())
                     .role(result.getRole().toString())
                     .build();
@@ -77,6 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             UserDTO userDTO = UserDTO.builder() // 반환값 설정
                     .username(result.getUsername())
+                    .email(result.getEmail())
                     .name(result.getName())
                     .role(result.getRole().toString())
                     .build();
