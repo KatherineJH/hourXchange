@@ -1,9 +1,10 @@
 package com.example.oauthjwt.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -12,12 +13,12 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties
 public class UserDTO {
 
-    private Long id;
-    private String name;
-    private String role;
-    private String username;
-    private String password;
-    private String email;
-    private LocalDateTime createdAt;
-    private int credit;
+  private Long id;
+  private String name;
+  private String role;
+  private String username;
+  private String password;
+  private String email;
+  private LocalDateTime createdAt;
+  private int credit;
 }

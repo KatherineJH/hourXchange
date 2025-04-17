@@ -1,17 +1,16 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.ServiceProductReqDTO;
-import com.example.oauthjwt.dto.ServiceProductResDTO;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import com.example.oauthjwt.dto.ServiceProductReqDTO;
+import com.example.oauthjwt.dto.ServiceProductResDTO;
 
 @Service
 public interface ServiceProductService {
 
-    ServiceProductResDTO save(ServiceProductReqDTO serviceProductReqDTO);
+  ServiceProductResDTO save(ServiceProductReqDTO serviceProductReqDTO);
 
-
-    Map<String, String> existsById(Long id);
-
+  Map<String, String> existsById(Long id);
 }
