@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Address;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddressResDTO {
+public class AddressResponse {
   private Long id;
 
   private String streetAddress; // 도로명 주소
@@ -24,10 +24,10 @@ public class AddressResDTO {
 
   private String country; // 국가명
 
-  public static AddressResDTO toDto(Address address) {
+  public static AddressResponse toDto(Address address) {
     return address == null
         ? null
-        : AddressResDTO.builder()
+        : AddressResponse.builder()
             .id(address.getId())
             .streetAddress(address.getStreetAddress())
             .city(address.getCity())

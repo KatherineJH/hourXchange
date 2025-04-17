@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import java.util.Map;
 

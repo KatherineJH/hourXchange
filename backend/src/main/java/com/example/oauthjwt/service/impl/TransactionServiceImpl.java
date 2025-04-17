@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
-import com.example.oauthjwt.dto.TransactionReqDTO;
-import com.example.oauthjwt.dto.TransactionResDTO;
+import com.example.oauthjwt.dto.request.TransactionRequest;
+import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.ServiceProduct;
 import com.example.oauthjwt.entity.TRANSACTION_STATE;
 import com.example.oauthjwt.entity.Transaction;
@@ -25,22 +25,22 @@ public class TransactionServiceImpl implements TransactionService {
   private final TransactionRepository transactionRepository;
 
   @Override
-  public TransactionResDTO createTransaction(TransactionReqDTO transactionReqDTO) {
-    User user = userRepository.findById(transactionReqDTO.getUserId()).get();
+  public TransactionResponse createTransaction(TransactionRequest transactionRequest) {
+    User user = userRepository.findById(transactionRequest.getUserId()).get();
     ServiceProduct serviceProduct =
-        serviceProductRepository.findById(transactionReqDTO.getProductId()).get();
+        serviceProductRepository.findById(transactionRequest.getProductId()).get();
 
     Transaction transaction =
         Transaction.builder()
             .user(user)
             .product(serviceProduct)
             .status(
-                TRANSACTION_STATE.valueOf(transactionReqDTO.getTransactionState().toUpperCase()))
+                TRANSACTION_STATE.valueOf(transactionRequest.getTransactionState().toUpperCase()))
             .createdAt(LocalDateTime.now())
             .build();
 
     Transaction result = transactionRepository.save(transaction);
 
-    return TransactionResDTO.toDto(result);
+    return TransactionResponse.toDto(result);
   }
 }

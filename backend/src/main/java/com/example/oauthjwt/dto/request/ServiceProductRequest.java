@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.request;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ServiceProductReqDTO {
-
+public class ServiceProductRequest {
   private String title; // 제목
 
   private String description; // 설명

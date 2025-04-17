@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Category;
 
@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryResDTO {
+public class CategoryResponse {
   private Long id;
 
   private String categoryName;
 
-  public static CategoryResDTO toDto(Category category) {
-    return CategoryResDTO.builder()
+  public static CategoryResponse toDto(Category category) {
+    return CategoryResponse.builder()
         .id(category.getId())
         .categoryName(category.getCategoryName())
         .build();

@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResDTO {
+public class UserResponse {
   private Long id;
 
   private String name;
@@ -35,10 +35,10 @@ public class UserResDTO {
 
   private String status;
 
-  private AddressResDTO address;
+  private AddressResponse address;
 
-  public static UserResDTO toDto(User user) {
-    return UserResDTO.builder()
+  public static UserResponse toDto(User user) {
+    return UserResponse.builder()
         .id(user.getId())
         .name(user.getName() == null ? "" : user.getName())
         .role(user.getRole().toString())
@@ -50,9 +50,9 @@ public class UserResDTO {
         .credit(user.getCredit())
         .status(user.getStatus().toString())
         .address(
-            AddressResDTO.toDto(user.getAddress()) == null
+            AddressResponse.toDto(user.getAddress()) == null
                 ? null
-                : AddressResDTO.toDto(user.getAddress()))
+                : AddressResponse.toDto(user.getAddress()))
         .build();
   }
 }
