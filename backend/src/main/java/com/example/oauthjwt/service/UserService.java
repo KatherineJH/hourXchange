@@ -14,4 +14,6 @@ public interface UserService {
   Map<String, String> notExistsByEmail(String email);
 
   Map<String, String> existsById(Long id);
+
+  Map<String, String> isEquals(Long tokenId, Long requestId);
 }

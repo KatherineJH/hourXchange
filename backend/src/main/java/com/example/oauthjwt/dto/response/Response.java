@@ -1,7 +1,8 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import java.util.Map;
 
+import com.example.oauthjwt.dto.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 @JsonIncludeProperties

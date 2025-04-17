@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.oauthjwt.dto.TransactionReqDTO;
-import com.example.oauthjwt.dto.TransactionResDTO;
+import com.example.oauthjwt.dto.request.TransactionRequest;
+import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.TRANSACTION_STATE;
 import com.example.oauthjwt.service.ServiceProductService;
 import com.example.oauthjwt.service.TransactionService;
@@ -28,25 +28,25 @@ public class TransactionController {
   private final ServiceProductService serviceProductService;
 
   @PostMapping("/")
-  public ResponseEntity<?> createTransaction(@RequestBody TransactionReqDTO transactionReqDTO) {
-    Map<String, String> userCheck = userService.existsById(transactionReqDTO.getUserId());
+  public ResponseEntity<?> createTransaction(@RequestBody TransactionRequest transactionRequest) {
+    Map<String, String> userCheck = userService.existsById(transactionRequest.getUserId());
     if (!userCheck.isEmpty()) {
       return ResponseEntity.badRequest().body(userCheck);
     }
 
     Map<String, String> productCheck =
-        serviceProductService.existsById(transactionReqDTO.getProductId());
+        serviceProductService.existsById(transactionRequest.getProductId());
     if (!productCheck.isEmpty()) {
       return ResponseEntity.badRequest().body(productCheck);
     }
 
     Map<String, String> TRANSACTION_STATECheck =
-        TRANSACTION_STATE.existsByValue(transactionReqDTO.getTransactionState());
+        TRANSACTION_STATE.existsByValue(transactionRequest.getTransactionState());
     if (!TRANSACTION_STATECheck.isEmpty()) {
       return ResponseEntity.badRequest().body(TRANSACTION_STATECheck);
     }
 
-    TransactionResDTO result = transactionService.createTransaction(transactionReqDTO);
+    TransactionResponse result = transactionService.createTransaction(transactionRequest);
 
     return ResponseEntity.ok(result);
   }

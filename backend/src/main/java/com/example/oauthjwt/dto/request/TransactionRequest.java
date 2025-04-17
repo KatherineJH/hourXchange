@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.request;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionReqDTO {
+public class TransactionRequest {
   private Long userId; // 대상 id
   private Long productId; // 대상 제품 id
   private String transactionState; // 상태

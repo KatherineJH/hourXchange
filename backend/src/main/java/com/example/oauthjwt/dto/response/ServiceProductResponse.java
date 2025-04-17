@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ServiceProductResDTO {
+public class ServiceProductResponse {
   private Long id; // id값
 
   private String title; // 제목
@@ -30,24 +30,24 @@ public class ServiceProductResDTO {
 
   private LocalDateTime endAt; // 끝시간
 
-  private UserResDTO owner; // 작성자
+  private UserResponse owner; // 작성자
 
-  private CategoryResDTO category; // 서비스 카테고리
+  private CategoryResponse category; // 서비스 카테고리
 
   private String providerType; // SP 타입 (구매, 판매)
 
   private List<String> images = new ArrayList<>(); // 이미지 url
 
-  public static ServiceProductResDTO toDto(ServiceProduct product) {
-    return ServiceProductResDTO.builder()
+  public static ServiceProductResponse toDto(ServiceProduct product) {
+    return ServiceProductResponse.builder()
         .id(product.getId())
         .title(product.getTitle())
         .description(product.getDescription())
         .hours(product.getHours())
         .startedAt(product.getStartedAt())
         .endAt(product.getEndAt())
-        .owner(UserResDTO.toDto(product.getOwner()))
-        .category(CategoryResDTO.toDto(product.getCategory()))
+        .owner(UserResponse.toDto(product.getOwner()))
+        .category(CategoryResponse.toDto(product.getCategory()))
         .providerType(product.getProviderType().toString())
         .images(
             product.getImages() == null

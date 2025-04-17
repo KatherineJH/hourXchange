@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.oauthjwt.dto.request.ServiceProductUpdateRequest;
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -26,9 +26,6 @@ public class ServiceProduct {
 
   @Column(nullable = false)
   private String description;
-
-  //    @Column(nullable = false) // 아래 이미지 리스트로 입력받음
-  //    private String imgUrl;
 
   @Column(nullable = false)
   private int hours;
@@ -64,11 +61,33 @@ public class ServiceProduct {
   @OneToOne(mappedBy = "serviceProduct")
   private ChatRoom chatRoom;
 
-  //    @PrePersist
-  //    @PreUpdate
-  //    public void calculateHours() {
-  //        if (startedAt != null && endAt != null) {
-  //            this.hours = (int) java.time.Duration.between(startedAt, endAt).toHours();
-  //        }
-  //    }
+  public ServiceProduct setUpdateValue(ServiceProductUpdateRequest serviceProductUpdateRequest) {
+    if (serviceProductUpdateRequest.getTitle() != null) { // 제목
+      this.title = serviceProductUpdateRequest.getTitle();
+    }
+    if (serviceProductUpdateRequest.getDescription() != null) { // 설명
+      this.description = serviceProductUpdateRequest.getDescription();
+    }
+    if (serviceProductUpdateRequest.getHours() > 0) { // 시간(코스트)
+      this.hours = serviceProductUpdateRequest.getHours();
+    }
+    if (serviceProductUpdateRequest.getStartedAt() != null) { // 시작시간
+      this.startedAt = serviceProductUpdateRequest.getStartedAt();
+    }
+    if (serviceProductUpdateRequest.getEndAt() != null) { // 끝시간
+      this.endAt = serviceProductUpdateRequest.getEndAt();
+    }
+    if (serviceProductUpdateRequest.getCategory() != null) { // 카테고리
+      this.category = serviceProductUpdateRequest.getCategory();
+    }
+    if (serviceProductUpdateRequest.getImages() != null
+        && !serviceProductUpdateRequest.getImages().isEmpty()) { // 이미지
+      this.getImages().clear();
+      for (String imageUrl : serviceProductUpdateRequest.getImages()) {
+        SPImage spImage = SPImage.builder().imgUrl(imageUrl).serviceProduct(this).build();
+        this.getImages().add(spImage);
+      }
+    }
+    return this;
+  }
 }

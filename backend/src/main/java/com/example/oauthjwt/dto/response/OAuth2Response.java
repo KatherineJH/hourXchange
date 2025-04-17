@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.response;
 
 public interface OAuth2Response {
 
