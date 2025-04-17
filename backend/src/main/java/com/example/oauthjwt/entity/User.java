@@ -57,11 +57,9 @@ public class User {
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
-
-    // Helper method to get chat rooms
-    public List<ChatRoom> getChatRooms() {
-        return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
-    }
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
+//    public List<ChatRoom> getChatRooms() {
+//        return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
+//    }
 }

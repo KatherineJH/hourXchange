@@ -1,4 +1,4 @@
-package com.example.oauthjwt.controller.auth;
+package com.example.oauthjwt.controller;
 
 import java.util.Map;
 
@@ -43,7 +43,7 @@ public class UserController {
         String username = jwtUtil.getUsername(token);
 
         // 사용자 정보 찾기
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
@@ -73,7 +73,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
-        User user = userRepository.findByUsername(userDTO.getUsername());
+        User user = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
 
         if (user == null || !passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");

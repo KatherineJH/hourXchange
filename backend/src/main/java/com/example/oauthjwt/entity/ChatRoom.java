@@ -2,18 +2,19 @@ package com.example.oauthjwt.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
-@AllArgsConstructor
+@Table(name = "chat_rooms")
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ChatRoom {
 
@@ -21,7 +22,7 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    private String roomName;
+    private String name;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
@@ -29,15 +30,25 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages = new ArrayList<>();
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
     @OneToOne(cascade = CascadeType.ALL, optional = true)
     @JoinColumn(name = "service_product_id", nullable = false)
     private ServiceProduct serviceProduct;
 
     // Helper method to get participants
     public List<User> getParticipants() {
-        return chatRoomUsers.stream().map(ChatRoomUser::getUser).toList();
+        Set<User> participants = new HashSet<>();
+        for (ChatRoomUser cru : chatRoomUsers) {
+            if (cru.getUser1() != null) participants.add(cru.getUser1());
+            if (cru.getUser2() != null) participants.add(cru.getUser2());
+        }
+        return new ArrayList<>(participants);
+    }
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 }

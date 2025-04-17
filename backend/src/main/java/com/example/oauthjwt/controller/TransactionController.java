@@ -1,4 +1,4 @@
-package com.example.oauthjwt.controller.auth;
+package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.TransactionReqDTO;
 import com.example.oauthjwt.dto.TransactionResDTO;
