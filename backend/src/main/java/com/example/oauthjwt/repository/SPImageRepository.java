@@ -1,8 +1,9 @@
 package com.example.oauthjwt.repository;
 
-import com.example.oauthjwt.entity.SPImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.example.oauthjwt.entity.SPImage;
+
 public interface SPImageRepository extends JpaRepository<SPImage, Long> {
-    boolean existsByImgUrl(String imgUrl);
+  boolean existsByImgUrl(String imgUrl);
 }

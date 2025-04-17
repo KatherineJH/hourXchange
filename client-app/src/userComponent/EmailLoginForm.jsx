@@ -90,7 +90,7 @@ const EmailLoginForm = () => {
     e.preventDefault();
 
     try {
-      await dispatch(loginUser({ username, password })).unwrap();
+      await dispatch(loginUser({ email: username, password })).unwrap();
       alert("로그인 성공!");
       navigate("/");
     } catch (error) {

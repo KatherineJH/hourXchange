@@ -14,14 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String categoryName;
+  @Column(nullable = false)
+  private String categoryName;
 
-    // single category can have multiple products
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private List<ServiceProduct> products = new ArrayList<>();
+  // single category can have multiple products
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+  private List<ServiceProduct> products = new ArrayList<>();
 }
