@@ -1,6 +1,7 @@
 package com.example.oauthjwt.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -26,12 +27,16 @@ public class JWTUtil {
   }
 
   public String getUsername(String token) {
-    return Jwts.parser()
-        .verifyWith(secretKey)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload()
-        .get("username", String.class);
+    try {
+      return Jwts.parser()
+              .verifyWith(secretKey)
+              .build()
+              .parseSignedClaims(token)
+              .getPayload()
+              .get("username", String.class);
+    } catch (JwtException e) {
+      throw new JwtException("Invalid token: " + e.getMessage());
+    }
   }
 
   public String getRole(String token) {
@@ -66,22 +71,23 @@ public class JWTUtil {
 
   public String getTokenFromCookies(HttpServletRequest request) {
     Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if ("Authorization".equals(cookie.getName())) {
-          return cookie.getValue();
-        }
-      }
-    }
+    if (cookies == null) return null;
+    return Arrays.stream(cookies)
+            .filter(cookie -> "Authorization".equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElse(null);
+  }
 
-    return null;
+  public String getUsernameFromToken(String token) {
+    Claims claims =
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+    return claims.getSubject();
   }
 
   public Map<String, Object> validateToken(String token) {
     Map<String, Object> claims = null;
-
     try {
-
       claims = Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     } catch (MalformedJwtException e) {
       throw new JwtException("MalFormed"); // 형태 이상

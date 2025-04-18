@@ -2,6 +2,7 @@ package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,22 +10,23 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "chat_room_users")
 public class ChatRoomUser {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "chat_room_id", nullable = false)
-  private ChatRoom chatRoom;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id", nullable = false)
+    private ChatRoom chatRoom;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+    @ManyToOne
+    @JoinColumn(name = "user1_id", nullable = false)
+    private User user1;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private ChatRoomUserStatus status;
+    @ManyToOne
+    @JoinColumn(name = "user2_id", nullable = false)
+    private User user2;
 }

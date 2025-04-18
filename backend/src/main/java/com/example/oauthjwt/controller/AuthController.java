@@ -1,7 +1,9 @@
 package com.example.oauthjwt.controller;
 
+import java.util.Arrays;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,35 +51,35 @@ public class AuthController {
     try {
       userDetails = customUserDetailsService.loadUserByUsername(userDTO.getEmail());
     } catch (UsernameNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(Map.of("error", "Invalid email or password"));
     }
 
     if (!passwordEncoder.matches(userDTO.getPassword(), userDetails.getPassword())) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(Map.of("error", "Invalid email or password"));
     }
 
-    String token =
-        jwtUtil.createJwt(
+    String token = jwtUtil.createJwt(
             userDetails.getUsername(),
             userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
             60 * 60 * 1000L);
 
     Cookie cookie = new Cookie("Authorization", token);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
     cookie.setPath("/");
     cookie.setMaxAge(3600);
-    cookie.setHttpOnly(true);
+    cookie.setDomain("localhost");
+    cookie.setAttribute("SameSite", "Lax");
     response.addCookie(cookie);
 
     return ResponseEntity.ok(
-        Map.of(
-            "message",
-            "로그인 성공",
-            "username",
-            userDetails.getUsername(),
-            "role",
-            userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
-            "token",
-            token));
+            Map.of(
+                    "message", "로그인 성공",
+                    "username", userDetails.getUsername(),
+                    "role", userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
+                    "token", token));
   }
 
   // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리
@@ -89,5 +91,18 @@ public class AuthController {
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
     return ResponseEntity.ok("로그아웃 완료");
+  }
+
+  /**
+   * HttpOnly 쿠키에 저장된 JWT 토큰을 클라이언트가 직접 꺼내올 수 없기 때문에, 서버에게 토큰을 요청해서 JS 코드에서 사용 웹소켓 연결, 로그인 후 /chat
+   * 페이지로 넘어갔을 때 토큰을 꺼내 STOMP 연결 등에서 사용.
+   */
+  @GetMapping("/token")
+  public ResponseEntity<?> getTokenFromCookie(HttpServletRequest request) {
+    String token = jwtUtil.getTokenFromCookies(request);
+    if (token == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token found");
+    }
+    return ResponseEntity.ok(Map.of("token", token));
   }
 }

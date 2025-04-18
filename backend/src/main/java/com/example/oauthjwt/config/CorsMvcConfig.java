@@ -10,8 +10,12 @@ public class CorsMvcConfig implements WebMvcConfigurer {
   public void addCorsMappings(CorsRegistry corsRegistry) {
     // 프론트엔드와 백엔드가 다른 포트이므로 CORS 허용
     corsRegistry
-        .addMapping("/**")
-        .exposedHeaders("Set-Cookie") // 프론트에서 쿠키 읽을 수 있게
-        .allowedOrigins("http://localhost:5173"); // 프론트 주소 허용
+            .addMapping("/**")
+            .allowedOrigins("http://localhost:5173")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("Authorization", "Content-Type")
+            .exposedHeaders("Set-Cookie", "Authorization")
+            .allowCredentials(true)
+            .maxAge(3600);
   }
 }
