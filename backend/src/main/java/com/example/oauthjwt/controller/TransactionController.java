@@ -1,12 +1,11 @@
 package com.example.oauthjwt.controller;
 
+import java.util.List;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.request.TransactionUpdateRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
@@ -23,31 +22,51 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @RequestMapping("/api/transaction")
 public class TransactionController {
-  private final UserService userService;
   private final TransactionService transactionService;
-  private final ServiceProductService serviceProductService;
 
   @PostMapping("/")
-  public ResponseEntity<?> createTransaction(@RequestBody TransactionRequest transactionRequest) {
-    Map<String, String> userCheck = userService.existsById(transactionRequest.getUserId());
-    if (!userCheck.isEmpty()) {
-      return ResponseEntity.badRequest().body(userCheck);
+  public ResponseEntity<?> save(@RequestBody TransactionRequest transactionRequest) {
+    // 검증
+    Map<String, String> saveCheck = transactionService.saveCheck(transactionRequest);
+    if (!saveCheck.isEmpty()) {
+      return ResponseEntity.ok(saveCheck);
     }
-
-    Map<String, String> productCheck =
-        serviceProductService.existsById(transactionRequest.getProductId());
-    if (!productCheck.isEmpty()) {
-      return ResponseEntity.badRequest().body(productCheck);
-    }
-
-    Map<String, String> TRANSACTION_STATECheck =
-        TRANSACTION_STATE.existsByValue(transactionRequest.getTransactionState());
-    if (!TRANSACTION_STATECheck.isEmpty()) {
-      return ResponseEntity.badRequest().body(TRANSACTION_STATECheck);
-    }
-
+    // 조회
     TransactionResponse result = transactionService.createTransaction(transactionRequest);
-
+    // 반환
     return ResponseEntity.ok(result);
   }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+    // 검증
+    Map<String, String> existsByIdCheck = transactionService.existsById(id);
+    if (!existsByIdCheck.isEmpty()) {
+      return ResponseEntity.ok(existsByIdCheck);
+    }
+    // 조회
+    TransactionResponse result = transactionService.findById(id);
+    // 반환
+    return ResponseEntity.ok(result);
+  }
+
+  @GetMapping("/list")
+  public ResponseEntity<?> findAll() {
+    List<TransactionResponse> transactionResponseList = transactionService.findAll();
+    return ResponseEntity.ok(transactionResponseList);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody TransactionUpdateRequest transactionUpdateRequest) {
+    // 검증
+    Map<String, String> saveCheck = transactionService.saveCheck(transactionUpdateRequest);
+    if (!saveCheck.isEmpty()) {
+      return ResponseEntity.ok(saveCheck);
+    }
+    transactionUpdateRequest.setId(id);
+
+    TransactionResponse result = transactionService.update(transactionUpdateRequest);
+    return ResponseEntity.ok(result);
+  }
+
 }

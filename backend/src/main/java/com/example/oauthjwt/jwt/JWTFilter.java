@@ -56,8 +56,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
+          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
 //    // 1. 쿠키 사용하지 않는 방식
 //    String authHeaderStr = request.getHeader("Authorization"); // 헤더에 Authorization 이름으로 "Bearer " + token으로 보냄
 //    String authorization = authHeaderStr.substring(7); // "Bearer "를 제외한 토큰 값만
