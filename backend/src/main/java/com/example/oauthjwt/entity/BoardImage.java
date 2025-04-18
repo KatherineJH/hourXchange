@@ -2,9 +2,11 @@ package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Entity
 @Data
 @AllArgsConstructor
@@ -15,8 +17,8 @@ public class BoardImage {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
-  private String ImgUrl;
+  @Column(nullable = false)
+  private String imgUrl;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "board_id", nullable = false)

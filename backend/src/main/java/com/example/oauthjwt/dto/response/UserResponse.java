@@ -43,6 +43,7 @@ public class UserResponse {
         .name(user.getName() == null ? "" : user.getName())
         .role(user.getRole().toString())
         .username(user.getUsername())
+        // 패스워드 노출 이슈 -> 향후에 제거해도 좋을 것 같습니다.
         .password(user.getPassword() == null ? "" : user.getPassword())
         .email(user.getEmail())
         .birthdate(user.getBirthdate() == null ? LocalDate.of(1, 1, 1) : user.getBirthdate())

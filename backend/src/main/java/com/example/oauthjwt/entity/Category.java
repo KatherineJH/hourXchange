@@ -24,4 +24,8 @@ public class Category {
   // single category can have multiple products
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
   private List<ServiceProduct> products = new ArrayList<>();
+
+  // single category can have multiple boards
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+  private List<Board> boards = new ArrayList<>();
 }

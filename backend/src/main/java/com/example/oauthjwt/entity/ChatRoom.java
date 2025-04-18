@@ -30,7 +30,8 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    // 동일한 서비스에 여러 문의자가 존재 -> OneToOne 에서 ManyToOne 으로 변경.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_product_id", nullable = false)
     private ServiceProduct serviceProduct;
 

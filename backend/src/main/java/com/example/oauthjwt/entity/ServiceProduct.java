@@ -58,8 +58,9 @@ public class ServiceProduct {
   @Builder.Default
   private List<Transaction> transactions = new ArrayList<>();
 
-  @OneToOne(mappedBy = "serviceProduct")
-  private ChatRoom chatRoom;
+  // 하나의 serviceProduct에 문의는 여러 명이 걸 수 있으므로, OneToOne 에서  OneToMany 으로 수정
+  @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ChatRoom> chatRooms = new ArrayList<>();
 
   public ServiceProduct setUpdateValue(ServiceProductUpdateRequest serviceProductUpdateRequest) {
     if (serviceProductUpdateRequest.getTitle() != null) { // 제목
