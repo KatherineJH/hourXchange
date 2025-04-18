@@ -2,6 +2,8 @@ package com.example.oauthjwt.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.oauthjwt.dto.request.TransactionRequest;
+import com.example.oauthjwt.dto.request.TransactionUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +35,12 @@ public class Transaction {
 
   @Column(nullable = false)
   private LocalDateTime createdAt;
+
+  public Transaction setUpdateValue(TransactionUpdateRequest transactionUpdateRequest) {
+    this.user = transactionUpdateRequest.getUser();
+    this.product = transactionUpdateRequest.getServiceProduct();
+    this.status = TRANSACTION_STATE.valueOf(transactionUpdateRequest.getTransactionState());
+    this.createdAt = transactionUpdateRequest.getCreateAt();
+    return this;
+  }
 }

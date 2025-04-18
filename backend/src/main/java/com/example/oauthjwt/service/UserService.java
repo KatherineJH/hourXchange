@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.UserDTO;
 
-@Service
+
 public interface UserService {
 
   UserDTO signup(UserDTO userDTO);

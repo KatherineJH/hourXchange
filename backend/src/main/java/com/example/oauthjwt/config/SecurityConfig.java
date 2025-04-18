@@ -68,8 +68,12 @@ public class SecurityConfig {
 
     // 인가 설정
     http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/api/auth/**") // 처음과 같이 변경
+//            .requestMatchers("/", "/api/auth/**") // 처음과 같이 변경
+//            .permitAll()
+            .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**")
             .permitAll()
+//            .requestMatchers("/api/user/**") // 없어도 아래 anyRequest에서 확인
+//            .authenticated()
             .anyRequest()
             .authenticated());
 
