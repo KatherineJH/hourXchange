@@ -68,8 +68,12 @@ public class SecurityConfig {
 
     // 인가 설정
     http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/api/auth/**") // 처음과 같이 변경
+//            .requestMatchers("/", "/api/auth/**") // 처음과 같이 변경
+//            .permitAll()
+            .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**")
             .permitAll()
+            .requestMatchers("/api/user/**")
+            .authenticated()
             .anyRequest()
             .authenticated());
 
@@ -99,7 +103,7 @@ public class SecurityConfig {
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
-    config.setExposedHeaders(List.of("Set-Cookie"));
+    config.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
     config.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
