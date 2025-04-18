@@ -78,11 +78,9 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardResponse update(BoardRequest boardRequest) {
         Board board =
-                boardRepository.findById(boardRequest.getId()).get(); // 제품 조회
-
+                boardRepository.findById(boardRequest.getId()).get();
         Category category =
-                categoryRepository.findById(boardRequest.getCategoryId()).get(); // 카테고리 조회
-
+                categoryRepository.findById(boardRequest.getCategoryId()).get();
         boardRequest.setCategory(category); // 카테고리 DTO에 등록
 
         Board result =
