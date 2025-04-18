@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
 public interface ChatService {
     @Transactional
     public abstract ChatRoom initiateChatFromPost(Long postId, Long requesterId);
