@@ -3,6 +3,7 @@ package com.example.oauthjwt.service.impl;
 import com.example.oauthjwt.dto.request.CommentRequest;
 import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.repository.BoardRepository;
 import com.example.oauthjwt.repository.CommentRepository;
 import com.example.oauthjwt.repository.UserRepository;
@@ -36,7 +37,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse findById(Long id) {
-        return CommentResponse.toDto(commentRepository.findById(id).get());
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ValidationException("댓글을 찾을 수 없습니다."));
+        return CommentResponse.toDto(comment);
     }
 
     @Override
@@ -64,37 +67,37 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse save(CommentRequest commentRequest) {
+        // 유저 검증
+        User owner = userRepository.findById(commentRequest.getAuthorId())
+                .orElseThrow(() -> new ValidationException("작성자 정보가 존재하지 않습니다."));
 
-        User owner = userRepository.findById(commentRequest.getAuthorId()).get(); // 유저 조회
-        Board board =
-                boardRepository.findById(commentRequest.getBoardId()).get(); // 카테고리 조회
+        // 게시글 검증
+        Board board = boardRepository.findById(commentRequest.getBoardId())
+                .orElseThrow(() -> new ValidationException("해당 게시글이 존재하지 않습니다."));
 
-        Comment comment =
-                Comment.builder() // 저장할 객체 생성
-                        .content(commentRequest.getContent())
-                        .author(owner)
-                        .board(board)
-                        .build();
+        // 댓글 생성
+        Comment comment = Comment.builder()
+                .content(commentRequest.getContent())
+                .author(owner)
+                .board(board)
+                .build();
 
-        Comment result = commentRepository.save(comment); // 저장 후 결과 반환
-
+        Comment result = commentRepository.save(comment);
         return CommentResponse.toDto(result);
     }
 
     @Override
     public CommentResponse update(CommentRequest commentRequest) {
-        Comment comment =
-                commentRepository.findById(commentRequest.getId()).get();
-        Board board =
-                boardRepository.findById(commentRequest.getBoardId()).get();
+        Comment comment = commentRepository.findById(commentRequest.getId())
+                .orElseThrow(() -> new ValidationException("수정할 댓글이 존재하지 않습니다."));
 
-        commentRequest.setBoard(board); //board DTO에 등록
+        Board board = boardRepository.findById(commentRequest.getBoardId())
+                .orElseThrow(() -> new ValidationException("게시글이 존재하지 않습니다."));
 
-        Comment result =
-                commentRepository.save(
-                        comment.setUpdateValue(commentRequest)); // 값 수정
+        commentRequest.setBoard(board);
 
-        return CommentResponse.toDto(result); // 반환
+        Comment result = commentRepository.save(comment.setUpdateValue(commentRequest));
+        return CommentResponse.toDto(result);
     }
 
     @Override

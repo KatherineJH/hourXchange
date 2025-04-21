@@ -28,8 +28,6 @@ public class BoardResponse {
 
     private Long authorId;
 
-    private List<ThumbsUp> thumbsUps = new ArrayList<>();
-
     private List<String> images = new ArrayList<>();
 
     private LocalDateTime createdAt;
@@ -49,5 +47,16 @@ public class BoardResponse {
                                 .map(BoardImage::getImgUrl)
                                 .collect(Collectors.toList())) // 이미지 엔티티에서 url만 String list로 변환
                 .build();
+    }
+
+    // 게시글 좋아요 기능
+    private long    likeCount;
+    private boolean likedByMe;
+
+    public static BoardResponse toDto(Board board, long likeCount, boolean likedByMe) {
+        BoardResponse dto = toDto(board);
+        dto.setLikeCount(likeCount);
+        dto.setLikedByMe(likedByMe);
+        return dto;
     }
 }

@@ -12,7 +12,13 @@ public interface BoardService {
 
     BoardResponse save(BoardRequest boardRequest);
 
-    BoardResponse findById(Long id);
+    BoardResponse findById(Long boardId, Long userId);
 
     BoardResponse update(BoardRequest boardRequest);
+
+    /**
+     * 특정 게시글에 대해 좋아요 토글 처리 후,
+     * 최신 좋아요 개수와 내 좋아요 여부를 담은 DTO 반환
+     */
+    BoardResponse toggleThumbsUp(Long boardId, Long userId) throws Exception;
 }
