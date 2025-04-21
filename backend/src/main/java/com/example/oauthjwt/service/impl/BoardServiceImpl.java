@@ -3,17 +3,16 @@ package com.example.oauthjwt.service.impl;
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.repository.BoardImageRepository;
-import com.example.oauthjwt.repository.BoardRepository;
-import com.example.oauthjwt.repository.CategoryRepository;
-import com.example.oauthjwt.repository.UserRepository;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +22,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final BoardImageRepository boardImageRepository;
     private final CategoryRepository categoryRepository;
+    private final ThumbsUpRepository thumbsUpRepository;
 
     @Override
     public Map<String, String> existsById(Long id) {
@@ -88,5 +88,40 @@ public class BoardServiceImpl implements BoardService {
                         board.setUpdateValue(boardRequest)); // 값 수정
 
         return BoardResponse.toDto(result); // 반환
+    }
+
+    @Override
+    @Transactional
+    public BoardResponse toggleThumbsUp(Long boardId, Long userId) {
+        // 1) 게시글·사용자 조회
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + boardId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 없습니다. id=" + userId));
+
+        // 2) “자신의 게시글엔 좋아요 불가” 체크
+        if (board.getAuthor().getId().equals(userId)) {
+            throw new IllegalArgumentException("자신의 게시글에는 좋아요를 누를 수 없습니다.");
+        }
+
+        // 3) 기존 좋아요 조회 및 토글
+        Optional<ThumbsUp> existing =
+                thumbsUpRepository.findByBoardIdAndUserId(boardId, userId);
+
+        if (existing.isPresent()) {
+            thumbsUpRepository.delete(existing.get());
+        } else {
+            ThumbsUp tu = new ThumbsUp();
+            tu.setBoard(board);
+            tu.setUser(user);
+            thumbsUpRepository.save(tu);
+        }
+
+        // 4) 최신 좋아요 개수·내 좋아요 여부
+        long totalLikes = thumbsUpRepository.countByBoardId(boardId);
+        boolean likedByMe = existing.isEmpty();
+
+        // 5) DTO 반환
+        return BoardResponse.toDto(board, totalLikes, likedByMe);
     }
 }

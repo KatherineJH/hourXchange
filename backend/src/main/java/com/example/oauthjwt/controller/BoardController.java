@@ -1,6 +1,7 @@
 package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
+import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.service.BoardService;
 import com.example.oauthjwt.service.CategoryService;
@@ -87,4 +88,19 @@ public class BoardController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/{id}/thumbs-up")
+    public ResponseEntity<?> updateLike(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            BoardResponse resp = boardService.toggleThumbsUp(
+                    id, userDetails.getUser().getId());
+            return ResponseEntity.ok(resp);
+        } catch (IllegalArgumentException ex) { // 자기 자신의 게시물에 좋아요 누르려고 하는 경우
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
+        }
+    }
 }
