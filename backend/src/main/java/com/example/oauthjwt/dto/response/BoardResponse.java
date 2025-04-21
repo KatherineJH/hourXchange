@@ -28,8 +28,6 @@ public class BoardResponse {
 
     private Long authorId;
 
-    private List<ThumbsUp> thumbsUps = new ArrayList<>();
-
     private List<String> images = new ArrayList<>();
 
     private LocalDateTime createdAt;

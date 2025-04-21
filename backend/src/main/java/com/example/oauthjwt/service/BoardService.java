@@ -12,7 +12,7 @@ public interface BoardService {
 
     BoardResponse save(BoardRequest boardRequest);
 
-    BoardResponse findById(Long id);
+    BoardResponse findById(Long boardId, Long userId);
 
     BoardResponse update(BoardRequest boardRequest);
 
