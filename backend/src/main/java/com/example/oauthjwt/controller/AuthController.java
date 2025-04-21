@@ -1,8 +1,8 @@
 package com.example.oauthjwt.controller;
 
-import java.util.Arrays;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,37 +60,104 @@ public class AuthController {
               .body(Map.of("error", "Invalid email or password"));
     }
 
-    String token = jwtUtil.createJwt(
+    String accessToken = jwtUtil.createJwt(
             userDetails.getUsername(),
             userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
-            60 * 60 * 1000L);
+            15 * 60 * 1000L
+    ); // ✅ Access Token (15분)
 
-    Cookie cookie = new Cookie("Authorization", token);
+    String refreshToken = jwtUtil.createRefreshToken(
+            userDetails.getUsername(),
+            7 * 24 * 60 * 60 * 1000L
+    ); // ✅ Refresh Token (7일)
+
+    response.addCookie(createCookie("Authorization", accessToken, 15 * 60));
+    response.addCookie(createCookie("Refresh", refreshToken, 7 * 24 * 60 * 60));
+
+    return ResponseEntity.ok(Map.of(
+            "message", "로그인 성공",
+            "username", userDetails.getUsername(),
+            "role", userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
+            "accessToken", accessToken,
+            "refreshToken", refreshToken
+    ));
+  }
+
+  private Cookie createCookie(String key, String value, int maxAgeInSeconds) {
+    Cookie cookie = new Cookie(key, value);
     cookie.setHttpOnly(true);
-    cookie.setSecure(false);
+    cookie.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
     cookie.setPath("/");
-    cookie.setMaxAge(3600);
-    cookie.setDomain("localhost");
+    cookie.setMaxAge(maxAgeInSeconds);
     cookie.setAttribute("SameSite", "Lax");
-    response.addCookie(cookie);
-
-    return ResponseEntity.ok(
-            Map.of(
-                    "message", "로그인 성공",
-                    "username", userDetails.getUsername(),
-                    "role", userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
-                    "token", token));
+    return cookie;
   }
 
   // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리
   @PostMapping("/logout")
   public ResponseEntity<?> logout(HttpServletResponse response) {
-    Cookie cookie = new Cookie("Authorization", null);
-    cookie.setMaxAge(0); // 즉시 만료
-    cookie.setPath("/"); // 반드시 동일한 경로로 설정해야 삭제됨
-    cookie.setHttpOnly(true);
-    response.addCookie(cookie);
+    // ✅ Access Token 삭제
+    Cookie accessToken = new Cookie("Authorization", null);
+    accessToken.setMaxAge(0);
+    accessToken.setPath("/");
+    accessToken.setHttpOnly(true);
+    accessToken.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
+    accessToken.setAttribute("SameSite", "Lax"); // 배포 후 -> None(CORS 허용 + 인증 유지)
+    response.addCookie(accessToken);
+
+    // ✅ Refresh Token 삭제
+    Cookie refreshToken = new Cookie("Refresh", null);
+    refreshToken.setMaxAge(0);
+    refreshToken.setPath("/");
+    refreshToken.setHttpOnly(true);
+    refreshToken.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
+    refreshToken.setAttribute("SameSite", "Lax"); // 배포 후 -> None(CORS 허용 + 인증 유지)
+    response.addCookie(refreshToken);
+
     return ResponseEntity.ok("로그아웃 완료");
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
+
+    if (refreshToken == null || jwtUtil.isExpired(refreshToken)) {
+      return ResponseEntity.status(401)
+              .body(ApiResponse.unauthorized("Refresh 토큰이 만료되었습니다."));
+    }
+
+    String usernameInToken = jwtUtil.getUsername(refreshToken);
+
+    UserDetails userDetails;
+    try {
+      userDetails = customUserDetailsService.loadUserByUsername(usernameInToken);
+    } catch (UsernameNotFoundException e) {
+      return ResponseEntity.status(401)
+              .body(ApiResponse.unauthorized("유효하지 않은 사용자입니다."));
+    }
+
+    if (!userDetails.getUsername().equals(usernameInToken)) {
+      return ResponseEntity.status(403)
+              .body(ApiResponse.forbidden("토큰 소유자 정보가 일치하지 않습니다."));
+    }
+
+    String newAccessToken = jwtUtil.createJwt(
+            usernameInToken,
+            userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
+            15 * 60 * 1000L
+    );
+
+    response.addCookie(createCookie("Authorization", newAccessToken, 15 * 60));
+
+    // ✅ 토큰을 바디에도 함께 반환
+    return ResponseEntity.ok(
+            Map.of(
+                    "message", "Access 토큰 재발급 완료",
+                    "accessToken", newAccessToken,
+                    "status", true,
+                    "code", 200
+            )
+    );
   }
 
   /**

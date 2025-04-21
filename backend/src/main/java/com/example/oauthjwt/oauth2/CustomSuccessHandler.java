@@ -42,22 +42,24 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     GrantedAuthority auth = iterator.next();
     String role = auth.getAuthority();
 
-    // JWT 토큰 생성: 60일
-    String token = jwtUtil.createJwt(username, role, 60 * 60 * 60 * 60L);
-
+    // JWT 토큰 생성
+    // String token = jwtUtil.createJwt(username, role, 60 * 60 * 60L); // 1일
+    String accessToken = jwtUtil.createJwt(username, role, 15 * 60 * 1000L); // 15분
+    String refreshToken = jwtUtil.createRefreshToken(username, 7 * 24 * 60 * 60 * 1000L); // 7일
     // JWT 토큰을 쿠키로 전달
-    response.addCookie(createCookie("Authorization", token));
+    // response.addCookie(createCookie("Authorization", token));
+    response.addCookie(createCookie("Authorization", accessToken));
+    response.addCookie(createCookie("Refresh", refreshToken));
     response.sendRedirect("http://localhost:5173/");
   }
 
   private Cookie createCookie(String key, String value) {
-
     Cookie cookie = new Cookie(key, value);
-    cookie.setMaxAge(60 * 60 * 60 * 60); // 만료 시간 설정 (60일)
-    // cookie.setSecure(true);
+    cookie.setMaxAge("Authorization".equals(key) ? 15 * 60 : 7 * 24 * 60 * 60); // 15분 or 7일
     cookie.setPath("/");
     cookie.setHttpOnly(true); // 클라이언트 자바스크립트 접근 방지
-
+    cookie.setSecure(false); // 배포 시 true
+    cookie.setAttribute("SameSite", "Lax");
     return cookie;
   }
 }
