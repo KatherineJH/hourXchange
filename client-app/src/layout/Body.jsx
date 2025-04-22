@@ -1,6 +1,7 @@
 // AppLayout.jsx
 import React from 'react';
 import Sidebar from './Sidebar';
+import Login from '../userComponent/Login.jsx';
 
 const Body = ({ children }) => {
     return (
@@ -9,6 +10,7 @@ const Body = ({ children }) => {
             <div>
                 메인{children}
             </div>
+            <Login/>
         </div>
     );
 };

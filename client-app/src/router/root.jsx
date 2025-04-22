@@ -1,8 +1,9 @@
 import {createBrowserRouter} from "react-router-dom"
 import {lazy} from "react"
+import serviceProduct from "./serviceProduct.jsx";
 
 const Main = lazy(() => import("../page/Main.jsx"))
-import employeeRouter from "./employeeRouter.jsx";
+
 
 
 const root = createBrowserRouter([
@@ -12,9 +13,9 @@ const root = createBrowserRouter([
         children: [{index: true}]
     },
     {
-        path: 'chat',
+        path: 'serviceProduct',
         element: <Main/>,
-        children: employeeRouter()
+        children: serviceProduct()
     }
 ])
 
