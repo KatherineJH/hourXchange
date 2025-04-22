@@ -3,6 +3,7 @@ package com.example.oauthjwt.service.impl;
 import java.util.Collections;
 import java.util.Map;
 
+import com.example.oauthjwt.entity.Category;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.repository.CategoryRepository;
@@ -20,5 +21,16 @@ public class CategoryServiceImpl implements CategoryService {
       return Map.of("error", "해당 카테고리가 존재하지 않습니다.");
     }
     return Collections.emptyMap();
+  }
+
+  public Category create(String categoryName) {
+    Category category = Category.builder()
+            .categoryName(categoryName)
+            .build();
+    return categoryRepository.save(category);
+  }
+
+  public Category update(Long id, String categoryName) {
+    
   }
 }
