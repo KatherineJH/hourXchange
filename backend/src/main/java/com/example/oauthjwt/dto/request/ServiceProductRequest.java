@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ServiceProductRequest {
+  private Long id; // id
+
   private String title; // 제목
 
   private String description; // 설명

@@ -1,15 +1,16 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.repository.SPImageRepository;
 import com.example.oauthjwt.service.*;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.request.ServiceProductRequest;
-import com.example.oauthjwt.dto.request.ServiceProductUpdateRequest;
 import com.example.oauthjwt.dto.response.ServiceProductResponse;
 import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.repository.CategoryRepository;
@@ -17,49 +18,47 @@ import com.example.oauthjwt.repository.ServiceProductRepository;
 import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ServiceProductServiceImpl implements ServiceProductService {
 
   private final ServiceProductRepository serviceProductRepository;
   private final UserRepository userRepository;
   private final CategoryRepository categoryRepository;
-  private final UserService userService;
-  private final CategoryService categoryService;
-  private final SPImageService spImageService;
+  private final SPImageRepository spImageRepository;
 
 
   public ServiceProductResponse save(ServiceProductRequest serviceProductRequest) {
+    // 검증
+    User owner = userRepository.findById(serviceProductRequest.getOwnerId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+    Category category = categoryRepository.findById(serviceProductRequest.getCategoryId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
 
-    User owner = userRepository.findById(serviceProductRequest.getOwnerId()).get(); // 유저 조회
-    Category category =
-        categoryRepository.findById(serviceProductRequest.getCategoryId()).get(); // 카테고리 조회
-
-    ServiceProduct serviceProduct =
-        ServiceProduct.builder() // 저장할 객체 생성
-            .title(serviceProductRequest.getTitle())
-            .description(serviceProductRequest.getDescription())
-            .hours(serviceProductRequest.getHours())
-            .startedAt(serviceProductRequest.getStartedAt())
-            .endAt(serviceProductRequest.getEndAt())
-            .owner(owner)
-            .category(category)
-            .providerType(
-                ProviderType.valueOf(serviceProductRequest.getProviderType().toUpperCase()))
-            .build();
-
-    if (serviceProductRequest.getImages() != null
-        && !serviceProductRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
+    ProviderType providerType = ProviderType.parseProviderType(serviceProductRequest.getProviderType().toUpperCase());
+    if(providerType == null){
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
+    }
+    // 이미지 리스트 생성
+    List<SPImage> images = new ArrayList<>();
+    if (serviceProductRequest.getImages() != null && !serviceProductRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
       for (String url : serviceProductRequest.getImages()) { // 이미지 url list 등록
-        SPImage spImage = SPImage.builder().imgUrl(url).serviceProduct(serviceProduct).build();
+        if(spImageRepository.existsByImgUrl(url)){
+          log.info("이미지 주소 중복");
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
+        }
+        SPImage spImage = SPImage.builder().imgUrl(url).build();
 
-        serviceProduct.getImages().add(spImage);
+        images.add(spImage);
       }
     }
-
-    ServiceProduct result = serviceProductRepository.save(serviceProduct); // 저장 후 결과 반환
-
+    // 저장할 객체 생성
+    ServiceProduct serviceProduct = ServiceProduct.of(serviceProductRequest, owner, category, providerType, images);
+    // 저장 후 결과 반환
+    ServiceProduct result = serviceProductRepository.save(serviceProduct);
     return ServiceProductResponse.toDto(result);
   }
 
@@ -67,24 +66,37 @@ public class ServiceProductServiceImpl implements ServiceProductService {
 
   @Override
   public ServiceProductResponse findById(Long id) {
-    return ServiceProductResponse.toDto(serviceProductRepository.findById(id).get());
+    ServiceProduct serviceProduct = serviceProductRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+    return ServiceProductResponse.toDto(serviceProduct);
   }
 
   @Override
-  public ServiceProductResponse update(ServiceProductUpdateRequest serviceProductUpdateRequest) {
-    ServiceProduct serviceProduct =
-        serviceProductRepository.findById(serviceProductUpdateRequest.getId()).get(); // 제품 조회
+  public ServiceProductResponse update(ServiceProductRequest serviceProductRequest) {
+    // 검증
+    ServiceProduct serviceProduct = serviceProductRepository.findById(serviceProductRequest.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+    Category category = categoryRepository.findById(serviceProductRequest.getCategoryId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
 
-    Category category =
-        categoryRepository.findById(serviceProductUpdateRequest.getCategoryId()).get(); // 카테고리 조회
-
-    serviceProductUpdateRequest.setCategory(category); // 카테고리 DTO에 등록
-
-    ServiceProduct result =
-        serviceProductRepository.save(
-            serviceProduct.setUpdateValue(serviceProductUpdateRequest)); // 값 수정
-
-    return ServiceProductResponse.toDto(result); // 반환
+    ProviderType providerType = ProviderType.parseProviderType(serviceProductRequest.getProviderType().toUpperCase());
+    if(providerType == null){
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
+    }
+    // 이미지 리스트 생성
+    List<SPImage> images = new ArrayList<>();
+    if (serviceProductRequest.getImages() != null && !serviceProductRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
+      for (String url : serviceProductRequest.getImages()) { // 이미지 url list 등록
+        if(spImageRepository.existsByImgUrl(url)){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
+        }
+        SPImage spImage = SPImage.builder().imgUrl(url).serviceProduct(serviceProduct).build();
+        images.add(spImage);
+      }
+    }
+    // 저장 및 반환
+    ServiceProduct result = serviceProductRepository.save(serviceProduct.setUpdateValue(serviceProductRequest, category, providerType, images));
+    return ServiceProductResponse.toDto(result);
   }
 
   @Override
@@ -92,80 +104,5 @@ public class ServiceProductServiceImpl implements ServiceProductService {
     List<ServiceProduct> serviceProductList = serviceProductRepository.findAll();
 
     return serviceProductList.stream().map(ServiceProductResponse::toDto).collect(Collectors.toList());
-  }
-
-  @Override
-  public Map<String, String> saveCheck(ServiceProductRequest serviceProductRequest) {
-    Map<String, String> userCheck = userService.existsById(serviceProductRequest.getOwnerId());
-    if (!userCheck.isEmpty()) { // 등록한 사용자의 id가 존재하지 않으면
-      return userCheck;
-    }
-    // 카테고리가 있는지 조회
-    Map<String, String> categoryCheck =
-            categoryService.existsById(serviceProductRequest.getCategoryId());
-    if (!categoryCheck.isEmpty()) { // 카테고리 id 값을 통해 값이 존재 하지 않으면
-      return categoryCheck;
-    }
-    // 이미지 주소가 이미 있는지 조회
-    for (int i = 0; i < serviceProductRequest.getImages().size(); i++) {
-      Map<String, String> existsByImgUrlCheck =
-              spImageService.existsByImgUrl(serviceProductRequest.getImages().get(i));
-      if (!existsByImgUrlCheck.isEmpty()) {
-        return existsByImgUrlCheck;
-      }
-    }
-    // 타입이 있는지 조회
-    Map<String, String> ProviderTypeCheck =
-            ProviderType.existsByValue(serviceProductRequest.getProviderType());
-    if (!ProviderTypeCheck.isEmpty()) { // 타입이 enum 항목에 존재하지 않으면
-      return ProviderTypeCheck;
-    }
-
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public Map<String, String> updateCheck(ServiceProductUpdateRequest serviceProductUpdateRequest, CustomUserDetails customUserDetails) {
-    // 제품이 있는지 조회
-    Map<String, String> serviceProductCheck = existsById(serviceProductUpdateRequest.getId());
-    if (!serviceProductCheck.isEmpty()) {
-      return serviceProductCheck;
-    }
-    // 사용자가 있는지 조회
-    Map<String, String> userCheck = userService.existsById(serviceProductUpdateRequest.getOwnerId());
-    if (!userCheck.isEmpty()) { // 등록한 사용자의 id가 존재하지 않으면
-      return userCheck;
-    }
-    // 카테고리가 있는지 조회
-    Map<String, String> categoryCheck =
-            categoryService.existsById(serviceProductUpdateRequest.getCategoryId());
-    if (!categoryCheck.isEmpty()) { // 카테고리 id 값을 통해 값이 존재 하지 않으면
-      return categoryCheck;
-    }
-    // 이미지 주소가 이미 있는지 조회
-    for (int i = 0; i < serviceProductUpdateRequest.getImages().size(); i++) {
-      Map<String, String> existsByImgUrlCheck =
-              spImageService.existsByImgUrl(serviceProductUpdateRequest.getImages().get(i));
-      if (!existsByImgUrlCheck.isEmpty()) {
-        return existsByImgUrlCheck;
-      }
-    }
-    // 요청한 사용자와 토큰에 등록된 사용자가 같은지 조회
-    Map<String, String> userEqualsCheck =
-            userService.isEquals(
-                    serviceProductUpdateRequest.getOwnerId(), customUserDetails.getUser().getId());
-    if (!userEqualsCheck.isEmpty()) { // 요청한 사용자와 쿠키를 통해 가져온 사용자의 아이디가 다른경우
-      return userEqualsCheck;
-    }
-
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public Map<String, String> existsById(Long id) {
-    if (!serviceProductRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-      return Map.of("error", "제품를 찾을 수 없습니다.");
-    }
-    return Collections.emptyMap();
   }
 }

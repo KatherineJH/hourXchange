@@ -31,16 +31,25 @@ public class Transaction {
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private TRANSACTION_STATE status;
+  private TransactionStatus status;
 
   @Column(nullable = false)
   private LocalDateTime createdAt;
 
-  public Transaction setUpdateValue(TransactionUpdateRequest transactionUpdateRequest) {
-    this.user = transactionUpdateRequest.getUser();
-    this.product = transactionUpdateRequest.getServiceProduct();
-    this.status = TRANSACTION_STATE.valueOf(transactionUpdateRequest.getTransactionState());
-    this.createdAt = transactionUpdateRequest.getCreateAt();
+  public static Transaction of(TransactionRequest transactionRequest, User user, ServiceProduct product, TransactionStatus status) {
+    return Transaction.builder()
+            .user(user)
+            .product(product)
+            .status(status)
+            .createdAt(LocalDateTime.now())
+            .build();
+  }
+
+  public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, ServiceProduct serviceProduct, TransactionStatus status) {
+    this.user = user;
+    this.product = serviceProduct;
+    this.status = status;
+    this.createdAt = transactionRequest.getCreateAt();
     return this;
   }
 }
