@@ -30,4 +30,8 @@ public class Category {
   // single category can have multiple boards
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
   private List<Board> boards = new ArrayList<>();
+
+  public void updateCategory(String categoryName) {
+    this.categoryName=categoryName;
+  }
 }
