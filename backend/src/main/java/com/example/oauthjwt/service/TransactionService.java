@@ -12,14 +12,10 @@ import java.util.Map;
 
 public interface TransactionService {
 
-  TransactionResponse createTransaction(TransactionRequest transactionRequest);
-
-  Map<String, String> saveCheck(TransactionRequest transactionRequest);
-
-  Map<String, String> existsById(Long id);
+  TransactionResponse save(TransactionRequest transactionRequest);
 
   TransactionResponse findById(Long id);
   List<TransactionResponse> findAll();
 
-  TransactionResponse update(TransactionUpdateRequest transactionUpdateRequest);
+  TransactionResponse update(TransactionRequest transactionRequest);
 }

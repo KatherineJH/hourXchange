@@ -12,8 +12,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionRequest {
+  private Long id; // 트랜잭션 id
   private Long userId; // 대상 id
   private Long productId; // 대상 제품 id
-  private String transactionState; // 상태
+  private String transactionStatus; // 상태
   private LocalDateTime createAt; // 생성일
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.oauthjwt.dto.request.ServiceProductRequest;
 import com.example.oauthjwt.dto.request.ServiceProductUpdateRequest;
 
 import jakarta.persistence.*;
@@ -62,33 +63,38 @@ public class ServiceProduct {
   @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ChatRoom> chatRooms = new ArrayList<>();
 
-  public ServiceProduct setUpdateValue(ServiceProductUpdateRequest serviceProductUpdateRequest) {
-    if (serviceProductUpdateRequest.getTitle() != null) { // 제목
-      this.title = serviceProductUpdateRequest.getTitle();
-    }
-    if (serviceProductUpdateRequest.getDescription() != null) { // 설명
-      this.description = serviceProductUpdateRequest.getDescription();
-    }
-    if (serviceProductUpdateRequest.getHours() > 0) { // 시간(코스트)
-      this.hours = serviceProductUpdateRequest.getHours();
-    }
-    if (serviceProductUpdateRequest.getStartedAt() != null) { // 시작시간
-      this.startedAt = serviceProductUpdateRequest.getStartedAt();
-    }
-    if (serviceProductUpdateRequest.getEndAt() != null) { // 끝시간
-      this.endAt = serviceProductUpdateRequest.getEndAt();
-    }
-    if (serviceProductUpdateRequest.getCategory() != null) { // 카테고리
-      this.category = serviceProductUpdateRequest.getCategory();
-    }
-    if (serviceProductUpdateRequest.getImages() != null
-        && !serviceProductUpdateRequest.getImages().isEmpty()) { // 이미지
+  public static ServiceProduct of(ServiceProductRequest serviceProductRequest, User owner, Category category, ProviderType providerType) {
+    return ServiceProduct.builder()
+            .title(serviceProductRequest.getTitle())
+            .description(serviceProductRequest.getDescription())
+            .hours(serviceProductRequest.getHours())
+            .startedAt(serviceProductRequest.getStartedAt())
+            .endAt(serviceProductRequest.getEndAt())
+            .owner(owner)
+            .category(category)
+            .providerType(providerType)
+            .build();
+  }
+
+  public static ServiceProduct of(ServiceProductRequest serviceProductRequest, User owner, Category category, ProviderType providerType, List<SPImage> images) {
+    ServiceProduct serviceProduct = of(serviceProductRequest, owner, category, providerType);
+    images.forEach(image -> image.setServiceProduct(serviceProduct));
+    serviceProduct.getImages().addAll(images);
+    return serviceProduct;
+  }
+
+
+
+  public ServiceProduct setUpdateValue(ServiceProductRequest serviceProductRequest, Category category, ProviderType providerType, List<SPImage> images) {
+      this.title = serviceProductRequest.getTitle();
+      this.description = serviceProductRequest.getDescription();
+      this.hours = serviceProductRequest.getHours();
+      this.startedAt = serviceProductRequest.getStartedAt();
+      this.endAt = serviceProductRequest.getEndAt();
+      this.category = category;
+      this.providerType = providerType;
       this.getImages().clear();
-      for (String imageUrl : serviceProductUpdateRequest.getImages()) {
-        SPImage spImage = SPImage.builder().imgUrl(imageUrl).serviceProduct(this).build();
-        this.getImages().add(spImage);
-      }
-    }
+      this.getImages().addAll(images);
     return this;
   }
 }

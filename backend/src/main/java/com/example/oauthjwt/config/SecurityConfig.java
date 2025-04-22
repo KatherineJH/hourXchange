@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import com.example.oauthjwt.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@Log4j2
 public class SecurityConfig {
 
   @Value("${cors.allowed-origins:http://localhost:5173}")

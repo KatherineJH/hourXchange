@@ -1,0 +1,19 @@
+package com.example.oauthjwt.entity;
+
+import java.util.Collections;
+import java.util.Map;
+
+public enum TransactionStatus {
+  PENDING, // 시작 전
+  COMPLETED, // 완료
+  FAILED, // 실패
+  REFUNDED; // 환불
+
+  public static TransactionStatus parseTransactionType(String statusInput) {
+    try {
+      return TransactionStatus.valueOf(statusInput);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+}

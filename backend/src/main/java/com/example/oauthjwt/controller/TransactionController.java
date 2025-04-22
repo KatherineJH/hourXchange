@@ -1,21 +1,23 @@
 package com.example.oauthjwt.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import com.example.oauthjwt.dto.request.TransactionUpdateRequest;
+import com.example.oauthjwt.service.CustomUserDetails;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
-import com.example.oauthjwt.entity.TRANSACTION_STATE;
-import com.example.oauthjwt.service.ServiceProductService;
 import com.example.oauthjwt.service.TransactionService;
-import com.example.oauthjwt.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,24 +28,14 @@ public class TransactionController {
 
   @PostMapping("/")
   public ResponseEntity<?> save(@RequestBody TransactionRequest transactionRequest) {
-    // 검증
-    Map<String, String> saveCheck = transactionService.saveCheck(transactionRequest);
-    if (!saveCheck.isEmpty()) {
-      return ResponseEntity.ok(saveCheck);
-    }
-    // 조회
-    TransactionResponse result = transactionService.createTransaction(transactionRequest);
+    // 저장
+    TransactionResponse result = transactionService.save(transactionRequest);
     // 반환
     return ResponseEntity.ok(result);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<?> findById(@PathVariable("id") Long id) {
-    // 검증
-    Map<String, String> existsByIdCheck = transactionService.existsById(id);
-    if (!existsByIdCheck.isEmpty()) {
-      return ResponseEntity.ok(existsByIdCheck);
-    }
     // 조회
     TransactionResponse result = transactionService.findById(id);
     // 반환
@@ -56,16 +48,14 @@ public class TransactionController {
     return ResponseEntity.ok(transactionResponseList);
   }
 
+//  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   @PutMapping("/{id}")
-  public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody TransactionUpdateRequest transactionUpdateRequest) {
-    // 검증
-    Map<String, String> saveCheck = transactionService.saveCheck(transactionUpdateRequest);
-    if (!saveCheck.isEmpty()) {
-      return ResponseEntity.ok(saveCheck);
-    }
-    transactionUpdateRequest.setId(id);
+  public ResponseEntity<?> update(@PathVariable("id") Long id,
+                                  @RequestBody TransactionRequest transactionRequest,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+    transactionRequest.setId(id);
 
-    TransactionResponse result = transactionService.update(transactionUpdateRequest);
+    TransactionResponse result = transactionService.update(transactionRequest);
     return ResponseEntity.ok(result);
   }
 

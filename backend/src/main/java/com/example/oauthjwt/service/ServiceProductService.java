@@ -16,7 +16,7 @@ public interface ServiceProductService {
 
   ServiceProductResponse findById(Long id);
 
-  ServiceProductResponse update(ServiceProductUpdateRequest serviceProductUpdateRequest);
+  ServiceProductResponse update(ServiceProductRequest serviceProductRequest);
 
   List<ServiceProductResponse> findAll();
 }
