@@ -38,7 +38,7 @@ public class AuthController {
     Map<String, String> notExistsByEmailResult = userService.notExistsByEmail(userDTO.getEmail());
     if (!notExistsByEmailResult.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
       return ResponseEntity.badRequest()
-          .body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
+              .body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
     }
     UserDTO result = userService.signup(userDTO);
 
@@ -54,25 +54,19 @@ public class AuthController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .body(Map.of("error", "Invalid email or password"));
     }
-
     if (!passwordEncoder.matches(userDTO.getPassword(), userDetails.getPassword())) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .body(Map.of("error", "Invalid email or password"));
     }
-
     String accessToken = jwtUtil.createJwt(
             userDetails.getUsername(),
             userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
-            15 * 60 * 1000L
-    ); // ✅ Access Token (15분)
-
+            15 * 60 * 1000L ); // ✅ Access Token (15분)
     String refreshToken = jwtUtil.createRefreshToken(
-            userDetails.getUsername(),
-            7 * 24 * 60 * 60 * 1000L
-    ); // ✅ Refresh Token (7일)
+            userDetails.getUsername(), 7 * 24 * 60 * 60 * 1000L); // ✅ Refresh Token (7일)
 
-    response.addCookie(createCookie("Authorization", accessToken, 15 * 60));
-    response.addCookie(createCookie("Refresh", refreshToken, 7 * 24 * 60 * 60));
+    // response.addCookie(createAccessCookie(accessToken)); // 15분(주석 처리 이유: Local Storage에 저장)
+    response.addCookie(createRefreshCookie(refreshToken)); // 7일
 
     return ResponseEntity.ok(Map.of(
             "message", "로그인 성공",
@@ -83,37 +77,11 @@ public class AuthController {
     ));
   }
 
-  private Cookie createCookie(String key, String value, int maxAgeInSeconds) {
-    Cookie cookie = new Cookie(key, value);
-    cookie.setHttpOnly(true);
-    cookie.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
-    cookie.setPath("/");
-    cookie.setMaxAge(maxAgeInSeconds);
-    cookie.setAttribute("SameSite", "Lax");
-    return cookie;
-  }
-
   // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리
   @PostMapping("/logout")
   public ResponseEntity<?> logout(HttpServletResponse response) {
-    // ✅ Access Token 삭제
-    Cookie accessToken = new Cookie("Authorization", null);
-    accessToken.setMaxAge(0);
-    accessToken.setPath("/");
-    accessToken.setHttpOnly(true);
-    accessToken.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
-    accessToken.setAttribute("SameSite", "Lax"); // 배포 후 -> None(CORS 허용 + 인증 유지)
-    response.addCookie(accessToken);
-
-    // ✅ Refresh Token 삭제
-    Cookie refreshToken = new Cookie("Refresh", null);
-    refreshToken.setMaxAge(0);
-    refreshToken.setPath("/");
-    refreshToken.setHttpOnly(true);
-    refreshToken.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
-    refreshToken.setAttribute("SameSite", "Lax"); // 배포 후 -> None(CORS 허용 + 인증 유지)
-    response.addCookie(refreshToken);
-
+    response.addCookie(createDeleteCookie("Authorization")); // ✅ Access Token 삭제
+    response.addCookie(createDeleteCookie("Refresh")); // ✅ Refresh Token 삭제
     return ResponseEntity.ok("로그아웃 완료");
   }
 
@@ -125,7 +93,6 @@ public class AuthController {
       return ResponseEntity.status(401)
               .body(ApiResponse.unauthorized("Refresh 토큰이 만료되었습니다."));
     }
-
     String usernameInToken = jwtUtil.getUsername(refreshToken);
 
     UserDetails userDetails;
@@ -135,21 +102,18 @@ public class AuthController {
       return ResponseEntity.status(401)
               .body(ApiResponse.unauthorized("유효하지 않은 사용자입니다."));
     }
-
     if (!userDetails.getUsername().equals(usernameInToken)) {
       return ResponseEntity.status(403)
               .body(ApiResponse.forbidden("토큰 소유자 정보가 일치하지 않습니다."));
     }
-
     String newAccessToken = jwtUtil.createJwt(
             usernameInToken,
             userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
             15 * 60 * 1000L
     );
+//    response.addCookie(createAccessCookie(newAccessToken)); // 15분짜리만 갱신(주석 이유: Local Storage에 저장)
 
-    response.addCookie(createCookie("Authorization", newAccessToken, 15 * 60));
-
-    // ✅ 토큰을 바디에도 함께 반환
+    // ✅ 토큰을 바디에 함께 반환
     return ResponseEntity.ok(
             Map.of(
                     "message", "Access 토큰 재발급 완료",
@@ -160,13 +124,40 @@ public class AuthController {
     );
   }
 
-  /**
-   * HttpOnly 쿠키에 저장된 JWT 토큰을 클라이언트가 직접 꺼내올 수 없기 때문에, 서버에게 토큰을 요청해서 JS 코드에서 사용 웹소켓 연결, 로그인 후 /chat
-   * 페이지로 넘어갔을 때 토큰을 꺼내 STOMP 연결 등에서 사용.
-   */
+  private Cookie createAccessCookie(String value) {
+    Cookie cookie = new Cookie("Authorization", value);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
+    cookie.setPath("/");
+    cookie.setMaxAge(15 * 60); // 15분
+    cookie.setAttribute("SameSite", "Lax");
+    return cookie;
+  }
+
+  private Cookie createRefreshCookie(String value) {
+    Cookie cookie = new Cookie("Refresh", value);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
+    cookie.setPath("/");
+    cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+    cookie.setAttribute("SameSite", "Lax");
+    return cookie;
+  }
+
+  private Cookie createDeleteCookie(String name) {
+    Cookie cookie = new Cookie(name, null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)
+    cookie.setAttribute("SameSite", "Lax"); // 배포 후 -> None(CORS 허용 + 인증 유지)
+    return cookie;
+  }
+
+  // HttpOnly 쿠키에 저장된 Access Token을 프론트엔드에서 사용하기 위해 꺼내오는 용도
   @GetMapping("/token")
   public ResponseEntity<?> getTokenFromCookie(HttpServletRequest request) {
-    String token = jwtUtil.getTokenFromCookies(request);
+    String token = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
     if (token == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token found");
     }

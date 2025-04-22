@@ -54,46 +54,27 @@ public class JWTFilter extends OncePerRequestFilter {
             path.startsWith("/login/oauth2/code/");
   }
 
+  /**
+   * 🔒 accessToken은 localStorage에 저장하고 요청 헤더에 Authorization: Bearer <token> 형식으로 보냄
+   * 🔐 refreshToken만 HttpOnly 쿠키에 저장해서 백엔드 /refresh에서만 사용
+   * 따라서 JWTFilter는 더 이상 쿠키를 읽으면 안 되고, 헤더만 검사해야 합니다.
+   * */
   @Override
   protected void doFilterInternal(
           HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
           throws ServletException, IOException {
-//    // 1. 쿠키 사용하지 않는 방식
-//    String authHeaderStr = request.getHeader("Authorization"); // 헤더에 Authorization 이름으로 "Bearer " + token으로 보냄
-//    String authorization = authHeaderStr.substring(7); // "Bearer "를 제외한 토큰 값만
-//    Map<String, Object> claims = jwtUtil.validateToken(authorization); // 토큰에서 값 추출과 검증
-//
-//    /**
-//     * ✅ 유효한 토큰 → 사용자 정보 추출
-//     * String username = jwtUtil.getUsername(authorization);
-//     * loadUserByUsername이 유저 정보를 조회할 수 있게 함
-//     * */
-//    UserDetails userDetails =
-//        userDetailsService.loadUserByUsername(
-//            claims.get("username").toString()); // 토큰에 있던 email 값으로 조회
-//    Authentication authToken =
-//        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//    SecurityContextHolder.getContext().setAuthentication(authToken);
-//    filterChain.doFilter(request, response);
 
-    // 2. 쿠키 사용 함 - 프론트 채팅 테스트 시 주석 풀고 사용
-    String token = null;
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      token = Arrays.stream(cookies)
-              .filter(cookie -> "Authorization".equals(cookie.getName()))
-              .map(Cookie::getValue)
-              .findFirst()
-              .orElse(null);
-    }
+    String authHeader = request.getHeader("Authorization");
 
-    if (token == null) {
-      log.debug("No Authorization cookie found");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      log.debug("No Authorization header found");
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
       response.getWriter().write("{\"error\": \"No token provided\"}");
       return;
     }
+
+    String token = authHeader.substring(7); // "Bearer " 제외
 
     try {
       if (jwtUtil.isExpired(token)) {
