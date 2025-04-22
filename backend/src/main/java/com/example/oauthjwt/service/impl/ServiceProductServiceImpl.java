@@ -25,9 +25,6 @@ public class ServiceProductServiceImpl implements ServiceProductService {
   private final ServiceProductRepository serviceProductRepository;
   private final UserRepository userRepository;
   private final CategoryRepository categoryRepository;
-  private final UserService userService;
-  private final CategoryService categoryService;
-  private final SPImageService spImageService;
 
 
   public ServiceProductResponse save(ServiceProductRequest serviceProductRequest) {
@@ -92,80 +89,5 @@ public class ServiceProductServiceImpl implements ServiceProductService {
     List<ServiceProduct> serviceProductList = serviceProductRepository.findAll();
 
     return serviceProductList.stream().map(ServiceProductResponse::toDto).collect(Collectors.toList());
-  }
-
-  @Override
-  public Map<String, String> saveCheck(ServiceProductRequest serviceProductRequest) {
-    Map<String, String> userCheck = userService.existsById(serviceProductRequest.getOwnerId());
-    if (!userCheck.isEmpty()) { // 등록한 사용자의 id가 존재하지 않으면
-      return userCheck;
-    }
-    // 카테고리가 있는지 조회
-    Map<String, String> categoryCheck =
-            categoryService.existsById(serviceProductRequest.getCategoryId());
-    if (!categoryCheck.isEmpty()) { // 카테고리 id 값을 통해 값이 존재 하지 않으면
-      return categoryCheck;
-    }
-    // 이미지 주소가 이미 있는지 조회
-    for (int i = 0; i < serviceProductRequest.getImages().size(); i++) {
-      Map<String, String> existsByImgUrlCheck =
-              spImageService.existsByImgUrl(serviceProductRequest.getImages().get(i));
-      if (!existsByImgUrlCheck.isEmpty()) {
-        return existsByImgUrlCheck;
-      }
-    }
-    // 타입이 있는지 조회
-    Map<String, String> ProviderTypeCheck =
-            ProviderType.existsByValue(serviceProductRequest.getProviderType());
-    if (!ProviderTypeCheck.isEmpty()) { // 타입이 enum 항목에 존재하지 않으면
-      return ProviderTypeCheck;
-    }
-
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public Map<String, String> updateCheck(ServiceProductUpdateRequest serviceProductUpdateRequest, CustomUserDetails customUserDetails) {
-    // 제품이 있는지 조회
-    Map<String, String> serviceProductCheck = existsById(serviceProductUpdateRequest.getId());
-    if (!serviceProductCheck.isEmpty()) {
-      return serviceProductCheck;
-    }
-    // 사용자가 있는지 조회
-    Map<String, String> userCheck = userService.existsById(serviceProductUpdateRequest.getOwnerId());
-    if (!userCheck.isEmpty()) { // 등록한 사용자의 id가 존재하지 않으면
-      return userCheck;
-    }
-    // 카테고리가 있는지 조회
-    Map<String, String> categoryCheck =
-            categoryService.existsById(serviceProductUpdateRequest.getCategoryId());
-    if (!categoryCheck.isEmpty()) { // 카테고리 id 값을 통해 값이 존재 하지 않으면
-      return categoryCheck;
-    }
-    // 이미지 주소가 이미 있는지 조회
-    for (int i = 0; i < serviceProductUpdateRequest.getImages().size(); i++) {
-      Map<String, String> existsByImgUrlCheck =
-              spImageService.existsByImgUrl(serviceProductUpdateRequest.getImages().get(i));
-      if (!existsByImgUrlCheck.isEmpty()) {
-        return existsByImgUrlCheck;
-      }
-    }
-    // 요청한 사용자와 토큰에 등록된 사용자가 같은지 조회
-    Map<String, String> userEqualsCheck =
-            userService.isEquals(
-                    serviceProductUpdateRequest.getOwnerId(), customUserDetails.getUser().getId());
-    if (!userEqualsCheck.isEmpty()) { // 요청한 사용자와 쿠키를 통해 가져온 사용자의 아이디가 다른경우
-      return userEqualsCheck;
-    }
-
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public Map<String, String> existsById(Long id) {
-    if (!serviceProductRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-      return Map.of("error", "제품를 찾을 수 없습니다.");
-    }
-    return Collections.emptyMap();
   }
 }

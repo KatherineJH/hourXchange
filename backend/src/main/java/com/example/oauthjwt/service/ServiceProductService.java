@@ -17,12 +17,6 @@ public interface ServiceProductService {
   ServiceProductResponse findById(Long id);
 
   ServiceProductResponse update(ServiceProductUpdateRequest serviceProductUpdateRequest);
-  
-  Map<String, String> saveCheck(ServiceProductRequest serviceProductRequest);
-  
-  Map<String, String> updateCheck(ServiceProductUpdateRequest serviceProductUpdateRequest, CustomUserDetails customUserDetails);
-
-  Map<String, String> existsById(Long id);
 
   List<ServiceProductResponse> findAll();
 }
