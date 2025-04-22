@@ -37,13 +37,16 @@ public class WebSocketEventListener {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         String chatRoomId = (String) headerAccessor.getSessionAttributes().get("chatRoomId");
-        if (chatRoomId != null) {
-            log.info("User disconnected: {}", username);
-            ChatMessage chatMessage = ChatMessage.builder()
-                    .chatRoomUserStatus(ChatRoomUserStatus.LEAVE)
-                    .content(username + "님이 퇴장하셨습니다.")
-                    .build();
-            messagingTemplate.convertAndSend("/topic/room/" + chatRoomId, chatMessage);
+        if (chatRoomId == null) {
+            log.warn("No chatRoomId found for user: {}", username);
+            return;
         }
+
+        log.info("User disconnected: {}", username);
+        ChatMessage chatMessage = ChatMessage.builder()
+                .chatRoomUserStatus(ChatRoomUserStatus.LEAVE)
+                .content(username + "님이 퇴장하셨습니다.")
+                .build();
+        messagingTemplate.convertAndSend("/topic/room/" + chatRoomId, chatMessage);
     }
 }

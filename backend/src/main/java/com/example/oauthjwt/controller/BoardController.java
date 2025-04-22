@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Log4j2
 @RestController
 @RequestMapping("/api/board")
@@ -33,6 +35,17 @@ public class BoardController {
         }
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> findAllBoards(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            List<BoardResponse> responses = boardService.findAllBoards();
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.serverError("게시글 전체 조회 중 오류가 발생했습니다."));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(
             @PathVariable Long id,
@@ -40,6 +53,22 @@ public class BoardController {
         try {
             Long userId = userDetails.getUser().getId();
             BoardResponse response = boardService.findById(id, userId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
+        }
+    }
+
+    @GetMapping("/me/{id}")
+    public ResponseEntity<?> findMyBoardById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            Long userId = userDetails.getUser().getId();
+            BoardResponse response = boardService.findMyBoardById(id, userId);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
