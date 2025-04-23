@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class CategoryServiceImpl implements CategoryService {
   private final CategoryRepository categoryRepository;
 
-
   @Override
   public List<CategoryResponse> findAll() {
     List<Category> categoryList = categoryRepository.findAll();
@@ -48,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     return categoryRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("해당 카테고리가 존재하지 않음"));
   }
 
-  public List<Category> findAll(){
-    return categoryRepository.findAll();
-  }
+//  public List<Category> findAll(){
+//    return categoryRepository.findAll();
+//  }
 }

@@ -31,6 +31,7 @@ public class CategoryController {
     public ResponseEntity<?> findAll() {
         List<CategoryResponse> result = categoryService.findAll();
         return ResponseEntity.ok(result);
+    }
     @PostMapping("/")
     public ResponseEntity<?> create(@RequestParam String categoryName){
         try {
@@ -60,10 +61,10 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestParam String categoryName){
-        Map<String,String> existenceCheck=categoryService.existsById(id);
-        if(!existenceCheck.isEmpty()) {
-            return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
-        }
+//        Map<String,String> existenceCheck=categoryService.existsById(id);
+//        if(!existenceCheck.isEmpty()) {
+//            return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
+//        }
         Category update = categoryService.updateCategory(id, categoryName);
         CategoryResponse categoryResponse=CategoryResponse.toDto(update);
         return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
