@@ -17,6 +17,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * ✅ 리팩토링 포인트:
+ * - Access Token은 바디와 localStorage로 관리 (쿠키 X)
+ * - Refresh Token은 HttpOnly 쿠키로만 발급
+ * - /refresh에서 Refresh Token은 재발급하지 않음
+ * ✅ 적용된 파일: AuthController, CustomSuccessHandler
+ * */
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
@@ -29,8 +36,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
   @Override
   public void onAuthenticationSuccess(
-      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-      throws IOException, ServletException {
+          HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+          throws IOException, ServletException {
 
     // OAuth2User
     CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
@@ -43,12 +50,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     String role = auth.getAuthority();
 
     // JWT 토큰 생성
-    // String token = jwtUtil.createJwt(username, role, 60 * 60 * 60L); // 1일
     String accessToken = jwtUtil.createJwt(username, role, 15 * 60 * 1000L); // 15분
     String refreshToken = jwtUtil.createRefreshToken(username, 7 * 24 * 60 * 60 * 1000L); // 7일
     // JWT 토큰을 쿠키로 전달
-    // response.addCookie(createCookie("Authorization", token));
-    response.addCookie(createCookie("Authorization", accessToken));
+//    response.addCookie(createCookie("Authorization", accessToken)); // LocalStorage에 저장
     response.addCookie(createCookie("Refresh", refreshToken));
     response.sendRedirect("http://localhost:5173/");
   }
