@@ -15,7 +15,6 @@ public class AdvertisementRequest {
 
     private Long id;
 
-    @NotNull(message = "작성자는 필수입니다.")
     private Long ownerId;
 
     private String title;

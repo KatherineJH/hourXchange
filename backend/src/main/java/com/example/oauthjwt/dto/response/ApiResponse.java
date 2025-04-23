@@ -1,5 +1,6 @@
 package com.example.oauthjwt.dto.response;
 
+import com.example.oauthjwt.entity.Advertisement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ public class ApiResponse {
     private boolean status;
     private int code;
 
-    public static ApiResponse success(String message) {
+    public static ApiResponse success(String message, Advertisement response) {
         return new ApiResponse(message, true, 200);
     }
 

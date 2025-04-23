@@ -8,8 +8,6 @@ import java.util.Map;
 
 public interface AdvertisementService {
 
-    Map<String, String> existsById(Long id);
-
     Advertisement createAdvertisement(AdvertisementRequest advertisementRequest);
 
     Advertisement findAdvertisementById(Long advertisementId, Long ownerId);
@@ -17,6 +15,4 @@ public interface AdvertisementService {
     Advertisement updateAdvertisement(AdvertisementRequest advertisementRequest);
 
     List<Advertisement> findAllAdvertisements();
-
-    void deleteAdvertisement(Long id);
 }
