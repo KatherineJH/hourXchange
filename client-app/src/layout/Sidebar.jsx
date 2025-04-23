@@ -12,19 +12,32 @@ import {
   Typography,
   Collapse,
 } from "@mui/material";
+import { Link as RouterLink } from 'react-router-dom';
+
+
+const menu = [
+    { text: '삽니다',    to: '/buy' },
+    { text: '팝니다',    to: '/sell' },
+    { text: '봉사해요',  to: '/volunteer' },
+    { text: '커뮤니티',  to: '/community' },
+];
 
 const Sidebar = () => {
   const [openRegion, setOpenRegion] = useState(false);
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
-      <List>
-        {["삽니다", "팝니다", "봉사해요", "커뮤니티"].map((text) => (
-          <ListItemButton key={text}>
-            <ListItemText primary={text} />
-          </ListItemButton>
-        ))}
-      </List>
+        <List>
+            {menu.map(item => (
+                <ListItemButton
+                    key={item.text}
+                    component={RouterLink}  // React Router <Link> 로 동작
+                    to={item.to}            // 이동할 경로
+                >
+                    <ListItemText primary={item.text} />
+                </ListItemButton>
+            ))}
+        </List>
 
       <Divider sx={{ my: 2 }} />
 
