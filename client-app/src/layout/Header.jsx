@@ -20,7 +20,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUser, logoutUser } from "../state/auth/Action";
 import { useNavigate } from "react-router-dom";
-import bgImage from "../image/background.jpg";
+import bgImage from "../assets/image/background.jpg";
 
 function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
