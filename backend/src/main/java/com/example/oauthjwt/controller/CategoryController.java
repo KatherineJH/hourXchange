@@ -11,8 +11,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -23,6 +27,11 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
 
+    @GetMapping("/list")
+    public ResponseEntity<?> findAll() {
+        List<CategoryResponse> result = categoryService.findAll();
+        return ResponseEntity.ok(result);
+    }
     @PostMapping("/")
     public ResponseEntity<?> create(@RequestParam String categoryName){
         try {
@@ -52,10 +61,10 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestParam String categoryName){
-        Map<String,String> existenceCheck=categoryService.existsById(id);
-        if(!existenceCheck.isEmpty()) {
-            return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
-        }
+//        Map<String,String> existenceCheck=categoryService.existsById(id);
+//        if(!existenceCheck.isEmpty()) {
+//            return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
+//        }
         Category update = categoryService.updateCategory(id, categoryName);
         CategoryResponse categoryResponse=CategoryResponse.toDto(update);
         return new ResponseEntity<>(categoryResponse, HttpStatus.OK);

@@ -93,7 +93,6 @@ public class ServiceProduct {
       this.endAt = serviceProductRequest.getEndAt();
       this.category = category;
       this.providerType = providerType;
-      this.getImages().clear();
       this.getImages().addAll(images);
     return this;
   }

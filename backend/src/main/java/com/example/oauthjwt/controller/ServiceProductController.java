@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import com.example.oauthjwt.service.*;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +26,11 @@ public class ServiceProductController {
   private final ServiceProductService serviceProductService;
 
   @PostMapping("/")
-  public ResponseEntity<?> save(@RequestBody ServiceProductRequest serviceProductRequest) {
+  public ResponseEntity<?> save(@RequestBody @Valid ServiceProductRequest serviceProductRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    // 인증한 유저의 id 값으로 할당
+    serviceProductRequest.setOwnerId(userDetails.getUser().getId());
+
+    log.info(serviceProductRequest.toString());
     // 로직 실행
     ServiceProductResponse result = serviceProductService.save(serviceProductRequest);
     // 저장된 값 반환
@@ -43,7 +48,7 @@ public class ServiceProductController {
   @PutMapping("/{id}")
   public ResponseEntity<?> update(
           @PathVariable Long id,
-          @RequestBody ServiceProductRequest serviceProductRequest,
+          @RequestBody @Valid ServiceProductRequest serviceProductRequest,
           @AuthenticationPrincipal CustomUserDetails userDetails) {
     if(!userDetails.getUser().getId().equals(serviceProductRequest.getOwnerId())){
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "본인이 등록한 제품만 수정이 가능합니다.");

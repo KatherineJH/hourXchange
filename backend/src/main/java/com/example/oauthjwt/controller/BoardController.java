@@ -6,6 +6,7 @@ import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.service.BoardService;
 import com.example.oauthjwt.service.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +24,16 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("/")
-    public ResponseEntity<?> save(@RequestBody BoardRequest boardRequest) {
+    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest) {
         log.info(boardRequest);
-        try {
+//        try {
             BoardResponse result = boardService.save(boardRequest);
             return ResponseEntity.ok(result);
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
-        }
+//        } catch (ValidationException e) {
+//            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
+//        } catch (Exception e) {
+//            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
+//        }
     }
 
     @GetMapping("/all")
