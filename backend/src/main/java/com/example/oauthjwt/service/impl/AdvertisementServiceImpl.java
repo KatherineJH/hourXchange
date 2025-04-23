@@ -37,8 +37,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     public Advertisement createAdvertisement(AdvertisementRequest advertisementRequest) {
             User owner = userRepository.findById(advertisementRequest.getOwnerId())
                     .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
-            Advertisement advertisement =advertisementRepository.find
-
+//            Advertisement advertisement =advertisementRepository.find
+return null;
     }
 
    public Advertisement findAdvertisementById(Long advertisementId, Long ownerId) {
@@ -54,11 +54,21 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         return advertisement1;
    }
 
+    @Override
+    public Advertisement updateAdvertisement(AdvertisementRequest advertisementRequest) {
+        return null;
+    }
+
     public List<Advertisement> findAllAdvertisements() {
         return advertisementRepository.findAll();
     }
 
-    public Advertisement updateAdvertisement() {
+    @Override
+    public void deleteAdvertisement(Long id) {
 
+    }
+
+    public Advertisement updateAdvertisement() {
+return null;
     }
 }

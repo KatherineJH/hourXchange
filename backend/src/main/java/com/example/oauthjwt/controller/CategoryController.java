@@ -46,16 +46,16 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-          try{
-              Category category = categoryService.findById(id);
-              CategoryResponse categoryResponse = CategoryResponse.toDto(category);
-              return ResponseEntity.ok(categoryResponse);
-          }catch(IllegalArgumentException e) {
-              return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-          }catch(Exception e) {
-              log.error("카테고리 조회 오류", e);
-              return ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 조회 오류"));
-          }
+        try{
+            Category category = categoryService.findById(id);
+            CategoryResponse categoryResponse = CategoryResponse.toDto(category);
+            return ResponseEntity.ok(categoryResponse);
+        }catch(IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
+        }catch(Exception e) {
+            log.error("카테고리 조회 오류", e);
+            return ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 조회 오류"));
+        }
     }
 
 
