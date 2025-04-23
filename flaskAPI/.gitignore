@@ -1,0 +1,39 @@
+# 📁 Python 기본
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pkl
+*.log
+
+# 🐍 가상환경
+venv/
+.env
+.env.*
+
+# 🧠 모델 체크포인트
+*.pt
+*.ckpt
+*.safetensors
+
+# 🤗 HuggingFace 캐시
+.cache/
+.huggingface/
+
+# 📦 pip/conda 관련 파일
+pip-log.txt
+*.whl
+
+# 💻 VSCode / PyCharm 설정
+.vscode/
+.idea/
+
+# 📄 Jupyter 관련
+.ipynb_checkpoints/
+*.ipynb
+
+# 📁 기타
+.DS_Store
+*.bak
+*.tmp
