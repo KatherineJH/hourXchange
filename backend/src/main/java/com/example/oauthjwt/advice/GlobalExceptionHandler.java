@@ -1,5 +1,6 @@
 package com.example.oauthjwt.advice;
 
+import com.example.oauthjwt.exception.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,19 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(body);
     }
+
+    // 1) ValidationException 처리 (e.g. 400 BAD_REQUEST)
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Map<String,Object>> handleValidationException(ValidationException ex) {
+        Map<String,Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        body.put("message", ex.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(body);
+    }
+
 
     // 3) 기타 예외 (500 INTERNAL_SERVER_ERROR)
 //    @ExceptionHandler(Exception.class)

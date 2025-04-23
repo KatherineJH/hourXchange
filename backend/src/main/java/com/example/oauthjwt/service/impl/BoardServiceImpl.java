@@ -7,8 +7,10 @@ import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,15 +46,18 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardResponse save(BoardRequest boardRequest) {
         User author = userRepository.findById(boardRequest.getAuthorId())
-                .orElseThrow(() -> new ValidationException("작성자 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
+//                .orElseThrow(() -> new ValidationException("작성자 정보가 존재하지 않습니다."));
 
         Category category = categoryRepository.findById(boardRequest.getCategoryId())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
                 .orElseThrow(() -> new ValidationException("카테고리가 존재하지 않습니다."));
 
         if (boardRequest.getImages() != null) {
             for (String url : boardRequest.getImages()) {
                 if (boardImageRepository.existsByImgUrl(url)) {
-                    throw new ValidationException("이미 등록된 이미지입니다: " + url);
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 등록된 이미지입니다: " + url);
+//                    throw new ValidationException("이미 등록된 이미지입니다: " + url);
                 }
             }
         }
