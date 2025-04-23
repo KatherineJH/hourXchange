@@ -108,7 +108,7 @@ function Header() {
               >
                 {user?.name ? (
                   <Typography variant="subtitle1">
-                    {user.name.charAt(0)}
+                    {user.name.charAt(0).toUpperCase()}
                   </Typography>
                 ) : (
                   <AccountCircle />
@@ -125,6 +125,8 @@ function Header() {
           <MenuItem disabled>
             {user?.name ? `${user.name}님, 환영합니다` : "로그인되지 않음"}
           </MenuItem>
+          <MenuItem>Profile</MenuItem>
+          <MenuItem>Transaction</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Box>
