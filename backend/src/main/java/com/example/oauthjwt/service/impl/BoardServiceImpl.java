@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +80,15 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public List<BoardResponse> findAllBoards() {
+        List<Board> boards = boardRepository.findAll();
+
+        return boards.stream()
+                .map(BoardResponse::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public BoardResponse findById(Long boardId, Long userId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
@@ -92,6 +99,18 @@ public class BoardServiceImpl implements BoardService {
                 .isPresent();
 
         return BoardResponse.toDto(board, likeCount, likedByMe);
+    }
+
+    @Override
+    public BoardResponse findMyBoardById(Long boardId, Long userId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!board.getAuthor().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 게시글만 조회할 수 있습니다.");
+        }
+
+        return BoardResponse.toDto(board);
     }
 
     @Override

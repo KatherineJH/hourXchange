@@ -1,3 +1,4 @@
+//src/component/chat/ChatRoom.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import axios from "axios";
@@ -36,7 +37,6 @@ const ChatRoom = () => {
             console.log("✅ STOMP 연결 성공");
             setStatus("🟢 연결됨");
 
-            // ✅ 채팅방 구독
             client.subscribe(`/topic/room/${numericRoomId}`, (message) => {
               const body = JSON.parse(message.body);
               if (body.type === "JOIN") {
@@ -54,7 +54,6 @@ const ChatRoom = () => {
               }
             });
 
-            // ✅ 입장 메시지 전송
             const enterPayload = { chatRoomId: numericRoomId };
             console.log("🚪 입장 메시지 전송:", enterPayload);
             client.publish({

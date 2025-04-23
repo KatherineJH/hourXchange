@@ -3,6 +3,7 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 
+import java.util.List;
 import java.util.Map;
 
 public interface BoardService {
@@ -12,7 +13,11 @@ public interface BoardService {
 
     BoardResponse save(BoardRequest boardRequest);
 
+    List<BoardResponse> findAllBoards();
+
     BoardResponse findById(Long boardId, Long userId);
+
+    BoardResponse findMyBoardById(Long boardId, Long userId);
 
     BoardResponse update(BoardRequest boardRequest);
 

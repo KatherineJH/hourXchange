@@ -5,11 +5,13 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {
@@ -28,4 +30,8 @@ public class Category {
   // single category can have multiple boards
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
   private List<Board> boards = new ArrayList<>();
+
+  public void updateCategory(String categoryName) {
+    this.categoryName=categoryName;
+  }
 }

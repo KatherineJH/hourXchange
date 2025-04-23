@@ -79,10 +79,24 @@ public class JWTUtil {
             .orElse(null);
   }
 
-  public String getUsernameFromToken(String token) {
-    Claims claims =
-            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
-    return claims.getSubject();
+  public String getTokenFromCookiesByName(HttpServletRequest request, String name) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) return null;
+
+    return Arrays.stream(cookies)
+            .filter(cookie -> name.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElse(null);
+  }
+
+  public String createRefreshToken(String username, Long refreshExpirationMs) {
+    return Jwts.builder()
+            .claim("username", username)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+            .signWith(secretKey)
+            .compact();
   }
 
   public Map<String, Object> validateToken(String token) {
