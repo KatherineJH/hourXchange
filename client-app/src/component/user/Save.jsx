@@ -48,11 +48,11 @@ function Save(props) {
             </div>
             <div>
                 <label htmlFor="password">비밀번호</label>
-                <input type="text" id="password" name="password" value={saveData.password} onChange={handleChange} />
+                <input type="password" id="password" name="password" value={saveData.password} onChange={handleChange} />
             </div>
             <div>
                 <label htmlFor="passwordCheck">비밀번호확인</label>
-                <input type="text" id="passwordCheck" name="passwordCheck" value={saveData.passwordCheck} onChange={handleChange} />
+                <input type="password" id="passwordCheck" name="passwordCheck" value={saveData.passwordCheck} onChange={handleChange} />
             </div>
             <div>
                 <label htmlFor="name">이름</label>
@@ -63,8 +63,8 @@ function Save(props) {
                 <input type="text" id="username" name="username" value={saveData.username} onChange={handleChange} />
             </div>
             <div>
-                <label htmlFor="birthday">생일</label>
-                <input type="text" id="birthday" name="birthday" value={saveData.birthday} onChange={handleChange} />
+                <label htmlFor="birthdate">생일</label>
+                <input type="date" id="birthdate" name="birthdate" value={saveData.birthdate} onChange={handleChange} />
             </div>
             <AddressForm saveData={saveData} setSaveData={setSaveData}/>
             <button onClick={handleSubmit}>저장</button>
