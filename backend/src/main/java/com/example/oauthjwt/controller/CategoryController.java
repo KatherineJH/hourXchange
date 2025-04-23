@@ -1,6 +1,5 @@
 package com.example.oauthjwt.controller;
 
-
 import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.CategoryResponse;
 import com.example.oauthjwt.entity.Category;
@@ -32,42 +31,43 @@ public class CategoryController {
         List<CategoryResponse> result = categoryService.findAll();
         return ResponseEntity.ok(result);
     }
+
     @PostMapping("/")
-    public ResponseEntity<?> create(@RequestParam String categoryName){
-        try {
-            Category category = categoryService.addCategory(categoryName);
-            CategoryResponse categoryResponse = CategoryResponse.toDto(category);
-            return new ResponseEntity<>(categoryResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            log.error("카테고리 생성 오류",e);
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 생성 도중 오류 발생"));
-        }
+    public ResponseEntity<?> create(@RequestParam String categoryName) {
+        // try {
+        Category category = categoryService.addCategory(categoryName);
+        CategoryResponse categoryResponse = CategoryResponse.toDto(category);
+        return new ResponseEntity<>(categoryResponse, HttpStatus.CREATED);
+        // } catch (Exception e) {
+        // log.error("카테고리 생성 오류",e);
+        // return
+        // ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 생성 도중
+        // 오류 발생"));
+        // }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        try{
+        try {
             Category category = categoryService.findById(id);
             CategoryResponse categoryResponse = CategoryResponse.toDto(category);
             return ResponseEntity.ok(categoryResponse);
-        }catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-        }catch(Exception e) {
+        } catch (Exception e) {
             log.error("카테고리 조회 오류", e);
             return ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 조회 오류"));
         }
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestParam String categoryName){
-//        Map<String,String> existenceCheck=categoryService.existsById(id);
-//        if(!existenceCheck.isEmpty()) {
-//            return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
-//        }
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestParam String categoryName) {
+        // Map<String,String> existenceCheck=categoryService.existsById(id);
+        // if(!existenceCheck.isEmpty()) {
+        // return new ResponseEntity<>(existenceCheck, HttpStatus.BAD_REQUEST);
+        // }
         Category update = categoryService.updateCategory(id, categoryName);
-        CategoryResponse categoryResponse=CategoryResponse.toDto(update);
+        CategoryResponse categoryResponse = CategoryResponse.toDto(update);
         return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
-
 }
