@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {readGet} from "../../api/serviceProductApi.jsx";
+import {getRead} from "../../api/serviceProductApi.js";
 import {useParams} from "react-router-dom";
 
 const initState = {
@@ -15,23 +15,23 @@ const initState = {
     images: []
 }
 
-function Read(props) {
+function Read() {
 
     const [serverData, setServerData] = useState(initState);
 
     const {id} = useParams();
 
     useEffect(() => {
-            readGet(id).then(response => {
-                console.log(response);
-                setServerData(response)
+            getRead(id).then(response => {
+                setServerData(response.data)
             }).catch(error => console.log(error))
     }, [id]);
 
 
     return (
         <div>
-            {serverData.owner.name}
+            <h2>조회</h2>
+            <pre>{JSON.stringify(serverData, null, 2)}</pre>
         </div>
     );
 }

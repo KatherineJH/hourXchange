@@ -8,7 +8,7 @@ const Body = ({ children }) => {
         <div>
             <Sidebar />
             <div>
-                메인{children}
+                {children}
             </div>
             <Login/>
         </div>

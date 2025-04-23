@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.example.oauthjwt.repository.SPImageRepository;
 import com.example.oauthjwt.service.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ServiceProductServiceImpl implements ServiceProductService {
     // 검증
     User owner = userRepository.findById(serviceProductRequest.getOwnerId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
     Category category = categoryRepository.findById(serviceProductRequest.getCategoryId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
 
@@ -72,6 +74,7 @@ public class ServiceProductServiceImpl implements ServiceProductService {
   }
 
   @Override
+  @Transactional
   public ServiceProductResponse update(ServiceProductRequest serviceProductRequest) {
     // 검증
     ServiceProduct serviceProduct = serviceProductRepository.findById(serviceProductRequest.getId())
@@ -86,12 +89,18 @@ public class ServiceProductServiceImpl implements ServiceProductService {
     // 이미지 리스트 생성
     List<SPImage> images = new ArrayList<>();
     if (serviceProductRequest.getImages() != null && !serviceProductRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
+
+      spImageRepository.deleteAllByServiceProductId(serviceProduct.getId()); // 원래 이미지 삭제
+
       for (String url : serviceProductRequest.getImages()) { // 이미지 url list 등록
-        if(spImageRepository.existsByImgUrl(url)){
+
+        if(spImageRepository.existsByImgUrl(url)){ // 이미 존재하는 주소면
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
         }
-        SPImage spImage = SPImage.builder().imgUrl(url).serviceProduct(serviceProduct).build();
-        images.add(spImage);
+        if(url != null && !url.isEmpty()){ // 이미지 주소가 있으면
+          SPImage spImage = SPImage.builder().imgUrl(url).serviceProduct(serviceProduct).build();
+          images.add(spImage);
+        }
       }
     }
     // 저장 및 반환
