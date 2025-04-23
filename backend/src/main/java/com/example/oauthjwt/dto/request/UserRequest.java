@@ -1,0 +1,30 @@
+package com.example.oauthjwt.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserRequest {
+    private Long id;
+    @NotBlank
+    private String email;
+    @NotBlank
+    private String password;
+    @NotBlank
+    private String name;
+    @NotBlank
+    private String username;
+    private LocalDate birthdate;
+
+    private AddressRequest address;
+
+}

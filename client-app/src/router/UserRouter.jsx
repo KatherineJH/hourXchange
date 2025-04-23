@@ -1,8 +1,9 @@
 // router/UserRouter.jsx
 import React from "react";
-import Login from "../component/login/Login.jsx";
-import EmailLoginForm from "../component/login/EmailLoginForm.jsx";
+import Login from "../component/user/Login.jsx";
+import EmailLoginForm from "../component/user/EmailLoginForm.jsx";
 import Chat from "../component/chat/ChatContainer.jsx";
+import Save from "../component/user/Save.jsx";
 
 const UserRouter = () => [
   {
@@ -17,6 +18,10 @@ const UserRouter = () => [
     path: "email-login",
     element: <EmailLoginForm />,
   },
+  {
+    path: "save",
+    element: <Save/>
+  }
 ];
 
 export default UserRouter;

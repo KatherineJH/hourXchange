@@ -2,8 +2,12 @@ package com.example.oauthjwt.controller;
 
 import java.util.Map;
 
+import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.ApiResponse;
+import com.example.oauthjwt.dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Log4j2
 public class AuthController {
 
   private final UserRepository userRepository;
@@ -34,13 +39,10 @@ public class AuthController {
 
   // ✅ 일반 회원가입 처리
   @PostMapping("/signup")
-  public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
-    Map<String, String> notExistsByEmailResult = userService.notExistsByEmail(userDTO.getEmail());
-    if (!notExistsByEmailResult.isEmpty()) { // 이미 같은 이메일을 사용자가 존재하는 경우
-      return ResponseEntity.badRequest()
-          .body(notExistsByEmailResult); // 상태값은 의견 교환 후 변경 가능 200, 400 등
-    }
-    UserDTO result = userService.signup(userDTO);
+  public ResponseEntity<?> signup(@RequestBody @Valid UserRequest userRequest) {
+    log.info("Signup request: " + userRequest);
+
+    UserResponse result = userService.signup(userRequest);
 
     return ResponseEntity.ok(result);
   }
