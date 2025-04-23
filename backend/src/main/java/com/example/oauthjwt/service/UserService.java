@@ -2,6 +2,8 @@ package com.example.oauthjwt.service;
 
 import java.util.Map;
 
+import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.UserResponse;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.UserDTO;
@@ -9,7 +11,7 @@ import com.example.oauthjwt.dto.UserDTO;
 
 public interface UserService {
 
-  UserDTO signup(UserDTO userDTO);
+  UserResponse signup(UserRequest userRequest);
 
   Map<String, String> notExistsByEmail(String email);
 

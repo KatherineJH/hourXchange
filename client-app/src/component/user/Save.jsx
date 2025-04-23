@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import AddressForm from "./AddressForm.jsx";
-import {postSave} from "../../api/userApi.js";
-import {data} from "react-router-dom";
+import {postSave} from "../../api/authApi.js";
 
 const initState = {
     name: '',
@@ -9,22 +8,16 @@ const initState = {
     password: '',
     passwordCheck: '',
     email: '',
-    birthday: '',
-    zonecode: '',
-    roadAddress: '',
-    jibunAddress: '',
-    detailAddress: ''
+    birthdate: '',
+    address: {
+        zonecode: '',
+        roadAddress: '',
+        jibunAddress: '',
+        detailAddress: ''
+    }
 }
 
-
 function Save(props) {
-    // // 주소 상태
-    // const [addr, setAddr] = useState({
-    //     zonecode: '',      // 우편번호
-    //     roadAddress: '',   // 도로명
-    //     jibunAddress: '',  // 지번
-    //     detailAddress: ''  // 상세주소 (사용자 입력)
-    // });
 
     const [saveData, setSaveData] = useState(initState)
 
@@ -33,16 +26,16 @@ function Save(props) {
         setSaveData({...saveData, [name]: value});
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         console.log(saveData);
-        // try{
-        //     const response = postSave(addr)
-        //     console.log(response.data);
-        // }catch (error){
-        //     console.log(error);
-        // }
+        try{
+            const response = await postSave(saveData)
+            console.log(response.data);
+        }catch (error){
+            console.log(error);
+        }
 
     }
 

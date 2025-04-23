@@ -40,20 +40,15 @@ public class UserResponse {
   public static UserResponse toDto(User user) {
     return UserResponse.builder()
         .id(user.getId())
-        .name(user.getName() == null ? "" : user.getName())
+        .name(user.getName())
         .role(user.getRole().toString())
         .username(user.getUsername())
-        // 패스워드 노출 이슈 -> 향후에 제거해도 좋을 것 같습니다.
-        .password(user.getPassword() == null ? "" : user.getPassword())
         .email(user.getEmail())
-        .birthdate(user.getBirthdate() == null ? LocalDate.of(1, 1, 1) : user.getBirthdate())
+        .birthdate(user.getBirthdate())
         .createdAt(user.getCreatedAt())
         .credit(user.getCredit())
         .status(user.getStatus().toString())
-        .address(
-            AddressResponse.toDto(user.getAddress()) == null
-                ? null
-                : AddressResponse.toDto(user.getAddress()))
+        .address(AddressResponse.toDto(user.getAddress()))
         .build();
   }
 }

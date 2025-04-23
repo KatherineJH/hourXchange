@@ -4,6 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.UserResponse;
+import com.example.oauthjwt.entity.Address;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.config.SecurityConfig;
@@ -16,39 +21,31 @@ import com.example.oauthjwt.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
-  private final SecurityConfig securityConfig;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
-  public UserDTO signup(UserDTO userDTO) {
-    User user =
-        User.builder()
-            .email(userDTO.getEmail())
-            .username(userDTO.getUsername())
-            .name(userDTO.getName())
-            .password(securityConfig.passwordEncoder().encode(userDTO.getPassword()))
-            .createdAt(LocalDateTime.now())
-            .credit(0)
-            .status(UserStatus.ACTIVE)
-            .role(UserRole.ROLE_USER)
-            .build();
+  public UserResponse signup(UserRequest userRequest) {
+    if(userRepository.existsByEmail(userRequest.getEmail())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일이 중복되었습니다.");
+    }
+    if(userRepository.existsByUsername(userRequest.getUsername())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
+    }
 
-    User result = userRepository.save(user);
+    Address address = Address.of(userRequest.getAddress());
 
-    return UserDTO.builder()
-        .email(result.getEmail())
-        .username(result.getUsername())
-        .name(result.getName())
-        .password(result.getPassword())
-        .createdAt(result.getCreatedAt())
-        .credit(result.getCredit())
-        .role(result.getRole().toString())
-        .build();
+    userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+
+    User result = userRepository.save(User.of(userRequest, address));
+
+    return UserResponse.toDto(result);
   }
 
   @Override

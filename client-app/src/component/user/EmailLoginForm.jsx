@@ -77,7 +77,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../state/auth/Action";
+import { loginUser } from "../../state/auth/Action.js";
 
 const EmailLoginForm = () => {
   const [username, setUsername] = useState("");

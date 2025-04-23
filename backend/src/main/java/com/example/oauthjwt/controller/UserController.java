@@ -1,12 +1,13 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.UserResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.service.CustomUserDetails;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
+
   // 로그인된 사용자 정보 반환
   @GetMapping("/me")
   public ResponseEntity<?> getCurrentUser() {

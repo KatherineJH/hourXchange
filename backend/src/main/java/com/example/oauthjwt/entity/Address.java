@@ -1,7 +1,10 @@
 package com.example.oauthjwt.entity;
 
+import com.example.oauthjwt.dto.request.AddressRequest;
+import com.example.oauthjwt.dto.request.UserRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Address {
 
   @Id
@@ -16,21 +20,26 @@ public class Address {
   private Long id;
 
   @Column(nullable = false)
-  private String streetAddress; // 도로명 주소
+  private String zonecode;
 
   @Column(nullable = false)
-  private String city; // 고양시
+  private String roadAddress;
 
   @Column(nullable = false)
-  private String state; // 경기도
+  private String jibunAddress;
 
-  @Column(nullable = false)
-  private String postalCode; // 우편번호
-
-  @Column(nullable = false)
-  private String country; // 국가명
+  private String detailAddress;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id")
   private User user;
+
+  public static Address of(AddressRequest addressRequest) {
+    return Address.builder()
+            .zonecode(addressRequest.getZonecode())
+            .roadAddress(addressRequest.getRoadAddress())
+            .jibunAddress(addressRequest.getJibunAddress())
+            .detailAddress(addressRequest.getDetailAddress())
+            .build();
+  }
 }
