@@ -10,7 +10,7 @@ function MainLayout({ children }) {
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
       <Box sx={{ display: "flex", flex: 1 }}>
-        <Box sx={{ width: 240, borderRight: "1px solid #ddd" }}>
+        <Box sx={{ width: 240 }}>
           <Sidebar />
         </Box>
         <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
