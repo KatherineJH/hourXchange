@@ -49,7 +49,7 @@ function Save() {
     return (
 
         <form>
-            <h2>수정</h2>
+            <h2>등록</h2>
             <div>
                 <label htmlFor="title">제목</label>
                 <input type="text" id="title" name="title"
