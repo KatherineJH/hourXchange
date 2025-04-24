@@ -25,7 +25,9 @@ repositories {
 }
 
 dependencies {
-
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'co.elastic.clients:elasticsearch-java:8.10.4' // Elasticsearch Java Client 추가
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2' // JSON 처리용 (필요 시)
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
