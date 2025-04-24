@@ -47,4 +47,10 @@ public class ServiceProductRequest {
   private String providerType; // SP 타입 (구매, 판매)
 
   private List<String> images = new ArrayList<>(); // 이미지 url
+
+  @NotNull(message = "위치는 필수입니다.")
+  private String lat; // 위도 가로
+
+  @NotNull(message = "위치는 필수입니다.")
+  private String lng; // 경도 세로
 }

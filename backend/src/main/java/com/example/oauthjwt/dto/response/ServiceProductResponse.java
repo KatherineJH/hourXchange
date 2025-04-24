@@ -30,6 +30,10 @@ public class ServiceProductResponse {
 
   private LocalDateTime endAt; // 끝시간
 
+  private String lat;
+
+  private String lng;
+
   private UserResponse owner; // 작성자
 
   private CategoryResponse category; // 서비스 카테고리
@@ -46,6 +50,8 @@ public class ServiceProductResponse {
         .hours(product.getHours())
         .startedAt(product.getStartedAt())
         .endAt(product.getEndAt())
+        .lat(product.getLat())
+        .lng(product.getLng())
         .owner(UserResponse.toDto(product.getOwner()))
         .category(CategoryResponse.toDto(product.getCategory()))
         .providerType(product.getProviderType().toString())

@@ -37,6 +37,12 @@ public class ServiceProduct {
   @Column(nullable = false)
   private LocalDateTime endAt;
 
+  @Column(nullable = false)
+  private String lat; // 위도 가로
+
+  @Column(nullable = false)
+  private String lng; // 경도 세로
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", nullable = false)
   private User owner;
@@ -70,6 +76,8 @@ public class ServiceProduct {
             .hours(serviceProductRequest.getHours())
             .startedAt(serviceProductRequest.getStartedAt())
             .endAt(serviceProductRequest.getEndAt())
+            .lat(serviceProductRequest.getLat())
+            .lng(serviceProductRequest.getLng())
             .owner(owner)
             .category(category)
             .providerType(providerType)

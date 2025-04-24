@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {getList} from "../../api/categoryApi.js";
 import {postSave} from "../../api/serviceProductApi.js";
+import GoogleSaveMap from "../common/GoogleSaveMap.jsx";
 
 const initState = {
     title: '',
@@ -11,7 +12,9 @@ const initState = {
     // ownerId: '', 서버의 토큰 값 적용
     categoryId: '',
     providerType: '',
-    images: [] // 클라우드 연동 후 저장
+    images: [], // 클라우드 연동 후 저장
+    lat: 37.496486063, // 위도 가로
+    lng: 127.028361548 // 경도 세로
 }
 
 function Save() {
@@ -27,7 +30,6 @@ function Save() {
 
     useEffect(() => {
         getList().then(response => {
-            console.log(response);
             setCategoryData(response.data);
 
         }).catch(error => console.log(error));
@@ -36,16 +38,16 @@ function Save() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = postSave(saveData);
+            const response = await postSave(saveData);
             console.log(response);
         }catch (error) {
             console.log(error);
         }
-
-        console.log(saveData);
     }
 
+
     return (
+
         <form>
             <h2>수정</h2>
             <div>
@@ -100,10 +102,10 @@ function Save() {
                     <option value="SELLER">판매</option>
                 </select>
             </div>
+            <GoogleSaveMap saveData={saveData} setSaveData={setSaveData}/>
             <button
                 onClick={handleSubmit}
             >저장</button>
-
         </form>
     );
 }

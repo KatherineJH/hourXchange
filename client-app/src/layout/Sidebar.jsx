@@ -19,7 +19,10 @@ const menu = [
     { text: '삽니다',    to: '/buy' },
     { text: '팝니다',    to: '/sell' },
     { text: '봉사해요',  to: '/volunteer' },
-    { text: '커뮤니티',  to: '/community' },
+    { text: '제품리스트',  to: '/serviceProduct/list' },
+    { text: '제품수정',  to: '/serviceProduct/modify' },
+    { text: '제품조회',  to: '/serviceProduct/read' },
+    { text: '제품등록',  to: '/serviceProduct/save' },
 ];
 
 const Sidebar = () => {
