@@ -13,8 +13,12 @@ public class ElasticsearchStartupRunner {
 
     @PostConstruct
     public void init() {
-        indexCreator.createIndices();
-        indexer.indexAll();
-        System.out.println("✅ Elasticsearch 자동 색인 완료");
+        try {
+            indexCreator.createIndices();
+            indexer.indexAll();
+            System.out.println("✅ Elasticsearch 자동 색인 완료");
+        } catch (Exception e) {
+            System.out.println("⚠️ Elasticsearch 연결 실패 (무시됨): " + e.getMessage());
+        }
     }
 }
