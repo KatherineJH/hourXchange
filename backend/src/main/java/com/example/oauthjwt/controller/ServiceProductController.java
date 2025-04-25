@@ -26,7 +26,8 @@ public class ServiceProductController {
   private final ServiceProductService serviceProductService;
 
   @PostMapping("/")
-  public ResponseEntity<?> save(@RequestBody @Valid ServiceProductRequest serviceProductRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+  public ResponseEntity<?> save(@RequestBody @Valid ServiceProductRequest serviceProductRequest,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
     // 인증한 유저의 id 값으로 할당
     serviceProductRequest.setOwnerId(userDetails.getUser().getId());
 
