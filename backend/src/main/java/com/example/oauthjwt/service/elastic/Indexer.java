@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -74,19 +75,36 @@ public class Indexer {
             return;
         }
         boards.forEach(board -> {
+//            BoardDocument doc = BoardDocument.builder()
+//                    .id(board.getId())
+//                    .title(board.getTitle())
+//                    .description(board.getDescription())
+//                    .authorName(board.getAuthor() != null ? board.getAuthor().getName() : "Unknown")
+//                    .createdAt(board.getCreatedAt())
+//                    .suggest(Stream.of(board.getTitle(), board.getDescription(), board.getAuthor() != null ? board.getAuthor().getName() : null)
+//                            .filter(Objects::nonNull)
+//                            .map(String::toLowerCase)
+//                            .distinct()
+//                            .toList())
+//                    .build();
+            List<String> keywords = Stream.of(
+                            board.getTitle(),
+                            board.getDescription(),
+                            board.getAuthor().getName()
+                    )
+                    .filter(Objects::nonNull)
+                    .flatMap(s -> Arrays.stream(s.split("[\\s\\p{Punct}]"))) // 문장 ➝ 단어
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toList();
             BoardDocument doc = BoardDocument.builder()
                     .id(board.getId())
                     .title(board.getTitle())
                     .description(board.getDescription())
-                    .authorName(board.getAuthor() != null ? board.getAuthor().getName() : "Unknown")
+                    .authorName(board.getAuthor().getName())
                     .createdAt(board.getCreatedAt())
-                    .suggest(Stream.of(board.getTitle(), board.getDescription(), board.getAuthor() != null ? board.getAuthor().getName() : null)
-                            .filter(Objects::nonNull)
-                            .map(String::toLowerCase)
-                            .distinct()
-                            .toList())
+                    .suggest(keywords)
                     .build();
-
             try {
                 elasticsearchClient.index(i ->
                         i.index("board_index")

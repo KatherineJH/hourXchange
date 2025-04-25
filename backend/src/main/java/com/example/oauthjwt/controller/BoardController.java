@@ -9,6 +9,10 @@ import com.example.oauthjwt.service.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -37,14 +41,25 @@ public class BoardController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> findAllBoards(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> findAllBoards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            List<BoardResponse> responses = boardService.findAllBoards();
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // ✅ 최신순 정렬
+            Page<BoardResponse> responses = boardService.findAllBoards(pageable);
             return ResponseEntity.ok(responses);
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(ApiResponse.serverError("게시글 전체 조회 중 오류가 발생했습니다."));
         }
+//        try {
+//            List<BoardResponse> responses = boardService.findAllBoards();
+//            return ResponseEntity.ok(responses);
+//        } catch (Exception e) {
+//            return ResponseEntity.internalServerError()
+//                    .body(ApiResponse.serverError("게시글 전체 조회 중 오류가 발생했습니다."));
+//        }
     }
 
     @GetMapping("/{id}")

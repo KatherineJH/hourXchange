@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.BoardDocument;
 import com.example.oauthjwt.dto.ServiceProductDocument;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.elastic.Indexer;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,19 @@ public class ElasticSearchController {
     private final Indexer indexer;
 
     @GetMapping("/products")
-    public ResponseEntity<List<ServiceProductDocument>> searchProducts(@RequestParam String keyword) {
-        return ResponseEntity.ok(searchService.searchServiceProducts(keyword));
+    public ResponseEntity<PageResult<ServiceProductDocument>> searchProducts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(searchService.searchServiceProducts(keyword, page, size));
     }
 
     @GetMapping("/boards")
-    public ResponseEntity<List<BoardDocument>> searchBoards(@RequestParam String keyword) {
-        return ResponseEntity.ok(searchService.searchBoards(keyword));
+    public ResponseEntity<PageResult<BoardDocument>> searchBoards(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(searchService.searchBoards(keyword, page, size));
     }
 
     @GetMapping("/autocomplete")

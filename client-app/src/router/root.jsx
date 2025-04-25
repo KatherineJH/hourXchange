@@ -4,11 +4,12 @@ import Homepage from "../component/homepage/Homepage.jsx";
 import ChatRoom from "../component/chat/ChatRoom.jsx"; // WebSocket 채팅방
 import UserRouter from "./UserRouter.jsx";
 import serviceProduct from "./serviceProduct.jsx";
+import board from "./BoardRouter.jsx"; 
 
 const root = createBrowserRouter([
   {
     path: "",
-    element: <Main />, 
+    element: <Main />,
     children: [
       { index: true, element: <Homepage /> },
       { path: "chat-room/:chatRoomId", element: <ChatRoom /> },
@@ -19,7 +20,12 @@ const root = createBrowserRouter([
     path: "serviceProduct",
     element: <Main />,
     children: serviceProduct(),
-  }
+  },
+  {
+    path: "board",
+    element: <Main />,
+    children: board(),
+  },
 ]);
 
 export default root;

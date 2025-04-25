@@ -1,16 +1,19 @@
 package com.example.oauthjwt.service.elastic;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.oauthjwt.dto.BoardDocument;
 import com.example.oauthjwt.dto.ServiceProductDocument;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,10 +23,14 @@ public class ElasticSearchService {
 
     private final ElasticsearchClient client;
 
-    public List<ServiceProductDocument> searchServiceProducts(String keyword) {
+    public PageResult<ServiceProductDocument> searchServiceProducts(String keyword, int page, int size) {
         try {
+            // int from = (page - 1) * size;
+            int from = Math.max(0, page * size); // 음수 안 나오게 방어
             SearchResponse<ServiceProductDocument> response = client.search(s ->
                             s.index("service_product_index")
+                                    .from(from)
+                                    .size(size)
                                     .query(q ->
                                             q.multiMatch(m ->
                                                     m.query(keyword)
@@ -35,21 +42,34 @@ public class ElasticSearchService {
                                     ),
                     ServiceProductDocument.class);
 
+//            List<ServiceProductDocument> results = response.hits().hits().stream()
+//                    .map(hit -> hit.source())
+//                    .collect(Collectors.toList());
+//            log.info("Search products for keyword '{}': {} results", keyword, results.size());
+//            return results;
             List<ServiceProductDocument> results = response.hits().hits().stream()
-                    .map(hit -> hit.source())
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            log.info("Search products for keyword '{}': {} results", keyword, results.size());
-            return results;
+
+            long total = response.hits().total() != null ? response.hits().total().value() : 0;
+            int totalPages = (int) Math.ceil((double) total / size);
+
+            return new PageResult<>(results, page, size, total, totalPages);
         } catch (IOException e) {
             log.error("ServiceProduct search error: {}", e.getMessage());
             throw new RuntimeException("ServiceProduct 검색 중 오류", e);
         }
     }
 
-    public List<BoardDocument> searchBoards(String keyword) {
+    public PageResult<BoardDocument> searchBoards(String keyword, int page, int size) {
         try {
+            // int from = (page - 1) * size;
+            int from = Math.max(0, page * size); // 음수 안 나오게 방어
             SearchResponse<BoardDocument> response = client.search(s ->
                             s.index("board_index")
+                                    .from(from)
+                                    .size(size)
                                     .query(q ->
                                             q.multiMatch(m ->
                                                     m.query(keyword)
@@ -62,11 +82,18 @@ public class ElasticSearchService {
                                     .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
                     BoardDocument.class);
 
-            List<BoardDocument> results = response.hits().hits().stream()
-                    .map(hit -> hit.source())
-                    .collect(Collectors.toList());
-            log.info("Search boards for keyword '{}': {} results", keyword, results.size());
-            return results;
+//            List<BoardDocument> results = response.hits().hits().stream()
+//                    .map(hit -> hit.source())
+//                    .collect(Collectors.toList());
+//            log.info("Search boards for keyword '{}': {} results", keyword, results.size());
+//            return results;
+            List<BoardDocument> hits = response.hits().hits().stream()
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
+                    .toList();
+            long total = response.hits().total() != null ? response.hits().total().value() : 0;
+            int totalPages = (int) Math.ceil((double) total / size);
+            return new PageResult<>(hits, page, size, total, totalPages);
         } catch (IOException e) {
             log.error("Board search error: {}", e.getMessage());
             throw new RuntimeException("Board 검색 중 오류", e);
