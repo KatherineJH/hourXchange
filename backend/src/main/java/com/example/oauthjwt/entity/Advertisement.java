@@ -2,11 +2,13 @@ package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Advertisement {
@@ -23,6 +25,8 @@ public class Advertisement {
   @Column(nullable = false)
   private int hours;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+//  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
+  @JoinColumn(name="owner_id", nullable = false)
   private User owner;
 }
