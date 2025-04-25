@@ -20,6 +20,6 @@ public class SPImage {
   private String imgUrl;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "service_product_id", nullable = false)
-  private ServiceProduct serviceProduct;
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
 }

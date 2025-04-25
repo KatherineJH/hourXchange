@@ -58,6 +58,9 @@ public class User {
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
+
     public static User of(UserRequest userRequest, Address address) {
         return User.builder()
                 .email(userRequest.getEmail())

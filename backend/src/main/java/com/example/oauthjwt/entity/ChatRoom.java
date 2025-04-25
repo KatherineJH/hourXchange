@@ -32,8 +32,8 @@ public class ChatRoom {
 
     // 동일한 서비스에 여러 문의자가 존재 -> OneToOne 에서 ManyToOne 으로 변경.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_product_id", nullable = false)
-    private ServiceProduct serviceProduct;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     public List<User> getParticipants() {
         Set<User> participants = new HashSet<>();

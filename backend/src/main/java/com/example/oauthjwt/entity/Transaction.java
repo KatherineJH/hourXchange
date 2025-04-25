@@ -3,7 +3,6 @@ package com.example.oauthjwt.entity;
 import java.time.LocalDateTime;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
-import com.example.oauthjwt.dto.request.TransactionUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +26,7 @@ public class Transaction {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
-  private ServiceProduct product;
+  private Product product;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
@@ -36,7 +35,7 @@ public class Transaction {
   @Column(nullable = false)
   private LocalDateTime createdAt;
 
-  public static Transaction of(TransactionRequest transactionRequest, User user, ServiceProduct product, TransactionStatus status) {
+  public static Transaction of(TransactionRequest transactionRequest, User user, Product product, TransactionStatus status) {
     return Transaction.builder()
             .user(user)
             .product(product)
@@ -45,9 +44,9 @@ public class Transaction {
             .build();
   }
 
-  public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, ServiceProduct serviceProduct, TransactionStatus status) {
+  public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, Product product, TransactionStatus status) {
     this.user = user;
-    this.product = serviceProduct;
+    this.product = product;
     this.status = status;
     this.createdAt = transactionRequest.getCreateAt();
     return this;
