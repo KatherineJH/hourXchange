@@ -15,7 +15,7 @@ public class ElasticIndexCreator {
     }
 
     private void createIndex(String indexName, String payload) {
-        String url = "https://localhost:9203/" + indexName;
+        String url = "http://localhost:9202/" + indexName;
 
         // 인덱스 존재 여부 확인
         try {
@@ -38,75 +38,87 @@ public class ElasticIndexCreator {
 
     private String getServiceProductIndexPayload() {
         return """
-        {
-          "settings": {
-            "analysis": {
-              "analyzer": {
-                "my_custom_analyzer": {
-                  "type": "custom",
-                  "char_filter": [],
-                  "tokenizer": "my_nori_tokenizer",
-                  "filter": ["my_pos_filter", "lowercase_filter", "synonym_filter"]
-                }
-              },
-              "tokenizer": {
-                "my_nori_tokenizer": {
-                  "type": "nori_tokenizer",
-                  "decompound_mode": "mixed",
-                  "discard_punctuation": "true",
-                  "user_dictionary": "dict/userdict_ko.txt",
-                  "lenient": true
-                }
-              },
-              "filter": {
-                "my_pos_filter": {
-                  "type": "nori_part_of_speech",
-                  "stoptags": ["J"]
-                },
-                "lowercase_filter": {
-                  "type": "lowercase"
-                },
-                "synonym_filter": {
-                  "type": "synonym",
-                  "synonyms_path": "dict/synonym-set.txt",
-                  "lenient": true
-                }
-              }
+    {
+      "settings": {
+        "analysis": {
+          "analyzer": {
+            "my_custom_analyzer": {
+              "type": "custom",
+              "char_filter": [],
+              "tokenizer": "my_nori_tokenizer",
+              "filter": ["my_pos_filter", "lowercase_filter", "synonym_filter"]
+            },
+            "ngram_analyzer": {
+              "type": "custom",
+              "tokenizer": "ngram_tokenizer",
+              "filter": ["lowercase"]
             }
           },
-          "mappings": {
-            "properties": {
-              "id": { "type": "long", "index": false },
-              "title": { 
-                "type": "text", 
-                "analyzer": "my_custom_analyzer",
-                "fields": {
-                  "keyword": { "type": "keyword" }
-                },
-                "boost": 1.2 
-              },
-              "description": { 
-                "type": "text", 
-                "analyzer": "my_custom_analyzer",
-                "fields": {
-                  "keyword": { "type": "keyword" }
-                }
-              },
-              "ownerName": { 
-                "type": "text", 
-                "analyzer": "my_custom_analyzer",
-                "fields": {
-                  "keyword": { "type": "keyword" }
-                }
-              },
-              "suggest": {
-                "type": "completion",
-                "analyzer": "my_custom_analyzer"
-              }
+          "tokenizer": {
+            "my_nori_tokenizer": {
+              "type": "nori_tokenizer",
+              "decompound_mode": "mixed",
+              "discard_punctuation": "true",
+              "user_dictionary": "dict/userdict_ko.txt",
+              "lenient": true
+            },
+            "ngram_tokenizer": {
+              "type": "ngram",
+              "min_gram": 3,
+              "max_gram": 4,
+              "token_chars": ["letter", "digit"]
+            }
+          },
+          "filter": {
+            "my_pos_filter": {
+              "type": "nori_part_of_speech",
+              "stoptags": ["J"]
+            },
+            "lowercase_filter": {
+              "type": "lowercase"
+            },
+            "synonym_filter": {
+              "type": "synonym",
+              "synonyms_path": "dict/synonym-set.txt",
+              "lenient": true
             }
           }
         }
-        """;
+      },
+      "mappings": {
+        "properties": {
+          "id": { "type": "long", "index": false },
+          "title": { 
+            "type": "text", 
+            "analyzer": "my_custom_analyzer",
+            "fields": {
+              "keyword": { "type": "keyword" },
+              "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+            }
+          },
+          "description": { 
+            "type": "text", 
+            "analyzer": "my_custom_analyzer",
+            "fields": {
+              "keyword": { "type": "keyword" },
+              "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+            }
+          },
+          "ownerName": { 
+            "type": "text", 
+            "analyzer": "my_custom_analyzer",
+            "fields": {
+              "keyword": { "type": "keyword" }
+            }
+          },
+          "suggest": {
+            "type": "completion",
+            "analyzer": "my_custom_analyzer"
+          }
+        }
+      }
+    }
+    """;
     }
 
     private String getBoardIndexPayload() {
@@ -155,8 +167,7 @@ public class ElasticIndexCreator {
                 "analyzer": "my_custom_analyzer",
                 "fields": {
                   "keyword": { "type": "keyword" }
-                },
-                "boost": 1.2 
+                }
               },
               "description": { 
                 "type": "text", 

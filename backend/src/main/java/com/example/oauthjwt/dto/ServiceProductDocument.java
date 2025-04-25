@@ -3,10 +3,11 @@ package com.example.oauthjwt.dto;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.core.suggest.Completion;
 
 import jakarta.persistence.Id;
 import lombok.*;
+
+import java.util.List;
 
 @Document(indexName = "service_product_index")
 @Data
@@ -27,6 +28,5 @@ public class ServiceProductDocument {
     @Field(type = FieldType.Text, analyzer = "my_custom_analyzer")
     private String ownerName;
 
-    @Field(type = FieldType.Search_As_You_Type)
-    private Completion suggest;
+    private List<String> suggest;
 }

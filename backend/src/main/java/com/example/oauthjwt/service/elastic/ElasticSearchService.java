@@ -1,17 +1,19 @@
 package com.example.oauthjwt.service.elastic;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import com.example.oauthjwt.dto.BoardDocument;
 import com.example.oauthjwt.dto.ServiceProductDocument;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ElasticSearchService {
@@ -25,16 +27,21 @@ public class ElasticSearchService {
                                     .query(q ->
                                             q.multiMatch(m ->
                                                     m.query(keyword)
-                                                            .fields("title^1.2", "description", "ownerName")
-                                                            .fuzziness("AUTO")
+                                                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3", "ownerName^0.2")
+                                                            .fuzziness("1") // 편집 거리 1
+                                                            .prefixLength(1) // 첫 글자 고정
+                                                            .minimumShouldMatch("75%") // 최소 매칭 비율
                                             )
                                     ),
                     ServiceProductDocument.class);
 
-            return response.hits().hits().stream()
+            List<ServiceProductDocument> results = response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
+            log.info("Search products for keyword '{}': {} results", keyword, results.size());
+            return results;
         } catch (IOException e) {
+            log.error("ServiceProduct search error: {}", e.getMessage());
             throw new RuntimeException("ServiceProduct 검색 중 오류", e);
         }
     }
@@ -46,50 +53,53 @@ public class ElasticSearchService {
                                     .query(q ->
                                             q.multiMatch(m ->
                                                     m.query(keyword)
-                                                            .fields("title^1.2", "description", "authorName")
-                                                            .fuzziness("AUTO")
+                                                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3", "authorName^0.2")
+                                                            .fuzziness("1")
+                                                            .prefixLength(1)
+                                                            .minimumShouldMatch("75%")
                                             )
                                     )
-                                    .sort(sort -> sort.field(f -> f.field("createdAt").order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))),
+                                    .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
                     BoardDocument.class);
 
-            return response.hits().hits().stream()
+            List<BoardDocument> results = response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
+            log.info("Search boards for keyword '{}': {} results", keyword, results.size());
+            return results;
         } catch (IOException e) {
+            log.error("Board search error: {}", e.getMessage());
             throw new RuntimeException("Board 검색 중 오류", e);
         }
     }
 
     public List<String> autocomplete(String prefix, String index) {
         try {
-            SearchResponse<?> response = client.search(s ->
+            SearchResponse<Void> response = client.search(s ->
                             s.index(index)
-                                    .size(50)
-                                    .query(q ->
-                                            q.multiMatch(m ->
-                                                    m.query(prefix.toLowerCase())
-                                                            .fields("title", "description", index.equals("service_product_index") ? "ownerName" : "authorName")
+                                    .suggest(sug ->
+                                            sug.suggesters("completion_suggest", sugField ->
+                                                    sugField
+                                                            .prefix(prefix.toLowerCase())
+                                                            .completion(c ->
+                                                                    c.field("suggest")
+                                                                            .size(10)
+                                                                            .fuzzy(f -> f.fuzziness("2")) // 편집 거리 2
+                                                            )
                                             )
                                     ),
-                    index.equals("service_product_index") ? ServiceProductDocument.class : BoardDocument.class);
+                    Void.class);
 
-            return response.hits().hits().stream()
-                    .flatMap(hit -> {
-                        if (index.equals("service_product_index")) {
-                            ServiceProductDocument doc = (ServiceProductDocument) hit.source();
-                            return Stream.of(doc.getTitle(), doc.getDescription(), doc.getOwnerName());
-                        } else {
-                            BoardDocument doc = (BoardDocument) hit.source();
-                            return Stream.of(doc.getTitle(), doc.getDescription(), doc.getAuthorName());
-                        }
-                    })
-                    .filter(text -> text != null && text.toLowerCase().contains(prefix.toLowerCase()))
-                    .map(String::toLowerCase)
+            List<String> results = response.suggest().get("completion_suggest").stream()
+                    .flatMap(s -> s.completion().options().stream())
+                    .map(option -> option.text())
                     .distinct()
                     .limit(10)
                     .collect(Collectors.toList());
+            log.info("Autocomplete for prefix '{}', index '{}': {} results", prefix, index, results.size());
+            return results;
         } catch (IOException e) {
+            log.error("Autocomplete error: {}", e.getMessage());
             throw new RuntimeException("자동완성 실패", e);
         }
     }

@@ -3,12 +3,12 @@ package com.example.oauthjwt.dto;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.core.suggest.Completion;
 
 import jakarta.persistence.Id;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(indexName = "board_index")
 @Data
@@ -32,6 +32,5 @@ public class BoardDocument {
     @Field(type = FieldType.Date)
     private LocalDateTime createdAt;
 
-    @Field(type = FieldType.Search_As_You_Type)
-    private Completion suggest;
+    private List<String> suggest;
 }
