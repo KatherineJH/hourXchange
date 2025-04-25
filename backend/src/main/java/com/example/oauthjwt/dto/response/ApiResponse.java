@@ -1,6 +1,5 @@
 package com.example.oauthjwt.dto.response;
 
-import com.example.oauthjwt.entity.Advertisement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
