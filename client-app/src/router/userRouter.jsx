@@ -1,4 +1,4 @@
-// router/UserRouter.jsx
+// router/userRouter.jsx
 import React from "react";
 import Login from "../component/user/Login.jsx";
 import EmailLoginForm from "../component/user/EmailLoginForm.jsx";

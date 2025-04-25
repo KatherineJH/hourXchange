@@ -19,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/api/serviceProduct")
+@RequestMapping("/api/product")
 public class ProductController {
   private final ProductService productService;
 

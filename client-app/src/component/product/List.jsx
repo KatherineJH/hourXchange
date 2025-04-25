@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {getList} from "../../api/serviceProductApi.js";
+import {getList} from "../../api/productApi.js";
 import GoogleListMap from "../common/GoogleListMap.jsx";
 
 const initState = {

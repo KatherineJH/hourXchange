@@ -48,7 +48,7 @@ function GoogleListMap({ serverData }) {
                                 width: '200px',
                                 textAlign: 'center'
                             }}
-                            onClick={() => navigate(`/serviceProduct/read/${item.id}`)}
+                            onClick={() => navigate(`/product/read/${item.id}`)}
                         >
                             <img
                                 src={item.images[0]}

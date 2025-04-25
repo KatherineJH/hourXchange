@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class TransactionResponse {
   private Long id;
   private UserResponse user;
-  private ServiceProductResponse product;
+  private ProductResponse product;
   private String status;
   private LocalDateTime createdAt;
 
@@ -24,7 +24,7 @@ public class TransactionResponse {
     return TransactionResponse.builder()
         .id(transaction.getId())
         .user(UserResponse.toDto(transaction.getUser()))
-        .product(ServiceProductResponse.toDto(transaction.getProduct()))
+        .product(ProductResponse.toDto(transaction.getProduct()))
         .status(transaction.getStatus().toString())
         .createdAt(transaction.getCreatedAt())
         .build();
