@@ -14,7 +14,7 @@ public class ApiResponse {
     private boolean status;
     private int code;
 
-    public static ApiResponse success(String message, Advertisement response) {
+    public static ApiResponse success(String message) {
         return new ApiResponse(message, true, 200);
     }
 

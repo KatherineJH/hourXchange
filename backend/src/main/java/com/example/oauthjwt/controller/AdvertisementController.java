@@ -35,7 +35,7 @@ public class AdvertisementController {
         advertisementRequest.setOwnerId(userDetails.getUser().getId());
         Advertisement result = advertisementService.createAdvertisement(advertisementRequest);
         Advertisement response= AdvertisementResponse.toDto(result);
-        return ResponseEntity.ok(ApiResponse.success("광고가 생성되었습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success("광고가 생성되었습니다."));
     }
 
     @GetMapping("/all")
@@ -52,7 +52,7 @@ public class AdvertisementController {
         try{
             Advertisement advertisement = advertisementService.findAdvertisementById(advertisementId, userDetails.getUser().getId());
             Advertisement response = AdvertisementResponse.toDto(advertisement);
-            return ResponseEntity.ok(ApiResponse.success("광고 조회 성공", response));
+            return ResponseEntity.ok(ApiResponse.success("광고 조회 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
         }catch (Exception e) {
