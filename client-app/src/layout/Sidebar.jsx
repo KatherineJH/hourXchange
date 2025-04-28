@@ -13,8 +13,7 @@ import {
   Typography,
   Collapse,
 } from "@mui/material";
-import { Link as RouterLink } from 'react-router-dom';
-
+import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
     { text: '삽니다',    to: '/buy' },
@@ -24,6 +23,7 @@ const menu = [
     { text: '제품리스트(테이블)',  to: '/product/listTable' },
     { text: '제품등록',  to: '/product/save' },
     { text: '트랜잭션리스트',  to: '/transaction/list' },
+    { text: "게시판", to: "/board/list" },
 ];
 
 const Sidebar = () => {
@@ -38,17 +38,17 @@ const Sidebar = () => {
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
-        <List>
-            {menu.map(item => (
-                <ListItemButton
-                    key={item.text}
-                    component={RouterLink}  // React Router <Link> 로 동작
-                    to={item.to}            // 이동할 경로
-                >
-                    <ListItemText primary={item.text} />
-                </ListItemButton>
-            ))}
-        </List>
+      <List>
+        {menu.map((item) => (
+          <ListItemButton
+            key={item.text}
+            component={RouterLink} // React Router <Link> 로 동작
+            to={item.to} // 이동할 경로
+          >
+            <ListItemText primary={item.text} />
+          </ListItemButton>
+        ))}
+      </List>
 
       <Divider sx={{ my: 2 }} />
 
