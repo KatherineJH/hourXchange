@@ -9,12 +9,12 @@ import lombok.*;
 
 import java.util.List;
 
-@Document(indexName = "service_product_index")
+@Document(indexName = "product_index")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ServiceProductDocument {
+public class ProductDocument {
 
     @Id
     private Long id;

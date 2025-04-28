@@ -40,7 +40,7 @@ function Homepage() {
           </p>
         ) : user ? (
           <>
-            <h2>안녕하세요, {user.name}님!</h2>
+            <h2>안녕하세요, {user.name}{user.id}님!</h2>
             <p>아이디: {user.username}</p>
             <p>역할: {user.role}</p>
 
