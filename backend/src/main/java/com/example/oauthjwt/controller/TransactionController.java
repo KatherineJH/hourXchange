@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.oauthjwt.dto.request.TransactionUpdateRequest;
 import com.example.oauthjwt.service.CustomUserDetails;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,10 @@ public class TransactionController {
   private final TransactionService transactionService;
 
   @PostMapping("/")
-  public ResponseEntity<?> save(@RequestBody TransactionRequest transactionRequest) {
+  public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    // 인증한 유저의 id 값으로 할당
+    transactionRequest.setUserId(userDetails.getUser().getId());
+    log.info(transactionRequest);
     // 저장
     TransactionResponse result = transactionService.save(transactionRequest);
     // 반환

@@ -16,15 +16,15 @@ public class ChatServiceImpl implements ChatService {
 
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ServiceProductRepository serviceProductRepository;
+    private final ProductRepository productRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     @Transactional
     @Override
     public ChatRoom initiateChatFromPost(Long postId, Long requesterId) {
-        ServiceProduct serviceProduct =
-                serviceProductRepository
+        Product product =
+                productRepository
                         .findById(postId)
                         .orElseThrow(() -> new IllegalArgumentException("Post not found"));
         User requester =
@@ -34,24 +34,24 @@ public class ChatServiceImpl implements ChatService {
 
         // 이미 채팅방이 있는지 확인
         Optional<ChatRoomUser> existingChatters =
-                chatRoomUserRepository.findByUser1IdAndUser2Id(requesterId, serviceProduct.getOwner().getId());
+                chatRoomUserRepository.findByUser1IdAndUser2Id(requesterId, product.getOwner().getId());
         if (existingChatters.isPresent()) {
             return existingChatters.get().getChatRoom();
         }
 
         // 💬 이름 생성
-        String chatRoomName = requester.getName() + " × " + serviceProduct.getOwner().getName();
+        String chatRoomName = requester.getName() + " × " + product.getOwner().getName();
 
         // 새로운 채팅방 생성
         ChatRoom chatRoom = ChatRoom.builder()
                 .name(chatRoomName)
-                .serviceProduct(serviceProduct) // 반드시 필요함
+                .product(product) // 반드시 필요함
                 .build();
         chatRoom = chatRoomRepository.save(chatRoom);
 
         // Chatters 생성
         ChatRoomUser chatters =
-                ChatRoomUser.builder().user1(requester).user2(serviceProduct.getOwner()).chatRoom(chatRoom).build();
+                ChatRoomUser.builder().user1(requester).user2(product.getOwner()).chatRoom(chatRoom).build();
         chatRoomUserRepository.save(chatters);
 
         return chatRoom;

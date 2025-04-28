@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.oauthjwt.dto.request.ServiceProductRequest;
-import com.example.oauthjwt.dto.request.ServiceProductUpdateRequest;
+import com.example.oauthjwt.dto.request.ProductRequest;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ServiceProduct {
+public class Product {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +36,15 @@ public class ServiceProduct {
   @Column(nullable = false)
   private LocalDateTime endAt;
 
+  @Column(nullable = false)
+  private String lat; // 위도 가로
+
+  @Column(nullable = false)
+  private String lng; // 경도 세로
+
+  @Column(nullable = false)
+  private LocalDateTime createAt;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", nullable = false)
   private User owner;
@@ -50,7 +58,7 @@ public class ServiceProduct {
   @Enumerated(EnumType.STRING)
   private ProviderType providerType; // SP 타입 (구매, 판매)
 
-  @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<SPImage> images = new ArrayList<>();
 
@@ -60,37 +68,40 @@ public class ServiceProduct {
   private List<Transaction> transactions = new ArrayList<>();
 
   // 하나의 serviceProduct에 문의는 여러 명이 걸 수 있으므로, OneToOne 에서  OneToMany 으로 수정
-  @OneToMany(mappedBy = "serviceProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ChatRoom> chatRooms = new ArrayList<>();
 
-  public static ServiceProduct of(ServiceProductRequest serviceProductRequest, User owner, Category category, ProviderType providerType) {
-    return ServiceProduct.builder()
-            .title(serviceProductRequest.getTitle())
-            .description(serviceProductRequest.getDescription())
-            .hours(serviceProductRequest.getHours())
-            .startedAt(serviceProductRequest.getStartedAt())
-            .endAt(serviceProductRequest.getEndAt())
+  public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
+    return Product.builder()
+            .title(productRequest.getTitle())
+            .description(productRequest.getDescription())
+            .hours(productRequest.getHours())
+            .startedAt(productRequest.getStartedAt())
+            .endAt(productRequest.getEndAt())
+            .lat(productRequest.getLat())
+            .lng(productRequest.getLng())
+            .createAt(LocalDateTime.now())
             .owner(owner)
             .category(category)
             .providerType(providerType)
             .build();
   }
 
-  public static ServiceProduct of(ServiceProductRequest serviceProductRequest, User owner, Category category, ProviderType providerType, List<SPImage> images) {
-    ServiceProduct serviceProduct = of(serviceProductRequest, owner, category, providerType);
-    images.forEach(image -> image.setServiceProduct(serviceProduct));
-    serviceProduct.getImages().addAll(images);
-    return serviceProduct;
+  public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, List<SPImage> images) {
+    Product product = of(productRequest, owner, category, providerType);
+    images.forEach(image -> image.setProduct(product));
+    product.getImages().addAll(images);
+    return product;
   }
 
 
 
-  public ServiceProduct setUpdateValue(ServiceProductRequest serviceProductRequest, Category category, ProviderType providerType, List<SPImage> images) {
-      this.title = serviceProductRequest.getTitle();
-      this.description = serviceProductRequest.getDescription();
-      this.hours = serviceProductRequest.getHours();
-      this.startedAt = serviceProductRequest.getStartedAt();
-      this.endAt = serviceProductRequest.getEndAt();
+  public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType, List<SPImage> images) {
+      this.title = productRequest.getTitle();
+      this.description = productRequest.getDescription();
+      this.hours = productRequest.getHours();
+      this.startedAt = productRequest.getStartedAt();
+      this.endAt = productRequest.getEndAt();
       this.category = category;
       this.providerType = providerType;
       this.getImages().addAll(images);

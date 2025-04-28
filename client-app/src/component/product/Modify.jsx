@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {getList} from "../../api/categoryApi.js";
-import {getRead, postSave, putUpdate} from "../../api/serviceProductApi.js";
+import {getRead, putUpdate} from "../../api/productApi.js";
 import {useParams} from "react-router-dom";
 
 const initState = { // 서버 데이터 수정용

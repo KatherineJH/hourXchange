@@ -1,6 +1,6 @@
 import api from "../state/Api.js";
 
-const apiServerUrl = '/api/serviceProduct/';
+const apiServerUrl = '/api/product/';
 
 export const getRead = async (id) => {
     const response = await api.get(apiServerUrl + id);

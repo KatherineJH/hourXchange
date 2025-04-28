@@ -2,7 +2,6 @@ package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
-import com.example.oauthjwt.entity.ServiceProduct;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.ReviewService;
 import jakarta.validation.Valid;
