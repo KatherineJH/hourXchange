@@ -2,8 +2,18 @@
 import React, { useEffect, useState } from "react";
 import BoardTable from "../../component/board/BoardTable";
 import { useNavigate } from "react-router-dom";
-import Pagination from "@mui/material/Pagination";
-import Stack from "@mui/material/Stack";
+import {
+  TextField,
+  Button,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  Pagination,
+} from "@mui/material";
+
 import {
   getAllBoards,
   searchBoards,
@@ -70,64 +80,62 @@ function BoardPage() {
   return (
     <div>
       <h1>📋 Board 검색 페이지</h1>
-
-      <div style={{ position: "relative", width: "300px" }}>
-        <input
-          type="text"
+      <div style={{ position: "relative", width: "300px", margin: "1rem 0" }}>
+        <TextField
+          fullWidth
+          variant="outlined"
           placeholder="검색어를 입력하세요"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
+          size="small"
         />
-        <button onClick={handleSearch}>검색</button>
-
+        <Button
+          variant="contained"
+          onClick={handleSearch}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            height: "100%",
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+          }}
+        >
+          검색
+        </Button>
         {/* 🔽 추천 검색어 리스트 표시 */}
         {suggestions.length > 0 && (
-          <ul
-            style={{
-              backgroundColor: "white",
-              border: "1px solid #ccc",
-              listStyle: "none",
-              padding: "0",
-              margin: "0",
+          <Paper
+            sx={{
               position: "absolute",
               width: "100%",
+              mt: "4px",
               zIndex: 10,
+              maxHeight: 200,
+              overflowY: "auto",
             }}
           >
-            {suggestions.map((s, idx) => (
-              <li
-                key={idx}
-                onClick={() => {
-                  setSearchInput(s);
-                  setKeyword(s);
-                  setPage(0);
-                  setSuggestions([]); // 추천창 닫기
-                }}
-                style={{ padding: "5px", cursor: "pointer" }}
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
+            <List dense>
+              {suggestions.map((s, idx) => (
+                <ListItem key={idx} disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setSearchInput(s);
+                      setKeyword(s);
+                      setPage(0);
+                      setSuggestions([]); // 추천창 닫기
+                    }}
+                  >
+                    <ListItemText primary={s} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
         )}
       </div>
-
       <BoardTable boards={boards} navigate={navigate} />
 
-      {/* <div style={{ marginTop: "1rem" }}>
-        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
-          이전
-        </button>
-        <span style={{ margin: "0 10px" }}>
-          {page + 1} / {totalPages} 페이지
-        </span>
-        <button
-          disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          다음
-        </button>
-      </div> */}
       {/* 하단 페이지네이션 버튼 */}
       <div
         style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}
@@ -139,6 +147,7 @@ function BoardPage() {
             onChange={(event, value) => setPage(value - 1)} // 다시 0부터 시작하게 맞춰줌
             variant="outlined"
             shape="rounded"
+            color="primary"
           />
         </Stack>
       </div>
