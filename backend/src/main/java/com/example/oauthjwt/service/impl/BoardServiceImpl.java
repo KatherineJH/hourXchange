@@ -7,6 +7,8 @@ import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,12 +82,15 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardResponse> findAllBoards() {
-        List<Board> boards = boardRepository.findAll();
+    public Page<BoardResponse> findAllBoards(Pageable pageable) {
+        Page<Board> boardsPage = boardRepository.findAll(pageable);
+        return boardsPage.map(BoardResponse::toDto);
+//    public List<BoardResponse> findAllBoards(Pageable pageable) {
+//        List<Board> boards = boardRepository.findAll(pageable);
 
-        return boards.stream()
-                .map(BoardResponse::toDto)
-                .collect(Collectors.toList());
+//        return boards.stream()
+//                .map(BoardResponse::toDto)
+//                .collect(Collectors.toList());
     }
 
     @Override

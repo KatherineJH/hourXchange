@@ -1,5 +1,6 @@
 // src/layout/Sidebar.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   List,
@@ -15,12 +16,19 @@ import {
 
 const Sidebar = () => {
   const [openRegion, setOpenRegion] = useState(false);
+  const navigate = useNavigate();
+
+  const handleMenuClick = (text) => {
+    if (text === "커뮤니티") {
+      navigate("/board/list"); // 게시판으로 이동
+    }
+  };
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
       <List>
         {["삽니다", "팝니다", "봉사해요", "커뮤니티"].map((text) => (
-          <ListItemButton key={text}>
+          <ListItemButton key={text} onClick={() => handleMenuClick(text)}>
             <ListItemText primary={text} />
           </ListItemButton>
         ))}
