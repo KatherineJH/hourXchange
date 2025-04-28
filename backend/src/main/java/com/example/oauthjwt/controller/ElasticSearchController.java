@@ -1,7 +1,7 @@
 package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ServiceProductDocument;
+import com.example.oauthjwt.dto.ProductDocument;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.elastic.Indexer;
@@ -20,7 +20,7 @@ public class ElasticSearchController {
     private final Indexer indexer;
 
     @GetMapping("/products")
-    public ResponseEntity<PageResult<ServiceProductDocument>> searchProducts(
+    public ResponseEntity<PageResult<ProductDocument>> searchProducts(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
