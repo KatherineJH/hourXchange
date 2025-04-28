@@ -1,0 +1,12 @@
+flask==3.1.0
+flask-cors==5.0.1
+
+torch==2.6.0
+transformers==4.11.3
+accelerate
+
+scikit-learn==1.6.0
+
+konlpy
+jpype1
+fugashi
