@@ -55,10 +55,6 @@ function Homepage() {
         ) : (
           <p>로그인되지 않았습니다.</p>
         )}
-
-        <button onClick={() => (window.location.href = "/login")}>
-          Go to Login
-        </button>
       </div>
     </>
   );
