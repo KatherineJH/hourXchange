@@ -2,13 +2,13 @@ package com.example.oauthjwt.service.impl;
 
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
+import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.Review;
 import com.example.oauthjwt.entity.ReviewTag;
-import com.example.oauthjwt.entity.ServiceProduct;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.repository.ProductRepository;
 import com.example.oauthjwt.repository.ReviewRepository;
 import com.example.oauthjwt.repository.ReviewTagRepository;
-import com.example.oauthjwt.repository.ServiceProductRepository;
 import com.example.oauthjwt.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,14 +24,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewTagRepository reviewTagRepository;
-    private final ServiceProductRepository serviceProductRepository;
+    private final ProductRepository ProductRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String flaskUrl = "http://127.0.0.1:5000/predict";
 
     @Override
     public ReviewResponse saveReview(ReviewRequest request, User reviewer) {
-        ServiceProduct product = serviceProductRepository.findById(request.getProductId())
+        Product product = ProductRepository.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
         // Flask 서버에 감성 분석 요청
@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setCreatedAt(LocalDateTime.now());
         review.setRates(rating);
         review.setReviewer(reviewer);
-        review.setServiceProduct(product);
+        review.setProduct(product);
         reviewRepository.save(review);
 
         // 태그 저장 (긍정인 경우만)

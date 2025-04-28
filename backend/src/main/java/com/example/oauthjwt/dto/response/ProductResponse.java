@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.entity.SPImage;
-import com.example.oauthjwt.entity.ServiceProduct;
+import com.example.oauthjwt.entity.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ServiceProductResponse {
+public class ProductResponse {
   private Long id; // id값
 
   private String title; // 제목
@@ -30,6 +30,12 @@ public class ServiceProductResponse {
 
   private LocalDateTime endAt; // 끝시간
 
+  private String lat;
+
+  private String lng;
+
+  private LocalDateTime createAt;
+
   private UserResponse owner; // 작성자
 
   private CategoryResponse category; // 서비스 카테고리
@@ -38,14 +44,17 @@ public class ServiceProductResponse {
 
   private List<String> images = new ArrayList<>(); // 이미지 url
 
-  public static ServiceProductResponse toDto(ServiceProduct product) {
-    return ServiceProductResponse.builder()
+  public static ProductResponse toDto(Product product) {
+    return ProductResponse.builder()
         .id(product.getId())
         .title(product.getTitle())
         .description(product.getDescription())
         .hours(product.getHours())
         .startedAt(product.getStartedAt())
         .endAt(product.getEndAt())
+        .lat(product.getLat())
+        .lng(product.getLng())
+        .createAt(product.getCreateAt())
         .owner(UserResponse.toDto(product.getOwner()))
         .category(CategoryResponse.toDto(product.getCategory()))
         .providerType(product.getProviderType().toString())

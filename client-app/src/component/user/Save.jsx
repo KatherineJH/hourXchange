@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import AddressForm from "./AddressForm.jsx";
 import {postSave} from "../../api/authApi.js";
+import {useNavigate} from "react-router-dom";
 
 const initState = {
     name: '',
@@ -18,6 +19,7 @@ const initState = {
 }
 
 function Save(props) {
+    const navigate = useNavigate();
 
     const [saveData, setSaveData] = useState(initState)
 
@@ -33,6 +35,7 @@ function Save(props) {
         try{
             const response = await postSave(saveData)
             console.log(response.data);
+            navigate('/email-login',{replace:true});
         }catch (error){
             console.log(error);
         }

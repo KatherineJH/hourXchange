@@ -2,6 +2,8 @@ package com.example.oauthjwt.service;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -13,8 +15,8 @@ public interface BoardService {
 
     BoardResponse save(BoardRequest boardRequest);
 
-    List<BoardResponse> findAllBoards();
-
+//    List<BoardResponse> findAllBoards();
+    Page<BoardResponse> findAllBoards(Pageable pageable);
     BoardResponse findById(Long boardId, Long userId);
 
     BoardResponse findMyBoardById(Long boardId, Long userId);

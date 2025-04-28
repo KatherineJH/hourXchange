@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {getList} from "../../api/serviceProductApi.js";
+import {getList} from "../../api/productApi.js";
+import GoogleListMap from "../common/GoogleListMap.jsx";
 
 const initState = {
     id: '',
@@ -8,11 +9,14 @@ const initState = {
     hours: '',
     startedAt: '',
     endAt: '',
+    lat: '',
+    lng: '',
     owner: {},
     category: {},
     providerType: '',
     images: []
 }
+
 
 function List() {
 
@@ -28,7 +32,8 @@ function List() {
     return (
         <div>
             <h2>리스트</h2>
-            <pre>{JSON.stringify(serverDataList, null, 2)}</pre>
+            {/*<pre>{JSON.stringify(serverDataList, null, 2)}</pre>*/}
+            <GoogleListMap serverData={serverDataList} />
         </div>
     );
 }

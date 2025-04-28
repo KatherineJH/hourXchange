@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "../../state/auth/Action";
 import { useNavigate } from "react-router-dom";
-import { fetchChatRooms } from "../../state/ChatApis";
 import Chat from "../chat/Chat";
-// import Chat from "./Chat";
+import { fetchChatRooms } from "../../api/chatApi";
 
 function Homepage() {
   const dispatch = useDispatch();
@@ -55,10 +54,6 @@ function Homepage() {
         ) : (
           <p>로그인되지 않았습니다.</p>
         )}
-
-        <button onClick={() => (window.location.href = "/login")}>
-          Go to Login
-        </button>
       </div>
     </>
   );

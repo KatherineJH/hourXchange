@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ServiceProductRequest {
+public class ProductRequest {
   private Long id; // id
 
   @NotBlank(message = "제목은 필수입니다.")
@@ -47,4 +46,10 @@ public class ServiceProductRequest {
   private String providerType; // SP 타입 (구매, 판매)
 
   private List<String> images = new ArrayList<>(); // 이미지 url
+
+  @NotNull(message = "위치는 필수입니다.")
+  private String lat; // 위도 가로
+
+  @NotNull(message = "위치는 필수입니다.")
+  private String lng; // 경도 세로
 }

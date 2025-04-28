@@ -34,7 +34,7 @@ public class Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
-  private ServiceProduct serviceProduct;
+  private Product Product;
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ReviewTag> tags = new ArrayList<>();

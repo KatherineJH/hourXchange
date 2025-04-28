@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchUser } from "../../state/auth/Action";
-import { fetchChatRooms } from "../../state/ChatApis";
 import Chat from "./Chat";
+import { fetchChatRooms } from "../../api/chatApi";
+import { fetchUser } from "../../state/auth/Action";
 
 function ChatContainer() {
   const dispatch = useDispatch();

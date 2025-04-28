@@ -132,7 +132,7 @@ public class ChatController {
                 .map(room -> ChatRoomDTO.builder()
                         .id(room.getId())
                         .name(room.getName())
-                        .serviceProductId(room.getServiceProduct().getId())
+                        .serviceProductId(room.getProduct().getId())
                         .createdAt(room.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
