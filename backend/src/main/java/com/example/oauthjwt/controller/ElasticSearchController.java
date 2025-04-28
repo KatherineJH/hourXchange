@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/search")
@@ -35,9 +36,24 @@ public class ElasticSearchController {
         return ResponseEntity.ok(searchService.searchBoards(keyword, page, size));
     }
 
+//    @GetMapping("/autocomplete")
+//    public ResponseEntity<List<String>> autocomplete(@RequestParam String prefix, @RequestParam String index) {
+//        return ResponseEntity.ok(searchService.autocomplete(prefix, index));
+//    }
+
+    // ✅ GET 방식 지원: /api/board/autocomplete?keyword=피
     @GetMapping("/autocomplete")
-    public ResponseEntity<List<String>> autocomplete(@RequestParam String prefix, @RequestParam String index) {
-        return ResponseEntity.ok(searchService.autocomplete(prefix, index));
+    public ResponseEntity<List<String>> autocompleteGet(@RequestParam("keyword") String keyword) {
+        List<String> results = searchService.autocomplete(keyword);
+        return ResponseEntity.ok(results);
+    }
+
+    // ✅ POST 방식 지원: { "keyword": "피" }
+    @PostMapping("/autocomplete")
+    public ResponseEntity<List<String>> autocompletePost(@RequestBody Map<String, String> request) {
+        String keyword = request.get("keyword");
+        List<String> results = searchService.autocomplete(keyword);
+        return ResponseEntity.ok(results);
     }
 
     @PostMapping("/index")

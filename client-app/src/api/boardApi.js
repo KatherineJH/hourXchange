@@ -24,12 +24,9 @@ export const getBoardDetail = async (id) => {
 };
 
 // 추천 검색어 불러오기
-export const getAutocompleteSuggestions = async (prefix) => {
+export const getAutocompleteSuggestions = async (keyword) => {
   const response = await api.get("/api/search/autocomplete", {
-    params: {
-      prefix,
-      index: "board_index",
-    },
+    params: { keyword },
   });
   return response.data;
 };

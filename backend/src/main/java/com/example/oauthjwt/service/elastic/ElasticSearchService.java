@@ -100,34 +100,65 @@ public class ElasticSearchService {
         }
     }
 
-    public List<String> autocomplete(String prefix, String index) {
+//    public List<String> autocomplete(String prefix, String index) {
+public List<String> autocomplete(String keyword) {
+//        try {
+//            SearchResponse<Void> response = client.search(s ->
+//                            s.index(index)
+//                                    .suggest(sug ->
+//                                            sug.suggesters("completion_suggest", sugField ->
+//                                                    sugField
+//                                                            .prefix(prefix.toLowerCase())
+//                                                            .completion(c ->
+//                                                                    c.field("suggest")
+//                                                                            .size(10)
+//                                                                            .fuzzy(f -> f.fuzziness("2")) // 편집 거리 2
+//                                                            )
+//                                            )
+//                                    ),
+//                    Void.class);
+//
+//            List<String> results = response.suggest().get("completion_suggest").stream()
+//                    .flatMap(s -> s.completion().options().stream())
+//                    .map(option -> option.text())
+//                    .distinct()
+//                    .limit(10)
+//                    .collect(Collectors.toList());
+//            log.info("Autocomplete for prefix '{}', index '{}': {} results", prefix, index, results.size());
+//            return results;
+//        } catch (IOException e) {
+//            log.error("Autocomplete error: {}", e.getMessage());
+//            throw new RuntimeException("자동완성 실패", e);
+//        }
+//    }
         try {
-            SearchResponse<Void> response = client.search(s ->
-                            s.index(index)
-                                    .suggest(sug ->
-                                            sug.suggesters("completion_suggest", sugField ->
-                                                    sugField
-                                                            .prefix(prefix.toLowerCase())
-                                                            .completion(c ->
-                                                                    c.field("suggest")
-                                                                            .size(10)
-                                                                            .fuzzy(f -> f.fuzziness("2")) // 편집 거리 2
-                                                            )
+            SearchResponse<Void> response = client.search(s -> s
+                            .index("board_index")
+                            .suggest(sg -> sg
+                                    .suggesters("autocomplete-suggest", sug -> sug
+                                            .prefix(keyword)
+                                            .completion(c -> c
+                                                    .field("suggest")
+                                                    .size(10)
+                                                    .skipDuplicates(true)
                                             )
-                                    ),
-                    Void.class);
+                                    )
+                            ),
+                    Void.class
+            );
 
-            List<String> results = response.suggest().get("completion_suggest").stream()
+            return response.suggest()
+                    .get("autocomplete-suggest")
+                    .stream()
                     .flatMap(s -> s.completion().options().stream())
                     .map(option -> option.text())
                     .distinct()
                     .limit(10)
-                    .collect(Collectors.toList());
-            log.info("Autocomplete for prefix '{}', index '{}': {} results", prefix, index, results.size());
-            return results;
+                    .toList();
+
         } catch (IOException e) {
-            log.error("Autocomplete error: {}", e.getMessage());
-            throw new RuntimeException("자동완성 실패", e);
+            log.error("자동완성 실패: {}", e.getMessage());
+            throw new RuntimeException("자동완성 오류", e);
         }
     }
 }
