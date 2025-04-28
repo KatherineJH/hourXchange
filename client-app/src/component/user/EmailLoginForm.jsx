@@ -1,153 +1,111 @@
-// import React, { useState } from "react";
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-
-// const EmailLoginForm = () => {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       const res = await axios.post(
-//         "http://localhost:8282/api/auth/login", // ✅ 올바른 엔드포인트
-//         { username, password },
-//         { withCredentials: true }
-//       );
-
-//       console.log("Response:", res); // 디버깅
-//       alert("로그인 성공!");
-//       navigate("/");
-//     } catch (error) {
-//       console.error("로그인 실패:", error);
-//       alert("로그인에 실패했습니다. 다시 시도해 주세요.");
-//     }
-//   };
-
-//   return (
-//     <div style={{ padding: "2rem", maxWidth: "400px", margin: "0 auto" }}>
-//       <h2>이메일 로그인</h2>
-//       <form onSubmit={handleLogin}>
-//         <div style={{ marginBottom: "1rem" }}>
-//           <label>이메일 또는 아이디</label>
-//           <br />
-//           <input
-//             type="text"
-//             value={username}
-//             onChange={(e) => setUsername(e.target.value)}
-//             placeholder="이메일 또는 아이디"
-//             required
-//             style={{ width: "100%", padding: "0.5rem" }}
-//           />
-//         </div>
-//         <div style={{ marginBottom: "1rem" }}>
-//           <label>비밀번호</label>
-//           <br />
-//           <input
-//             type="password"
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             placeholder="비밀번호"
-//             required
-//             style={{ width: "100%", padding: "0.5rem" }}
-//           />
-//         </div>
-//         <button
-//           type="submit"
-//           style={{
-//             width: "100%",
-//             padding: "0.75rem",
-//             backgroundColor: "#1976d2",
-//             color: "#fff",
-//             border: "none",
-//             borderRadius: "4px",
-//           }}
-//         >
-//           로그인
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default EmailLoginForm;
-
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import * as React from "react";
+import { SignInPage } from "@toolpad/core/SignInPage";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../state/auth/Action.js";
+import { TextField } from "@mui/material";
 
-const EmailLoginForm = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const dispatch = useDispatch();
+const providers = [
+  { id: "naver", name: "Naver" },
+  { id: "google", name: "Google" },
+  { id: "credentials", name: "Email and Password" },
+];
+
+export default function EmailLoginForm() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const signIn = async (provider, formData) => {
+    console.log("선택된 provider:", provider.id); // 디버깅: 어떤 provider가 호출되었는지 확인
 
-    try {
-      await dispatch(loginUser({ email: username, password })).unwrap();
-      alert("로그인 성공!");
-      navigate("/");
-    } catch (error) {
-      console.error("로그인 실패:", error);
-      alert("로그인에 실패했습니다. 다시 시도해 주세요.");
+    switch (provider.id) {
+      case "naver":
+        console.log("Naver 로그인 리디렉션 시작");
+        window.location.href =
+          "http://localhost:8282/oauth2/authorization/naver";
+        return {};
+
+      case "google":
+        console.log("Google 로그인 리디렉션 시작");
+        window.location.href =
+          "http://localhost:8282/oauth2/authorization/google";
+        return {};
+
+      case "credentials":
+        try {
+          const email = formData.get("email");
+          const password = formData.get("password");
+
+          console.log("formData:", Object.fromEntries(formData)); // 디버깅
+          console.log("추출된 값:", { email, password }); // 디버깅
+
+          if (!email || !password) {
+            throw new Error("이메일 또는 비밀번호가 입력되지 않았습니다.");
+          }
+
+          const response = await dispatch(
+            loginUser({ email, password })
+          ).unwrap();
+
+          console.log("로그인 성공 응답:", response); // 디버깅
+          alert("로그인 성공!");
+          navigate("/");
+          return {};
+        } catch (error) {
+          console.error("로그인 실패:", error);
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
+          alert(errorMessage);
+          return { error: errorMessage };
+        }
+
+      default:
+        console.warn("알 수 없는 provider:", provider.id); // 디버깅
+        return { error: "지원하지 않는 로그인 방식입니다." };
     }
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "400px", margin: "0 auto" }}>
-      <h2>이메일 로그인</h2>
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: "1rem" }}>
-          <label>이메일 또는 아이디</label>
-          <br />
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="이메일 또는 아이디"
-            required
-            style={{ width: "100%", padding: "0.5rem" }}
-            disabled={isLoading}
-          />
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <label>비밀번호</label>
-          <br />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호"
-            required
-            style={{ width: "100%", padding: "0.5rem" }}
-            disabled={isLoading}
-          />
-        </div>
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: "#1976d2",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            opacity: isLoading ? 0.6 : 1,
-          }}
-          disabled={isLoading}
-        >
-          {isLoading ? "로그인 중..." : "로그인"}
-        </button>
-        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
-      </form>
-    </div>
+    <SignInPage
+      signIn={signIn}
+      providers={providers}
+      slotProps={{
+        form: { noValidate: true },
+        credentials: {
+          inputs: (
+            <>
+              <TextField
+                name="email"
+                label="이메일"
+                type="email"
+                fullWidth
+                margin="normal"
+                required
+                disabled={isLoading}
+              />
+              <TextField
+                name="password"
+                label="비밀번호"
+                type="password"
+                fullWidth
+                margin="normal"
+                required
+                disabled={isLoading}
+              />
+            </>
+          ),
+        },
+      }}
+      sx={{
+        "& form > .MuiStack-root": {
+          marginTop: "2rem",
+          rowGap: "0.5rem",
+        },
+      }}
+      disabled={isLoading}
+    />
   );
-};
-
-export default EmailLoginForm;
+}
