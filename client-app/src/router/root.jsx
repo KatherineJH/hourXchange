@@ -18,7 +18,7 @@ const root = createBrowserRouter([
   },
   {
     path: "",
-    element: <Main />, 
+    element: <Main />,
     children: [
       { index: true, element: <Homepage /> },
       { path: "chat-room/:chatRoomId", element: <ChatRoom /> },

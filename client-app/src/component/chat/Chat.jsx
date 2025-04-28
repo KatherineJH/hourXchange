@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchChatRooms } from "../../state/ChatApis";
+import { fetchChatRooms } from "../../api/chatApi";
 
 function Chat() {
   const { user } = useSelector((state) => state.auth);
