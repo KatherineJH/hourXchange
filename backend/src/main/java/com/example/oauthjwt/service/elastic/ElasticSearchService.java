@@ -12,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -100,39 +102,72 @@ public class ElasticSearchService {
         }
     }
 
-//    public List<String> autocomplete(String prefix, String index) {
-public List<String> autocomplete(String keyword) {
+////    public List<String> autocomplete(String prefix, String index) {
+//public List<String> autocomplete(String keyword) {
+////        try {
+////            SearchResponse<Void> response = client.search(s ->
+////                            s.index(index)
+////                                    .suggest(sug ->
+////                                            sug.suggesters("completion_suggest", sugField ->
+////                                                    sugField
+////                                                            .prefix(prefix.toLowerCase())
+////                                                            .completion(c ->
+////                                                                    c.field("suggest")
+////                                                                            .size(10)
+////                                                                            .fuzzy(f -> f.fuzziness("2")) // 편집 거리 2
+////                                                            )
+////                                            )
+////                                    ),
+////                    Void.class);
+////
+////            List<String> results = response.suggest().get("completion_suggest").stream()
+////                    .flatMap(s -> s.completion().options().stream())
+////                    .map(option -> option.text())
+////                    .distinct()
+////                    .limit(10)
+////                    .collect(Collectors.toList());
+////            log.info("Autocomplete for prefix '{}', index '{}': {} results", prefix, index, results.size());
+////            return results;
+////        } catch (IOException e) {
+////            log.error("Autocomplete error: {}", e.getMessage());
+////            throw new RuntimeException("자동완성 실패", e);
+////        }
+////    }
 //        try {
-//            SearchResponse<Void> response = client.search(s ->
-//                            s.index(index)
-//                                    .suggest(sug ->
-//                                            sug.suggesters("completion_suggest", sugField ->
-//                                                    sugField
-//                                                            .prefix(prefix.toLowerCase())
-//                                                            .completion(c ->
-//                                                                    c.field("suggest")
-//                                                                            .size(10)
-//                                                                            .fuzzy(f -> f.fuzziness("2")) // 편집 거리 2
-//                                                            )
+//            SearchResponse<Void> response = client.search(s -> s
+//                            .index("board_index")
+//                            .suggest(sg -> sg
+//                                    .suggesters("autocomplete-suggest", sug -> sug
+//                                            .prefix(keyword)
+//                                            .completion(c -> c
+//                                                    .field("suggest")
+//                                                    .size(10)
+//                                                    .skipDuplicates(true)
 //                                            )
-//                                    ),
-//                    Void.class);
+//                                    )
+//                            ),
+//                    Void.class
+//            );
 //
-//            List<String> results = response.suggest().get("completion_suggest").stream()
+//            return response.suggest()
+//                    .get("autocomplete-suggest")
+//                    .stream()
 //                    .flatMap(s -> s.completion().options().stream())
 //                    .map(option -> option.text())
 //                    .distinct()
 //                    .limit(10)
-//                    .collect(Collectors.toList());
-//            log.info("Autocomplete for prefix '{}', index '{}': {} results", prefix, index, results.size());
-//            return results;
+//                    .toList();
+//
 //        } catch (IOException e) {
-//            log.error("Autocomplete error: {}", e.getMessage());
-//            throw new RuntimeException("자동완성 실패", e);
+//            log.error("자동완성 실패: {}", e.getMessage());
+//            throw new RuntimeException("자동완성 오류", e);
 //        }
 //    }
+
+    public List<String> autocomplete(String keyword) {
         try {
-            SearchResponse<Void> response = client.search(s -> s
+            // Step 1. 먼저 completion suggester 사용 (진짜 자동완성)
+            SearchResponse<Void> completionResponse = client.search(s -> s
                             .index("board_index")
                             .suggest(sg -> sg
                                     .suggesters("autocomplete-suggest", sug -> sug
@@ -147,7 +182,7 @@ public List<String> autocomplete(String keyword) {
                     Void.class
             );
 
-            return response.suggest()
+            List<String> completionResults = completionResponse.suggest()
                     .get("autocomplete-suggest")
                     .stream()
                     .flatMap(s -> s.completion().options().stream())
@@ -156,9 +191,48 @@ public List<String> autocomplete(String keyword) {
                     .limit(10)
                     .toList();
 
+            // 만약 completion 결과가 10개 미만이면 matchPhrasePrefix로 추가 검색
+            if (completionResults.size() < 10) {
+                int remain = 10 - completionResults.size();
+
+                SearchResponse<BoardDocument> phrasePrefixResponse = client.search(s -> s
+                                .index("board_index")
+                                .query(q -> q
+                                        .multiMatch(m -> m
+                                                .query(keyword)
+                                                .fields("title", "description", "authorName")
+                                                .type(co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType.PhrasePrefix)
+                                        )
+                                )
+                                .size(remain),
+                        BoardDocument.class
+                );
+
+                List<String> phraseResults = phrasePrefixResponse.hits().hits().stream()
+                        .map(Hit::source)
+                        .filter(Objects::nonNull)
+                        .flatMap(doc -> Stream.of(doc.getTitle(), doc.getDescription(), doc.getAuthorName()))
+                        .filter(Objects::nonNull)
+                        .flatMap(text -> Arrays.stream(text.split("[\\s\\p{Punct}]")))
+                        .filter(word -> word.length() >= 2 && word.contains(keyword))
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .limit(remain)
+                        .toList();
+
+                // 결과 합치기 (중복 제거)
+                return Stream.concat(completionResults.stream(), phraseResults.stream())
+                        .distinct()
+                        .limit(10)
+                        .toList();
+            }
+
+            return completionResults;
+
         } catch (IOException e) {
             log.error("자동완성 실패: {}", e.getMessage());
             throw new RuntimeException("자동완성 오류", e);
         }
     }
+
 }
