@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GoogleMap, MarkerF, InfoWindow } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 
-const containerStyle = { width: '700px', height: '400px' };
+const containerStyle = { width: '100%', height: '600px' };
 const defaultCenter = { lat: 37.496486063, lng: 127.028361548 };
 
 /**

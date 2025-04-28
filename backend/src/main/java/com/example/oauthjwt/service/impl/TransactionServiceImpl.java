@@ -3,16 +3,14 @@ package com.example.oauthjwt.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
-import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.TransactionStatus;
-import com.example.oauthjwt.entity.Transaction;
-import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.ProductRepository;
 import com.example.oauthjwt.repository.TransactionRepository;
 import com.example.oauthjwt.repository.UserRepository;
@@ -27,6 +25,7 @@ public class TransactionServiceImpl implements TransactionService {
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
   private final TransactionRepository transactionRepository;
+  private final ChatService chatService;
 
   private final UserService userService;
 
@@ -44,11 +43,14 @@ public class TransactionServiceImpl implements TransactionService {
     if(transactionStatus == null){
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
     }
+    // 채팅 룸 확인
+    ChatRoom chatRoom = chatService.initiateChatFromPost(product.getOwner().getId(), transactionRequest.getUserId());
+
     // 엔티티 생성
     Transaction transaction = Transaction.of(transactionRequest, user, product, transactionStatus);
     // 저장 및 반환
     Transaction result = transactionRepository.save(transaction);
-    return TransactionResponse.toDto(result);
+    return TransactionResponse.toDto(result, chatRoom);
   }
 
   @Override

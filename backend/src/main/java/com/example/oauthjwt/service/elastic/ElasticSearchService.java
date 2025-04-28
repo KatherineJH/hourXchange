@@ -3,7 +3,7 @@ package com.example.oauthjwt.service.elastic;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ServiceProductDocument;
+import com.example.oauthjwt.dto.ProductDocument;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.example.oauthjwt.dto.response.PageResult;
@@ -23,11 +23,11 @@ public class ElasticSearchService {
 
     private final ElasticsearchClient client;
 
-    public PageResult<ServiceProductDocument> searchServiceProducts(String keyword, int page, int size) {
+    public PageResult<ProductDocument> searchServiceProducts(String keyword, int page, int size) {
         try {
             // int from = (page - 1) * size;
             int from = Math.max(0, page * size); // 음수 안 나오게 방어
-            SearchResponse<ServiceProductDocument> response = client.search(s ->
+            SearchResponse<ProductDocument> response = client.search(s ->
                             s.index("service_product_index")
                                     .from(from)
                                     .size(size)
@@ -40,14 +40,14 @@ public class ElasticSearchService {
                                                             .minimumShouldMatch("75%") // 최소 매칭 비율
                                             )
                                     ),
-                    ServiceProductDocument.class);
+                    ProductDocument.class);
 
 //            List<ServiceProductDocument> results = response.hits().hits().stream()
 //                    .map(hit -> hit.source())
 //                    .collect(Collectors.toList());
 //            log.info("Search products for keyword '{}': {} results", keyword, results.size());
 //            return results;
-            List<ServiceProductDocument> results = response.hits().hits().stream()
+            List<ProductDocument> results = response.hits().hits().stream()
                     .map(Hit::source)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
