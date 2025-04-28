@@ -66,7 +66,7 @@ function Save() {
             const uploadPromises = images.map(file => {
                 const formData = new FormData();
                 formData.append('file', file);
-                formData.append('upload_preset', 'fikklc42'); // 본인 preset
+                formData.append('upload_preset', `${import.meta.env.VITE_UPLOAD_PRESET}`); // 본인 preset
 
                 return axios.post(
                     `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, // 본인 cloud_name
