@@ -12,6 +12,10 @@ import {
   ListItemText,
   Stack,
   Pagination,
+  Card,
+  CardContent,
+  Box,
+  Typography,
 } from "@mui/material";
 
 import {
@@ -32,7 +36,6 @@ function BoardPage() {
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
 
-  // 게시판 데이터 가져오기
   const fetchBoards = async () => {
     try {
       if (keyword.trim() === "") {
@@ -49,12 +52,10 @@ function BoardPage() {
     }
   };
 
-  // 페이지 변경, 검색어 변경 시 다시 게시판 데이터를 불러옴
   useEffect(() => {
     fetchBoards();
   }, [page, size, keyword]);
 
-  // 🔍 입력값이 바뀔 때마다 추천 검색어 호출
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchInput.trim() === "") {
@@ -73,85 +74,100 @@ function BoardPage() {
   }, [searchInput]);
 
   const handleSearch = () => {
-    setKeyword(searchInput); // 검색어를 확정
-    setPage(0); // 첫 페이지로
+    setKeyword(searchInput);
+    setPage(0);
   };
 
   return (
-    <div>
-      <h1>📋 Board 검색 페이지</h1>
-      <div style={{ position: "relative", width: "300px", margin: "1rem 0" }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="검색어를 입력하세요"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          size="small"
-        />
-        <Button
-          variant="contained"
-          onClick={handleSearch}
-          sx={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            height: "100%",
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-          }}
-        >
-          검색
-        </Button>
-        {/* 🔽 추천 검색어 리스트 표시 */}
-        {suggestions.length > 0 && (
-          <Paper
+    <Box sx={{ mt: 4 }}>
+      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            📋 Board 검색 & 리스트
+          </Typography>
+
+          {/* 검색창 */}
+          <Box sx={{ position: "relative", width: "300px", margin: "1rem 0" }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="검색어를 입력하세요"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              size="small"
+            />
+            <Button
+              variant="contained"
+              onClick={handleSearch}
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                height: "100%",
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+            >
+              검색
+            </Button>
+
+            {/* 추천 검색어 */}
+            {suggestions.length > 0 && (
+              <Paper
+                sx={{
+                  position: "absolute",
+                  width: "100%",
+                  mt: "4px",
+                  zIndex: 10,
+                  maxHeight: 200,
+                  overflowY: "auto",
+                }}
+              >
+                <List dense>
+                  {suggestions.map((s, idx) => (
+                    <ListItem key={idx} disablePadding>
+                      <ListItemButton
+                        onClick={() => {
+                          setSearchInput(s);
+                          setKeyword(s);
+                          setPage(0);
+                          setSuggestions([]);
+                        }}
+                      >
+                        <ListItemText primary={s} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            )}
+          </Box>
+
+          {/* 테이블 */}
+          <BoardTable boards={boards} navigate={navigate} />
+
+          {/* 페이지네이션 */}
+          <Box
             sx={{
-              position: "absolute",
-              width: "100%",
-              mt: "4px",
-              zIndex: 10,
-              maxHeight: 200,
-              overflowY: "auto",
+              marginTop: "1rem",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            <List dense>
-              {suggestions.map((s, idx) => (
-                <ListItem key={idx} disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      setSearchInput(s);
-                      setKeyword(s);
-                      setPage(0);
-                      setSuggestions([]); // 추천창 닫기
-                    }}
-                  >
-                    <ListItemText primary={s} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        )}
-      </div>
-      <BoardTable boards={boards} navigate={navigate} />
-
-      {/* 하단 페이지네이션 버튼 */}
-      <div
-        style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}
-      >
-        <Stack spacing={2}>
-          <Pagination
-            count={totalPages}
-            page={page + 1} // MUI는 1부터 시작하니까 +1
-            onChange={(event, value) => setPage(value - 1)} // 다시 0부터 시작하게 맞춰줌
-            variant="outlined"
-            shape="rounded"
-            color="primary"
-          />
-        </Stack>
-      </div>
-    </div>
+            <Stack spacing={2}>
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={(event, value) => setPage(value - 1)}
+                variant="outlined"
+                shape="rounded"
+                color="primary"
+              />
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 
