@@ -1,11 +1,11 @@
 package com.example.oauthjwt.service.elastic;
 
 import com.example.oauthjwt.entity.Board;
-import com.example.oauthjwt.entity.ServiceProduct;
+import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.dto.BoardDocument;
 import com.example.oauthjwt.dto.ServiceProductDocument;
 import com.example.oauthjwt.repository.BoardRepository;
-import com.example.oauthjwt.repository.ServiceProductRepository;
+import com.example.oauthjwt.repository.ProductRepository;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class Indexer {
-    private final ServiceProductRepository serviceProductRepository;
+    private final ProductRepository productRepository;
     private final BoardRepository boardRepository;
     private final ElasticsearchClient elasticsearchClient;
 
@@ -33,7 +33,7 @@ public class Indexer {
     }
 
     private void indexServiceProducts() {
-        List<ServiceProduct> products = serviceProductRepository.findAll();
+        List<Product> products = productRepository.findAll();
         log.info("Found {} ServiceProducts to index", products.size());
         if (products.isEmpty()) {
             log.warn("No ServiceProducts found in database");

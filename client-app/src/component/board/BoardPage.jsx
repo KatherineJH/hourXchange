@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import BoardTable from "../../component/board/BoardTable";
 import { useNavigate } from "react-router-dom";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 import {
   getAllBoards,
   searchBoards,
@@ -112,7 +114,7 @@ function BoardPage() {
 
       <BoardTable boards={boards} navigate={navigate} />
 
-      <div style={{ marginTop: "1rem" }}>
+      {/* <div style={{ marginTop: "1rem" }}>
         <button disabled={page === 0} onClick={() => setPage(page - 1)}>
           이전
         </button>
@@ -125,6 +127,20 @@ function BoardPage() {
         >
           다음
         </button>
+      </div> */}
+      {/* 하단 페이지네이션 버튼 */}
+      <div
+        style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}
+      >
+        <Stack spacing={2}>
+          <Pagination
+            count={totalPages}
+            page={page + 1} // MUI는 1부터 시작하니까 +1
+            onChange={(event, value) => setPage(value - 1)} // 다시 0부터 시작하게 맞춰줌
+            variant="outlined"
+            shape="rounded"
+          />
+        </Stack>
       </div>
     </div>
   );
