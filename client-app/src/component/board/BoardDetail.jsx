@@ -1,8 +1,8 @@
 // src/page/board/BoardDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { getBoardDetail } from "../../api/boardApi";
+import { useNavigate, useParams } from "react-router-dom";
+import { getBoardDetail, updateBoardLike } from "../../api/boardApi";
 import { getCommentsByBoardId } from "../../api/commentApi";
 import {
   Box,
@@ -12,10 +12,13 @@ import {
   Divider,
   Button,
 } from "@mui/material";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import CommentTable from "../../component/board/CommentTable";
 
 function BoardDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [board, setBoard] = useState(null);
   const [comments, setComments] = useState([]);
   const { user } = useSelector((state) => state.auth);
@@ -43,6 +46,15 @@ function BoardDetail() {
     fetchComments();
   }, [id]);
 
+  const handleLike = async () => {
+    try {
+      const updatedBoard = await updateBoardLike(id); // 좋아요 토글
+      setBoard(updatedBoard); // 서버 응답 반영
+    } catch (error) {
+      console.error("좋아요 실패", error);
+    }
+  };
+
   if (!board) {
     return (
       <Box sx={{ mt: 4, textAlign: "center" }}>
@@ -50,14 +62,46 @@ function BoardDetail() {
       </Box>
     );
   }
+  const isAuthor = user && user.id === board.author.id;
 
   return (
     <Box sx={{ mt: 4 }}>
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
-            📄 게시글 상세 페이지
-          </Typography>
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h5" gutterBottom>
+              📄 게시글 상세 페이지
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {isAuthor ? (
+                <Button
+                  variant="contained"
+                  onClick={() => navigate(`/board/update/${board.id}`)}
+                >
+                  수정
+                </Button>
+              ) : (
+                <Button onClick={handleLike} sx={{ minWidth: 0, p: 1 }}>
+                  좋아요
+                  {board.likedByMe ? (
+                    <ThumbUpIcon color="primary" />
+                  ) : (
+                    <ThumbUpOffAltIcon color="action" />
+                  )}
+                </Button>
+              )}
+              <Button variant="contained" color="primary" href="/board/list">
+                목록으로
+              </Button>
+            </Box>
+          </Box>
 
           <Divider sx={{ my: 2 }} />
 
@@ -110,12 +154,6 @@ function BoardDetail() {
           <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
             {board.description}
           </Typography>
-
-          <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
-            <Button variant="contained" color="primary" href="/board/list">
-              목록으로
-            </Button>
-          </Box>
         </CardContent>
       </Card>
 

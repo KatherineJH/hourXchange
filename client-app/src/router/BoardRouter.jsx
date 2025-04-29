@@ -20,6 +20,10 @@ const board = () => {
       path: "save",
       element: <SaveBoard />, // 게시글 작성
     },
+    {
+      path: "update/:id",
+      element: <SaveBoard />, // SaveBoard 재활용
+    },
   ];
 };
 

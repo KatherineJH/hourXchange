@@ -91,13 +91,9 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentRequest.getId())
                 .orElseThrow(() -> new ValidationException("수정할 댓글이 존재하지 않습니다."));
 
-        Board board = boardRepository.findById(commentRequest.getBoardId())
-                .orElseThrow(() -> new ValidationException("게시글이 존재하지 않습니다."));
-
-        commentRequest.setBoard(board);
-
-        Comment result = commentRepository.save(comment.setUpdateValue(commentRequest));
-        return CommentResponse.toDto(result);
+        comment.setContent(commentRequest.getContent());
+        Comment updatedComment = commentRepository.save(comment);
+        return CommentResponse.toDto(updatedComment);
     }
 
     @Override

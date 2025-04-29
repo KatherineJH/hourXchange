@@ -9,6 +9,14 @@ export const createBoard = async (boardData) => {
   return response.data;
 };
 
+// 게시글 수정 (id로 수정)
+export const updateBoard = async (id, boardData) => {
+  console.log("📌 updateBoard 호출됨:", { id, boardData });
+  const response = await api.put(`/api/board/${id}`, boardData);
+  console.log("✅ 게시글 수정 응답 데이터:", response.data);
+  return response.data;
+};
+
 // 전체 게시글 불러오기 (페이지네이션 포함)
 export const getAllBoards = async (page = 0, size = 10) => {
   console.log("📌 getAllBoards 호출됨:", { page, size });
@@ -43,5 +51,11 @@ export const getAutocompleteSuggestions = async (prefix) => {
       index: "board_index",
     },
   });
+  return response.data;
+};
+
+// 좋아요 토글 (게시글 좋아요)
+export const updateBoardLike = async (id) => {
+  const response = await api.put(`/api/board/${id}/thumbs-up`);
   return response.data;
 };
