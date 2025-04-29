@@ -1,7 +1,7 @@
 import React, {lazy} from "react"
 
 const Read = lazy(() => import("../component/product/Read.jsx"))
-const List = lazy(() => import("../component/product/List.jsx"))
+const ListMap = lazy(() => import("../component/product/ListMap.jsx"))
 const ListTable = lazy(() => import("../component/product/ListTable.jsx"))
 const Save = lazy(() => import("../component/product/Save.jsx"))
 const Modify = lazy(() => import("../component/product/Modify.jsx"))
@@ -14,8 +14,8 @@ const productRouter = () =>{
         element: <Read/>
     },
     {
-        path: "list",
-        element: <List/>
+        path: "ListMap",
+        element: <ListMap/>
     },
     {
         path: "listTable",

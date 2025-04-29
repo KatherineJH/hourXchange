@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import { GoogleMap, MarkerF, InfoWindow } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 
 const containerStyle = { width: '100%', height: '600px' };
-const defaultCenter = { lat: 37.496486063, lng: 127.028361548 };
+
 
 /**
  * GoogleListMapWithInfoWindow
@@ -11,15 +11,33 @@ const defaultCenter = { lat: 37.496486063, lng: 127.028361548 };
  * - 마커 호버 시 InfoWindow 표시, InfoWindow 호버 유지, 마우스 아웃 시 숨김
  * - InfoWindow 내부 클릭 시 상세 페이지로 이동
  */
-function GoogleListMap({ serverData }) {
+function GoogleListMap({ serverData, position, setPosition }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const navigate = useNavigate();
+    const mapRef = useRef(null);
+
+    // 맵이 로드될 때 ref에 저장
+    const onMapLoad = useCallback(map => {
+        mapRef.current = map;
+    }, []);
+
+    // 드래그(팬)가 끝났을 때 호출
+    const onDragEnd = () => {
+        if (mapRef.current) {
+            const newCenter = mapRef.current.getCenter().toJSON();
+            console.log(newCenter);
+            setPosition(newCenter);
+        }
+    };
 
     return (
         <GoogleMap
             mapContainerStyle={containerStyle}
-            center={defaultCenter}
-            zoom={15}
+            center={position}
+            zoom={17}
+            onDragEnd={onDragEnd}
+            onLoad={onMapLoad}
+
         >
             {serverData.map((item, i) => {
                 if (!item.lat || !item.lng) return null;
