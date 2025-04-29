@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.elastic;
 
+import com.example.oauthjwt.dto.ProductDocument;
 import com.example.oauthjwt.entity.Board;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.dto.BoardDocument;
@@ -28,19 +29,19 @@ public class Indexer {
 
     @Transactional(readOnly = true)
     public void indexAll() {
-        indexServiceProducts();
+        indexProducts();
         indexBoards();
     }
 
-    private void indexServiceProducts() {
+    private void indexProducts() {
         List<Product> products = productRepository.findAll();
-        log.info("Found {} ServiceProducts to index", products.size());
+        log.info("Found {} Products to index", products.size());
         if (products.isEmpty()) {
-            log.warn("No ServiceProducts found in database");
+            log.warn("No Products found in database");
             return;
         }
         products.forEach(product -> {
-            ServiceProductDocument doc = ServiceProductDocument.builder()
+            ProductDocument doc = ProductDocument.builder()
                     .id(product.getId())
                     .title(product.getTitle())
                     .description(product.getDescription())
@@ -54,17 +55,17 @@ public class Indexer {
 
             try {
                 elasticsearchClient.index(i ->
-                        i.index("service_product_index")
+                        i.index("product_index")
                                 .id(String.valueOf(doc.getId()))
                                 .document(doc));
-                log.info("Indexed ServiceProduct: id={}, title={}, description={}, ownerName={}, suggest={}",
+                log.info("Indexed Product: id={}, title={}, description={}, ownerName={}, suggest={}",
                         doc.getId(), doc.getTitle(), doc.getDescription(), doc.getOwnerName(), doc.getSuggest());
             } catch (IOException e) {
-                log.error("ServiceProduct indexing error for id={}: {}", product.getId(), e.getMessage());
-                throw new RuntimeException("ServiceProduct 인덱싱 중 오류", e);
+                log.error("Product indexing error for id={}: {}", product.getId(), e.getMessage());
+                throw new RuntimeException("Product 인덱싱 중 오류", e);
             }
         });
-        log.info("Completed indexing ServiceProducts");
+        log.info("Completed indexing Products");
     }
 
     private void indexBoards() {

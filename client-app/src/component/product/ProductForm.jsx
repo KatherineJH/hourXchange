@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   MenuItem,
@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
@@ -32,6 +33,8 @@ const ProductForm = () => {
 
   const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -52,28 +55,57 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      // API 호출 (백엔드에 데이터 저장)
-      const response = await postSave(saveData);
-      console.log(response);
+      let imageUrls = [];
+
+      if (images.length > 0) {
+        // Cloudinary에 업로드
+        const uploadPromises = images.map((file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", import.meta.env.VITE_UPLOAD_PRESET);
+          return axios
+            .post(
+              `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,
+              formData
+            )
+            .then((res) => res.data.secure_url);
+        });
+
+        imageUrls = await Promise.all(uploadPromises);
+        console.log("업로드된 Cloudinary URL:", imageUrls);
+      }
+
+      // 여기에 이후 저장 또는 전송 로직이 들어가야 할 수도 있음
     } catch (error) {
-      console.error("Error saving data:", error);
+      console.error("이미지 업로드 중 오류 발생:", error);
+      alert("이미지 업로드 중 문제가 발생했습니다.");
     }
   };
 
   const handleImageChange = (e) => {
-    const files = e.target.files;
-    if (files.length > 0) {
-      const imageUrls = Array.from(files).map((file) => ({
-        file,
-        preview: URL.createObjectURL(file),
-      }));
-      setImages((prev) => [...prev, ...imageUrls]);
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImages((prev) => [...prev, file]);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviews((prev) => [...prev, reader.result]);
+    };
+    reader.readAsDataURL(file);
+
+    e.target.value = null; // 동일 파일 다시 선택할 수 있게 초기화
   };
 
-  const handleRemoveImage = (indexToRemove) => {
-    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  const handleRemoveImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddClick = () => {
+    fileInputRef.current.click();
   };
 
   const handleStartTimeChange = (newValue) => {
@@ -124,26 +156,15 @@ const ProductForm = () => {
         onChange={handleChange}
         fullWidth
         margin="normal"
-        inputProps={{ min: 0 }}
       />
       {/* 이미지 업로드 */}
       <Box>
-        {/* 이미지 업로드 필드 */}
-        <TextField
-          type="file"
-          inputProps={{ multiple: true }}
-          onChange={handleImageChange}
-          fullWidth
-          margin="normal"
-        />
-
-        {/* 미리보기 및 삭제 버튼 */}
-        <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
-          {images.map((img, index) => (
-            <Box key={index} position="relative">
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
+          {previews.map((src, idx) => (
+            <Box key={idx} position="relative">
               <img
-                src={img.preview}
-                alt={`uploaded-${index}`}
+                src={src}
+                alt={`preview-${idx}`}
                 width={100}
                 height={100}
                 style={{ objectFit: "cover", borderRadius: 4 }}
@@ -152,7 +173,7 @@ const ProductForm = () => {
                 size="small"
                 variant="outlined"
                 color="error"
-                onClick={() => handleRemoveImage(index)}
+                onClick={() => handleRemoveImage(idx)}
                 sx={{ mt: 1 }}
                 fullWidth
               >
@@ -160,8 +181,36 @@ const ProductForm = () => {
               </Button>
             </Box>
           ))}
+
+          {/* 추가 버튼 */}
+          <Button
+            variant="outlined"
+            onClick={handleAddClick}
+            sx={{
+              width: 100,
+              height: 100,
+              minWidth: "auto",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 1,
+              border: "1px dashed rgba(0,0,0,0.3)",
+            }}
+          >
+            <AddPhotoAlternateIcon />
+          </Button>
+
+          {/* 숨겨진 파일 input */}
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            ref={fileInputRef}
+            onChange={handleImageChange}
+          />
         </Box>
       </Box>
+
       {/* 카테고리 드롭다운 */}
       <FormControl fullWidth margin="normal">
         <InputLabel>카테고리를 선택하세요.</InputLabel>
