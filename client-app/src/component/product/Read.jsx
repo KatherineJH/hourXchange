@@ -1,7 +1,8 @@
 //src/component/product/Read.jsx
 import React, { useEffect, useState } from "react";
-import { getRead } from "../../api/productApi.js";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { getRead } from "../../api/productApi.js";
 import { postSave } from "../../api/transactionApi.js";
 import { initiateChat } from "../../api/chatApi";
 import {
@@ -10,12 +11,11 @@ import {
   CardContent,
   Typography,
   Divider,
-  Grid,
   Button,
 } from "@mui/material";
 import GoogleReadMap from "../common/GoogleReadMap.jsx";
-import { useSelector } from "react-redux";
 
+const IMAGE_SIZE = 300;
 const initState = {
   id: "",
   title: "",
@@ -31,20 +31,11 @@ const initState = {
   lng: "",
 };
 
-const saveDataInitState = {
-  productId: "",
-  status: "",
-};
-const IMAGE_SIZE = 300; // 이미지 썸네일 크기(px)
-
 function Read() {
   const [serverData, setServerData] = useState(initState);
-
-  const auth = useSelector((state) => state.auth);
-
-  const navigate = useNavigate();
-
   const { id } = useParams();
+  const navigate = useNavigate();
+  const auth = useSelector((state) => state.auth);
 
   useEffect(() => {
     getRead(id)
@@ -55,37 +46,30 @@ function Read() {
       .catch((error) => console.log(error));
   }, [id]);
 
-  const onClickSubmit = async (e) => {
-    e.preventDefault();
-    console.log("채팅하기 버튼 클릭됨: ", serverData.id, auth.user.id);
-
+  const handleChatClick = async () => {
     try {
-      // ✅ 1. 채팅방 먼저 생성
       const chatRoom = await initiateChat(serverData.id, auth.user.id);
-      const chatRoomId = chatRoom.id;
-
-      // ✅ 2. 트랜잭션 생성
       const transactionData = { productId: serverData.id, status: "PENDING" };
       await postSave(transactionData);
-
-      // ✅ 3. 채팅방으로 이동
-      navigate(`/chat-room/${chatRoomId}`);
+      navigate(`/chat-room/${chatRoom.id}`);
     } catch (error) {
-      console.error("채팅방 생성 또는 트랜잭션 실패", error);
+      console.error("채팅방 생성 실패", error);
     }
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, maxWidth: "700px", mx: "auto" }}>
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            상세정보
+            📄 서비스 상세 정보
           </Typography>
 
-          <Divider sx={{ my: 2 }} />
-          {/* 이미지 썸네일 행 */}
-          <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+          {/* Divider */}
+          <Divider sx={{ my: 3 }} />
+
+          {/* 이미지 썸네일 */}
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4 }}>
             {serverData.images?.map((url, idx) => (
               <Box
                 key={idx}
@@ -96,47 +80,54 @@ function Read() {
                   width: IMAGE_SIZE,
                   height: IMAGE_SIZE,
                   objectFit: "cover",
-                  borderRadius: 1,
+                  borderRadius: 2,
                   border: "1px solid rgba(0,0,0,0.1)",
                 }}
               />
             ))}
           </Box>
 
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" color="text.secondary">
-                제목
+          {/* 시작 시간, 종료 시간, 시간(비용) */}
+          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" color="text.secondary">
+                시작 시간
               </Typography>
-              <Typography variant="body1">{serverData.title || "-"}</Typography>
-            </Grid>
+              <Typography variant="body1">
+                {serverData.startedAt || "-"}
+              </Typography>
+            </Box>
 
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" color="text.secondary">
-                설명
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" color="text.secondary">
+                종료 시간
               </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  minHeight: 120, // ✅ 설명 기본 높이 설정
-                  whiteSpace: "pre-wrap", // 줄바꿈 유지
-                }}
-              >
-                {serverData.description || "-"}
-              </Typography>
-            </Grid>
+              <Typography variant="body1">{serverData.endAt || "-"}</Typography>
+            </Box>
 
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" color="text.secondary">
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" color="text.secondary">
                 시간(비용)
               </Typography>
               <Typography variant="body1">
                 {serverData.hours ? `${serverData.hours} 시간` : "-"}
               </Typography>
-            </Grid>
+            </Box>
+          </Box>
 
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" color="text.secondary">
+          {/* 카테고리, 타입 */}
+          <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" color="text.secondary">
+                카테고리
+              </Typography>
+              <Typography variant="body1">
+                {serverData.category?.categoryName || "-"}
+              </Typography>
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" color="text.secondary">
                 타입
               </Typography>
               <Typography variant="body1">
@@ -146,75 +137,37 @@ function Read() {
                     ? "판매"
                     : "-"}
               </Typography>
-            </Grid>
+            </Box>
+          </Box>
 
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" color="text.secondary">
-                시작 시간
-              </Typography>
-              <Typography variant="body1">
-                {serverData.startedAt || "-"}
-              </Typography>
-            </Grid>
+          {/* 지도 */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              위치
+            </Typography>
+            <GoogleReadMap
+              serverData={serverData}
+              setSaveData={() => {}}
+              viewOnly
+            />
+          </Box>
 
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" color="text.secondary">
-                종료 시간
-              </Typography>
-              <Typography variant="body1">{serverData.endAt || "-"}</Typography>
-            </Grid>
+          {/* 버튼 영역 */}
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+            <Button variant="contained" size="large" onClick={handleChatClick}>
+              채팅하기
+            </Button>
 
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" color="text.secondary">
-                카테고리
-              </Typography>
-              <Typography variant="body1">
-                {/*{getCategoryName(serverData.categoryId)}*/}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                gutterBottom
-              >
-                위치
-              </Typography>
-              <GoogleReadMap
-                serverData={serverData}
-                setSaveData={() => {}}
-                viewOnly
-              />
-            </Grid>
-            <Grid item xs={6} sx={{ textAlign: "center", mt: 4 }}>
+            {auth.user?.id === serverData.owner.id && (
               <Button
-                variant="contained"
-                color="primary"
+                variant="outlined"
                 size="large"
-                onClick={onClickSubmit}
+                onClick={() => navigate(`/product/modify/${serverData.id}`)}
               >
-                채팅하기
+                수정하기
               </Button>
-            </Grid>
-
-            {auth.user?.id === serverData.owner.id ? (
-              <>
-                <Grid item xs={6} sx={{ textAlign: "center", mt: 4 }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    onClick={() => navigate(`/product/modify/${serverData.id}`)}
-                  >
-                    수정하기
-                  </Button>
-                </Grid>
-              </>
-            ) : (
-              <></>
             )}
-          </Grid>
+          </Box>
         </CardContent>
       </Card>
     </Box>
