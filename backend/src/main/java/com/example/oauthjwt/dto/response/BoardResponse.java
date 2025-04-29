@@ -28,6 +28,7 @@ public class BoardResponse {
 
     private Long authorId;
 
+    @Builder.Default
     private List<String> images = new ArrayList<>();
 
     private LocalDateTime createdAt;
@@ -39,6 +40,7 @@ public class BoardResponse {
                 .description(board.getDescription())
                 .createdAt(board.getCreatedAt())
                 .authorId(board.getAuthor().getId())
+                .author(UserResponse.toDto(board.getAuthor()))
                 .category(CategoryResponse.toDto(board.getCategory()))
                 .images(
                         board.getImages() == null
