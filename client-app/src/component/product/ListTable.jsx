@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
-  CardContent,
-  Paper,
+  CardContent, Pagination,
+  Paper, Stack,
   Table,
   TableBody,
   TableCell,
@@ -19,13 +19,19 @@ function ListTable() {
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
+  const [page, setPage] = useState(0); // JPA는 0부터 시작
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
-    getList()
+    getList(page, size)
       .then((response) => {
-        setServerDataList(response.data);
+        setServerDataList(response.data.content);
+        setTotalPages(response.data.totalPages);
+
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [page, size]);
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -84,6 +90,25 @@ function ListTable() {
           </TableContainer>
         </CardContent>
       </Card>
+      {/* 페이지네이션 */}
+      <Box
+          sx={{
+            marginTop: "1rem",
+            display: "flex",
+            justifyContent: "center",
+          }}
+      >
+        <Stack spacing={2}>
+          <Pagination
+              count={totalPages}
+              page={page + 1}
+              onChange={(event, value) => setPage(value - 1)}
+              variant="outlined"
+              shape="rounded"
+              color="primary"
+          />
+        </Stack>
+      </Box>
     </Box>
   );
 }

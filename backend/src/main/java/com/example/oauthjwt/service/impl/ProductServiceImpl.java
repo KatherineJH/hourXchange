@@ -8,6 +8,8 @@ import com.example.oauthjwt.repository.SPImageRepository;
 import com.example.oauthjwt.service.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -109,9 +111,8 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public List<ProductResponse> findAll() {
-    List<Product> productList = productRepository.findAll();
-
-    return productList.stream().map(ProductResponse::toDto).collect(Collectors.toList());
+  public Page<ProductResponse> findAll(Pageable pageable) {
+    Page<Product> productList = productRepository.findAll(pageable);
+    return productList.map(ProductResponse::toDto);
   }
 }

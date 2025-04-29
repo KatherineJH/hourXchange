@@ -7,8 +7,10 @@ export const getRead = async (id) => {
     return response;
 }
 
-export const getList = async () => {
-    const response = await api.get(apiServerUrl + 'list');
+export const getList = async (page, size) => {
+    const response = await api.get(apiServerUrl + 'list',{
+        params: { page, size },
+    });
     return response;
 }
 

@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.example.oauthjwt.service.*;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,9 +64,12 @@ public class ProductController {
   }
 
   @GetMapping("/list")
-  public ResponseEntity<?> findAll() {
+  public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
+
     // 로직 실행
-    List<ProductResponse> productResponseList = productService.findAll();
+    Page<ProductResponse> productResponseList = productService.findAll(pageable);
     // 반환
     return ResponseEntity.ok(productResponseList);
   }
