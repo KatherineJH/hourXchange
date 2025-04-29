@@ -29,6 +29,16 @@ export const putUpdate = async (id, updateData) => {
     return response;
 }
 
+export const getFavoriteList = async () => {
+    const response = await api.get(apiServerUrl + 'favorite/list');
+    return response;
+}
+
+export const postFavorite = async (productId) => {
+    const response = await api.post(apiServerUrl + 'favorite/' + productId);
+    return response;
+}
+
 // 추천 검색어 불러오기
 export const getAutocompleteSuggestions = async (prefix) => {
     const response = await api.get("/api/search/autocomplete", {
@@ -42,7 +52,7 @@ export const getAutocompleteSuggestions = async (prefix) => {
 
 // 📌 게시판 검색 (keyword, page, size로 검색)
 export const getListWithKeyword = async (keyword, page = 0, size = 10) => {
-    const response = await api.get("/api/search/boards", {
+    const response = await api.get("/api/search/products", {
         params: { keyword, page, size },
     });
     return response;

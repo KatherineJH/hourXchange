@@ -14,10 +14,11 @@ import {
   Grid,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { getList } from "../../api/productApi";
+import {getFavoriteList, getList, postFavorite} from "../../api/productApi";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -34,7 +35,9 @@ export default function Homepage() {
   const [products, setProducts] = useState([]);
   const [expandedProductId, setExpandedProductId] = useState(null);
 
-  useEffect(() => {
+  const [favorite, setFavorite] = useState([]);
+
+  useEffect(() => { // 상품 정보 조회
     const fetchProducts = async () => {
       try {
         const response = await getList();
@@ -46,6 +49,35 @@ export default function Homepage() {
     };
     fetchProducts();
   }, []);
+
+  useEffect(() => { // 좋아요 정보 조회
+    getFavoriteList().then(response => {
+      setFavorite(response.data || [])
+      console.log(response.data)
+    }).catch(error => {console.log(error)});
+  }, [])
+
+  const handleClickFavorite = async (id) => { // 좋아요 추가
+    const isFavorited = favorite.some(f => f.product.id === id);
+
+    // 1) 로컬 상태 바로 토글
+    setFavorite(prev =>
+        isFavorited
+            ? prev.filter(f => f.product.id !== id)            // 이미 좋아요면 제거
+            : [...prev, { product: { id } }]                   // 아니면 추가
+    );
+
+    console.log(id);
+    try{
+      const response = await postFavorite(id);
+      console.log(response.data);
+    }catch(error){
+      console.log(error);
+    }
+
+  }
+
+
 
   const handleExpandClick = (id) => {
     setExpandedProductId((prev) => (prev === id ? null : id));
@@ -87,8 +119,13 @@ export default function Homepage() {
               </Typography>
             </CardContent>
             <CardActions disableSpacing>
-              <IconButton aria-label="add to favorites">
-                <FavoriteIcon />
+              <IconButton aria-label="add to favorites"
+                          onClick={() => handleClickFavorite(product.id)}
+              >
+                {favorite.some(i => i.product.id === product.id) ?
+                    <FavoriteIcon /> :
+                    <FavoriteBorderIcon />
+                }
               </IconButton>
               <IconButton aria-label="share">
                 <ShareIcon />

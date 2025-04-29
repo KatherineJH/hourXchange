@@ -2,6 +2,8 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.dto.response.FavoriteResponse;
+import com.example.oauthjwt.entity.Favorite;
 import com.example.oauthjwt.service.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -69,9 +71,9 @@ public class ProductController {
     Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
 
     // 로직 실행
-    Page<ProductResponse> productResponsePage = productService.findAll(pageable);
+    Page<ProductResponse> result = productService.findAll(pageable);
     // 반환
-    return ResponseEntity.ok(productResponsePage);
+    return ResponseEntity.ok(result);
   }
 
   @GetMapping("/listMap")
@@ -79,5 +81,18 @@ public class ProductController {
                                                @RequestParam(defaultValue = "127.028361548") double lng){
     List<ProductResponse> productResponseList = productService.findAllWithPosition(lat, lng);
     return ResponseEntity.ok(productResponseList);
+  }
+
+  @PostMapping("/favorite/{productId}")
+  public ResponseEntity<?> toggleFavorite(@PathVariable Long productId,
+                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    FavoriteResponse result = productService.toggleFavorite(productId, userDetails.getUser().getId());
+    return ResponseEntity.ok(result);
+  }
+
+  @GetMapping("/favorite/list")
+  public ResponseEntity<?> findAllFavorite(@AuthenticationPrincipal CustomUserDetails userDetails){
+    List<FavoriteResponse> result = productService.findAllFavorite(userDetails.getUser().getId());
+    return ResponseEntity.ok(result);
   }
 }
