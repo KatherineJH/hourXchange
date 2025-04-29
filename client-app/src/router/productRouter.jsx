@@ -1,35 +1,34 @@
-import React, { lazy } from "react";
+import React, {lazy} from "react"
 
-const Read = lazy(() => import("../component/product/Read.jsx"));
-const List = lazy(() => import("../component/product/List.jsx"));
-const Save = lazy(() => import("../component/product/Save.jsx"));
-const ProductForm = lazy(() => import("../component/product/ProductForm.jsx"));
+const Read = lazy(() => import("../component/product/Read.jsx"))
+const List = lazy(() => import("../component/product/List.jsx"))
+const ListTable = lazy(() => import("../component/product/ListTable.jsx"))
+const Save = lazy(() => import("../component/product/Save.jsx"))
+const Modify = lazy(() => import("../component/product/Modify.jsx"))
 
-const Modify = lazy(() => import("../component/product/Modify.jsx"));
 
-const productRouter = () => {
-  return [
+const productRouter = () =>{
+    return [
     {
-      path: "read/:id",
-      element: <Read />,
+        path: "read/:id",
+        element: <Read/>
     },
     {
-      path: "list",
-      element: <List />,
+        path: "list",
+        element: <List/>
     },
     {
-      path: "save",
-      element: <Save />,
+        path: "listTable",
+        element: <ListTable/>
     },
     {
-      path: "register",
-      element: <ProductForm />,
+        path: "save",
+        element: <Save/>
     },
     {
-      path: "modify/:id",
-      element: <Modify />,
+        path: "modify/:id",
+        element: <Modify/>
     },
-  ];
-};
+]}
 
-export default productRouter;
+export default productRouter

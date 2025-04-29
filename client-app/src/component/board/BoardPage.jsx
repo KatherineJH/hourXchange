@@ -3,6 +3,22 @@ import React, { useEffect, useState } from "react";
 import BoardTable from "../../component/board/BoardTable";
 import { useNavigate } from "react-router-dom";
 import {
+  TextField,
+  Button,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  Pagination,
+  Card,
+  CardContent,
+  Box,
+  Typography,
+} from "@mui/material";
+
+import {
   getAllBoards,
   searchBoards,
   getAutocompleteSuggestions,
@@ -20,7 +36,6 @@ function BoardPage() {
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
 
-  // 게시판 데이터 가져오기
   const fetchBoards = async () => {
     try {
       if (keyword.trim() === "") {
@@ -37,12 +52,10 @@ function BoardPage() {
     }
   };
 
-  // 페이지 변경, 검색어 변경 시 다시 게시판 데이터를 불러옴
   useEffect(() => {
     fetchBoards();
   }, [page, size, keyword]);
 
-  // 🔍 입력값이 바뀔 때마다 추천 검색어 호출
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchInput.trim() === "") {
@@ -61,72 +74,119 @@ function BoardPage() {
   }, [searchInput]);
 
   const handleSearch = () => {
-    setKeyword(searchInput); // 검색어를 확정
-    setPage(0); // 첫 페이지로
+    setKeyword(searchInput);
+    setPage(0);
   };
 
   return (
-    <div>
-      <h1>📋 Board 검색 페이지</h1>
-
-      <div style={{ position: "relative", width: "300px" }}>
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-        <button onClick={handleSearch}>검색</button>
-
-        {/* 🔽 추천 검색어 리스트 표시 */}
-        {suggestions.length > 0 && (
-          <ul
-            style={{
-              backgroundColor: "white",
-              border: "1px solid #ccc",
-              listStyle: "none",
-              padding: "0",
-              margin: "0",
-              position: "absolute",
-              width: "100%",
-              zIndex: 10,
+    <Box sx={{ mt: 4 }}>
+      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            📋 Board 검색 & 리스트
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
             }}
           >
-            {suggestions.map((s, idx) => (
-              <li
-                key={idx}
-                onClick={() => {
-                  setSearchInput(s);
-                  setKeyword(s);
-                  setPage(0);
-                  setSuggestions([]); // 추천창 닫기
+            {/* 검색창 */}
+            <Box
+              sx={{ position: "relative", width: "300px", margin: "1rem 0" }}
+            >
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="검색어를 입력하세요"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                size="small"
+              />
+              <Button
+                variant="contained"
+                onClick={handleSearch}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  height: "100%",
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
                 }}
-                style={{ padding: "5px", cursor: "pointer" }}
               >
-                {s}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                검색
+              </Button>
 
-      <BoardTable boards={boards} navigate={navigate} />
+              {/* 추천 검색어 */}
+              {suggestions.length > 0 && (
+                <Paper
+                  sx={{
+                    position: "absolute",
+                    width: "100%",
+                    mt: "4px",
+                    zIndex: 10,
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  }}
+                >
+                  <List dense>
+                    {suggestions.map((s, idx) => (
+                      <ListItem key={idx} disablePadding>
+                        <ListItemButton
+                          onClick={() => {
+                            setSearchInput(s);
+                            setKeyword(s);
+                            setPage(0);
+                            setSuggestions([]);
+                          }}
+                        >
+                          <ListItemText primary={s} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+              )}
+            </Box>
+            {/* 글쓰기 버튼 추가 */}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/board/save")}
+              sx={{ height: "40px" }}
+            >
+              글쓰기
+            </Button>
+          </Box>
 
-      <div style={{ marginTop: "1rem" }}>
-        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
-          이전
-        </button>
-        <span style={{ margin: "0 10px" }}>
-          {page + 1} / {totalPages} 페이지
-        </span>
-        <button
-          disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          다음
-        </button>
-      </div>
-    </div>
+          {/* 테이블 */}
+          <BoardTable boards={boards} navigate={navigate} />
+
+          {/* 페이지네이션 */}
+          <Box
+            sx={{
+              marginTop: "1rem",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Stack spacing={2}>
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={(event, value) => setPage(value - 1)}
+                variant="outlined"
+                shape="rounded"
+                color="primary"
+              />
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 

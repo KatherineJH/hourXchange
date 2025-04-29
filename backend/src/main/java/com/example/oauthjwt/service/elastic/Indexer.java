@@ -4,7 +4,7 @@ import com.example.oauthjwt.dto.ProductDocument;
 import com.example.oauthjwt.entity.Board;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ServiceProductDocument;
+import com.example.oauthjwt.dto.ProductDocument;
 import com.example.oauthjwt.repository.BoardRepository;
 import com.example.oauthjwt.repository.ProductRepository;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;

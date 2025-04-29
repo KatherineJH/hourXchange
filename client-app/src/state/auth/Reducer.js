@@ -31,6 +31,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
+        console.log(action.payload);
         state.user = {
           username: action.payload.username,
           name: action.payload.name,
@@ -68,6 +69,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = {
+          id: action.payload.id,
           username: action.payload.username,
           name: action.payload.name,
           role: action.payload.role,
