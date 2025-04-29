@@ -17,4 +17,6 @@ public interface ProductService {
   ProductResponse update(ProductRequest productRequest);
 
   Page<ProductResponse> findAll(Pageable pageable);
+
+  List<ProductResponse> findAllWithPosition(double lat, double lng);
 }

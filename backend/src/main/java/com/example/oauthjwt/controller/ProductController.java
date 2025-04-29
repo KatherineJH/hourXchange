@@ -69,10 +69,15 @@ public class ProductController {
     Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
 
     // 로직 실행
-    Page<ProductResponse> productResponseList = productService.findAll(pageable);
+    Page<ProductResponse> productResponsePage = productService.findAll(pageable);
     // 반환
-    return ResponseEntity.ok(productResponseList);
+    return ResponseEntity.ok(productResponsePage);
   }
 
-
+  @GetMapping("/listMap")
+  public ResponseEntity<?> findAllWithPosition(@RequestParam(defaultValue = "37.496486063") double lat,
+                                               @RequestParam(defaultValue = "127.028361548") double lng){
+    List<ProductResponse> productResponseList = productService.findAllWithPosition(lat, lng);
+    return ResponseEntity.ok(productResponseList);
+  }
 }

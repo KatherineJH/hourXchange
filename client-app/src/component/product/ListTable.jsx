@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
+  Box, Button,
   Card,
-  CardContent, Pagination,
+  CardContent, List, ListItem, ListItemButton, ListItemText, Pagination,
   Paper, Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
+  TableRow, TextField,
   Typography,
 } from "@mui/material";
-import { getList } from "../../api/productApi.js";
+import {getList, getListWithKeyword} from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
+import {getAutocompleteSuggestions} from "../../api/productApi.js";
 
 function ListTable() {
   const [serverDataList, setServerDataList] = useState([]);
@@ -23,15 +24,51 @@ function ListTable() {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [keyword, setKeyword] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // 검색어 입력
+  const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
+
   useEffect(() => {
-    getList(page, size)
-      .then((response) => {
+    if (keyword.trim() === "") {
+      getList(page, size)
+          .then((response) => {
+            setServerDataList(response.data.content);
+            setTotalPages(response.data.totalPages);
+          })
+          .catch((error) => console.log(error));
+    }else{
+      getListWithKeyword(keyword, page, size).then((response) => {
         setServerDataList(response.data.content);
         setTotalPages(response.data.totalPages);
-
+        console.log(response.data.content);
+        console.log(response.data.totalPages)
       })
-      .catch((error) => console.log(error));
-  }, [page, size]);
+    }
+
+  }, [page, size, keyword]);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchInput.trim() === "") {
+        setSuggestions([]);
+        return;
+      }
+      try {
+        const result = await getAutocompleteSuggestions(searchInput);
+        setSuggestions(result.data);
+      } catch (e) {
+        console.error("추천 검색어 실패", e);
+        setSuggestions([]);
+      }
+    };
+    fetchSuggestions();
+  }, [searchInput]);
+
+
+  const handleSearch = () => {
+    setKeyword(searchInput);
+    setPage(0);
+  };
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -40,6 +77,64 @@ function ListTable() {
           <Typography variant="h5" gutterBottom>
             제품 리스트
           </Typography>
+
+          {/* 검색창 */}
+          <Box sx={{ position: "relative", width: "300px", margin: "1rem 0" }}>
+            <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="검색어를 입력하세요"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                size="small"
+            />
+            <Button
+                variant="contained"
+                onClick={handleSearch}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  height: "100%",
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                }}
+            >
+              검색
+            </Button>
+
+            {/* 추천 검색어 */}
+            {suggestions.length > 0 && (
+                <Paper
+                    sx={{
+                      position: "absolute",
+                      width: "100%",
+                      mt: "4px",
+                      zIndex: 10,
+                      maxHeight: 200,
+                      overflowY: "auto",
+                    }}
+                >
+                  <List dense>
+                    {suggestions.map((s, idx) => (
+                        <ListItem key={idx} disablePadding>
+                          <ListItemButton
+                              onClick={() => {
+                                setSearchInput(s);
+                                setKeyword(s);
+                                setPage(0);
+                                setSuggestions([]);
+                              }}
+                          >
+                            <ListItemText primary={s} />
+                          </ListItemButton>
+                        </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+            )}
+          </Box>
+
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table stickyHeader aria-label="product table">

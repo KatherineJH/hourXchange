@@ -71,6 +71,7 @@ function Header() {
               variant="h5"
               component="div"
               sx={{ fontWeight: "bold" }}
+              onClick={() => navigate("/")}
             >
               H@urXchange
             </Typography>

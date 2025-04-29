@@ -38,8 +38,8 @@ export default function Homepage() {
     const fetchProducts = async () => {
       try {
         const response = await getList();
-        console.log("📦 받아온 상품 목록:", response.data);
-        setProducts(response.data);
+        console.log("📦 받아온 상품 목록:", response.data.content);
+        setProducts(response.data.content);
       } catch (error) {
         console.error("상품 목록 불러오기 실패", error);
       }

@@ -115,4 +115,10 @@ public class ProductServiceImpl implements ProductService {
     Page<Product> productList = productRepository.findAll(pageable);
     return productList.map(ProductResponse::toDto);
   }
+
+  @Override
+  public List<ProductResponse> findAllWithPosition(double lat, double lng) {
+    List<Product> productList = productRepository.findNearby1Km(lat, lng);
+    return productList.stream().map(ProductResponse::toDto).collect(Collectors.toList());
+  }
 }
