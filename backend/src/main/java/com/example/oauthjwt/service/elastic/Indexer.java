@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class Indexer {
-    private final ProductRepository ProductRepository;
+    private final ProductRepository productRepository;
     private final BoardRepository boardRepository;
     private final ElasticsearchClient elasticsearchClient;
 
@@ -33,7 +33,7 @@ public class Indexer {
     }
 
     private void indexProducts() {
-        List<Product> products = ProductRepository.findAll();
+        List<Product> products = productRepository.findAll();
         log.info("Found {} Products to index", products.size());
         if (products.isEmpty()) {
             log.warn("No Products found in database");
