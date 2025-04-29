@@ -31,6 +31,7 @@ const ProductForm = () => {
   });
 
   const [categories, setCategories] = useState([]);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -63,14 +64,16 @@ const ProductForm = () => {
   const handleImageChange = (e) => {
     const files = e.target.files;
     if (files.length > 0) {
-      const imageUrls = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setSaveData((prevState) => ({
-        ...prevState,
-        images: imageUrls,
+      const imageUrls = Array.from(files).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
       }));
+      setImages((prev) => [...prev, ...imageUrls]);
     }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleStartTimeChange = (newValue) => {
@@ -103,7 +106,6 @@ const ProductForm = () => {
         fullWidth
         margin="normal"
       />
-
       {/* 설명 입력 */}
       <TextField
         label="내용을 입력하세요."
@@ -113,7 +115,6 @@ const ProductForm = () => {
         fullWidth
         margin="normal"
       />
-
       {/* 시간(비용) 입력 */}
       <TextField
         label="상품 시간"
@@ -125,26 +126,42 @@ const ProductForm = () => {
         margin="normal"
         inputProps={{ min: 0 }}
       />
-
       {/* 이미지 업로드 */}
-      <TextField
-        type="file"
-        inputProps={{ multiple: true }}
-        onChange={handleImageChange}
-        width="80%"
-        margin="normal"
-      />
-      <div>
-        {saveData.images.map((img, index) => (
-          <img
-            key={index}
-            src={img}
-            alt={`uploaded-img-${index}`}
-            width="100"
-            height="100"
-          />
-        ))}
-      </div>
+      <Box>
+        {/* 이미지 업로드 필드 */}
+        <TextField
+          type="file"
+          inputProps={{ multiple: true }}
+          onChange={handleImageChange}
+          fullWidth
+          margin="normal"
+        />
+
+        {/* 미리보기 및 삭제 버튼 */}
+        <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
+          {images.map((img, index) => (
+            <Box key={index} position="relative">
+              <img
+                src={img.preview}
+                alt={`uploaded-${index}`}
+                width={100}
+                height={100}
+                style={{ objectFit: "cover", borderRadius: 4 }}
+              />
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => handleRemoveImage(index)}
+                sx={{ mt: 1 }}
+                fullWidth
+              >
+                삭제
+              </Button>
+            </Box>
+          ))}
+        </Box>
+      </Box>
       {/* 카테고리 드롭다운 */}
       <FormControl fullWidth margin="normal">
         <InputLabel>카테고리를 선택하세요.</InputLabel>
@@ -164,7 +181,6 @@ const ProductForm = () => {
           ))}
         </Select>
       </FormControl>
-
       {/* 시작 시간 */}
       <Box display="flex" flexDirection="column" gap={2}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
