@@ -24,6 +24,7 @@ const menu = [
     { text: '제품리스트(테이블)',  to: '/product/listTable' },
     { text: '제품등록',  to: '/product/save' },
     { text: '트랜잭션리스트',  to: '/transaction/list' },
+    { text: "게시판", to: "/board/list" },
 ];
 
 const Sidebar = () => {
