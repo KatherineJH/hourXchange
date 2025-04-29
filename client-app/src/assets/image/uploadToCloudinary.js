@@ -8,10 +8,10 @@ const uploadToCloudinary = async (pics) => {
     console.log("파일이 없습니다.");
     return;
   }
-
+  const file = Array.isArray(pics) ? pics[0] : pics;
   const data = new FormData();
   data.append("file", pics);
-  data.append("upload_preset", "mypreset");
+  data.append("upload_preset", UPLOAD_PRESET);
   data.append("cloud_name", CLOUD_NAME);
 
   try {

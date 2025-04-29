@@ -7,6 +7,8 @@ import {
   InputLabel,
   FormControl,
   Box,
+  Grid,
+  Typography,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -14,8 +16,9 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { getList } from "../../api/categoryApi";
+import { getList } from "../../api/categoryApi.js";
 import { postSave } from "../../api/productApi";
+import uploadToCloudinary from "../../assets/image/uploadToCloudinary.js";
 
 const ProductForm = () => {
   const [saveData, setSaveData] = useState({
@@ -59,28 +62,25 @@ const ProductForm = () => {
     try {
       let imageUrls = [];
 
-      if (images.length > 0) {
-        // Cloudinary에 업로드
-        const uploadPromises = images.map((file) => {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("upload_preset", import.meta.env.VITE_UPLOAD_PRESET);
-          return axios
-            .post(
-              `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,
-              formData
-            )
-            .then((res) => res.data.secure_url);
-        });
-
+      if (saveData.images.length > 0) {
+        const uploadPromises = saveData.images.map((file) =>
+          uploadToCloudinary(file)
+        );
         imageUrls = await Promise.all(uploadPromises);
-        console.log("업로드된 Cloudinary URL:", imageUrls);
+        console.log("Cloudinary에 업로드된 이미지 URL:", imageUrls);
       }
 
-      // 여기에 이후 저장 또는 전송 로직이 들어가야 할 수도 있음
+      const finalData = {
+        ...saveData,
+        images: imageUrls, // 업로드된 이미지 URL을 여기에 포함
+      };
+
+      await postSave(finalData); // 실제 저장 API 호출
+
+      alert("상품이 성공적으로 저장되었습니다.");
     } catch (error) {
-      console.error("이미지 업로드 중 오류 발생:", error);
-      alert("이미지 업로드 중 문제가 발생했습니다.");
+      console.error("업로드 또는 저장 중 오류:", error);
+      alert("저장 중 문제가 발생했습니다.");
     }
   };
 
@@ -109,151 +109,168 @@ const ProductForm = () => {
   };
 
   const handleStartTimeChange = (newValue) => {
-    setSaveData((preState) => ({
+    setSaveData((prevState) => ({
       ...prevState,
       startedAt: newValue,
     }));
   };
 
   const handleEndTimeChange = (newValue) => {
-    if (saveData.startedAt && newValue.isBefore(saveData.startedAt)) {
+    if (newValue && newValue.isBefore(saveData.startedAt)) {
       alert("종료시간은 시작 시간 후에 설정해 주시길 바랍니다.");
       return;
     }
 
-    setSaveData((prevState) => ({
-      ...prevState,
-      endAt: newValue,
-    }));
+    setSaveData((prevState) => {
+      return {
+        ...prevState,
+        endAt: newValue,
+      };
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* 제목 입력 */}
-      <TextField
-        label="제목을 입력하세요."
-        name="title"
-        value={saveData.title}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      {/* 설명 입력 */}
-      <TextField
-        label="내용을 입력하세요."
-        name="description"
-        value={saveData.description}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      {/* 시간(비용) 입력 */}
-      <TextField
-        label="상품 시간"
-        name="hours"
-        type="number"
-        value={saveData.hours}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      {/* 이미지 업로드 */}
-      <Box>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
-          {previews.map((src, idx) => (
-            <Box key={idx} position="relative">
-              <img
-                src={src}
-                alt={`preview-${idx}`}
-                width={100}
-                height={100}
-                style={{ objectFit: "cover", borderRadius: 4 }}
-              />
-              <Button
-                size="small"
-                variant="outlined"
-                color="error"
-                onClick={() => handleRemoveImage(idx)}
-                sx={{ mt: 1 }}
-                fullWidth
-              >
-                삭제
-              </Button>
-            </Box>
-          ))}
-
-          {/* 추가 버튼 */}
-          <Button
-            variant="outlined"
-            onClick={handleAddClick}
-            sx={{
-              width: 100,
-              height: 100,
-              minWidth: "auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 1,
-              border: "1px dashed rgba(0,0,0,0.3)",
-            }}
-          >
-            <AddPhotoAlternateIcon />
-          </Button>
-
-          {/* 숨겨진 파일 input */}
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
-        </Box>
-      </Box>
-
-      {/* 카테고리 드롭다운 */}
-      <FormControl fullWidth margin="normal">
-        <InputLabel>카테고리를 선택하세요.</InputLabel>
-        <Select
-          name="categoryId"
-          value={saveData.categoryId}
+    <Box sx={{ maxWidth: 600, margin: "0 auto", padding: 2 }}>
+      <form onSubmit={handleSubmit}>
+        {/* 제목 입력 */}
+        <TextField
+          label="제목을 입력하세요."
+          name="title"
+          value={saveData.title}
           onChange={handleChange}
-          label="Category"
-        >
-          <MenuItem value="">
-            <em>카테고리를 선택하세요.</em>
-          </MenuItem>
-          {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      {/* 시작 시간 */}
-      <Box display="flex" flexDirection="column" gap={2}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            label="시작 시간"
-            value={saveData.startedAt}
-            onChange={handleStartTimeChange}
-            renderInput={(params) => (
-              <TextField {...params} fullWidth margin="normal" />
-            )}
-          />
-        </LocalizationProvider>
+          fullWidth
+          margin="normal"
+        />
+        {/* 설명 입력 */}
+        <TextField
+          label="내용을 입력하세요."
+          name="description"
+          value={saveData.description}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={6}
+        />
 
-        {/* 종료 시간 */}
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            label="종료 시간"
-            value={saveData.endAt}
-            onChange={handleEndTimeChange}
-            renderInput={(params) => (
-              <TextField {...params} fullWidth margin="normal" />
-            )}
-          />
-        </LocalizationProvider>
+        {/* 이미지 업로드 */}
+        <Box>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
+            {previews.map((src, idx) => (
+              <Box
+                key={idx}
+                position="relative"
+                onClick={() => handleRemoveImage(idx)} // 이미지 클릭 시 삭제
+                sx={{ cursor: "pointer" }} // 클릭 가능한 것처럼 커서를 변경
+              >
+                <img
+                  src={src}
+                  alt={`preview-${idx}`}
+                  width={100}
+                  height={100}
+                  style={{
+                    objectFit: "cover",
+                    borderRadius: 4,
+                    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+                  }}
+                />
+              </Box>
+            ))}
+            {/* 추가 버튼 */}
+            <Button
+              variant="outlined"
+              onClick={handleAddClick}
+              sx={{
+                width: 100,
+                height: 100,
+                minWidth: "auto",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 1,
+                border: "1px dashed rgba(0,0,0,0.3)",
+              }}
+            >
+              <AddPhotoAlternateIcon />
+            </Button>
+
+            {/* 숨겨진 파일 input */}
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              ref={fileInputRef}
+              onChange={handleImageChange}
+            />
+          </Box>
+        </Box>
+
+        <Box display="flex" justifyContent="space-between" gap={2} mt={2}>
+          {/* 상품 시간 */}
+          <Box flex={1}>
+            <TextField
+              label="상품 시간"
+              name="hours"
+              type="number"
+              value={saveData.hours}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+          </Box>
+
+          {/* 카테고리 드롭다운 */}
+          <Box flex={1}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="categoryId-label">카테고리</InputLabel>
+              <Select
+                labelId="categoryId-label"
+                id="categoryId"
+                name="categoryId"
+                value={saveData.categoryId}
+                label="카테고리"
+                onChange={handleChange}
+              >
+                <MenuItem value="">---카테고리---</MenuItem>
+                {categories.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.categoryName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+
+        <Box display="flex" flexWrap="wrap" mt={2}>
+          {/* 시작 시간 */}
+          <Box flex={1}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="시작 시간"
+                value={saveData.startedAt}
+                onChange={handleStartTimeChange}
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+          </Box>
+
+          {/* 종료 시간 */}
+          <Box flex={0.97} width="50%">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="종료 시간"
+                value={saveData.endAt}
+                onChange={handleEndTimeChange}
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+          </Box>
+        </Box>
 
         {/* 주소 클릭 버튼 */}
         <Box
@@ -261,6 +278,7 @@ const ProductForm = () => {
           justifyContent="space-between"
           alignItems="center"
           mt={2}
+          gap={1}
         >
           <Button
             variant="contained"
@@ -283,8 +301,8 @@ const ProductForm = () => {
             전송
           </Button>
         </Box>
-      </Box>
-    </form>
+      </form>
+    </Box>
   );
 };
 
