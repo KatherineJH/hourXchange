@@ -10,7 +10,7 @@ public class ElasticIndexCreator {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void createIndices() {
-        createIndex("service_product_index", getServiceProductIndexPayload());
+        createIndex("product_index", getProductIndexPayload());
         createIndex("board_index", getBoardIndexPayload());
     }
 
@@ -36,7 +36,7 @@ public class ElasticIndexCreator {
         System.out.println("✅ " + indexName + " 인덱스를 성공적으로 생성했습니다.");
     }
 
-    private String getServiceProductIndexPayload() {
+    private String getProductIndexPayload() {
         return """
     {
       "settings": {
