@@ -1,5 +1,6 @@
 // src/router/BoardRouter.jsx
 import React, { lazy } from "react";
+import SaveBoard from "../component/board/SaveBoard.jsx";
 
 // 지금 있는 컴포넌트만 lazy import
 const BoardPage = lazy(() => import("../component/board/BoardPage.jsx"));
@@ -14,6 +15,10 @@ const board = () => {
     {
       path: ":id",
       element: <BoardDetail />, // 상세 조회
+    },
+    {
+      path: "save",
+      element: <SaveBoard />, // 게시글 작성
     },
   ];
 };

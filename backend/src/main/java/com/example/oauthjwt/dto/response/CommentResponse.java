@@ -32,6 +32,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .authorId(comment.getAuthor().getId())
+                .author(UserResponse.toDto(comment.getAuthor()))
                 .boardId(comment.getBoard().getId())
                 .build();
     }
