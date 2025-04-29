@@ -20,4 +20,13 @@ public interface ChatService {
     Long getUserIdByUsername(String username);
 
     List<ChatRoom> findChatRoomsByUserId(Long userId);
+
+    @Transactional
+    void completeTransactionByChatRoomId(Long chatRoomId);
+
+    ChatRoom findChatRoomById(Long id);
+
+    ChatRoom findById(Long chatRoomId);
+
+    String getTransactionStatusByChatRoomId(Long chatRoomId);
 }
