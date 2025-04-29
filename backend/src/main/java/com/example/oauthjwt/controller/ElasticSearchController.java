@@ -7,6 +7,9 @@ import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.elastic.Indexer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +25,21 @@ public class ElasticSearchController {
     private final Indexer indexer;
 
     @GetMapping("/products")
-    public ResponseEntity<PageResult<ProductDocument>> searchProducts(
+    public ResponseEntity<?> searchProducts(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
+        return ResponseEntity.ok(searchService.searchProducts(keyword, pageable));
     }
+
+//    @GetMapping("/products")
+//    public ResponseEntity<PageResult<ProductDocument>> searchProducts(
+//            @RequestParam String keyword,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
+//    }
 
     @GetMapping("/boards")
     public ResponseEntity<PageResult<BoardDocument>> searchBoards(

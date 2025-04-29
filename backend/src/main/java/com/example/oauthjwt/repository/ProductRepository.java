@@ -1,5 +1,7 @@
 package com.example.oauthjwt.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.oauthjwt.entity.Product;
@@ -18,5 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             nativeQuery = true
     )
     List<Product> findNearby1Km(@Param("lat") double lat, @Param("lng") double lng);
+
+    Page<Product> findByIdIn(List<Long> ids, Pageable pageable);
 
 }
