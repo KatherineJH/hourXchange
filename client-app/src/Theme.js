@@ -13,6 +13,10 @@ const Theme = createTheme({
       main: "#23ad92", // 포인트 색상
       contrastText: "#333333", // 텍스트는 진회색
     },
+    secondary: {
+      main: "#a8e4d4", // #23ad92보다 연한 민트색
+      contrastText: "#333333", // 읽기 쉬운 텍스트 대비
+    },
   },
 });
 
