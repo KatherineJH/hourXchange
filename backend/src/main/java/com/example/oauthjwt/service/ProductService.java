@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.ProductResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 public interface ProductService {
@@ -14,5 +16,5 @@ public interface ProductService {
 
   ProductResponse update(ProductRequest productRequest);
 
-  List<ProductResponse> findAll();
+  Page<ProductResponse> findAll(Pageable pageable);
 }
