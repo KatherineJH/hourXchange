@@ -1,5 +1,9 @@
 package com.example.oauthjwt.service.elastic;
 
+
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ErrorCause;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.oauthjwt.dto.BoardDocument;
@@ -23,12 +27,12 @@ public class ElasticSearchService {
 
     private final ElasticsearchClient client;
 
-    public PageResult<ProductDocument> searchServiceProducts(String keyword, int page, int size) {
+    public PageResult<ProductDocument> searchProducts(String keyword, int page, int size) {
         try {
             // int from = (page - 1) * size;
             int from = Math.max(0, page * size); // 음수 안 나오게 방어
             SearchResponse<ProductDocument> response = client.search(s ->
-                            s.index("service_product_index")
+                            s.index("product_index")
                                     .from(from)
                                     .size(size)
                                     .query(q ->
@@ -57,8 +61,8 @@ public class ElasticSearchService {
 
             return new PageResult<>(results, page, size, total, totalPages);
         } catch (IOException e) {
-            log.error("ServiceProduct search error: {}", e.getMessage());
-            throw new RuntimeException("ServiceProduct 검색 중 오류", e);
+            log.error("Product search error: {}", e.getMessage());
+            throw new RuntimeException("Product 검색 중 오류", e);
         }
     }
 

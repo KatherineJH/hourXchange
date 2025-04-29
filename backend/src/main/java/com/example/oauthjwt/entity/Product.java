@@ -43,6 +43,9 @@ public class Product {
   private String lng; // 경도 세로
 
   @Column(nullable = false)
+  private int viewCount;
+
+  @Column(nullable = false)
   private LocalDateTime createAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -71,6 +74,9 @@ public class Product {
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ChatRoom> chatRooms = new ArrayList<>();
 
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+  private List<Favorite> favoriteList = new ArrayList<>();
+
   public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
     return Product.builder()
             .title(productRequest.getTitle())
@@ -80,6 +86,7 @@ public class Product {
             .endAt(productRequest.getEndAt())
             .lat(productRequest.getLat())
             .lng(productRequest.getLng())
+            .viewCount(0)
             .createAt(LocalDateTime.now())
             .owner(owner)
             .category(category)
@@ -105,6 +112,11 @@ public class Product {
       this.category = category;
       this.providerType = providerType;
       this.getImages().addAll(images);
+    return this;
+  }
+
+  public Product addViewCount(){
+    this.viewCount++;
     return this;
   }
 }

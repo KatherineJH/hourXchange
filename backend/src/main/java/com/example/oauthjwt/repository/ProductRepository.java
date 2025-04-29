@@ -3,5 +3,20 @@ package com.example.oauthjwt.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.oauthjwt.entity.Product;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {}
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    @Query(value = """
+        SELECT *
+          FROM Product p
+         WHERE p.lat BETWEEN :lat - 0.01 AND :lat + 0.01
+           AND p.lng BETWEEN :lng - 0.01 AND :lng + 0.01
+        """,
+            nativeQuery = true
+    )
+    List<Product> findNearby1Km(@Param("lat") double lat, @Param("lng") double lng);
+
+}
