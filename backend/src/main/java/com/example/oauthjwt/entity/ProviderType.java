@@ -5,8 +5,7 @@ import java.util.Map;
 
 public enum ProviderType {
   SELLER, // 판매
-  BUYER, // 구매
-  VOLUNTEER; // 자원봉사
+  BUYER; // 구매
 
   public static ProviderType parseProviderType(String statusInput) {
     try {

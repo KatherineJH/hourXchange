@@ -63,45 +63,45 @@ public class ScheduleServiceImpl {
 
 
     // 매시간 정각에 실행(예: 0분 0초마다)
-    @Scheduled(cron = "50 * * * * *")
-    public void fetchAndSaveCenter() { // 처음 초기화용
-        int count = 1;
-        while(true) {
-            log.info(apiKey);
-            String url = "http://apis.data.go.kr/B460014/vmsdataview/getCenterList";
-            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("serviceKey", apiKey)
-                    .queryParam("numOfRows", 500) // 500건씩 저장
-                    .queryParam("pageNo", count) // 1페이지부터
-                    .build(true); // 추가 인코딩 x
-//                .queryParam("areaCode", "0101");
-
-            String xml = restTemplate.getForObject(uriComponents.toUri(), String.class);
-
-            log.info(xml);
-            try {
-                CenterResponse response = xmlMapper.readValue(xml, CenterResponse.class);
-                log.info(response);
-                List<User> userList = response.getBody().getItems().stream()
-                        .map(item -> {
-                            Address address = Address.of(item);
-                            User user = User.of(item, address);
-                            address.setUser(user);
-                            return user;
-                        })
-                        .collect(Collectors.toList());
-
-                userRepository.saveAll(userList);
-                log.info("자원봉사처 데이터 {}건 저장 완료", userList.size());
-                count++;
-                if (response.getBody().getNumOfRows() != response.getBody().getTotalCount()) { // 다른경우 마지막 페이지
-                    break;
-                }
-            } catch (JsonProcessingException e) {
-                log.error("XML 파싱 에러", e);
-            }
-        }
-    }
+//    @Scheduled(cron = "50 * * * * *")
+//    public void fetchAndSaveCenter() { // 처음 초기화용
+//        int count = 1;
+//        while(true) {
+//            log.info(apiKey);
+//            String url = "http://apis.data.go.kr/B460014/vmsdataview/getCenterList";
+//            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url)
+//                    .queryParam("serviceKey", apiKey)
+//                    .queryParam("numOfRows", 500) // 500건씩 저장
+//                    .queryParam("pageNo", count) // 1페이지부터
+//                    .build(true); // 추가 인코딩 x
+////                .queryParam("areaCode", "0101");
+//
+//            String xml = restTemplate.getForObject(uriComponents.toUri(), String.class);
+//
+//            log.info(xml);
+//            try {
+//                CenterResponse response = xmlMapper.readValue(xml, CenterResponse.class);
+//                log.info(response);
+//                List<User> userList = response.getBody().getItems().stream()
+//                        .map(item -> {
+//                            Address address = Address.of(item);
+//                            User user = User.of(item, address);
+//                            address.setUser(user);
+//                            return user;
+//                        })
+//                        .collect(Collectors.toList());
+//
+//                userRepository.saveAll(userList);
+//                log.info("자원봉사처 데이터 {}건 저장 완료", userList.size());
+//                count++;
+//                if (response.getBody().getNumOfRows() != response.getBody().getTotalCount()) { // 다른경우 마지막 페이지
+//                    break;
+//                }
+//            } catch (JsonProcessingException e) {
+//                log.error("XML 파싱 에러", e);
+//            }
+//        }
+//    }
 
     // 매시간 정각에 실행(예: 0분 0초마다)
 //    @Scheduled(cron = "10 * * * * *")
