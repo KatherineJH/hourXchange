@@ -43,14 +43,11 @@ public class TransactionServiceImpl implements TransactionService {
     if(transactionStatus == null){
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
     }
-    // 채팅 룸 확인
-    ChatRoom chatRoom = chatService.initiateChatFromPost(product.getOwner().getId(), transactionRequest.getUserId());
-
     // 엔티티 생성
     Transaction transaction = Transaction.of(transactionRequest, user, product, transactionStatus);
     // 저장 및 반환
     Transaction result = transactionRepository.save(transaction);
-    return TransactionResponse.toDto(result, chatRoom);
+    return TransactionResponse.toDto(result);
   }
 
   @Override

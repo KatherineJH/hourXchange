@@ -36,7 +36,8 @@ function BoardTable({ boards, navigate }) {
                 >
                   <TableCell>{board.id}</TableCell>
                   <TableCell>{board.title}</TableCell>
-                  <TableCell>{board.authorName}</TableCell>
+                  {/* <TableCell>{board.author.name}</TableCell> */}
+                  <TableCell>{board.author?.name || "알 수 없음"}</TableCell>
                   <TableCell>
                     {new Date(board.createdAt).toLocaleString()}
                   </TableCell>

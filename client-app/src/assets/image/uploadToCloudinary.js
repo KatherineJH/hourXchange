@@ -1,14 +1,14 @@
 // src/assets/uploadToCloudinary.js
-
 const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
+const FOLDER_NAME = "images";
 
 const uploadToCloudinary = async (pics) => {
   if (!pics) {
     console.log("파일이 없습니다.");
     return;
   }
-
+  const file = Array.isArray(pics) ? pics[0] : pics;
   const data = new FormData();
   data.append("file", pics);
   data.append("upload_preset", UPLOAD_PRESET);
