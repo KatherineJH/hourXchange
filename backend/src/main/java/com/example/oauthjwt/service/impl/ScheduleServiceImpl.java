@@ -92,7 +92,7 @@ public class ScheduleServiceImpl {
                         .collect(Collectors.toList());
 
                 userRepository.saveAll(userList);
-                log.info("자원봉사 데이터 {}건 저장 완료", userList.size());
+                log.info("자원봉사처 데이터 {}건 저장 완료", userList.size());
                 count++;
                 if (response.getBody().getNumOfRows() != response.getBody().getTotalCount()) { // 다른경우 마지막 페이지
                     break;
@@ -104,57 +104,57 @@ public class ScheduleServiceImpl {
     }
 
     // 매시간 정각에 실행(예: 0분 0초마다)
-    @Scheduled(cron = "10 * * * * *")
-    public void fetchAndSaveVollcolection() { // 처음 초기화용
-
-        areaCenters.forEach((areaCode, position) -> {
-            int count = 1;
-            while(true) {
-                log.info(apiKey);
-                String url = "http://apis.data.go.kr/B460014/vmsdataview/getVollcolectionList";
-                UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url)
-                        .queryParam("serviceKey", apiKey)
-                        .queryParam("numOfRows", 500) // 500건씩 저장
-                        .queryParam("pageNo", count) // 1페이지부터
-                        .queryParam("strDate", LocalDate.now().minusMonths(4).toString()) // 4달 전부터
-                        .queryParam("endDate", LocalDate.now().toString()) // 오늘까지
-                        .queryParam("areaCode", areaCode)
-                        .build(true); // 추가 인코딩 x
-
-                String xml = restTemplate.getForObject(uriComponents.toUri(), String.class);
-
-                log.info(xml);
-                try {
-                    VollcolectionResponse response = xmlMapper.readValue(xml, VollcolectionResponse.class);
-                    log.info(response);
-                    List<Product> productList = response.getBody().getItems().stream()
-                            .flatMap(item -> {
-                                Optional<User> user = userRepository.findByEmail(item.getCentCode());
-                                if(!user.isPresent()) {
-                                    return Stream.empty(); // 없을 경우 패스
-                                }
-
-                                Category category = categoryRepository.findById(1L)
-                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
-                                ProviderType providerType = ProviderType.VOLUNTEER; // 자원봉사
-
-                                return Stream.of(Product.of(item, user.get(), category, providerType, position));
-                            })
-                            .collect(Collectors.toList());
-
-                    productRepository.saveAll(productList);
-                    log.info("자원봉사 데이터 {}건 저장 완료", productList.size());
-                    count++;
-                    if (response.getBody().getNumOfRows() != response.getBody().getTotalCount()) { // 다른경우 마지막 페이지
-                        break;
-                    }
-                } catch (JsonProcessingException e) {
-                    log.error("XML 파싱 에러", e);
-                }
-            }
-        });
-
-    }
+//    @Scheduled(cron = "10 * * * * *")
+//    public void fetchAndSaveVollcolection() { // 처음 초기화용
+//
+//        areaCenters.forEach((areaCode, position) -> {
+//            int count = 1;
+//            while(true) {
+//                log.info(apiKey);
+//                String url = "http://apis.data.go.kr/B460014/vmsdataview/getVollcolectionList";
+//                UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url)
+//                        .queryParam("serviceKey", apiKey)
+//                        .queryParam("numOfRows", 500) // 500건씩 저장
+//                        .queryParam("pageNo", count) // 1페이지부터
+//                        .queryParam("strDate", LocalDate.now().minusMonths(4).toString()) // 4달 전부터
+//                        .queryParam("endDate", LocalDate.now().toString()) // 오늘까지
+//                        .queryParam("areaCode", areaCode)
+//                        .build(true); // 추가 인코딩 x
+//
+//                String xml = restTemplate.getForObject(uriComponents.toUri(), String.class);
+//
+//                log.info(xml);
+//                try {
+//                    VollcolectionResponse response = xmlMapper.readValue(xml, VollcolectionResponse.class);
+//                    log.info(response);
+//                    List<Product> productList = response.getBody().getItems().stream()
+//                            .flatMap(item -> {
+//                                Optional<User> user = userRepository.findByEmail(item.getCentCode());
+//                                if(!user.isPresent()) {
+//                                    return Stream.empty(); // 없을 경우 패스
+//                                }
+//
+//                                Category category = categoryRepository.findById(1L)
+//                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
+//                                ProviderType providerType = ProviderType.VOLUNTEER; // 자원봉사
+//
+//                                return Stream.of(Product.of(item, user.get(), category, providerType, position));
+//                            })
+//                            .collect(Collectors.toList());
+//
+//                    productRepository.saveAll(productList);
+//                    log.info("자원봉사 데이터 {}건 저장 완료", productList.size());
+//                    count++;
+//                    if (response.getBody().getNumOfRows() != response.getBody().getTotalCount()) { // 다른경우 마지막 페이지
+//                        break;
+//                    }
+//                } catch (JsonProcessingException e) {
+//                    log.error("XML 파싱 에러", e);
+//                }
+//            }
+//        });
+//
+//    }
 
 
 
