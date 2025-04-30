@@ -1,5 +1,9 @@
 package com.example.oauthjwt.service.elastic;
 
+
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ErrorCause;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.oauthjwt.dto.BoardDocument;
@@ -7,8 +11,14 @@ import com.example.oauthjwt.dto.ProductDocument;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.example.oauthjwt.dto.response.PageResult;
+import com.example.oauthjwt.dto.response.ProductResponse;
+import com.example.oauthjwt.entity.Product;
+import com.example.oauthjwt.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,48 +29,93 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ElasticSearchService {
 
     private final ElasticsearchClient client;
+    private final ProductRepository productRepository; // JPA 리포지토리
 
-    public PageResult<ProductDocument> searchServiceProducts(String keyword, int page, int size) {
+    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) { // 엘라스틱서치는 점수와 하이라이팅만 실 데이터는 db에서
         try {
-            // int from = (page - 1) * size;
-            int from = Math.max(0, page * size); // 음수 안 나오게 방어
             SearchResponse<ProductDocument> response = client.search(s ->
-                            s.index("service_product_index")
-                                    .from(from)
-                                    .size(size)
+                            s.index("product_index")
                                     .query(q ->
                                             q.multiMatch(m ->
                                                     m.query(keyword)
-                                                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3", "ownerName^0.2")
-                                                            .fuzziness("1") // 편집 거리 1
-                                                            .prefixLength(1) // 첫 글자 고정
-                                                            .minimumShouldMatch("75%") // 최소 매칭 비율
+                                                            .fields("title^1.5", "title.ngram^0.5",
+                                                                    "description^1.0", "description.ngram^0.3",
+                                                                    "ownerName^0.2")
+                                                            .fuzziness("1")
+                                                            .prefixLength(1)
+                                                            .minimumShouldMatch("75%")
                                             )
                                     ),
                     ProductDocument.class);
 
-//            List<ServiceProductDocument> results = response.hits().hits().stream()
-//                    .map(hit -> hit.source())
-//                    .collect(Collectors.toList());
-//            log.info("Search products for keyword '{}': {} results", keyword, results.size());
-//            return results;
-            List<ProductDocument> results = response.hits().hits().stream()
-                    .map(Hit::source)
-                    .filter(Objects::nonNull)
+            // ES에서 뽑아온 hit 리스트
+            List<Hit<ProductDocument>> hits = response.hits().hits();
+            if (hits.isEmpty()) {
+                return null;
+            }
+
+            // 2) ES 결과에서 ID만 꺼내기
+            List<Long> ids = hits.stream()
+                    .map(hit -> hit.source().getId())
                     .collect(Collectors.toList());
 
-            long total = response.hits().total() != null ? response.hits().total().value() : 0;
-            int totalPages = (int) Math.ceil((double) total / size);
+            // 3) JPA 한 번에 조회 (IN 절, N+1 방지)
+            Page<Product> productList = productRepository.findByIdIn(ids, pageable);
 
-            return new PageResult<>(results, page, size, total, totalPages);
+
+            return productList.map(ProductResponse::toDto);
+
         } catch (IOException e) {
-            log.error("ServiceProduct search error: {}", e.getMessage());
-            throw new RuntimeException("ServiceProduct 검색 중 오류", e);
+            log.error("Product search error: {}", e.getMessage(), e);
+            throw new RuntimeException("Product 검색 중 오류가 발생했습니다.", e);
         }
     }
+
+
+//    public PageResult<ProductDocument> searchProducts(String keyword, int page, int size) {
+//        try {
+//            // int from = (page - 1) * size;
+//            int from = Math.max(0, page * size); // 음수 안 나오게 방어
+//            SearchResponse<ProductDocument> response = client.search(s ->
+//                            s.index("product_index")
+//                                    .from(from)
+//                                    .size(size)
+//                                    .query(q ->
+//                                            q.multiMatch(m ->
+//                                                    m.query(keyword)
+//                                                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3", "ownerName^0.2")
+//                                                            .fuzziness("1") // 편집 거리 1
+//                                                            .prefixLength(1) // 첫 글자 고정
+//                                                            .minimumShouldMatch("75%") // 최소 매칭 비율
+//                                            )
+//                                    ),
+//                    ProductDocument.class);
+//
+//            log.info(response.toString());
+//
+////            List<ServiceProductDocument> results = response.hits().hits().stream()
+////                    .map(hit -> hit.source())
+////                    .collect(Collectors.toList());
+////            log.info("Search products for keyword '{}': {} results", keyword, results.size());
+////            return results;
+//            List<ProductDocument> results = response.hits().hits().stream()
+//                    .map(Hit::source)
+//                    .filter(Objects::nonNull)
+//                    .collect(Collectors.toList());
+//
+//            long total = response.hits().total() != null ? response.hits().total().value() : 0;
+//            int totalPages = (int) Math.ceil((double) total / size);
+//
+//            return new PageResult<>(results, page, size, total, totalPages);
+//        } catch (IOException e) {
+//            log.error("Product search error: {}", e.getMessage());
+//            throw new RuntimeException("Product 검색 중 오류", e);
+//        }
+//    }
 
     public PageResult<BoardDocument> searchBoards(String keyword, int page, int size) {
         try {

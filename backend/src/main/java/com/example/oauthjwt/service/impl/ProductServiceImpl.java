@@ -2,21 +2,22 @@ package com.example.oauthjwt.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.repository.SPImageRepository;
+import com.example.oauthjwt.dto.response.FavoriteResponse;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.repository.CategoryRepository;
-import com.example.oauthjwt.repository.ProductRepository;
-import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
   private final UserRepository userRepository;
   private final CategoryRepository categoryRepository;
   private final SPImageRepository spImageRepository;
+  private final FavoriteRepository favoriteRepository;
 
 
   public ProductResponse save(ProductRequest productRequest) {
@@ -70,6 +72,8 @@ public class ProductServiceImpl implements ProductService {
   public ProductResponse findById(Long id) {
     Product product = productRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+    product = product.addViewCount();
+    productRepository.save(product);
     return ProductResponse.toDto(product);
   }
 
@@ -109,9 +113,45 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public List<ProductResponse> findAll() {
-    List<Product> productList = productRepository.findAll();
+  public Page<ProductResponse> findAll(Pageable pageable) {
+    Page<Product> productList = productRepository.findAll(pageable);
+    return productList.map(ProductResponse::toDto);
+  }
 
+  @Override
+  public List<ProductResponse> findAllWithPosition(double lat, double lng) {
+    List<Product> productList = productRepository.findNearby1Km(lat, lng);
     return productList.stream().map(ProductResponse::toDto).collect(Collectors.toList());
+  }
+
+  @Override
+  public FavoriteResponse toggleFavorite(Long productId, Long userId) {
+    // 검증
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+    Optional<Favorite> prevFavorite = favoriteRepository.findByUserAndProduct(user, product);
+    if(prevFavorite.isPresent()){
+      prevFavorite.get().toggle();
+      favoriteRepository.save(prevFavorite.get());
+      return FavoriteResponse.toDto(prevFavorite.get());
+    }
+
+    Favorite favorite = Favorite.of(product, user);
+
+    FavoriteResponse result = FavoriteResponse.toDto(favoriteRepository.save(favorite));
+
+    return result;
+  }
+
+  @Override
+  public List<FavoriteResponse> findAllFavorite(Long userId) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+    List<Favorite> favoriteList = favoriteRepository.findByUserAndStatus(user, true);
+
+    return favoriteList.stream().map(FavoriteResponse::toDto).collect(Collectors.toList());
   }
 }

@@ -34,6 +34,8 @@ public class ProductResponse {
 
   private String lng;
 
+  private int viewCount;
+
   private LocalDateTime createAt;
 
   private UserResponse owner; // 작성자
@@ -54,6 +56,7 @@ public class ProductResponse {
         .endAt(product.getEndAt())
         .lat(product.getLat())
         .lng(product.getLng())
+        .viewCount(product.getViewCount())
         .createAt(product.getCreateAt())
         .owner(UserResponse.toDto(product.getOwner()))
         .category(CategoryResponse.toDto(product.getCategory()))
