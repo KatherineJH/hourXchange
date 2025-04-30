@@ -17,6 +17,9 @@ public class CategoryResponse {
   private String categoryName;
 
   public static CategoryResponse toDto(Category category) {
-    return CategoryResponse.builder().id(category.getId()).categoryName(category.getCategoryName()).build();
+    return CategoryResponse.builder()
+        .id(category.getId())
+        .categoryName(category.getCategoryName())
+        .build();
   }
 }

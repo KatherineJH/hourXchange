@@ -9,31 +9,31 @@ import lombok.NoArgsConstructor;
 @Data
 public class ApiResponse {
 
-  private String message;
-  private boolean status;
-  private int code;
+    private String message;
+    private boolean status;
+    private int code;
 
-  public static ApiResponse success(String message) {
-    return new ApiResponse(message, true, 200);
-  }
+    public static ApiResponse success(String message) {
+        return new ApiResponse(message, true, 200);
+    }
 
-  public static ApiResponse badRequest(String message) {
-    return new ApiResponse(message, false, 400);
-  }
+    public static ApiResponse badRequest(String message) {
+        return new ApiResponse(message, false, 400);
+    }
 
-  public static ApiResponse unauthorized(String message) {
-    return new ApiResponse(message, false, 401);
-  }
+    public static ApiResponse unauthorized(String message) {
+        return new ApiResponse(message, false, 401);
+    }
 
-  public static ApiResponse forbidden(String message) {
-    return new ApiResponse(message, false, 403);
-  }
+    public static ApiResponse forbidden(String message) {
+        return new ApiResponse(message, false, 403);
+    }
 
-  public static ApiResponse notFound(String message) {
-    return new ApiResponse(message, false, 404);
-  }
+    public static ApiResponse notFound(String message) {
+        return new ApiResponse(message, false, 404);
+    }
 
-  public static ApiResponse serverError(String message) {
-    return new ApiResponse(message, false, 500);
-  }
+    public static ApiResponse serverError(String message) {
+        return new ApiResponse(message, false, 500);
+    }
 }

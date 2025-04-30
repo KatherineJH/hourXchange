@@ -1,5 +1,8 @@
 package com.example.oauthjwt.entity;
 
+import java.util.Collections;
+import java.util.Map;
+
 public enum TransactionStatus {
   PENDING, // 시작 전
   COMPLETED, // 완료

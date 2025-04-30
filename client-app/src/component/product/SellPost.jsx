@@ -74,7 +74,7 @@ export default function SellPost() {
       (prev) =>
         isFavorited
           ? prev.filter((f) => f.product.id !== id) // 이미 좋아요면 제거
-          : [...prev, { product: { id } }], // 아니면 추가
+          : [...prev, { product: { id } }] // 아니면 추가
     );
 
     console.log(id);
@@ -92,7 +92,7 @@ export default function SellPost() {
 
   const renderProductGrid = () => {
     const sellerProducts = products.filter(
-      (product) => product.providerType === "SELLER",
+      (product) => product.providerType === "SELLER"
     );
 
     return (

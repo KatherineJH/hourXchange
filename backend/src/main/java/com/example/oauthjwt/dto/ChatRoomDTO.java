@@ -1,8 +1,9 @@
 package com.example.oauthjwt.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -10,8 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ChatRoomDTO {
-  private Long id;
-  private String name;
-  private Long serviceProductId;
-  private LocalDateTime createdAt;
+    private Long id;
+    private String name;
+    private Long serviceProductId;
+    private LocalDateTime createdAt;
 }

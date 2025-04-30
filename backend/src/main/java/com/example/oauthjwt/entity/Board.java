@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,4 +72,5 @@ public class Board {
     }
     return this;
   }
+
 }

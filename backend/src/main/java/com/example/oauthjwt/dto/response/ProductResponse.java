@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.SPImage;
+import com.example.oauthjwt.entity.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,16 +47,26 @@ public class ProductResponse {
   private List<String> images = new ArrayList<>(); // 이미지 url
 
   public static ProductResponse toDto(Product product) {
-    return ProductResponse.builder().id(product.getId()).title(product.getTitle()).description(product.getDescription())
-        .hours(product.getHours()).startedAt(product.getStartedAt()).endAt(product.getEndAt()).lat(product.getLat())
-        .lng(product.getLng()).viewCount(product.getViewCount()).createAt(product.getCreateAt())
-        .owner(UserResponse.toDto(product.getOwner())).category(CategoryResponse.toDto(product.getCategory()))
+    return ProductResponse.builder()
+        .id(product.getId())
+        .title(product.getTitle())
+        .description(product.getDescription())
+        .hours(product.getHours())
+        .startedAt(product.getStartedAt())
+        .endAt(product.getEndAt())
+        .lat(product.getLat())
+        .lng(product.getLng())
+        .viewCount(product.getViewCount())
+        .createAt(product.getCreateAt())
+        .owner(UserResponse.toDto(product.getOwner()))
+        .category(CategoryResponse.toDto(product.getCategory()))
         .providerType(product.getProviderType().toString())
-        .images(product.getImages() == null
-            ? null
-            : product.getImages().stream().map(SPImage::getImgUrl).collect(Collectors.toList())) // 이미지 엔티티에서 url만
-                                                                                                 // String list로
-        // 변환
+        .images(
+            product.getImages() == null
+                ? null
+                : product.getImages().stream()
+                    .map(SPImage::getImgUrl)
+                    .collect(Collectors.toList())) // 이미지 엔티티에서 url만 String list로 변환
         .build();
   }
 }

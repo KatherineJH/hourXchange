@@ -74,7 +74,7 @@ export default function BuyPost() {
       (prev) =>
         isFavorited
           ? prev.filter((f) => f.product.id !== id) // 이미 좋아요면 제거
-          : [...prev, { product: { id } }], // 아니면 추가
+          : [...prev, { product: { id } }] // 아니면 추가
     );
 
     console.log(id);
@@ -92,7 +92,7 @@ export default function BuyPost() {
 
   const renderProductGrid = (productList) => {
     const filteredProducts = productList.filter(
-      (product) => product.providerType === "BUYER",
+      (product) => product.providerType === "BUYER"
     );
 
     return (

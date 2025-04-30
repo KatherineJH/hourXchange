@@ -2,8 +2,8 @@ package com.example.oauthjwt.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.request.CommentRequest;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

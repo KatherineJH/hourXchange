@@ -1,32 +1,33 @@
 package com.example.oauthjwt.config;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
-
 @Configuration
 public class ElasticsearchConfig {
 
-  @Bean
-  public ElasticsearchClient elasticsearchClient() {
-    RestClient restClient = RestClient.builder(new HttpHost("localhost", 9202, "http") // 포트 9202, HTTP 사용
-    ).build();
+    @Bean
+    public ElasticsearchClient elasticsearchClient() {
+        RestClient restClient = RestClient.builder(
+                new HttpHost("localhost", 9202, "http") // 포트 9202, HTTP 사용
+        ).build();
 
-    // 커스텀 ObjectMapper 생성
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 지원 추가
+        // 커스텀 ObjectMapper 생성
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 지원 추가
 
-    ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper(objectMapper));
+        ElasticsearchTransport transport = new RestClientTransport(
+                restClient, new JacksonJsonpMapper(objectMapper)
+        );
 
-    return new ElasticsearchClient(transport);
-  }
+        return new ElasticsearchClient(transport);
+    }
 }

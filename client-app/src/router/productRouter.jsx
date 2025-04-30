@@ -9,7 +9,7 @@ const Save = lazy(() => import("../component/product/Save.jsx"));
 const Modify = lazy(() => import("../component/product/Modify.jsx"));
 const ProductForm = lazy(() => import("../component/product/ProductForm.jsx"));
 const VolunteerList = lazy(
-  () => import("../component/product/VolunteerList.jsx"),
+  () => import("../component/product/VolunteerList.jsx")
 );
 
 const productRouter = () => {

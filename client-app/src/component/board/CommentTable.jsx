@@ -56,7 +56,7 @@ function CommentTable({ comments, setComments, boardId, user }) {
     try {
       const updated = await updateComment(id, { content: editingContent });
       setComments((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, content: updated.content } : c)),
+        prev.map((c) => (c.id === id ? { ...c, content: updated.content } : c))
       );
       setEditingId(null);
       setEditingContent("");

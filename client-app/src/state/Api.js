@@ -30,7 +30,7 @@ api.interceptors.response.use(
           {},
           {
             withCredentials: true,
-          },
+          }
         );
 
         // 재요청
@@ -43,7 +43,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

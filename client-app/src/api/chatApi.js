@@ -9,7 +9,7 @@ export async function fetchChatRooms() {
 // 채팅방 생성 (상품 상세에서 "채팅하기" 눌렀을 때)
 export async function initiateChat(postId, requesterId) {
   const res = await api.post(
-    `/api/chat/initiate/${postId}?requesterId=${requesterId}`,
+    `/api/chat/initiate/${postId}?requesterId=${requesterId}`
   );
   return res.data; // { id, name } 형태의 ChatRoomDTO 반환
 }

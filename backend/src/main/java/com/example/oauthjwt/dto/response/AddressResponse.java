@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Address;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,10 +24,13 @@ public class AddressResponse {
   private String detailAddress; // 상세주소
 
   public static AddressResponse toDto(Address address) {
-    return address == null
-        ? null
-        : AddressResponse.builder().id(address.getId()).zonecode(address.getZonecode())
-            .roadAddress(address.getRoadAddress()).jibunAddress(address.getJibunAddress())
-            .detailAddress(address.getDetailAddress()).build();
+    return address == null ? null
+        : AddressResponse.builder()
+            .id(address.getId())
+            .zonecode(address.getZonecode())
+            .roadAddress(address.getRoadAddress())
+            .jibunAddress(address.getJibunAddress())
+            .detailAddress(address.getDetailAddress())
+            .build();
   }
 }
