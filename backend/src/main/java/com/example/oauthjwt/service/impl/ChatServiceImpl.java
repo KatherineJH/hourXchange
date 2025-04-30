@@ -4,8 +4,10 @@ import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,43 +21,44 @@ public class ChatServiceImpl implements ChatService {
     private final ProductRepository productRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     @Override
     public ChatRoom initiateChatFromPost(Long postId, Long requesterId) {
-        Product product =
-                productRepository
-                        .findById(postId)
-                        .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        User requester =
-                userRepository
-                        .findById(requesterId)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Product product = productRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 이미 채팅방이 있는지 확인
-        Optional<ChatRoomUser> existingChatters =
-                chatRoomUserRepository.findByUser1IdAndUser2Id(requesterId, product.getOwner().getId());
-        if (existingChatters.isPresent()) {
-            return existingChatters.get().getChatRoom();
+        // 💡 상품 + 유저 조합 기준으로 중복 확인
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findByProductAndUsers(
+                product.getId(),
+                requesterId,
+                product.getOwner().getId()
+        );
+
+        if (existingRoom.isPresent()) {
+            return existingRoom.get();
         }
 
-        // 💬 이름 생성
         String chatRoomName = requester.getName() + " × " + product.getOwner().getName();
 
-        // 새로운 채팅방 생성
-        ChatRoom chatRoom = ChatRoom.builder()
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
                 .name(chatRoomName)
-                .product(product) // 반드시 필요함
+                .product(product)
+                .build());
+
+        ChatRoomUser chatters = ChatRoomUser.builder()
+                .chatRoom(chatRoom)
+                .user1(requester)
+                .user2(product.getOwner())
                 .build();
-        chatRoom = chatRoomRepository.save(chatRoom);
 
-        // Chatters 생성
-        ChatRoomUser chatters =
-                ChatRoomUser.builder().user1(requester).user2(product.getOwner()).chatRoom(chatRoom).build();
         chatRoomUserRepository.save(chatters);
-
         return chatRoom;
     }
+
 
     @Transactional
     @Override
@@ -96,4 +99,49 @@ public class ChatServiceImpl implements ChatService {
     public List<ChatRoom> findChatRoomsByUserId(Long userId) {
         return chatRoomRepository.findChatRoomsByUserId(userId);
     }
+
+    @Transactional
+    @Override
+    public void completeTransactionByChatRoomId(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
+
+        Product product = chatRoom.getProduct();
+        if (product == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방에 연결된 상품이 없습니다.");
+        }
+
+        Transaction transaction = transactionRepository.findByProduct(product)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "거래 정보가 존재하지 않습니다."));
+
+        transaction.setStatus(TransactionStatus.COMPLETED);
+    }
+
+    @Override
+    public ChatRoom findChatRoomById(Long id) {
+        return chatRoomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
+    }
+
+    @Override
+    public ChatRoom findById(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+    }
+
+    @Override
+    public String getTransactionStatusByChatRoomId(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        Product product = chatRoom.getProduct();
+        if (product == null) {
+            throw new IllegalStateException("채팅방에 연결된 상품이 없습니다.");
+        }
+
+        return transactionRepository.findByProduct(product)
+                .map(tx -> tx.getStatus().name())
+                .orElse("PENDING"); // 거래가 없으면 PENDING
+    }
+
 }
