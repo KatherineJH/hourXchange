@@ -17,5 +17,7 @@ public interface TransactionService {
   TransactionResponse findById(Long id);
   List<TransactionResponse> findAll();
 
+  List<TransactionResponse> findByUserId(Long userId);
+
   TransactionResponse update(TransactionRequest transactionRequest);
 }

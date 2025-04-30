@@ -8,7 +8,7 @@ export const postSave = async (data) => {
     return response;
 }
 
-export const getList = async () => {
-    const response = await api.get(apiServerUrl + 'list');
+export const getMyTransactionList = async () => {
+    const response = await api.get(apiServerUrl + 'my');
     return response;
-}
+};
