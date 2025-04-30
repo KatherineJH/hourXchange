@@ -1,12 +1,7 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.dto.request.BoardRequest;
-import com.example.oauthjwt.dto.response.BoardResponse;
-import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.exception.ValidationException;
-import com.example.oauthjwt.repository.*;
-import com.example.oauthjwt.service.BoardService;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,8 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.example.oauthjwt.dto.request.BoardRequest;
+import com.example.oauthjwt.dto.response.BoardResponse;
+import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.exception.ValidationException;
+import com.example.oauthjwt.repository.*;
+import com.example.oauthjwt.service.BoardService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -47,28 +48,23 @@ public class BoardServiceImpl implements BoardService {
     public BoardResponse save(BoardRequest boardRequest) {
         User author = userRepository.findById(boardRequest.getAuthorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
-//                .orElseThrow(() -> new ValidationException("작성자 정보가 존재하지 않습니다."));
+        // .orElseThrow(() -> new ValidationException("작성자 정보가 존재하지 않습니다."));
 
         Category category = categoryRepository.findById(boardRequest.getCategoryId())
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
+                // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                // "카테고리 정보가 존재하지 않습니다."));
                 .orElseThrow(() -> new ValidationException("카테고리가 존재하지 않습니다."));
 
         if (boardRequest.getImages() != null) {
             for (String url : boardRequest.getImages()) {
                 if (boardImageRepository.existsByImgUrl(url)) {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 등록된 이미지입니다: " + url);
-//                    throw new ValidationException("이미 등록된 이미지입니다: " + url);
+                    // throw new ValidationException("이미 등록된 이미지입니다: " + url);
                 }
             }
         }
-        Board board = Board.builder()
-                .author(author)
-                .id(boardRequest.getId())
-                .title(boardRequest.getTitle())
-                .description(boardRequest.getDescription())
-                .category(category)
-                .images(new ArrayList<>())
-                .build();
+        Board board = Board.builder().author(author).id(boardRequest.getId()).title(boardRequest.getTitle())
+                .description(boardRequest.getDescription()).category(category).images(new ArrayList<>()).build();
 
         if (boardRequest.getImages() != null) {
             for (String url : boardRequest.getImages()) {
@@ -85,12 +81,12 @@ public class BoardServiceImpl implements BoardService {
     public Page<BoardResponse> findAllBoards(Pageable pageable) {
         Page<Board> boardsPage = boardRepository.findAll(pageable);
         return boardsPage.map(BoardResponse::toDto);
-//    public List<BoardResponse> findAllBoards(Pageable pageable) {
-//        List<Board> boards = boardRepository.findAll(pageable);
+        // public List<BoardResponse> findAllBoards(Pageable pageable) {
+        // List<Board> boards = boardRepository.findAll(pageable);
 
-//        return boards.stream()
-//                .map(BoardResponse::toDto)
-//                .collect(Collectors.toList());
+        // return boards.stream()
+        // .map(BoardResponse::toDto)
+        // .collect(Collectors.toList());
     }
 
     @Override
@@ -99,9 +95,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
 
         long likeCount = thumbsUpRepository.countByBoardId(boardId);
-        boolean likedByMe = thumbsUpRepository
-                .findByBoardIdAndUserId(boardId, userId)
-                .isPresent();
+        boolean likedByMe = thumbsUpRepository.findByBoardIdAndUserId(boardId, userId).isPresent();
 
         return BoardResponse.toDto(board, likeCount, likedByMe);
     }
@@ -149,8 +143,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // 3) 기존 좋아요 조회 및 토글
-        Optional<ThumbsUp> existing =
-                thumbsUpRepository.findByBoardIdAndUserId(boardId, userId);
+        Optional<ThumbsUp> existing = thumbsUpRepository.findByBoardIdAndUserId(boardId, userId);
 
         if (existing.isPresent()) {
             thumbsUpRepository.delete(existing.get());

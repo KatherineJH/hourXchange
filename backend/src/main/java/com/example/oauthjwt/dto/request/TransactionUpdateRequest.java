@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto.request;
 
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

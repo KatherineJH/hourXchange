@@ -1,13 +1,13 @@
 package com.example.oauthjwt.dto.response;
 
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import lombok.Data;
 
-import java.util.List;
+import lombok.Data;
 
 @JacksonXmlRootElement(localName = "response")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,11 +24,13 @@ public class VollcolectionResponse {
         private String resultCode;
         private String resultMsg;
     }
+
     @Data
     public static class Body {
         @JacksonXmlElementWrapper(localName = "items")
         @JacksonXmlProperty(localName = "item")
         private List<Item> items;
+
         @JacksonXmlProperty(localName = "numOfRows")
         private int numOfRows;
 
@@ -50,7 +52,7 @@ public class VollcolectionResponse {
         private String areaName; // 지역명
         private String place; // 장소
         private String reqCnt; // 필요인원
-        private String partCnt; //참여인원
+        private String partCnt; // 참여인원
         private String regDate; // 등록일자
         private String actTypeName; // 활동명
         private String termType; // 활동구분

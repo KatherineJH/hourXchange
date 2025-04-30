@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto.request;
 
 import com.example.oauthjwt.entity.Board;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

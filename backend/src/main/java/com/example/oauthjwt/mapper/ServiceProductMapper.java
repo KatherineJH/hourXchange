@@ -1,3 +1,4 @@
 package com.example.oauthjwt.mapper;
 
-public class ServiceProductMapper {}
+public class ServiceProductMapper {
+}

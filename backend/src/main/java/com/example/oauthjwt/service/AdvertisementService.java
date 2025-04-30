@@ -1,10 +1,9 @@
 package com.example.oauthjwt.service;
 
+import java.util.List;
+
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
 import com.example.oauthjwt.entity.Advertisement;
-
-import java.util.List;
-import java.util.Map;
 
 public interface AdvertisementService {
 

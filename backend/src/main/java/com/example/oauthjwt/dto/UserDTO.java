@@ -13,12 +13,12 @@ import lombok.*;
 @JsonIgnoreProperties
 public class UserDTO {
 
-  private Long id;
-  private String name;
-  private String role;
-  private String username;
-  private String password;
-  private String email;
-  private LocalDateTime createdAt;
-  private int credit;
+    private Long id;
+    private String name;
+    private String role;
+    private String username;
+    private String password;
+    private String email;
+    private LocalDateTime createdAt;
+    private int credit;
 }

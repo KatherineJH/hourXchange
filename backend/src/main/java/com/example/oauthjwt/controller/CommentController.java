@@ -1,22 +1,21 @@
 package com.example.oauthjwt.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
 import com.example.oauthjwt.dto.request.CommentRequest;
 import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.Comment;
 import com.example.oauthjwt.exception.ValidationException;
-import com.example.oauthjwt.service.BoardService;
 import com.example.oauthjwt.service.CommentService;
 import com.example.oauthjwt.service.CustomUserDetails;
-import com.example.oauthjwt.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,15 +57,12 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(
-            @PathVariable Long id,
-            @RequestBody CommentRequest commentRequest,
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
             Comment comment = commentService.getEntityById(id);
             if (!comment.getAuthor().getId().equals(userDetails.getUser().getId())) {
-                return ResponseEntity.status(403)
-                        .body(ApiResponse.forbidden("자신의 댓글만 수정할 수 있습니다."));
+                return ResponseEntity.status(403).body(ApiResponse.forbidden("자신의 댓글만 수정할 수 있습니다."));
             }
             commentRequest.setId(id);
             CommentResponse result = commentService.update(commentRequest);

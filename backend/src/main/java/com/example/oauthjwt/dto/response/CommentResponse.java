@@ -1,12 +1,13 @@
 package com.example.oauthjwt.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.example.oauthjwt.entity.Comment;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -27,13 +28,9 @@ public class CommentResponse {
     private Long boardId;
 
     public static CommentResponse toDto(Comment comment) {
-        return CommentResponse.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
+        return CommentResponse.builder().id(comment.getId()).content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
-//                .authorId(comment.getAuthor().getId())
-                .author(UserResponse.toDto(comment.getAuthor()))
-                .boardId(comment.getBoard().getId())
-                .build();
+                // .authorId(comment.getAuthor().getId())
+                .author(UserResponse.toDto(comment.getAuthor())).boardId(comment.getBoard().getId()).build();
     }
 }

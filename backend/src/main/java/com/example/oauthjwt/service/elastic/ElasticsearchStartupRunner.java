@@ -1,8 +1,9 @@
 package com.example.oauthjwt.service.elastic;
 
+import org.springframework.stereotype.Component;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

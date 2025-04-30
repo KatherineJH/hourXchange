@@ -15,38 +15,30 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserResponse {
-  private Long id;
+    private Long id;
 
-  private String name;
+    private String name;
 
-  private String role;
+    private String role;
 
-  private String username;
+    private String username;
 
-  private String email;
+    private String email;
 
-  private LocalDate birthdate;
+    private LocalDate birthdate;
 
-  private LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
-  private int credit;
+    private int credit;
 
-  private String status;
+    private String status;
 
-  private AddressResponse address;
+    private AddressResponse address;
 
-  public static UserResponse toDto(User user) {
-    return UserResponse.builder()
-        .id(user.getId())
-        .name(user.getName())
-        .role(user.getRole().toString())
-        .username(user.getUsername())
-        .email(user.getEmail())
-        .birthdate(user.getBirthdate())
-        .createdAt(user.getCreatedAt())
-        .credit(user.getCredit())
-        .status(user.getStatus().toString())
-        .address(AddressResponse.toDto(user.getAddress()))
-        .build();
-  }
+    public static UserResponse toDto(User user) {
+        return UserResponse.builder().id(user.getId()).name(user.getName()).role(user.getRole().toString())
+                .username(user.getUsername()).email(user.getEmail()).birthdate(user.getBirthdate())
+                .createdAt(user.getCreatedAt()).credit(user.getCredit()).status(user.getStatus().toString())
+                .address(AddressResponse.toDto(user.getAddress())).build();
+    }
 }
