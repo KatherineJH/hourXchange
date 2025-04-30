@@ -43,14 +43,14 @@ function Header() {
     setAnchorEl(null);
   };
 
-    const handleLogin = () => {
-        window.location.href = "/login";
-        setAnchorEl(null);
-    };
-    const handleSave = () => {
-        window.location.href = "/save";
-        setAnchorEl(null);
-    };
+  const handleLogin = () => {
+    window.location.href = "/login";
+    setAnchorEl(null);
+  };
+  const handleSave = () => {
+    window.location.href = "/save";
+    setAnchorEl(null);
+  };
 
   return (
     <>
@@ -132,25 +132,20 @@ function Header() {
           open={isMenuOpen}
           onClose={() => setAnchorEl(null)}
         >
-            {user?.name ?
-                <>
-                    <MenuItem disabled>
-                        {user.name}님, 환영합니다
-                    </MenuItem>
-                    <MenuItem>Profile</MenuItem>
-                    <MenuItem>Transaction</MenuItem>
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                </> :
-                <>
-                    <MenuItem disabled>
-                        로그인이 필요합니다.
-                    </MenuItem>
-                    <MenuItem onClick={handleLogin}>로그인</MenuItem>
-                    <MenuItem onClick={handleSave}>회원가입</MenuItem>
-                </>
-
-            }
-
+          {user?.name ? (
+            <>
+              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>Transaction</MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </>
+          ) : (
+            <>
+              <MenuItem disabled>로그인이 필요합니다.</MenuItem>
+              <MenuItem onClick={handleLogin}>로그인</MenuItem>
+              <MenuItem onClick={handleSave}>회원가입</MenuItem>
+            </>
+          )}
         </Menu>
       </Box>
     </>

@@ -15,7 +15,7 @@ export const loginUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "로그인 실패");
     }
-  }
+  },
 );
 
 // 로그아웃 액션
@@ -28,7 +28,7 @@ export const logoutUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "로그아웃 실패");
     }
-  }
+  },
 );
 
 // 사용자 정보 조회 액션
@@ -42,8 +42,8 @@ export const fetchUser = createAsyncThunk(
       return rejectWithValue(
         typeof error.response?.data === "string"
           ? error.response.data
-          : error.response?.data?.message || "사용자 정보 조회 실패"
+          : error.response?.data?.message || "사용자 정보 조회 실패",
       );
     }
-  }
+  },
 );

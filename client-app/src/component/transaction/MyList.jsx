@@ -83,7 +83,7 @@ function MyList() {
       if (selectedTransaction.reviewId) {
         const response = await updateReview(
           selectedTransaction.reviewId,
-          reviewRequest
+          reviewRequest,
         );
         console.log("✅ 리뷰 수정 성공:", response);
         alert("리뷰가 수정되었습니다.");

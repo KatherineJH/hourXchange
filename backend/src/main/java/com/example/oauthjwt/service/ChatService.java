@@ -1,32 +1,32 @@
 package com.example.oauthjwt.service;
 
+import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.entity.ChatRoomUserStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 public interface ChatService {
-    @Transactional
-    public abstract ChatRoom initiateChatFromPost(Long postId, Long requesterId);
+  @Transactional
+  public abstract ChatRoom initiateChatFromPost(Long postId, Long requesterId);
 
-    @Transactional
-    public abstract ChatMessage saveMessage(Long chatRoomId, Long senderId, String content, ChatRoomUserStatus type);
+  @Transactional
+  public abstract ChatMessage saveMessage(Long chatRoomId, Long senderId, String content, ChatRoomUserStatus type);
 
-    List<ChatMessage> getMessages(Long chatRoomId);
+  List<ChatMessage> getMessages(Long chatRoomId);
 
-    Long getUserIdByUsername(String username);
+  Long getUserIdByUsername(String username);
 
-    List<ChatRoom> findChatRoomsByUserId(Long userId);
+  List<ChatRoom> findChatRoomsByUserId(Long userId);
 
-    @Transactional
-    void completeTransactionByChatRoomId(Long chatRoomId);
+  @Transactional
+  void completeTransactionByChatRoomId(Long chatRoomId);
 
-    ChatRoom findChatRoomById(Long id);
+  ChatRoom findChatRoomById(Long id);
 
-    ChatRoom findById(Long chatRoomId);
+  ChatRoom findById(Long chatRoomId);
 
-    String getTransactionStatusByChatRoomId(Long chatRoomId);
+  String getTransactionStatusByChatRoomId(Long chatRoomId);
 }

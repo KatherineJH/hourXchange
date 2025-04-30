@@ -25,8 +25,8 @@ public class Advertisement {
   @Column(nullable = false)
   private int hours;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
+  // @ManyToOne(fetch = FetchType.LAZY)
   @ManyToOne
-  @JoinColumn(name="owner_id", nullable = false)
+  @JoinColumn(name = "owner_id", nullable = false)
   private User owner;
 }

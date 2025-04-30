@@ -20,8 +20,8 @@ const UserRouter = () => [
   },
   {
     path: "save",
-    element: <Save/>
-  }
+    element: <Save />,
+  },
 ];
 
 export default UserRouter;

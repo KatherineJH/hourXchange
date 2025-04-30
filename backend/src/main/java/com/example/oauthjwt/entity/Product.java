@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
-
 import com.example.oauthjwt.dto.response.VollcolectionResponse.Item;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -73,7 +73,7 @@ public class Product {
   @Builder.Default
   private List<Transaction> transactions = new ArrayList<>();
 
-  // 하나의 serviceProduct에 문의는 여러 명이 걸 수 있으므로, OneToOne 에서  OneToMany 으로 수정
+  // 하나의 serviceProduct에 문의는 여러 명이 걸 수 있으므로, OneToOne 에서 OneToMany 으로 수정
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ChatRoom> chatRooms = new ArrayList<>();
 
@@ -81,23 +81,14 @@ public class Product {
   private List<Favorite> favoriteList = new ArrayList<>();
 
   public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
-    return Product.builder()
-            .title(productRequest.getTitle())
-            .description(productRequest.getDescription())
-            .hours(productRequest.getHours())
-            .startedAt(productRequest.getStartedAt())
-            .endAt(productRequest.getEndAt())
-            .lat(productRequest.getLat())
-            .lng(productRequest.getLng())
-            .viewCount(0)
-            .createAt(LocalDateTime.now())
-            .owner(owner)
-            .category(category)
-            .providerType(providerType)
-            .build();
+    return Product.builder().title(productRequest.getTitle()).description(productRequest.getDescription())
+        .hours(productRequest.getHours()).startedAt(productRequest.getStartedAt()).endAt(productRequest.getEndAt())
+        .lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0).createAt(LocalDateTime.now())
+        .owner(owner).category(category).providerType(providerType).build();
   }
 
-  public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, List<SPImage> images) {
+  public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType,
+      List<SPImage> images) {
     Product product = of(productRequest, owner, category, providerType);
     images.forEach(image -> image.setProduct(product));
     product.getImages().addAll(images);
@@ -105,37 +96,26 @@ public class Product {
   }
 
   public static Product of(Item item, User user, Category category, ProviderType providerType, String[] position) {
-    return Product.builder()
-            .title(item.getTitle())
-            .description(item.getSeq())
-            .hours(0)
-            .startedAt(LocalDateTime.now())
-            .endAt(LocalDateTime.now())
-            .lat(position[0])
-            .lng(position[1])
-            .viewCount(0)
-            .createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
-            .owner(user)
-            .category(category)
-            .providerType(providerType)
-            .build();
+    return Product.builder().title(item.getTitle()).description(item.getSeq()).hours(0).startedAt(LocalDateTime.now())
+        .endAt(LocalDateTime.now()).lat(position[0]).lng(position[1]).viewCount(0)
+        .createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay()).owner(user)
+        .category(category).providerType(providerType).build();
   }
 
-
-
-  public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType, List<SPImage> images) {
-      this.title = productRequest.getTitle();
-      this.description = productRequest.getDescription();
-      this.hours = productRequest.getHours();
-      this.startedAt = productRequest.getStartedAt();
-      this.endAt = productRequest.getEndAt();
-      this.category = category;
-      this.providerType = providerType;
-      this.getImages().addAll(images);
+  public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType,
+      List<SPImage> images) {
+    this.title = productRequest.getTitle();
+    this.description = productRequest.getDescription();
+    this.hours = productRequest.getHours();
+    this.startedAt = productRequest.getStartedAt();
+    this.endAt = productRequest.getEndAt();
+    this.category = category;
+    this.providerType = providerType;
+    this.getImages().addAll(images);
     return this;
   }
 
-  public Product addViewCount(){
+  public Product addViewCount() {
     this.viewCount++;
     return this;
   }

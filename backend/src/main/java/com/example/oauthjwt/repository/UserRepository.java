@@ -10,19 +10,19 @@ import com.example.oauthjwt.entity.UserStatus;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByUsername(String username);
+  Optional<User> findByUsername(String username);
 
-    Optional<User> findByName(String UserName);
+  Optional<User> findByName(String UserName);
 
-    Optional<User> findByEmail(String email);
+  Optional<User> findByEmail(String email);
 
-    List<User> findByStatus(UserStatus status);
+  List<User> findByStatus(UserStatus status);
 
-    boolean existsByEmail(String email);
+  boolean existsByEmail(String email);
 
-    Optional<User> findByEmailAndStatus(String email, UserStatus status);
+  Optional<User> findByEmailAndStatus(String email, UserStatus status);
 
-    Optional<User> findByEmailAndUsername(String email, String username);
+  Optional<User> findByEmailAndUsername(String email, String username);
 
-    boolean existsByUsername(String username);
+  boolean existsByUsername(String username);
 }

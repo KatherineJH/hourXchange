@@ -1,27 +1,22 @@
 package com.example.oauthjwt.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.entity.Address;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.example.oauthjwt.config.SecurityConfig;
-import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.UserRole;
-import com.example.oauthjwt.entity.UserStatus;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +27,10 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserResponse signup(UserRequest userRequest) {
-    if(userRepository.existsByEmail(userRequest.getEmail())) {
+    if (userRepository.existsByEmail(userRequest.getEmail())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일이 중복되었습니다.");
     }
-    if(userRepository.existsByUsername(userRequest.getUsername())) {
+    if (userRepository.existsByUsername(userRequest.getUsername())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
     }
 

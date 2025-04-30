@@ -1,8 +1,8 @@
 package com.example.oauthjwt.entity;
 
 import com.example.oauthjwt.dto.request.AddressRequest;
-import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,19 +35,12 @@ public class Address {
   private User user;
 
   public static Address of(AddressRequest addressRequest) {
-    return Address.builder()
-            .zonecode(addressRequest.getZonecode())
-            .roadAddress(addressRequest.getRoadAddress())
-            .jibunAddress(addressRequest.getJibunAddress())
-            .detailAddress(addressRequest.getDetailAddress())
-            .build();
+    return Address.builder().zonecode(addressRequest.getZonecode()).roadAddress(addressRequest.getRoadAddress())
+        .jibunAddress(addressRequest.getJibunAddress()).detailAddress(addressRequest.getDetailAddress()).build();
   }
 
-    public static Address of(Item item) {
-      return Address.builder()
-              .zonecode(item.getZipCode())
-              .roadAddress(item.getAddr())
-              .detailAddress(item.getAddrDetail())
-              .build();
-    }
+  public static Address of(Item item) {
+    return Address.builder().zonecode(item.getZipCode()).roadAddress(item.getAddr()).detailAddress(item.getAddrDetail())
+        .build();
+  }
 }

@@ -1,8 +1,5 @@
 package com.example.oauthjwt.entity;
 
-import java.util.Collections;
-import java.util.Map;
-
 public enum ProviderType {
   SELLER, // 판매
   BUYER; // 구매

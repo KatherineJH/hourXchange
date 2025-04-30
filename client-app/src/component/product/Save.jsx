@@ -68,13 +68,13 @@ function Save() {
         formData.append("file", file);
         formData.append(
           "upload_preset",
-          `${import.meta.env.VITE_UPLOAD_PRESET}`
+          `${import.meta.env.VITE_UPLOAD_PRESET}`,
         ); // 본인 preset
 
         return axios
           .post(
             `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, // 본인 cloud_name
-            formData
+            formData,
           )
           .then((res) => res.data.secure_url);
       });

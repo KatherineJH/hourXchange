@@ -50,29 +50,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
       return null;
     }
 
-    Optional<User> existData =
-        userRepository.findByEmail(oAuth2Response.getEmail()); // 이메일을 기준으로 조회
+    Optional<User> existData = userRepository.findByEmail(oAuth2Response.getEmail()); // 이메일을 기준으로 조회
 
     if (existData.isEmpty()) { // 테이블에 유저가 없으면
-      User user =
-          User.builder()
-              .username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
-              .email(oAuth2Response.getEmail()) // 이메일
-              .name(oAuth2Response.getName())
-              .createdAt(LocalDateTime.now())
-              .status(UserStatus.ACTIVE)
-              .role(UserRole.ROLE_USER)
-              .build();
+      User user = User.builder().username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
+          .email(oAuth2Response.getEmail()) // 이메일
+          .name(oAuth2Response.getName()).createdAt(LocalDateTime.now()).status(UserStatus.ACTIVE)
+          .role(UserRole.ROLE_USER).build();
 
       User result = userRepository.save(user); // 저장 결과
 
-      UserDTO userDTO =
-          UserDTO.builder() // 반환값 설정
-              .username(result.getUsername())
-              .email(result.getEmail())
-              .name(result.getName())
-              .role(result.getRole().toString())
-              .build();
+      UserDTO userDTO = UserDTO.builder() // 반환값 설정
+          .username(result.getUsername()).email(result.getEmail()).name(result.getName())
+          .role(result.getRole().toString()).build();
 
       return new CustomOAuth2User(userDTO);
     } else { // 있으면 최신화
@@ -83,13 +73,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
       User result = userRepository.save(existUser); // 저장 결과
 
-      UserDTO userDTO =
-          UserDTO.builder() // 반환값 설정
-              .username(result.getUsername())
-              .email(result.getEmail())
-              .name(result.getName())
-              .role(result.getRole().toString())
-              .build();
+      UserDTO userDTO = UserDTO.builder() // 반환값 설정
+          .username(result.getUsername()).email(result.getEmail()).name(result.getName())
+          .role(result.getRole().toString()).build();
 
       return new CustomOAuth2User(userDTO);
     }

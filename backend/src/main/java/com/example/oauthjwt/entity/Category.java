@@ -32,6 +32,6 @@ public class Category {
   private List<Board> boards = new ArrayList<>();
 
   public void updateCategory(String categoryName) {
-    this.categoryName=categoryName;
+    this.categoryName = categoryName;
   }
 }

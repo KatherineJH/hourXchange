@@ -6,9 +6,9 @@ import com.example.oauthjwt.entity.User;
 
 public interface ReviewService {
 
-    ReviewResponse saveReview(ReviewRequest request, User reviewer);
+  ReviewResponse saveReview(ReviewRequest request, User reviewer);
 
-    ReviewResponse getReviewById(Long id);
+  ReviewResponse getReviewById(Long id);
 
-    ReviewResponse updateReview(Long id, ReviewRequest request, User user);
+  ReviewResponse updateReview(Long id, ReviewRequest request, User user);
 }

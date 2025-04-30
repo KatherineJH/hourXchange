@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto.response;
 
 import java.util.List;
+
 import lombok.Data;
 
 @Data

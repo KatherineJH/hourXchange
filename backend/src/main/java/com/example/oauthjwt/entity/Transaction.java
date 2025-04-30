@@ -3,6 +3,7 @@ package com.example.oauthjwt.entity;
 import java.time.LocalDateTime;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,16 +39,13 @@ public class Transaction {
   @OneToOne(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private Review review;
 
-  public static Transaction of(TransactionRequest transactionRequest, User user, Product product, TransactionStatus status) {
-    return Transaction.builder()
-            .user(user)
-            .product(product)
-            .status(status)
-            .createdAt(LocalDateTime.now())
-            .build();
+  public static Transaction of(TransactionRequest transactionRequest, User user, Product product,
+      TransactionStatus status) {
+    return Transaction.builder().user(user).product(product).status(status).createdAt(LocalDateTime.now()).build();
   }
 
-  public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, Product product, TransactionStatus status) {
+  public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, Product product,
+      TransactionStatus status) {
     this.user = user;
     this.product = product;
     this.status = status;
