@@ -1,10 +1,11 @@
 package com.example.oauthjwt.dto.response;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.*;
-import lombok.Data;
 
-import java.util.List;
+import lombok.Data;
 
 @JacksonXmlRootElement(localName = "response")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,8 +18,6 @@ public class CenterResponse {
     @JacksonXmlProperty(localName = "body")
     private Body body;
 
-
-
     @Data
     public static class Header {
         private String resultCode;
@@ -30,6 +29,7 @@ public class CenterResponse {
         @JacksonXmlElementWrapper(localName = "items")
         @JacksonXmlProperty(localName = "item")
         private List<Item> items;
+
         @JacksonXmlProperty(localName = "numOfRows")
         private int numOfRows;
 
@@ -54,6 +54,5 @@ public class CenterResponse {
         private String addrDetail; // 상세주소
         private String centMaster; // 대표자
         private String centWorker; // 담당자
-
     }
 }

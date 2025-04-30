@@ -1,5 +1,12 @@
 package com.example.oauthjwt.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
 import com.example.oauthjwt.entity.*;
@@ -8,13 +15,8 @@ import com.example.oauthjwt.repository.ReviewRepository;
 import com.example.oauthjwt.repository.ReviewTagRepository;
 import com.example.oauthjwt.repository.TransactionRepository;
 import com.example.oauthjwt.service.ReviewService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -75,10 +77,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
-        List<String> tags = review.getTags()
-                .stream()
-                .map(ReviewTag::getTag)
-                .toList();
+        List<String> tags = review.getTags().stream().map(ReviewTag::getTag).toList();
 
         return new ReviewResponse(review.getId(), review.getContent(), review.getRates(), review.getStars(), tags);
     }

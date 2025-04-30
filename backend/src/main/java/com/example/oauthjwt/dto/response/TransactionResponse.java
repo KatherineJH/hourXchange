@@ -15,34 +15,25 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TransactionResponse {
-  private Long id;
-  private UserResponse user;
-  private ProductResponse product;
-  private String status;
-  private LocalDateTime createdAt;
-  private Long chatRoomId;
-  private Long reviewId;
+    private Long id;
+    private UserResponse user;
+    private ProductResponse product;
+    private String status;
+    private LocalDateTime createdAt;
+    private Long chatRoomId;
+    private Long reviewId;
 
-  public static TransactionResponse toDto(Transaction transaction) {
-    return TransactionResponse.builder()
-        .id(transaction.getId())
-        .user(UserResponse.toDto(transaction.getUser()))
-        .product(ProductResponse.toDto(transaction.getProduct()))
-        .status(transaction.getStatus().toString())
-        .createdAt(transaction.getCreatedAt())
-        .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null)
-        .build();
-  }
+    public static TransactionResponse toDto(Transaction transaction) {
+        return TransactionResponse.builder().id(transaction.getId()).user(UserResponse.toDto(transaction.getUser()))
+                .product(ProductResponse.toDto(transaction.getProduct())).status(transaction.getStatus().toString())
+                .createdAt(transaction.getCreatedAt())
+                .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null).build();
+    }
 
-  public static TransactionResponse toDto(Transaction transaction, ChatRoom chatRoom) {
-    return TransactionResponse.builder()
-            .id(transaction.getId())
-            .user(UserResponse.toDto(transaction.getUser()))
-            .product(ProductResponse.toDto(transaction.getProduct()))
-            .status(transaction.getStatus().toString())
-            .createdAt(transaction.getCreatedAt())
-            .chatRoomId(chatRoom.getId())
-            .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null)
-            .build();
-  }
+    public static TransactionResponse toDto(Transaction transaction, ChatRoom chatRoom) {
+        return TransactionResponse.builder().id(transaction.getId()).user(UserResponse.toDto(transaction.getUser()))
+                .product(ProductResponse.toDto(transaction.getProduct())).status(transaction.getStatus().toString())
+                .createdAt(transaction.getCreatedAt()).chatRoomId(chatRoom.getId())
+                .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null).build();
+    }
 }

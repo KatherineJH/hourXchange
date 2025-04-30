@@ -1,5 +1,11 @@
 package com.example.oauthjwt.service.impl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
 import com.example.oauthjwt.dto.request.CommentRequest;
 import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.*;
@@ -10,12 +16,8 @@ import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.BoardService;
 import com.example.oauthjwt.service.CommentService;
 import com.example.oauthjwt.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -37,17 +39,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse findById(Long id) {
-        Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ValidationException("댓글을 찾을 수 없습니다."));
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new ValidationException("댓글을 찾을 수 없습니다."));
         return CommentResponse.toDto(comment);
     }
 
     @Override
     public List<CommentResponse> findAllByBoardId(Long boardId) {
         List<Comment> comments = commentRepository.findByBoardId(boardId);
-        return comments.stream()
-                .map(CommentResponse::toDto)
-                .toList();
+        return comments.stream().map(CommentResponse::toDto).toList();
     }
 
     @Override
@@ -57,8 +56,7 @@ public class CommentServiceImpl implements CommentService {
             return userCheck;
         }
         // 게시글이 있는지 조회
-        Map<String, String> boardCheck =
-                boardService.existsById(commentRequest.getBoardId());
+        Map<String, String> boardCheck = boardService.existsById(commentRequest.getBoardId());
         if (!boardCheck.isEmpty()) { // 게시글 id 값을 통해 값이 존재 하지 않으면
             return boardCheck;
         }
@@ -76,11 +74,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ValidationException("해당 게시글이 존재하지 않습니다."));
 
         // 댓글 생성
-        Comment comment = Comment.builder()
-                .content(commentRequest.getContent())
-                .author(owner)
-                .board(board)
-                .build();
+        Comment comment = Comment.builder().content(commentRequest.getContent()).author(owner).board(board).build();
 
         Comment result = commentRepository.save(comment);
         return CommentResponse.toDto(result);
@@ -98,7 +92,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment getEntityById(Long id) {
-        return commentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+        return commentRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
     }
 }

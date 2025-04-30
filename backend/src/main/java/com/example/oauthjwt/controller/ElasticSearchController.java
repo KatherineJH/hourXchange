@@ -1,19 +1,20 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ProductDocument;
-import com.example.oauthjwt.dto.response.PageResult;
-import com.example.oauthjwt.service.elastic.ElasticSearchService;
-import com.example.oauthjwt.service.elastic.Indexer;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.util.List;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.example.oauthjwt.dto.BoardDocument;
+import com.example.oauthjwt.dto.response.PageResult;
+import com.example.oauthjwt.service.elastic.ElasticSearchService;
+import com.example.oauthjwt.service.elastic.Indexer;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequestMapping("/api/search")
@@ -25,27 +26,23 @@ public class ElasticSearchController {
     private final Indexer indexer;
 
     @GetMapping("/products")
-    public ResponseEntity<?> searchProducts(
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<?> searchProducts(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
         return ResponseEntity.ok(searchService.searchProducts(keyword, pageable));
     }
 
-//    @GetMapping("/products")
-//    public ResponseEntity<PageResult<ProductDocument>> searchProducts(
-//            @RequestParam String keyword,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//        return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
-//    }
+    // @GetMapping("/products")
+    // public ResponseEntity<PageResult<ProductDocument>> searchProducts(
+    // @RequestParam String keyword,
+    // @RequestParam(defaultValue = "0") int page,
+    // @RequestParam(defaultValue = "10") int size) {
+    // return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
+    // }
 
     @GetMapping("/boards")
-    public ResponseEntity<PageResult<BoardDocument>> searchBoards(
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<PageResult<BoardDocument>> searchBoards(@RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(searchService.searchBoards(keyword, page, size));
     }
 

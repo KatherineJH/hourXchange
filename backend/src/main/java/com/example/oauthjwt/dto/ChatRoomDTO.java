@@ -1,9 +1,8 @@
 package com.example.oauthjwt.dto;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.List;
+
+import lombok.*;
 
 @Getter
 @Setter

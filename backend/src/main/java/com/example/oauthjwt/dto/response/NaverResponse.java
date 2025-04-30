@@ -4,39 +4,39 @@ import java.util.Map;
 
 public class NaverResponse implements OAuth2Response {
 
-  private final Map<String, Object> attribute;
+    private final Map<String, Object> attribute;
 
-  //    public NaverResponse(Map<String, Object> attribute) {
-  //        this.attribute = (Map<String, Object>) attribute.get("response");
-  //    }
+    // public NaverResponse(Map<String, Object> attribute) {
+    // this.attribute = (Map<String, Object>) attribute.get("response");
+    // }
 
-  @SuppressWarnings("unchecked")
-  public NaverResponse(Map<String, Object> attribute) {
-    Object response = attribute.get("response");
-    if (response instanceof Map) {
-      this.attribute = (Map<String, Object>) response;
-    } else {
-      this.attribute = Map.of();
+    @SuppressWarnings("unchecked")
+    public NaverResponse(Map<String, Object> attribute) {
+        Object response = attribute.get("response");
+        if (response instanceof Map) {
+            this.attribute = (Map<String, Object>) response;
+        } else {
+            this.attribute = Map.of();
+        }
     }
-  }
 
-  @Override
-  public String getProvider() {
-    return "naver";
-  }
+    @Override
+    public String getProvider() {
+        return "naver";
+    }
 
-  @Override
-  public String getProviderId() {
-    return attribute.get("id").toString();
-  }
+    @Override
+    public String getProviderId() {
+        return attribute.get("id").toString();
+    }
 
-  @Override
-  public String getEmail() {
-    return attribute.get("email").toString();
-  }
+    @Override
+    public String getEmail() {
+        return attribute.get("email").toString();
+    }
 
-  @Override
-  public String getName() {
-    return attribute.get("name").toString();
-  }
+    @Override
+    public String getName() {
+        return attribute.get("name").toString();
+    }
 }

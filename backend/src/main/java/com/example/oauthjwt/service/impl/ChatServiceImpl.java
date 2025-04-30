@@ -1,16 +1,18 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.repository.*;
-import com.example.oauthjwt.service.ChatService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.repository.*;
+import com.example.oauthjwt.service.ChatService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +34,8 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         // 💡 상품 + 유저 조합 기준으로 중복 확인
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findByProductAndUsers(
-                product.getId(),
-                requesterId,
-                product.getOwner().getId()
-        );
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findByProductAndUsers(product.getId(), requesterId,
+                product.getOwner().getId());
 
         if (existingRoom.isPresent()) {
             return existingRoom.get();
@@ -44,41 +43,25 @@ public class ChatServiceImpl implements ChatService {
 
         String chatRoomName = requester.getName() + " × " + product.getOwner().getName();
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
-                .name(chatRoomName)
-                .product(product)
-                .build());
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder().name(chatRoomName).product(product).build());
 
-        ChatRoomUser chatters = ChatRoomUser.builder()
-                .chatRoom(chatRoom)
-                .user1(requester)
-                .user2(product.getOwner())
+        ChatRoomUser chatters = ChatRoomUser.builder().chatRoom(chatRoom).user1(requester).user2(product.getOwner())
                 .build();
 
         chatRoomUserRepository.save(chatters);
         return chatRoom;
     }
 
-
     @Transactional
     @Override
     public ChatMessage saveMessage(Long chatRoomId, Long senderId, String content, ChatRoomUserStatus type) {
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> new IllegalArgumentException("ChatRoom not found"));
-        User sender =
-                userRepository
-                        .findById(senderId)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("ChatRoom not found"));
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        ChatMessage message =
-                ChatMessage.builder()
-                        .chatRoom(chatRoom)
-                        .sender(sender)
-                        .content(content)
-                        .chatRoomUserStatus(type)
-                        .build();
+        ChatMessage message = ChatMessage.builder().chatRoom(chatRoom).sender(sender).content(content)
+                .chatRoomUserStatus(type).build();
         return chatMessageRepository.save(message);
     }
 
@@ -89,9 +72,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Long getUserIdByUsername(String username) {
-        return userRepository
-                .findByEmail(username)
-                .map(User::getId)
+        return userRepository.findByEmail(username).map(User::getId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
@@ -119,8 +100,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatRoom findChatRoomById(Long id) {
-        return chatRoomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
+        return chatRoomRepository.findById(id).orElseThrow(() -> new RuntimeException("ChatRoom not found"));
     }
 
     @Override
@@ -139,9 +119,8 @@ public class ChatServiceImpl implements ChatService {
             throw new IllegalStateException("채팅방에 연결된 상품이 없습니다.");
         }
 
-        return transactionRepository.findByProduct(product)
-                .map(tx -> tx.getStatus().name())
-                .orElse("PENDING"); // 거래가 없으면 PENDING
+        return transactionRepository.findByProduct(product).map(tx -> tx.getStatus().name()).orElse("PENDING"); // 거래가
+        // 없으면
+        // PENDING
     }
-
 }

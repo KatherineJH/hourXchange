@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SPImageServiceImpl implements SPImageService {
-  private final SPImageRepository spImageRepository;
+    private final SPImageRepository spImageRepository;
 
-  public Map<String, String> existsByImgUrl(String imgUrl) {
-    if (spImageRepository.existsByImgUrl(imgUrl)) {
-      return Map.of("error", "중복된 이미지 주소입니다.");
+    public Map<String, String> existsByImgUrl(String imgUrl) {
+        if (spImageRepository.existsByImgUrl(imgUrl)) {
+            return Map.of("error", "중복된 이미지 주소입니다.");
+        }
+        return Collections.emptyMap();
     }
-    return Collections.emptyMap();
-  }
 }

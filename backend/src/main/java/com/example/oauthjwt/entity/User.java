@@ -55,7 +55,8 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Address address;
 
-    // single user can have multiple reviews, but each review belongs to a single user
+    // single user can have multiple reviews, but each review belongs to a single
+    // user
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
@@ -63,26 +64,18 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     public static User of(UserRequest userRequest, Address address) {
-        return User.builder()
-                .email(userRequest.getEmail())
-                .password(userRequest.getPassword())
-                .name(userRequest.getName())
-                .username(userRequest.getUsername())
-                .birthdate(userRequest.getBirthdate())
-                .address(address)
-                .role(UserRole.ROLE_USER) // 일반유저
+        return User.builder().email(userRequest.getEmail()).password(userRequest.getPassword())
+                .name(userRequest.getName()).username(userRequest.getUsername()).birthdate(userRequest.getBirthdate())
+                .address(address).role(UserRole.ROLE_USER) // 일반유저
                 .credit(0) // 0시간
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
                 .build();
     }
 
-    public static User of(Item item, Address address){
-        return User.builder()
-                .email(item.getCentCode()) // 센터코드
-                .name(item.getCentMaster())
-                .username(item.getCentCode() + item.getCentName())
-                .address(address)
+    public static User of(Item item, Address address) {
+        return User.builder().email(item.getCentCode()) // 센터코드
+                .name(item.getCentMaster()).username(item.getCentCode() + item.getCentName()).address(address)
                 .role(UserRole.ROLE_CENTER) // 센터유저
                 .credit(0) // 0시간
                 .status(UserStatus.ACTIVE) // 활성화
@@ -90,9 +83,10 @@ public class User {
                 .build();
     }
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
-//    public List<ChatRoom> getChatRooms() {
-//        return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
-//    }
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
+    // public List<ChatRoom> getChatRooms() {
+    // return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
+    // }
 }

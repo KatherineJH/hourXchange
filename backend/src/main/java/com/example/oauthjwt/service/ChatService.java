@@ -1,12 +1,12 @@
 package com.example.oauthjwt.service;
 
+import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.entity.ChatRoomUserStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 public interface ChatService {
     @Transactional

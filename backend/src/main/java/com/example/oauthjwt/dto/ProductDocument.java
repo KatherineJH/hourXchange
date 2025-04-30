@@ -1,13 +1,13 @@
 package com.example.oauthjwt.dto;
 
+import java.util.List;
+
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import jakarta.persistence.Id;
 import lombok.*;
-
-import java.util.List;
 
 @Document(indexName = "product_index")
 @Data

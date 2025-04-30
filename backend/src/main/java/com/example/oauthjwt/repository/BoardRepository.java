@@ -1,7 +1,8 @@
 package com.example.oauthjwt.repository;
 
-import com.example.oauthjwt.entity.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.oauthjwt.entity.Board;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 }

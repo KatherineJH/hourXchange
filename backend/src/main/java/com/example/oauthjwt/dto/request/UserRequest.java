@@ -1,12 +1,12 @@
 package com.example.oauthjwt.dto.request;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -25,5 +25,4 @@ public class UserRequest {
     private LocalDate birthdate;
 
     private AddressRequest address;
-
 }
