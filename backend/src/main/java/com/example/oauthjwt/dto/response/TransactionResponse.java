@@ -21,6 +21,7 @@ public class TransactionResponse {
   private String status;
   private LocalDateTime createdAt;
   private Long chatRoomId;
+  private Long reviewId;
 
   public static TransactionResponse toDto(Transaction transaction) {
     return TransactionResponse.builder()
@@ -29,6 +30,7 @@ public class TransactionResponse {
         .product(ProductResponse.toDto(transaction.getProduct()))
         .status(transaction.getStatus().toString())
         .createdAt(transaction.getCreatedAt())
+        .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null)
         .build();
   }
 
@@ -40,6 +42,7 @@ public class TransactionResponse {
             .status(transaction.getStatus().toString())
             .createdAt(transaction.getCreatedAt())
             .chatRoomId(chatRoom.getId())
+            .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null)
             .build();
   }
 }

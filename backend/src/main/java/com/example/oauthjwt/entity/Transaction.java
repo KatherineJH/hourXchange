@@ -35,6 +35,9 @@ public class Transaction {
   @Column(nullable = false)
   private LocalDateTime createdAt;
 
+  @OneToOne(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Review review;
+
   public static Transaction of(TransactionRequest transactionRequest, User user, Product product, TransactionStatus status) {
     return Transaction.builder()
             .user(user)

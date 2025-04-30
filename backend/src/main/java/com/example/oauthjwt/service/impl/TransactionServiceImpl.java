@@ -63,6 +63,15 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   @Override
+  public List<TransactionResponse> findByUserId(Long userId) {
+    List<Transaction> transactions = transactionRepository.findByUserId(userId);
+
+    return transactions.stream()
+            .map(TransactionResponse::toDto)
+            .collect(Collectors.toList());
+  }
+
+  @Override
   public TransactionResponse update(TransactionRequest transactionRequest) {
     // 검증
     Transaction transaction = transactionRepository.findById(transactionRequest.getId())

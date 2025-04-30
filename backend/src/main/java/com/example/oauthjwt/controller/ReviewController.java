@@ -8,10 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -25,5 +22,18 @@ public class ReviewController {
             @RequestBody @Valid ReviewRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(reviewService.saveReview(request, userDetails.getUser()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable Long id) {
+        return ResponseEntity.ok(reviewService.getReviewById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewResponse> updateReview(
+            @PathVariable Long id,
+            @RequestBody @Valid ReviewRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(reviewService.updateReview(id, request, userDetails.getUser()));
     }
 }

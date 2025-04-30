@@ -28,7 +28,8 @@ public class TransactionController {
   private final TransactionService transactionService;
 
   @PostMapping("/")
-  public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+  public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
     // 인증한 유저의 id 값으로 할당
     transactionRequest.setUserId(userDetails.getUser().getId());
     log.info(transactionRequest);
@@ -50,6 +51,13 @@ public class TransactionController {
   public ResponseEntity<?> findAll() {
     List<TransactionResponse> transactionResponseList = transactionService.findAll();
     return ResponseEntity.ok(transactionResponseList);
+  }
+
+  @GetMapping("/my")
+  public ResponseEntity<?> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = userDetails.getUser().getId();
+    List<TransactionResponse> myTransactions = transactionService.findByUserId(userId);
+    return ResponseEntity.ok(myTransactions);
   }
 
 //  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")

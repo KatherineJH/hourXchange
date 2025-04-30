@@ -7,7 +7,7 @@
 
 2. 가상환경 및 라이브러리 설치
    $ cd hourXchange\flaskAPI
-   $ python -m venv venv
+   $ python -m venv venv (처음에만)
    $ venv\Scripts\activate (Windows)
    $ pip install -r requirements.txt
 
