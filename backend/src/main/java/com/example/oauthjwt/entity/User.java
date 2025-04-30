@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.CenterResponse.Item;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -70,6 +71,19 @@ public class User {
                 .birthdate(userRequest.getBirthdate())
                 .address(address)
                 .role(UserRole.ROLE_USER) // 일반유저
+                .credit(0) // 0시간
+                .status(UserStatus.ACTIVE) // 활성화
+                .createdAt(LocalDateTime.now()) // 현재시간
+                .build();
+    }
+
+    public static User of(Item item, Address address){
+        return User.builder()
+                .email(item.getCentCode()) // 센터코드
+                .name(item.getCentMaster())
+                .username(item.getCentCode() + item.getCentName())
+                .address(address)
+                .role(UserRole.ROLE_CENTER) // 센터유저
                 .credit(0) // 0시간
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
