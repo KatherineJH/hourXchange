@@ -28,6 +28,9 @@ public class Review {
   @Column(name = "rating", nullable = false)
   private int rates;
 
+  @Column(name = "stars", nullable = false)
+  private Integer stars;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reviewer_id", nullable = false)
   private User reviewer;
@@ -38,4 +41,8 @@ public class Review {
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ReviewTag> tags = new ArrayList<>();
+
+  @OneToOne
+  @JoinColumn(name = "transaction_id")
+  private Transaction transaction;
 }

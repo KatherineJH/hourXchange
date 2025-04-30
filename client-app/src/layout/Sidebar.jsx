@@ -23,7 +23,7 @@ const menu = [
   { text: "전체", to: "/product/listTable" },
   { text: "제품등록", to: "/product/save" },
   { text: "마이 트랜잭션 리스트", to: "/transaction/my" },
-  { text: "게시판", to: "/board/list" },
+  { text: "커뮤니티", to: "/board/list" },
 ];
 
 const Sidebar = () => {
