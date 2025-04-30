@@ -51,7 +51,7 @@ tasks.named('test') {
 
 spotless {
 	java {
-		eclipse().configFile("eclipse-formatter.xml") // 상대경로 가능
+		eclipse().configFile("eclipse-formatter.xml")
 		importOrder('java', 'javax', 'org', 'com')
 		removeUnusedImports()
 		trimTrailingWhitespace()
