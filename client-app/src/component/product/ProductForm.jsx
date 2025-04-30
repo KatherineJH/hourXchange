@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import { getList } from "../../api/categoryApi.js";
 import { postSave } from "../../api/productApi";
 import uploadToCloudinary from "../../assets/image/uploadToCloudinary.js";
+import DaumPostcode from "react-daum-postcode";
 
 const ProductForm = () => {
   const [saveData, setSaveData] = useState({
@@ -30,14 +31,18 @@ const ProductForm = () => {
     images: [],
     lat: "",
     lng: "",
-    startedAt: dayjs(),
-    endAt: dayjs(),
+    startedAt: dayjs("2025-05-01T10:00:00"),
+    endAt: dayjs("2025-05-01T10:00:00"),
   });
 
   const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -48,180 +53,191 @@ const ProductForm = () => {
     fetchCategories();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSaveData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) return;
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviews((prevPreviews) => [...prevPreviews, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 실제 이미지 업로드는 다른 함수에서 처리하도록 분리합니다.
+    uploadImagesToCloudinary(files);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const uploadImagesToCloudinary = async (imageFiles) => {
+    setUploading(true);
     try {
-      let imageUrls = [];
+      // 이미 업로드된 이미지를 필터링하여 중복 업로드 방지
+      const newFiles = imageFiles.filter((file) => !images.includes(file.name)); // `file.name`으로 중복 체크
 
-      if (saveData.images.length > 0) {
-        const uploadPromises = saveData.images.map((file) =>
-          uploadToCloudinary(file)
-        );
-        imageUrls = await Promise.all(uploadPromises);
-        console.log("Cloudinary에 업로드된 이미지 URL:", imageUrls);
+      if (newFiles.length > 0) {
+        const uploadPromises = newFiles.map((file) => uploadToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
+
+        setImages((prev) => [...prev, ...urls]);
+
+        // saveData에도 반영
+        setSaveData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...urls],
+        }));
       }
-
-      const finalData = {
-        ...saveData,
-        images: imageUrls, // 업로드된 이미지 URL을 여기에 포함
-      };
-
-      await postSave(finalData); // 실제 저장 API 호출
-
-      alert("상품이 성공적으로 저장되었습니다.");
     } catch (error) {
-      console.error("업로드 또는 저장 중 오류:", error);
-      alert("저장 중 문제가 발생했습니다.");
+      console.error("이미지 업로드 실패", error);
+      console.log(saveData);
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImages((prev) => [...prev, file]);
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviews((prev) => [...prev, reader.result]);
-    };
-    reader.readAsDataURL(file);
-
-    e.target.value = null; // 동일 파일 다시 선택할 수 있게 초기화
+  const handleDeleteImage = (index) => {
+    if (window.confirm("사진을 지우시겠습니까?")) {
+      setImages((prev) => prev.filter((_, idx) => idx !== index));
+      setPreviews((prev) => prev.filter((_, idx) => idx !== index));
+      setSaveData((prev) => ({
+        ...prev,
+        images: prev.images.filter((_, idx) => idx !== index),
+      }));
+    }
   };
 
-  const handleRemoveImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
+  //시작시간
+  // const handleStartTimeChange = (newValue) => {
+  //   if (newValue && newValue.isAfter(saveData.endAt)) {
+  //     return;
+  //   }
 
-  const handleAddClick = () => {
-    fileInputRef.current.click();
-  };
-
+  //   setSaveData((prevState) => ({
+  //     ...prevState,
+  //     startedAt: newValue, // 상태 업데이트
+  //   }));
+  // };
   const handleStartTimeChange = (newValue) => {
+    if (newValue && newValue.isAfter(dayjs(saveData.endAt))) {
+      alert("시작 시간은 종료 시간 이후로 설정할 수 없습니다.");
+      return;
+    }
+
     setSaveData((prevState) => ({
       ...prevState,
       startedAt: newValue,
     }));
   };
 
+  // const handleEndTimeChange = (newValue) => {
+  //   if (newValue && newValue.isBefore(saveData.startedAt)) {
+  //     alert("종료시간은 시작 시간 이후로 설정해야 합니다.");
+  //     return;
+  //   }
+
+  //   setSaveData((prevState) => ({
+  //     ...prevState,
+  //     endAt: newValue, // 상태 업데이트
+  //   }));
+  // };
+
   const handleEndTimeChange = (newValue) => {
-    if (newValue && newValue.isBefore(saveData.startedAt)) {
-      alert("종료시간은 시작 시간 후에 설정해 주시길 바랍니다.");
+    if (newValue && newValue.isBefore(dayjs(saveData.startedAt))) {
+      alert("종료 시간은 시작 시간 이후로 설정해야 합니다.");
       return;
     }
 
-    setSaveData((prevState) => {
-      return {
-        ...prevState,
-        endAt: newValue,
-      };
-    });
+    setSaveData((prevState) => ({
+      ...prevState,
+      endAt: newValue,
+    }));
+  };
+
+  const handleAddClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "hours") {
+      const newValue = parseInt(value, 10);
+      if (isNaN(newValue) || newValue < 0) {
+        setSaveData((prevData) => ({
+          ...prevData,
+          hours: 0,
+        }));
+        return;
+      }
+    }
+    setSaveData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleComplete = (data) => {
+    const fullAddress = data.address;
+    setSaveData((prevData) => ({
+      ...prevData,
+      address: fullAddress,
+    }));
+    setIsOpen(false); // 선택 후 팝업 닫기
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await postSave(saveData);
+      alert("상품이 성공적으로 저장되었습니다.");
+    } catch (error) {
+      console.error("서버 전송 오류", error || error.message);
+      alert("저장 중 문제가 발생하였습니다.");
+    }
   };
 
   return (
     <Box sx={{ maxWidth: 600, margin: "0 auto", padding: 2 }}>
       <form onSubmit={handleSubmit}>
-        {/* 제목 입력 */}
-        <TextField
-          label="제목을 입력하세요."
-          name="title"
-          value={saveData.title}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        {/* 설명 입력 */}
-        <TextField
-          label="내용을 입력하세요."
-          name="description"
-          value={saveData.description}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-          multiline
-          rows={6}
-        />
-
-        {/* 이미지 업로드 */}
-        <Box>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
-            {previews.map((src, idx) => (
-              <Box
-                key={idx}
-                position="relative"
-                onClick={() => handleRemoveImage(idx)} // 이미지 클릭 시 삭제
-                sx={{ cursor: "pointer" }} // 클릭 가능한 것처럼 커서를 변경
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          width="100%"
+          maxWidth={600}
+        >
+          {/* 타입 드롭다운 */}
+          <Box flex={1} mr={2}>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              fontSize={13}
+            ></Typography>
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel id="providerType-label">타입</InputLabel>
+              <Select
+                labelId="providerType-label"
+                id="providerType"
+                name="providerType"
+                value={saveData.providerType}
+                label="타입"
+                onChange={handleChange}
               >
-                <img
-                  src={src}
-                  alt={`preview-${idx}`}
-                  width={100}
-                  height={100}
-                  style={{
-                    objectFit: "cover",
-                    borderRadius: 4,
-                    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-                  }}
-                />
-              </Box>
-            ))}
-            {/* 추가 버튼 */}
-            <Button
-              variant="outlined"
-              onClick={handleAddClick}
-              sx={{
-                width: 100,
-                height: 100,
-                minWidth: "auto",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 1,
-                border: "1px dashed rgba(0,0,0,0.3)",
-              }}
-            >
-              <AddPhotoAlternateIcon />
-            </Button>
-
-            {/* 숨겨진 파일 input */}
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              ref={fileInputRef}
-              onChange={handleImageChange}
-            />
-          </Box>
-        </Box>
-
-        <Box display="flex" justifyContent="space-between" gap={2} mt={2}>
-          {/* 상품 시간 */}
-          <Box flex={1}>
-            <TextField
-              label="상품 시간"
-              name="hours"
-              type="number"
-              value={saveData.hours}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+                <MenuItem value="">---타입---</MenuItem>
+                <MenuItem value="BUYER">BUYER</MenuItem>
+                <MenuItem value="SELLER">SELLER</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
 
           {/* 카테고리 드롭다운 */}
           <Box flex={1}>
-            <FormControl fullWidth margin="normal">
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              fontSize={13}
+            ></Typography>
+            <FormControl fullWidth margin="normal" size="small">
               <InputLabel id="categoryId-label">카테고리</InputLabel>
               <Select
                 labelId="categoryId-label"
@@ -242,22 +258,97 @@ const ProductForm = () => {
           </Box>
         </Box>
 
+        {/* 제목 입력 */}
+        <TextField
+          label="제목을 입력하세요."
+          name="title"
+          value={saveData.title}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+
+        {/* 설명 입력 */}
+        <TextField
+          label="내용을 입력하세요."
+          name="description"
+          value={saveData.description}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={6}
+        />
+
+        {/* 이미지 업로드 */}
+        <Box sx={{ mt: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+            }}
+          >
+            {/* 업로드 버튼 (왼쪽 고정) */}
+            <Box>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+              />
+              <Button
+                variant="outlined"
+                onClick={handleAddClick}
+                sx={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <AddPhotoAlternateIcon />
+              </Button>
+            </Box>
+
+            {/* 미리보기 이미지들 (오른쪽 나열) */}
+            {previews.map((src, idx) => (
+              <Box
+                key={idx}
+                position="relative"
+                onClick={() => handleDeleteImage(idx)}
+                sx={{ cursor: "pointer" }}
+              >
+                <img
+                  src={src}
+                  alt={`preview-${idx}`}
+                  style={{
+                    objectFit: "cover",
+                    borderRadius: 4,
+                    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+                  }}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* 날짜 선택 */}
         <Box display="flex" flexWrap="wrap" mt={2}>
-          {/* 시작 시간 */}
           <Box flex={1}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="시작 시간"
                 value={saveData.startedAt}
-                onChange={handleStartTimeChange}
-                renderInput={(params) => (
-                  <TextField {...params} fullWidth margin="normal" />
-                )}
+                onChange={(newValue) =>
+                  setSaveData((prev) => ({ ...prev, startedAt: newValue }))
+                }
               />
             </LocalizationProvider>
           </Box>
 
-          {/* 종료 시간 */}
           <Box flex={0.97} width="50%">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
@@ -272,26 +363,81 @@ const ProductForm = () => {
           </Box>
         </Box>
 
-        {/* 주소 클릭 버튼 */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={2}
-          gap={1}
-        >
-          <Button
-            variant="contained"
-            size="medium"
-            onClick={() => alert("Open Map or Address Picker")}
-            sx={{
-              width: "50%",
+        <Box display="flex" justifyContent="space-between" gap={2} mt={2}>
+          {/* 상품 시간 입력 */}
+          <Box flex={1}>
+            <TextField
+              label="상품 시간"
+              name="hours"
+              type="number"
+              value={saveData.hours}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+          </Box>
+
+          {/* 주소 검색 버튼 */}
+          <Box alignItems="center">
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              gutterBottom
+            ></Typography>
+            <Button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              variant="contained"
+            >
+              주소 검색
+            </Button>
+          </Box>
+        </Box>
+
+        {/* 선택된 주소 표시 */}
+        <Box mt={1}>
+          {saveData.address && <div>선택된 주소: {saveData.address}</div>}
+        </Box>
+
+        {/* 주소 검색 모달 */}
+        {isOpen && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.5)",
+              zIndex: 2000,
             }}
           >
-            주소 입력
-          </Button>
+            <div
+              style={{
+                width: 500,
+                height: 600,
+                margin: "50px auto",
+                background: "#fff",
+                position: "relative",
+              }}
+            >
+              <DaumPostcode
+                onComplete={handleComplete}
+                style={{ width: "100%", height: "100%" }}
+                autoClose={false}
+              />
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{ position: "absolute", right: 10, top: 10 }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        )}
 
-          {/* 제출 버튼 */}
+        {/* 전송 버튼 */}
+        <Box mt={3}>
           <Button
             variant="contained"
             endIcon={<SendIcon />}
