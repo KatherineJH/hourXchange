@@ -19,7 +19,7 @@ import dayjs from "dayjs";
 import { getList } from "../../api/categoryApi.js";
 import { postSave } from "../../api/productApi";
 import uploadToCloudinary from "../../assets/image/uploadToCloudinary.js";
-import DaumPostcode from "react-daum-postcode";
+import GoogleSaveMap from "../common/GoogleSaveMap.jsx";
 
 const ProductForm = () => {
   const [saveData, setSaveData] = useState({
@@ -319,15 +319,23 @@ const ProductForm = () => {
                 key={idx}
                 position="relative"
                 onClick={() => handleDeleteImage(idx)}
-                sx={{ cursor: "pointer" }}
+                sx={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                  cursor: "pointer",
+                }}
               >
                 <img
                   src={src}
                   alt={`preview-${idx}`}
                   style={{
+                    width: "100%",
+                    height: "100%",
                     objectFit: "cover",
-                    borderRadius: 4,
-                    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+                    display: "block",
                   }}
                 />
               </Box>
@@ -376,66 +384,15 @@ const ProductForm = () => {
               margin="normal"
             />
           </Box>
+        </Box>
 
-          {/* 주소 검색 버튼 */}
-          <Box alignItems="center">
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              gutterBottom
-            ></Typography>
-            <Button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              variant="contained"
-            >
-              주소 검색
-            </Button>
+        <Box>
+          {/* 지도만 표시 */}
+          <Box mt={2}>
+            {/* 구글 맵 컴포넌트 표시 */}
+            <GoogleSaveMap saveData={saveData} setSaveData={setSaveData} />
           </Box>
         </Box>
-
-        {/* 선택된 주소 표시 */}
-        <Box mt={1}>
-          {saveData.address && <div>선택된 주소: {saveData.address}</div>}
-        </Box>
-
-        {/* 주소 검색 모달 */}
-        {isOpen && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0,0,0,0.5)",
-              zIndex: 2000,
-            }}
-          >
-            <div
-              style={{
-                width: 500,
-                height: 600,
-                margin: "50px auto",
-                background: "#fff",
-                position: "relative",
-              }}
-            >
-              <DaumPostcode
-                onComplete={handleComplete}
-                style={{ width: "100%", height: "100%" }}
-                autoClose={false}
-              />
-              <button
-                onClick={() => setIsOpen(false)}
-                style={{ position: "absolute", right: 10, top: 10 }}
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* 전송 버튼 */}
         <Box mt={3}>
           <Button

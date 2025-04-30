@@ -12,12 +12,13 @@ import {
   FormControlLabel,
   Typography,
   Collapse,
+  Box,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
-  { text: "삽니다", to: "/buy" },
-  { text: "팝니다", to: "/sell" },
+  { text: "삽니다", to: "/product/buy" },
+  { text: "팝니다", to: "/product/sell" },
   { text: '봉사해요',  to: '/product/volunteer' },
   { text: '지역별',  to: '/product/ListMap' },
   { text: '전체',  to: '/product/listTable' },
