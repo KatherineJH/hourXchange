@@ -2,6 +2,7 @@ package com.example.oauthjwt.entity;
 
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.CenterResponse.Item;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,6 @@ public class Address {
   @Column(nullable = false)
   private String roadAddress;
 
-  @Column(nullable = false)
   private String jibunAddress;
 
   private String detailAddress;
@@ -42,4 +42,12 @@ public class Address {
             .detailAddress(addressRequest.getDetailAddress())
             .build();
   }
+
+    public static Address of(Item item) {
+      return Address.builder()
+              .zonecode(item.getZipCode())
+              .roadAddress(item.getAddr())
+              .detailAddress(item.getAddrDetail())
+              .build();
+    }
 }

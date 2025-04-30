@@ -5,6 +5,7 @@ const ListMap = lazy(() => import("../component/product/ListMap.jsx"))
 const ListTable = lazy(() => import("../component/product/ListTable.jsx"))
 const Save = lazy(() => import("../component/product/Save.jsx"))
 const Modify = lazy(() => import("../component/product/Modify.jsx"))
+const VolunteerList = lazy(() => import("../component/product/VolunteerList.jsx"))
 
 
 const productRouter = () =>{
@@ -29,6 +30,10 @@ const productRouter = () =>{
         path: "modify/:id",
         element: <Modify/>
     },
+    {
+        path: "volunteer",
+        element: <VolunteerList/>
+    }
 ]}
 
 export default productRouter

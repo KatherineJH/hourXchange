@@ -39,6 +39,7 @@ export const postFavorite = async (productId) => {
     return response;
 }
 
+
 // 추천 검색어 불러오기
 export const getAutocompleteSuggestions = async (prefix) => {
     const response = await api.get("/api/search/autocomplete", {

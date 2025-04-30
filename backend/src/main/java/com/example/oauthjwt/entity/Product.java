@@ -1,11 +1,14 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 
+import com.example.oauthjwt.dto.response.VollcolectionResponse.Item;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -99,6 +102,23 @@ public class Product {
     images.forEach(image -> image.setProduct(product));
     product.getImages().addAll(images);
     return product;
+  }
+
+  public static Product of(Item item, User user, Category category, ProviderType providerType, String[] position) {
+    return Product.builder()
+            .title(item.getTitle())
+            .description(item.getSeq())
+            .hours(0)
+            .startedAt(LocalDateTime.now())
+            .endAt(LocalDateTime.now())
+            .lat(position[0])
+            .lng(position[1])
+            .viewCount(0)
+            .createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+            .owner(user)
+            .category(category)
+            .providerType(providerType)
+            .build();
   }
 
 
