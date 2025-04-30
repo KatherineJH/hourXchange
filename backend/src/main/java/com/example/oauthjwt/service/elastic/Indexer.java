@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.elastic;
 
+import com.example.oauthjwt.dto.ProductDocument;
 import com.example.oauthjwt.entity.Board;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.dto.BoardDocument;

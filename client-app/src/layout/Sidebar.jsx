@@ -18,9 +18,9 @@ import { Link as RouterLink } from "react-router-dom";
 const menu = [
   { text: "삽니다", to: "/buy" },
   { text: "팝니다", to: "/sell" },
-  { text: "봉사해요", to: "/volunteer" },
-  { text: "지역별", to: "/product/ListMap" },
-  { text: "전체", to: "/product/listTable" },
+  { text: '봉사해요',  to: '/product/volunteer' },
+  { text: '지역별',  to: '/product/ListMap' },
+  { text: '전체',  to: '/product/listTable' },
   { text: "제품등록", to: "/product/save" },
   { text: "마이 트랜잭션 리스트", to: "/transaction/my" },
   { text: "커뮤니티", to: "/board/list" },
