@@ -49,7 +49,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // response.addCookie(createCookie("Authorization", token));
         response.addCookie(createCookie("Authorization", accessToken));
         response.addCookie(createCookie("Refresh", refreshToken));
-        response.sendRedirect("http://localhost:5173/");
+        // response.sendRedirect("http://localhost:5173/");
+        response.sendRedirect("https://hourxchange.vercel.app/");
     }
 
     private Cookie createCookie(String key, String value) {
