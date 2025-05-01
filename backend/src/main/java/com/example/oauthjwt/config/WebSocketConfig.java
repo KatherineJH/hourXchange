@@ -26,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173") // 프론트엔드 URL로 제한 권장
+        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173", "https://hourxchange.vercel.app")
                 .addInterceptors(jwtHandshakeInterceptor); // ✅ DI 주입된 Bean 사용
         // .withSockJS();
         log.info("🧩 WebSocket EndPoint Enrolled");
