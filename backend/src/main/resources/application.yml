@@ -8,6 +8,10 @@ spring:
     url: 'jdbc:mysql://${DB_SERVER}:3306/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true'
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      connection-timeout: 5000      # 5? ? ????
+      validation-timeout: 3000
+      maximum-pool-size: 2
 
   jpa:
     properties:
