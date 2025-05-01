@@ -16,7 +16,7 @@ import {
 import api from "../../state/Api";
 
 const ChatRoom = () => {
-  const wsBaseUrl = process.env.REACT_APP_WS_URL || "ws://localhost:8282";
+  const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8282";
   const { chatRoomId } = useParams();
   const numericRoomId = Number(chatRoomId);
   const [messages, setMessages] = useState([]);

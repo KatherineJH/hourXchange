@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL || "http://localhost:8282",
+  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:8282",
   withCredentials: true, // 쿠키 포함
 });
 
