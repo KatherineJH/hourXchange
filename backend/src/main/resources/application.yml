@@ -60,7 +60,7 @@ openapi:
   key: ${OPENAPI_KEY}
 
 # ?? ? ?? ???? ?? ?? ??
-#logging:
-#	level:
-#		spring.security.web: TRACE
-#		spring.security.config: DEBUG
+logging:
+	level:
+		spring.security.web: TRACE
+		spring.security.config: DEBUG
