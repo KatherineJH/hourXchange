@@ -15,21 +15,20 @@ export default function EmailLoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
-
+  const backendUrl =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:8282";
   const signIn = async (provider, formData) => {
     console.log("선택된 provider:", provider.id); // 디버깅: 어떤 provider가 호출되었는지 확인
 
     switch (provider.id) {
       case "naver":
         console.log("Naver 로그인 리디렉션 시작");
-        window.location.href =
-          "http://localhost:8282/oauth2/authorization/naver";
+        window.location.href = `${backendUrl}/oauth2/authorization/naver`;
         return {};
 
       case "google":
         console.log("Google 로그인 리디렉션 시작");
-        window.location.href =
-          "http://localhost:8282/oauth2/authorization/google";
+        window.location.href = `${backendUrl}/oauth2/authorization/google`;
         return {};
 
       case "credentials":
