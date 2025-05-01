@@ -8,7 +8,7 @@ HourXchange는 시간 기반 크레딧 거래 플랫폼으로, 사용자가 서�
 
 ## 프론트엔드 도메인
 
-- [메인 웹사이트](https://hourxchange.vercel.app/)  
+- [hourxchange.vercel.app](https://hourxchange.vercel.app/)  
   프론트엔드 애플리케이션이 임시 배포된 도메인입니다.
   
 - [hourxchange.kr](http://hourxchange.kr)  
