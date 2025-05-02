@@ -23,7 +23,7 @@ export default function EmailLoginForm() {
       case "naver":
         console.log("Naver 로그인 리디렉션 시작");
         window.location.href =
-          "http://localhost:8282/oauth2/authorization/naver";
+          "http://54.180.120.106/oauth2/authorization/naver";
         return {};
 
       case "google":

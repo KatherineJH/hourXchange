@@ -63,6 +63,14 @@ server:
 openapi:
   key: ${OPENAPI_KEY}
 
+ip:
+  backend: ${BACKEND_SERVER}
+  frontend: ${FRONTEND_SERVER}
+
+url:
+  frontend: http://${FRONTEND_SERVER}:5173
+  elastic: http://${ELASTIC_SERVER}:9200
+
 # ?? ? ?? ???? ?? ?? ??
 logging:
   level:
