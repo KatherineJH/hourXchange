@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.hourxchange.kr:8080",
+  baseURL: "https://api.hourxchange.kr",
   withCredentials: true, // 쿠키 포함
 });
 

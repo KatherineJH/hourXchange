@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -32,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SecurityConfig {
 
-    @Value("${url.frontend}")
+    @Value("${ip.frontend}")
     private String[] allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -40,8 +41,10 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
-                          CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                          CustomSuccessHandler customSuccessHandler,
+                          CustomUserDetailsService customUserDetailsService,
+                          JWTUtil jwtUtil) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
         this.customUserDetailsService = customUserDetailsService;
@@ -51,38 +54,54 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // CORS 설정
-        http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()));
+        http.cors(customizer -> customizer.configurationSource(corsConfigurationSource()));
 
-        // CSRF, 기본 로그인 방식 비활성화
-        http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable());
+        // CSRF, 폼 로그인, HTTP Basic 비활성화
+        http.csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
 
-        // OAuth2 설정
-        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler));
+        // OAuth2 로그인 설정
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler)
+        );
 
-        // JWTFilter 추가
-        http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
+        // JWT 필터 추가
+        http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService),
+                OAuth2LoginAuthenticationFilter.class);
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error", "/actuator/health", "/actuator/info") // /error
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+                // Actuator 공개 엔드포인트
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Preflight OPTIONS 요청 허용
+                .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                // 인증 없이 허용할 API
+                .requestMatchers(
+                        "/", "/api/auth/**", "/api/chatrooms",
+                        "/login/oauth2/code/**", "/error"
+                ).permitAll()
+                // 그 외 요청은 인증 필요
+                .anyRequest().authenticated()
+        );
 
-        // 세션 비활성화
+        // 세션 상태를 Stateless로 설정
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 예외 처리
-        http.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, authException) -> {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Unauthorized\"}");
-        }).accessDeniedHandler((request, response, accessDeniedException) -> {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Forbidden\"}");
-        }));
+        http.exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Forbidden\"}");
+                })
+        );
 
         return http.build();
     }
@@ -90,14 +109,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        // Protocol://host:port 형태 맞춰 등록된 allowedOrigins 사용
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        // /api/** 경로에만 CORS 정책 적용
+        source.registerCorsConfiguration("/api/**", config);
         return source;
     }
 
@@ -106,10 +127,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ "/ws/**" 처리에 대한 추천 방식
-    // WebSocket 경로는 JwtHandshakeInterceptor에서 JWT 검증을 수행
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/ws/**");
+        // WebSocket 경로는 보안 필터 무시
+        return web -> web.ignoring().requestMatchers("/ws/**");
     }
 }
