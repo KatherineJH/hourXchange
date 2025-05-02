@@ -32,7 +32,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:5173,https://hourxchange.vercel.app}")
+    @Value("${url.frontend}")
     private String[] allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;

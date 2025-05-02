@@ -2,6 +2,7 @@ package com.example.oauthjwt.config;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -21,12 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Value("${url.frontend}")
+    String urlFrontend;
 
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173", "https://hourxchange.vercel.app")
+        registry.addEndpoint("/ws").setAllowedOrigins(urlFrontend) // 프론트엔드 URL로 제한 권장
                 .addInterceptors(jwtHandshakeInterceptor); // ✅ DI 주입된 Bean 사용
         // .withSockJS();
         log.info("🧩 WebSocket EndPoint Enrolled");
