@@ -69,7 +69,7 @@ ip:
 
 url:
   frontend: http://${FRONTEND_SERVER}:5173
-  elastic: http://${ELASTIC_SERVER}:9200
+  elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
 
 # ?? ? ?? ???? ?? ?? ??
 logging:
