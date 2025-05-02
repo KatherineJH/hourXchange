@@ -67,6 +67,9 @@ ip:
   backend: ${BACKEND_SERVER}
   frontend: ${FRONTEND_SERVER}
 
+port:
+  elastic: ${ELASTIC_PORT}
+
 url:
   frontend: http://${FRONTEND_SERVER}:5173
   elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
