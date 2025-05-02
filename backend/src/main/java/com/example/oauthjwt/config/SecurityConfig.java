@@ -41,7 +41,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
-            CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
+                          CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
         this.customUserDetailsService = customUserDetailsService;
@@ -64,14 +64,11 @@ public class SecurityConfig {
         http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
 
         // 인가 설정
-        http.authorizeHttpRequests(
-                auth -> auth.requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error") // /error
-                        // 컨트롤러,
-                        // 서비스에서
-                        // 던진
-                        // 에러
-                        // 경로
-                        .permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error", "/actuator/health", "/actuator/info") // /error
+                .permitAll()
+                .anyRequest()
+                .authenticated());
 
         // 세션 비활성화
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
