@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL,
+  baseURL: "https://54.180.120.106:8080",
   withCredentials: true, // 쿠키 포함
 });
 

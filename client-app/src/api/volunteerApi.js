@@ -3,7 +3,7 @@ import qs from 'qs';
 
 export const getList = async (params) => {
     console.log(params);
-    const response = await axios.get("http://apis.data.go.kr/B460014/vmsdataview/getVollcolectionList",
+    const response = await axios.get("https://apis.data.go.kr/B460014/vmsdataview/getVollcolectionList",
         {params:{
                 serviceKey: params.serviceKey, // 인증키
                 numOfRows: params.numOfRows, // 페이지 사이즈
