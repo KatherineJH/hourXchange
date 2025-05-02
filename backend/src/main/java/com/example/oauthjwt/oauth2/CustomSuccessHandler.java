@@ -53,6 +53,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("Authorization", accessToken));
         response.addCookie(createCookie("Refresh", refreshToken));
         response.sendRedirect(urlFrontend);
+
     }
 
     private Cookie createCookie(String key, String value) {

@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://54.180.120.106:8282",
+  baseURL: process.env.REACT_APP_BACKEND_URL,
   withCredentials: true, // 쿠키 포함
 });
 
@@ -25,8 +25,8 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        await axios.post(
-          "http://54.180.120.106:8282/api/auth/refresh",
+        await api.post(
+          "/api/auth/refresh",
           {},
           {
             withCredentials: true,

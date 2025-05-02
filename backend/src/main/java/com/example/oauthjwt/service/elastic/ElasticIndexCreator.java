@@ -41,6 +41,7 @@ public class ElasticIndexCreator {
 
     private String getProductIndexPayload() { //"user_dictionary", "synonym_filter" 임시 삭제
         return """
+
             {
               "settings": {
                 "analysis": {
@@ -120,6 +121,7 @@ public class ElasticIndexCreator {
 
     private String getBoardIndexPayload() {
         return """
+
             {
               "settings": {
                 "analysis": {

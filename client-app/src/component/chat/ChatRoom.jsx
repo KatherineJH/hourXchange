@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Client } from "@stomp/stompjs";
-import axios from "axios";
 import { useParams } from "react-router-dom";
 import { matchTransaction, fetchChatRoomInfo } from "../../api/chatApi";
 import {
@@ -14,8 +13,10 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import api from "../../state/Api";
 
 const ChatRoom = () => {
+  const wsBaseUrl = process.env.REACT_APP_WS_URL || "ws://localhost:8282";
   const { chatRoomId } = useParams();
   const numericRoomId = Number(chatRoomId);
   const [messages, setMessages] = useState([]);
@@ -54,13 +55,13 @@ const ChatRoom = () => {
     }
     const connectWebSocket = async () => {
       try {
-        const res = await axios.get("http://localhost:8282/api/auth/token", {
+        const res = await api.get("/api/auth/token", {
           withCredentials: true,
         });
         const token = res.data.token;
 
         const client = new Client({
-          brokerURL: `ws://localhost:8282/ws?token=${token}`,
+          brokerURL: `${wsBaseUrl}/ws?token=${token}`,
           reconnectDelay: 5000,
           // debug: (str) => console.log(str),
           onConnect: () => {
