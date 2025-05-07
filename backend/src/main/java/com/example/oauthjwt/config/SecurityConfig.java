@@ -67,7 +67,7 @@ public class SecurityConfig {
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
                 // Actuator 공개 엔드포인트
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 // Preflight OPTIONS 요청 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                 // 인증 없이 허용할 API

@@ -12,6 +12,12 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
+  elasticsearch:
+    rest:
+      uris: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
+      connection-timeout: 5s
+      read-timeout: 5s
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: 'jdbc:mysql://${DB_SERVER}:3306/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true'
