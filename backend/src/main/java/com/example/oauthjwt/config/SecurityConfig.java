@@ -33,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SecurityConfig {
 
-    @Value("${ip.frontend}")
+    @Value("${url.frontend}")
     private String[] allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -41,10 +41,8 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
-                          CustomSuccessHandler customSuccessHandler,
-                          CustomUserDetailsService customUserDetailsService,
-                          JWTUtil jwtUtil) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
+            CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
         this.customUserDetailsService = customUserDetailsService;
@@ -57,19 +55,14 @@ public class SecurityConfig {
         http.cors(customizer -> customizer.configurationSource(corsConfigurationSource()));
 
         // CSRF, 폼 로그인, HTTP Basic 비활성화
-        http.csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
+        http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable());
 
         // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler)
-        );
+        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler));
 
         // JWT 필터 추가
-        http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService),
-                OAuth2LoginAuthenticationFilter.class);
+        http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
@@ -78,29 +71,23 @@ public class SecurityConfig {
                 // Preflight OPTIONS 요청 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                 // 인증 없이 허용할 API
-                .requestMatchers(
-                        "/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error"
-                ).permitAll()
+                .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error").permitAll()
                 // 그 외 요청은 인증 필요
-                .anyRequest().authenticated()
-        );
+                .anyRequest().authenticated());
 
         // 세션 상태를 Stateless로 설정
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 예외 처리
-        http.exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
-                })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Forbidden\"}");
-                })
-        );
+        http.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+        }).accessDeniedHandler((request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Forbidden\"}");
+        }));
 
         return http.build();
     }
