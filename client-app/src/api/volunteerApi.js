@@ -2,7 +2,6 @@ import axios from "axios";
 import qs from 'qs';
 
 export const getList = async (params) => {
-    console.log(params);
     const response = await axios.get("https://apis.data.go.kr/B460014/vmsdataview/getVollcolectionList",
         {params:{
                 serviceKey: params.serviceKey, // 인증키
@@ -16,6 +15,5 @@ export const getList = async (params) => {
             },
             paramsSerializer: p => qs.stringify(p, {encode: false}) // 인코딩 된 키 한번더 인코딩 하는 것을 막기 위해
         })
-    console.log(response.request.responseURL);
     return response;
 }

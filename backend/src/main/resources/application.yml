@@ -80,7 +80,7 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: https://${FRONTEND_SERVER}:5173
+  frontend: https://${FRONTEND_SERVER}
   elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
 
 # ?? ? ?? ???? ?? ?? ??
