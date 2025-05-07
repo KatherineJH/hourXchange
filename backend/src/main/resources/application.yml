@@ -13,10 +13,9 @@ spring:
     import: optional:file:.env[.properties]
 
   elasticsearch:
-    rest:
-      uris: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
-      connection-timeout: 5s
-      read-timeout: 5s
+    uris: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
+    connection-timeout: 5s
+    read-timeout: 5s
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
