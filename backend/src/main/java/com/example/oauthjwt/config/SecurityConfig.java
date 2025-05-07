@@ -79,7 +79,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                 // 인증 없이 허용할 API
                 .requestMatchers(
-                        "/", "/login", "/favicon.ico", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error"
+                        "/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error"
                 ).permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated()

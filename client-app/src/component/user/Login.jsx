@@ -18,7 +18,6 @@ export default function EmailLoginForm() {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const signIn = async (provider, formData) => {
     console.log("선택된 provider:", provider.id); // 디버깅: 어떤 provider가 호출되었는지 확인
-
     switch (provider.id) {
       case "naver":
         console.log("Naver 로그인 리디렉션 시작");
