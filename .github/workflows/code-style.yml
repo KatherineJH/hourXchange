@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   format-check:
@@ -31,14 +33,14 @@ jobs:
         working-directory: client-app
         run: npm ci
 
-      - name: Run Prettier
+      - name: Run Prettier check
         working-directory: client-app
-        run: npx prettier -w "**/*.html" "**/*.js" "**/*.css"
+        run: npx prettier --check "**/*.html" "**/*.js" "**/*.css"
 
       - name: Grant execute permission for gradlew
         working-directory: backend
         run: chmod +x gradlew
 
-      - name: Run Spotless
+      - name: Run Spotless check
         working-directory: backend
-        run: ./gradlew spotlessApply
+        run: ./gradlew spotlessCheck
