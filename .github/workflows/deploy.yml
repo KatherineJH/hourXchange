@@ -62,7 +62,7 @@ jobs:
     needs: deploy-flask
     defaults:
       run:
-        working-directory: hourXchange/client-app
+        working-directory: client-app
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
