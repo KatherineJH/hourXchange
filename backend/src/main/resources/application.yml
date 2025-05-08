@@ -1,7 +1,21 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 spring:
 #  # .env (?? ??? ????)?? ${?} ??????? ?????.
   config:
     import: optional:file:.env[.properties]
+
+  elasticsearch:
+    uris: http://${BACKEND_SERVER}:${ELASTIC_PORT}
+    connection-timeout: 5s
+    read-timeout: 5s
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -71,8 +85,9 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: http://${FRONTEND_SERVER}:5173
-  elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
+  frontend: https://${FRONTEND_SERVER}
+  elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
+  flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
 # ?? ? ?? ???? ?? ?? ??
 logging:

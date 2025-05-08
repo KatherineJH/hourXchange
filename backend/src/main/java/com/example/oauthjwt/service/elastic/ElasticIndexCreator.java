@@ -39,151 +39,151 @@ public class ElasticIndexCreator {
         System.out.println("✅ " + indexName + " 인덱스를 성공적으로 생성했습니다.");
     }
 
-    private String getProductIndexPayload() { //"user_dictionary", "synonym_filter" 임시 삭제
+    private String getProductIndexPayload() { // "user_dictionary", "synonym_filter" 임시 삭제
         return """
 
-            {
-              "settings": {
-                "analysis": {
-                  "analyzer": {
-                    "my_custom_analyzer": {
-                      "type": "custom",
-                      "char_filter": [],
-                      "tokenizer": "my_nori_tokenizer",
-                      "filter": ["my_pos_filter", "lowercase_filter"]
-                    },
-                    "ngram_analyzer": {
-                      "type": "custom",
-                      "tokenizer": "ngram_tokenizer",
-                      "filter": ["lowercase"]
+                    {
+                      "settings": {
+                        "analysis": {
+                          "analyzer": {
+                            "my_custom_analyzer": {
+                              "type": "custom",
+                              "char_filter": [],
+                              "tokenizer": "my_nori_tokenizer",
+                              "filter": ["my_pos_filter", "lowercase_filter"]
+                            },
+                            "ngram_analyzer": {
+                              "type": "custom",
+                              "tokenizer": "ngram_tokenizer",
+                              "filter": ["lowercase"]
+                            }
+                          },
+                          "tokenizer": {
+                            "my_nori_tokenizer": {
+                              "type": "nori_tokenizer",
+                              "decompound_mode": "mixed",
+                              "discard_punctuation": "true",
+                              "lenient": true
+                            },
+                            "ngram_tokenizer": {
+                              "type": "ngram",
+                              "min_gram": 3,
+                              "max_gram": 4,
+                              "token_chars": ["letter", "digit"]
+                            }
+                          },
+                          "filter": {
+                            "my_pos_filter": {
+                              "type": "nori_part_of_speech",
+                              "stoptags": ["J"]
+                            },
+                            "lowercase_filter": {
+                              "type": "lowercase"
+                            }
+                          }
+                        }
+                      },
+                      "mappings": {
+                        "properties": {
+                          "id": { "type": "long", "index": false },
+                          "title": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" },
+                              "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+                            }
+                          },
+                          "description": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" },
+                              "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
+                            }
+                          },
+                          "ownerName": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "suggest": {
+                            "type": "completion",
+                            "analyzer": "my_custom_analyzer"
+                          }
+                        }
+                      }
                     }
-                  },
-                  "tokenizer": {
-                    "my_nori_tokenizer": {
-                      "type": "nori_tokenizer",
-                      "decompound_mode": "mixed",
-                      "discard_punctuation": "true",
-                      "lenient": true
-                    },
-                    "ngram_tokenizer": {
-                      "type": "ngram",
-                      "min_gram": 3,
-                      "max_gram": 4,
-                      "token_chars": ["letter", "digit"]
-                    }
-                  },
-                  "filter": {
-                    "my_pos_filter": {
-                      "type": "nori_part_of_speech",
-                      "stoptags": ["J"]
-                    },
-                    "lowercase_filter": {
-                      "type": "lowercase"
-                    }
-                  }
-                }
-              },
-              "mappings": {
-                "properties": {
-                  "id": { "type": "long", "index": false },
-                  "title": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" },
-                      "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
-                    }
-                  },
-                  "description": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" },
-                      "ngram": { "type": "text", "analyzer": "ngram_analyzer" }
-                    }
-                  },
-                  "ownerName": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" }
-                    }
-                  },
-                  "suggest": {
-                    "type": "completion",
-                    "analyzer": "my_custom_analyzer"
-                  }
-                }
-              }
-            }
-        """;
+                """;
     }
 
     private String getBoardIndexPayload() {
         return """
 
-            {
-              "settings": {
-                "analysis": {
-                  "analyzer": {
-                    "my_custom_analyzer": {
-                      "type": "custom",
-                      "char_filter": [],
-                      "tokenizer": "my_nori_tokenizer",
-                      "filter": ["my_pos_filter", "lowercase_filter"]
+                    {
+                      "settings": {
+                        "analysis": {
+                          "analyzer": {
+                            "my_custom_analyzer": {
+                              "type": "custom",
+                              "char_filter": [],
+                              "tokenizer": "my_nori_tokenizer",
+                              "filter": ["my_pos_filter", "lowercase_filter"]
+                            }
+                          },
+                          "tokenizer": {
+                            "my_nori_tokenizer": {
+                              "type": "nori_tokenizer",
+                              "decompound_mode": "mixed",
+                              "discard_punctuation": "true",
+                              "lenient": true
+                            }
+                          },
+                          "filter": {
+                            "my_pos_filter": {
+                              "type": "nori_part_of_speech",
+                              "stoptags": ["J"]
+                            },
+                            "lowercase_filter": {
+                              "type": "lowercase"
+                            }
+                          }
+                        }
+                      },
+                      "mappings": {
+                        "properties": {
+                          "id": { "type": "long", "index": false },
+                          "title": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "description": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "authorName": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "createdAt": { "type": "date" },
+                          "suggest": {
+                            "type": "completion",
+                            "analyzer": "my_custom_analyzer"
+                          }
+                        }
+                      }
                     }
-                  },
-                  "tokenizer": {
-                    "my_nori_tokenizer": {
-                      "type": "nori_tokenizer",
-                      "decompound_mode": "mixed",
-                      "discard_punctuation": "true",
-                      "lenient": true
-                    }
-                  },
-                  "filter": {
-                    "my_pos_filter": {
-                      "type": "nori_part_of_speech",
-                      "stoptags": ["J"]
-                    },
-                    "lowercase_filter": {
-                      "type": "lowercase"
-                    }
-                  }
-                }
-              },
-              "mappings": {
-                "properties": {
-                  "id": { "type": "long", "index": false },
-                  "title": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" }
-                    }
-                  },
-                  "description": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" }
-                    }
-                  },
-                  "authorName": {
-                    "type": "text",
-                    "analyzer": "my_custom_analyzer",
-                    "fields": {
-                      "keyword": { "type": "keyword" }
-                    }
-                  },
-                  "createdAt": { "type": "date" },
-                  "suggest": {
-                    "type": "completion",
-                    "analyzer": "my_custom_analyzer"
-                  }
-                }
-              }
-            }
-        """;
+                """;
     }
 }

@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,9 +30,10 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewTagRepository reviewTagRepository;
     private final ProductRepository ProductRepository;
     private final TransactionRepository transactionRepository;
-
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskUrl = "http://127.0.0.1:5000/predict";
+
+    @Value("${url.flask}/predict")
+    private String flaskUrl;
 
     @Override
     public ReviewResponse saveReview(ReviewRequest request, User reviewer) {
@@ -36,8 +41,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
         // Flask 서버에 감성 분석 요청
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, Object> flaskRequest = Map.of("text", request.getText());
-        Map<String, Object> response = restTemplate.postForObject(flaskUrl, flaskRequest, Map.class);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
+        Map<String, Object> response = restTemplate.postForObject(flaskUrl, entity, Map.class);
+
 
         Map<String, Object> sentiment = (Map<String, Object>) response.get("sentiment");
         List<String> tags = (List<String>) response.get("tags");
@@ -92,8 +101,14 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // Flask 서버에 새 텍스트로 감정 분석
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         Map<String, Object> flaskRequest = Map.of("text", request.getText());
-        Map<String, Object> response = restTemplate.postForObject(flaskUrl, flaskRequest, Map.class);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
+
+        Map<String, Object> response = restTemplate.postForObject(flaskUrl, entity, Map.class);
+
 
         Map<String, Object> sentiment = (Map<String, Object>) response.get("sentiment");
         List<String> tags = (List<String>) response.get("tags");
