@@ -86,8 +86,8 @@ port:
 
 url:
   frontend: https://${FRONTEND_SERVER}
-  elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
-  flask: http://${FLASK_SERVER}:${FLASK_PORT}
+  elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
+  flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
 # ?? ? ?? ???? ?? ?? ??
 logging:
