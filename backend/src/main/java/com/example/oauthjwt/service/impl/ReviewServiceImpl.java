@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,9 +27,10 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewTagRepository reviewTagRepository;
     private final ProductRepository ProductRepository;
     private final TransactionRepository transactionRepository;
-
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskUrl = "http://127.0.0.1:5000/predict";
+
+    @Value("${url.flask}/predict")
+    private String flaskUrl;
 
     @Override
     public ReviewResponse saveReview(ReviewRequest request, User reviewer) {
