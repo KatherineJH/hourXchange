@@ -7,14 +7,14 @@ HourXchange는 시간 기반 크레딧 거래 플랫폼으로, 사용자가 서�
 또한, 검색 엔진으로는 **Elastic Search**가 사용됩니다.
 
 ## 프론트엔드 도메인
-
+- [hourxchange.kr](http://hourxchange.kr)  
+  서비스의 도메인 주소입니다.
+  
 - [hourxchange-git-develop-hourxchange-projects.vercel.app](https://hourxchange-git-develop-hourxchange-projects.vercel.app/)
   프론트엔드 애플리케이션이 임시 배포된 디벨롭 도메인입니다.
   
 - [hourxchange.vercel.app](https://hourxchange.vercel.app/)
-  프론트엔드 애플리케이션이 임시 배포된 메인 도메인입니다.
-  
-- [hourxchange.kr](http://hourxchange.kr)  
-  추후 사용될 도메인 주소입니다.
+  프론트엔드 애플리케이션이 임시 배포된 메인 도메인입니다. 
+
 
 ## 설치 방법
