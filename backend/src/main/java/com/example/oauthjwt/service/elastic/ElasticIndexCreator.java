@@ -1,11 +1,14 @@
 package com.example.oauthjwt.service.elastic;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ElasticIndexCreator {
+    @Value("${url.elastic}")
+    String urlElastic;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -15,7 +18,7 @@ public class ElasticIndexCreator {
     }
 
     private void createIndex(String indexName, String payload) {
-        String url = "http://localhost:9202/" + indexName;
+        String url = urlElastic + "/" + indexName;
 
         // 인덱스 존재 여부 확인
         try {
@@ -36,8 +39,9 @@ public class ElasticIndexCreator {
         System.out.println("✅ " + indexName + " 인덱스를 성공적으로 생성했습니다.");
     }
 
-    private String getProductIndexPayload() {
+    private String getProductIndexPayload() { // "user_dictionary", "synonym_filter" 임시 삭제
         return """
+
                     {
                       "settings": {
                         "analysis": {
@@ -46,7 +50,7 @@ public class ElasticIndexCreator {
                               "type": "custom",
                               "char_filter": [],
                               "tokenizer": "my_nori_tokenizer",
-                              "filter": ["my_pos_filter", "lowercase_filter", "synonym_filter"]
+                              "filter": ["my_pos_filter", "lowercase_filter"]
                             },
                             "ngram_analyzer": {
                               "type": "custom",
@@ -59,7 +63,6 @@ public class ElasticIndexCreator {
                               "type": "nori_tokenizer",
                               "decompound_mode": "mixed",
                               "discard_punctuation": "true",
-                              "user_dictionary": "dict/userdict_ko.txt",
                               "lenient": true
                             },
                             "ngram_tokenizer": {
@@ -76,11 +79,6 @@ public class ElasticIndexCreator {
                             },
                             "lowercase_filter": {
                               "type": "lowercase"
-                            },
-                            "synonym_filter": {
-                              "type": "synonym",
-                              "synonyms_path": "dict/synonym-set.txt",
-                              "lenient": true
                             }
                           }
                         }
@@ -123,6 +121,7 @@ public class ElasticIndexCreator {
 
     private String getBoardIndexPayload() {
         return """
+
                     {
                       "settings": {
                         "analysis": {
@@ -131,7 +130,7 @@ public class ElasticIndexCreator {
                               "type": "custom",
                               "char_filter": [],
                               "tokenizer": "my_nori_tokenizer",
-                              "filter": ["my_pos_filter", "lowercase_filter", "synonym_filter"]
+                              "filter": ["my_pos_filter", "lowercase_filter"]
                             }
                           },
                           "tokenizer": {
@@ -139,7 +138,6 @@ public class ElasticIndexCreator {
                               "type": "nori_tokenizer",
                               "decompound_mode": "mixed",
                               "discard_punctuation": "true",
-                              "user_dictionary": "dict/userdict_ko.txt",
                               "lenient": true
                             }
                           },
@@ -150,11 +148,6 @@ public class ElasticIndexCreator {
                             },
                             "lowercase_filter": {
                               "type": "lowercase"
-                            },
-                            "synonym_filter": {
-                              "type": "synonym",
-                              "synonyms_path": "dict/synonym-set.txt",
-                              "lenient": true
                             }
                           }
                         }

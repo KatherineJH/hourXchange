@@ -19,7 +19,7 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 @Log4j2
 public class ScheduleServiceImpl {
-    @Value("${openApi.key}")
+    @Value("${openapi.key}")
     private String apiKey;
 
     private final UserRepository userRepository;

@@ -38,6 +38,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2' // xml 파싱용
+	implementation 'org.springframework.boot:spring-boot-starter-actuator' // aws 상태 검사용
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -56,5 +57,23 @@ spotless {
 		removeUnusedImports()
 		trimTrailingWhitespace()
 		endWithNewline()
+	}
+}
+
+tasks.withType(Test).configureEach {
+	// 각 테스트 JVM 프로세스에 할당할 힙 크기
+	minHeapSize = "256m"
+	maxHeapSize = "512m"
+
+	// 동시에 실행될 포크 프로세스 개수
+	maxParallelForks = 1
+
+	// 일정 개수 테스트 후 JVM 재시작 (메모리 누수 완화)
+	forkEvery = 50
+
+	// 테스트 로그를 콘솔에 자세히 보여주기
+	testLogging {
+		showStandardStreams = true
+		events "passed", "skipped", "failed"
 	}
 }
