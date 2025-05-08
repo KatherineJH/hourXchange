@@ -56,3 +56,50 @@ jobs:
           pip install -r requirements.txt
           sudo fuser -k -n tcp 5000 || true
           nohup python main.py > ./flask_output.log 2>&1 &
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-flask
+    defaults:
+      run:
+        working-directory: hourXchange/client-app
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Node 설치
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: React 빌드
+        run: npm run build
+        env:
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_CLOUD_NAME: ${{ secrets.VITE_CLOUD_NAME }}
+          VITE_UPLOAD_PRESET: ${{ secrets.VITE_UPLOAD_PRESET }}
+          GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
+          OPENAPI_KEY: ${{ secrets.OPENAPI_KEY }}
+
+      - name: S3에 배포
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: hourxchange-app-server
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: dist
+
+      - name: CloudFront 캐시 무효화
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: E28NJK9C2MQ4G3
+          PATHS: '/*'
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
