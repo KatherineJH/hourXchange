@@ -41,9 +41,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
         // Flask 서버에 감성 분석 요청
-//        Map<String, Object> flaskRequest = Map.of("text", request.getText());
-//        Map<String, Object> response = restTemplate.postForObject(flaskUrl, flaskRequest, Map.class);
-        // Flask 서버에 새 텍스트로 감정 분석
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, Object> flaskRequest = Map.of("text", request.getText());
@@ -103,9 +100,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new IllegalArgumentException("자신이 작성한 리뷰만 수정할 수 있습니다.");
         }
 
-        // Flask 서버에 새 텍스트로 감정 분석
-//        Map<String, Object> flaskRequest = Map.of("text", request.getText());
-//        Map<String, Object> response = restTemplate.postForObject(flaskUrl, flaskRequest, Map.class);
         // Flask 서버에 새 텍스트로 감정 분석
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
