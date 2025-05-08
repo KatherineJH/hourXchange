@@ -47,7 +47,6 @@ public class ReviewServiceImpl implements ReviewService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
         Map<String, Object> response = restTemplate.postForObject(flaskUrl, entity, Map.class);
 
-
         Map<String, Object> sentiment = (Map<String, Object>) response.get("sentiment");
         List<String> tags = (List<String>) response.get("tags");
 
@@ -108,7 +107,6 @@ public class ReviewServiceImpl implements ReviewService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(flaskRequest, headers);
 
         Map<String, Object> response = restTemplate.postForObject(flaskUrl, entity, Map.class);
-
 
         Map<String, Object> sentiment = (Map<String, Object>) response.get("sentiment");
         List<String> tags = (List<String>) response.get("tags");
