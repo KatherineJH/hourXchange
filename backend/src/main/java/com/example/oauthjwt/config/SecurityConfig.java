@@ -34,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
 public class SecurityConfig {
 
     @Value("${url.frontend}")
-    private String[] allowedOrigins;
+    private String allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
@@ -96,7 +96,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // Protocol://host:port 형태 맞춰 등록된 allowedOrigins 사용
-        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
+        // config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
+        config.setAllowedOriginPatterns(
+            Arrays.stream(allowedOrigins.split(",")).map(String::trim).toList()
+        );
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

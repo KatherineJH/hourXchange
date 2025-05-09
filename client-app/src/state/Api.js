@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.hourxchange.kr",
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true, // 쿠키 포함
 });
 
@@ -30,7 +30,7 @@ api.interceptors.response.use(
           {},
           {
             withCredentials: true,
-          },
+          }
         );
 
         // 재요청
@@ -43,7 +43,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
