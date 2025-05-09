@@ -94,3 +94,4 @@ logging:
   level:
     spring.security.web: TRACE
     spring.security.config: DEBUG
+
