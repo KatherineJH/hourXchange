@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAsync, logoutUserAsync } from "../state/Reducer.js";
+import { logoutUserAsync } from "../slice/AuthSlice.js";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/image/background.jpg";
 
@@ -28,10 +28,11 @@ function Header() {
   const navigate = useNavigate();
   const { user, isLoading, error } = useSelector((state) => state.auth);
   const isMenuOpen = Boolean(anchorEl);
+  console.log(user)
 
-  useEffect(() => {
-    if (!user && !isLoading && !error) dispatch(fetchUserAsync());
-  }, [dispatch, user, isLoading, error]);
+  // useEffect(() => {
+  //   if (!user && !isLoading && !error) dispatch(fetchUserAsync());
+  // }, [dispatch, user, isLoading, error]);
 
   const handleLogout = () => {
     dispatch(logoutUserAsync())
@@ -116,7 +117,7 @@ function Header() {
                 color="inherit"
                 onClick={(e) => setAnchorEl(e.currentTarget)}
               >
-                {user?.name ? (
+                {user.name ? (
                   <Typography variant="subtitle1">
                     {user.name.charAt(0).toUpperCase()}
                   </Typography>
@@ -132,7 +133,7 @@ function Header() {
           open={isMenuOpen}
           onClose={() => setAnchorEl(null)}
         >
-            {user?.name ?
+            {user.username ?
                 <>
                     <MenuItem disabled>
                         {user.name}님, 환영합니다

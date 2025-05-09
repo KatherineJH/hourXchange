@@ -1,9 +1,14 @@
-// src/auth/Reducer.js
+// src/auth/AuthSlice.js
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import { loginUser, logoutUser, fetchUser } from "../api/authApi.js";
+import { loginUser, logoutUser } from "../api/authApi.js";
 
 const initialState = {
-  user: null,
+  user: {
+    id: '',
+    username: '',
+    name: '',
+    role: '',
+  },
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -11,15 +16,15 @@ const initialState = {
 
 // 이메일 로그인 액션
 export const loginUserAsync =
-    createAsyncThunk("loginUser", (email, password) => loginUser(email, password));
+    createAsyncThunk("loginUserAsync", formData => loginUser(formData));
 
 // 로그아웃 액션
 export const logoutUserAsync =
-    createAsyncThunk("logoutUser", () => logoutUser());
+    createAsyncThunk("logoutUserAsync", () => logoutUser());
 
 // 사용자 정보 조회 액션
-export const fetchUserAsync =
-    createAsyncThunk("fetchUser", () => fetchUser());
+// export const fetchUserAsync =
+//     createAsyncThunk("fetchUserAsync", () => fetchUser());
 
 const authSlice = createSlice({
   name: "auth",
@@ -62,37 +67,35 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUserAsync.fulfilled, (state) => {
-        state.isLoading = false;
-        state.isAuthenticated = false;
-        state.user = null;
+        return initialState // 초기화
       })
       .addCase(logoutUserAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || "로그아웃 실패";
       });
 
-    // 사용자 정보 조회
-    builder
-      .addCase(fetchUserAsync.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchUserAsync.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = {
-          id: action.payload.id,
-          username: action.payload.username,
-          name: action.payload.name,
-          role: action.payload.role,
-        };
-      })
-      .addCase(fetchUserAsync.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.error = action.payload || "사용자 정보 조회 실패";
-      });
+    // // 사용자 정보 조회
+    // builder
+    //   .addCase(fetchUserAsync.pending, (slice) => {
+    //     slice.isLoading = true;
+    //     slice.error = null;
+    //   })
+    //   .addCase(fetchUserAsync.fulfilled, (slice, action) => {
+    //     slice.isLoading = false;
+    //     slice.isAuthenticated = true;
+    //     slice.user = {
+    //       id: action.payload.id,
+    //       username: action.payload.username,
+    //       name: action.payload.name,
+    //       role: action.payload.role,
+    //     };
+    //   })
+    //   .addCase(fetchUserAsync.rejected, (slice, action) => {
+    //     slice.isLoading = false;
+    //     slice.isAuthenticated = false;
+    //     slice.user = null;
+    //     slice.error = action.payload || "사용자 정보 조회 실패";
+    //   });
   },
 });
 

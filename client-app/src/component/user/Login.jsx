@@ -2,7 +2,7 @@ import * as React from "react";
 import { SignInPage } from "@toolpad/core/SignInPage";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUserAsync } from "../../state/Reducer.js";
+import { loginUserAsync } from "../../slice/AuthSlice.js";
 import { TextField } from "@mui/material";
 
 const providers = [
@@ -16,6 +16,7 @@ export default function EmailLoginForm() {
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const signIn = async (provider, formData) => {
     console.log("선택된 provider:", provider.id); // 디버깅: 어떤 provider가 호출되었는지 확인
     switch (provider.id) {
@@ -40,10 +41,11 @@ export default function EmailLoginForm() {
           if (!email || !password) {
             throw new Error("이메일 또는 비밀번호가 입력되지 않았습니다.");
           }
+          // const formData = new FormData();
+          // formData.append("email", email);
+          // formData.append("password", password);
 
-          const response = await dispatch(
-              loginUserAsync({ email, password })
-          ).unwrap();
+          const response = await dispatch(loginUserAsync(formData));
 
           console.log("로그인 성공 응답:", response); // 디버깅
           alert("로그인 성공!");
