@@ -1,0 +1,105 @@
+name: 배포 to EC2
+
+on:
+  push:
+    branches: 
+      - main
+
+jobs:
+  deploy-spring:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Spring Boot EC2 접속 및 배포
+      uses: appleboy/ssh-action@v1.0.3
+      env:
+        DOTENV_FILE: ${{secrets.DOTENV_FILE}}
+      with:
+        host: ${{secrets.EC2_SPRING_HOST}} 
+        username: ${{secrets.EC2_USERNAME}}
+        key: ${{secrets.EC2_PRIVATE_KEY}}
+        envs: DOTENV_FILE
+        script_stop: true
+        script: |
+          cd /home/ubuntu/hourxchange/backend
+          git reset --hard HEAD
+          git pull origin main
+          echo "$DOTENV_FILE" > .env
+          set -a
+          source .env
+          set +a
+          chmod +x gradlew
+          ./gradlew spotlessApply
+          ./gradlew clean build -x test
+          sudo fuser -k -n tcp 8080 || true
+          nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
+
+  deploy-flask:
+    runs-on: ubuntu-latest
+    needs: deploy-spring    # Spring Boot 배포 후 Flask 배포
+    steps:
+    - name: Flask EC2 접속 및 배포
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{secrets.EC2_FLASK_HOST}}    
+        username: ${{secrets.EC2_USERNAME}}
+        key: ${{secrets.EC2_PRIVATE_KEY}}
+        script_stop: true
+        script: |
+          cd /home/ubuntu/hourXchange/flaskAPI
+          git reset --hard HEAD
+          git pull origin main
+          if [ ! -d "venv" ]; then
+            python3 -m venv venv
+          fi
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          sudo fuser -k -n tcp 5000 || true
+          nohup python main.py > ./flask_output.log 2>&1 &
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-flask
+    defaults:
+      run:
+        working-directory: client-app
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Node 설치
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: React 빌드
+        run: npm run build
+        env:
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_CLOUD_NAME: ${{ secrets.VITE_CLOUD_NAME }}
+          VITE_UPLOAD_PRESET: ${{ secrets.VITE_UPLOAD_PRESET }}
+          VITE_GOOGLE_MAPS_KEY: ${{ secrets.VITE_GOOGLE_MAPS_KEY }}
+          VITE_OPENAPI_KEY: ${{ secrets.VITE_OPENAPI_KEY }}
+
+      - name: S3에 배포
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: hourxchange-app-server
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: client-app/dist
+
+      - name: CloudFront 캐시 무효화
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: E28NJK9C2MQ4G3
+          PATHS: '/*'
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
