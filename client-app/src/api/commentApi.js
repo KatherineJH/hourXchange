@@ -1,5 +1,5 @@
 // src/api/commentApi.js
-import api from "../state/Api";
+import api from "./Api.js";
 
 // 📌 댓글 작성
 export const createComment = async (commentData) => {

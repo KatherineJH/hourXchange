@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUser, logoutUser } from "../state/auth/Action";
+import { fetchUserAsync, logoutUserAsync } from "../state/Reducer.js";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/image/background.jpg";
 
@@ -30,11 +30,11 @@ function Header() {
   const isMenuOpen = Boolean(anchorEl);
 
   useEffect(() => {
-    if (!user && !isLoading && !error) dispatch(fetchUser());
+    if (!user && !isLoading && !error) dispatch(fetchUserAsync());
   }, [dispatch, user, isLoading, error]);
 
   const handleLogout = () => {
-    dispatch(logoutUser())
+    dispatch(logoutUserAsync())
       .then(() => {
         alert("로그아웃 되었습니다.");
         window.location.href = "/login";

@@ -2,7 +2,7 @@ import * as React from "react";
 import { SignInPage } from "@toolpad/core/SignInPage";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../state/auth/Action.js";
+import { loginUserAsync } from "../../state/Reducer.js";
 import { TextField } from "@mui/material";
 
 const providers = [
@@ -42,7 +42,7 @@ export default function EmailLoginForm() {
           }
 
           const response = await dispatch(
-            loginUser({ email, password })
+              loginUserAsync({ email, password })
           ).unwrap();
 
           console.log("로그인 성공 응답:", response); // 디버깅
