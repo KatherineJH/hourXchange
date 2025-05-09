@@ -85,7 +85,7 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: "http://${FRONTEND_SERVER},https://${FRONTEND_SERVER},https://*.vercel.app"
+  frontend: https://${FRONTEND_SERVER}
   elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
   flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
