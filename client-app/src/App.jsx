@@ -12,7 +12,7 @@ function App() {
     <>
       <ThemeProvider theme={Theme}>
           <CssBaseline />
-          <LoadScript googleMapsApiKey={import.meta.env.GOOGLE_MAPS_KEY}>
+          <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
             <RouterProvider router={root}/>
           </LoadScript>
       </ThemeProvider>
