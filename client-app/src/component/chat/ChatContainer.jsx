@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Chat from "./Chat";
 import { fetchChatRooms } from "../../api/chatApi";
-import { fetchUser } from "../../state/auth/Action";
+// import { fetchUserAsync } from "../../slice/AuthSlice.js";
 
 function ChatContainer() {
   const dispatch = useDispatch();
@@ -13,11 +13,11 @@ function ChatContainer() {
   const [chatRooms, setChatRooms] = useState([]);
   const [chatError, setChatError] = useState(null);
 
-  useEffect(() => {
-    if (!user && !isLoading && !error) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch, user, isLoading, error]);
+  // useEffect(() => {
+  //   if (!user && !isLoading && !error) {
+  //     dispatch(fetchUserAsync());
+  //   }
+  // }, [dispatch, user, isLoading, error]);
 
   useEffect(() => {
     if (user) {

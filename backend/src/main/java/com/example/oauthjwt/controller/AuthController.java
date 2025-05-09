@@ -48,7 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletResponse response) {
+    public ResponseEntity<?> login(@ModelAttribute UserDTO userDTO, HttpServletResponse response) {
         UserDetails userDetails;
         try {
             userDetails = customUserDetailsService.loadUserByUsername(userDTO.getEmail());
@@ -72,9 +72,13 @@ public class AuthController {
         response.addCookie(createCookie("Authorization", accessToken, 15 * 60));
         response.addCookie(createCookie("Refresh", refreshToken, 7 * 24 * 60 * 60));
 
-        return ResponseEntity.ok(Map.of("message", "로그인 성공", "username", userDetails.getUsername(), "role",
-                userDetails.getAuthorities().stream().findFirst().get().getAuthority(), "accessToken", accessToken,
-                "refreshToken", refreshToken));
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", "로그인 성공",
+                        "username", userDetails.getUsername(),
+                        "role", userDetails.getAuthorities().stream().findFirst().get().getAuthority(),
+                        "accessToken", accessToken,
+                        "refreshToken", refreshToken));
     }
 
     private Cookie createCookie(String key, String value, int maxAgeInSeconds) {

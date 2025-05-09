@@ -74,8 +74,7 @@ public class ElasticIndexCreator {
                           },
                           "filter": {
                             "my_pos_filter": {
-                              "type": "nori_part_of_speech",
-                              "stoptags": ["J"]
+                              "type": "nori_part_of_speech"
                             },
                             "lowercase_filter": {
                               "type": "lowercase"
@@ -143,8 +142,7 @@ public class ElasticIndexCreator {
                           },
                           "filter": {
                             "my_pos_filter": {
-                              "type": "nori_part_of_speech",
-                              "stoptags": ["J"]
+                              "type": "nori_part_of_speech"
                             },
                             "lowercase_filter": {
                               "type": "lowercase"

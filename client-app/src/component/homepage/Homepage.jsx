@@ -19,6 +19,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
+import {useSelector} from "react-redux";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -37,30 +38,31 @@ export default function Homepage() {
 
   const [favorite, setFavorite] = useState([]);
 
+  const { user } = useSelector((state) => state.auth);
+
   useEffect(() => {
     // 상품 정보 조회
-    const fetchProducts = async () => {
-      try {
-        const response = await getList();
-        console.log("📦 받아온 상품 목록:", response.data.content);
-        setProducts(response.data.content);
-      } catch (error) {
-        console.error("상품 목록 불러오기 실패", error);
-      }
-    };
-    fetchProducts();
+    if(!user.username) return; // 로그인 정보가 없으면 패스
+
+    getList().then((response) => {
+      setProducts(response.data.content);
+    }).catch((error) => {
+      console.error(error);
+    });
   }, []);
 
   useEffect(() => {
     // 좋아요 정보 조회
+    if(!user.username) return; // 로그인 정보가 없으면 패스
+
     getFavoriteList()
-      .then((response) => {
-        setFavorite(response.data || []);
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        .then((response) => {
+          setFavorite(response.data || []);
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
   }, []);
 
   const handleClickFavorite = async (id) => {

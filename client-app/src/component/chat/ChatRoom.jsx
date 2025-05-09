@@ -13,7 +13,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import api from "../../state/Api";
+import api from "../../api/Api.js";
 
 const ChatRoom = () => {
   const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8282";
