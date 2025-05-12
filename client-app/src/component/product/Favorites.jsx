@@ -1,7 +1,7 @@
 // src/component/product/Favorites.jsx
 import React, { useEffect, useState } from "react";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
-import ProductGrid from "./ProductGrid";
+import ProductGrid from "../common/ProductGrid";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);

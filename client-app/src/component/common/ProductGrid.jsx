@@ -17,6 +17,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductGrid({
   products,
@@ -25,6 +26,7 @@ export default function ProductGrid({
   expandedId,
   onToggleExpand,
 }) {
+  const navigate = useNavigate();
   return (
     <Grid container spacing={2} sx={{ padding: 2, justifyContent: "center" }}>
       {products.map((product) => (
@@ -52,6 +54,8 @@ export default function ProductGrid({
                 "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               }
               alt={product.title}
+              onClick={() => navigate(`/product/read/${product.id}`)}
+              sx={{ cursor: "pointer" }}
             />
             <CardContent>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>

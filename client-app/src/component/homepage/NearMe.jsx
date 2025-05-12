@@ -1,6 +1,6 @@
 // src/component/homepage/NearMe.jsx
 import React, { useEffect, useState } from "react";
-import ProductGrid from "../product/ProductGrid";
+import ProductGrid from "../common/ProductGrid";
 import { Typography } from "@mui/material";
 
 export default function NearMe({
