@@ -1,6 +1,6 @@
 // src/component/homepage/HighRanked.jsx
 import React from "react";
-import ProductGrid from "./ProductGrid";
+import ProductGrid from "../product/ProductGrid";
 
 export default function HighRanked({
   products,

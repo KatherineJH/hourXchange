@@ -1,4 +1,4 @@
-// src/component/common/ProductGrid.jsx
+// src/component/product/ProductGrid.jsx
 import React from "react";
 import {
   Grid,
@@ -47,7 +47,10 @@ export default function ProductGrid({
             <CardMedia
               component="img"
               height="194"
-              image={product.images?.[0] || "/static/images/cards/paella.jpg"}
+              image={
+                product.images?.[0] ||
+                "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              }
               alt={product.title}
             />
             <CardContent>
@@ -56,7 +59,19 @@ export default function ProductGrid({
               </Typography>
             </CardContent>
             <CardActions disableSpacing>
-              <IconButton onClick={() => onToggleFavorite(product.id)}>
+              <IconButton
+                onClick={() => {
+                  const isFavorited = favorite.some(
+                    (f) => f.product.id === product.id
+                  );
+                  if (isFavorited) {
+                    const confirm =
+                      window.confirm("정말 찜을 취소하시겠습니까?");
+                    if (!confirm) return;
+                  }
+                  onToggleFavorite(product.id);
+                }}
+              >
                 {favorite.some((f) => f.product.id === product.id) ? (
                   <FavoriteIcon />
                 ) : (

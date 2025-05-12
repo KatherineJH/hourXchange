@@ -1,6 +1,6 @@
 // src/component/homepage/New7Days.jsx
 import React from "react";
-import ProductGrid from "./ProductGrid";
+import ProductGrid from "../product/ProductGrid";
 
 export default function New7Days({
   products,

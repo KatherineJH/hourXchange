@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchUserAsync, logoutUserAsync} from "../slice/AuthSlice.js";
+import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/image/background.jpg";
 
@@ -28,7 +28,7 @@ function Header() {
   const navigate = useNavigate();
   const { user, isLoading, error } = useSelector((state) => state.auth);
   const isMenuOpen = Boolean(anchorEl);
-  console.log(user)
+  console.log(user);
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
@@ -44,18 +44,18 @@ function Header() {
     setAnchorEl(null);
   };
 
-    const handleLogin = () => {
-        window.location.href = "/login";
-        setAnchorEl(null);
-    };
-    const handleSave = () => {
-        window.location.href = "/save";
-        setAnchorEl(null);
-    };
+  const handleLogin = () => {
+    window.location.href = "/login";
+    setAnchorEl(null);
+  };
+  const handleSave = () => {
+    window.location.href = "/save";
+    setAnchorEl(null);
+  };
 
-    const handleMoveToMyPage = () => {
-        navigate("/myPage");
-    }
+  const handleMoveToMyPage = () => {
+    navigate("/myPage");
+  };
 
   return (
     <>
@@ -100,7 +100,7 @@ function Header() {
                 size="large"
                 aria-label="wishlist"
                 color="inherit"
-                onClick={() => alert("위시리스트로 이동합니다")}
+                onClick={() => navigate("/favorites")}
               >
                 <FavoriteBorder />
               </IconButton>
@@ -137,24 +137,19 @@ function Header() {
           open={isMenuOpen}
           onClose={() => setAnchorEl(null)}
         >
-            {user.username ?
-                <>
-                    <MenuItem disabled>
-                        {user.name}님, 환영합니다
-                    </MenuItem>
-                    <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
-                    <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
-                </> :
-                <>
-                    <MenuItem disabled>
-                        로그인이 필요합니다.
-                    </MenuItem>
-                    <MenuItem onClick={handleLogin}>로그인</MenuItem>
-                    <MenuItem onClick={handleSave}>회원가입</MenuItem>
-                </>
-
-            }
-
+          {user.username ? (
+            <>
+              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
+              <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+              <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
+            </>
+          ) : (
+            <>
+              <MenuItem disabled>로그인이 필요합니다.</MenuItem>
+              <MenuItem onClick={handleLogin}>로그인</MenuItem>
+              <MenuItem onClick={handleSave}>회원가입</MenuItem>
+            </>
+          )}
         </Menu>
       </Box>
     </>
