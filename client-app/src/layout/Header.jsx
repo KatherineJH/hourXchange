@@ -53,6 +53,10 @@ function Header() {
         setAnchorEl(null);
     };
 
+    const handleMoveToMyPage = () => {
+        navigate("/myPage");
+    }
+
   return (
     <>
       <Box
@@ -138,9 +142,8 @@ function Header() {
                     <MenuItem disabled>
                         {user.name}님, 환영합니다
                     </MenuItem>
-                    <MenuItem>Profile</MenuItem>
-                    <MenuItem>Transaction</MenuItem>
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+                    <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
                 </> :
                 <>
                     <MenuItem disabled>
