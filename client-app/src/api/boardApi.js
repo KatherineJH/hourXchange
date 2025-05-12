@@ -1,5 +1,5 @@
 // src/api/boardApi.js
-import api from "../state/Api";
+import api from "./Api.js";
 
 // 게시글 저장 (새로 추가할 API)
 export const createBoard = async (boardData) => {

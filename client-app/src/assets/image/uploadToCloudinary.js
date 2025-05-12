@@ -1,5 +1,5 @@
 // src/assets/uploadToCloudinary.js
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+const CLOUDINARY_NAME = import.meta.env.VITE_CLOUDINARY_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
 const FOLDER_NAME = "images";
 
@@ -12,11 +12,10 @@ const uploadToCloudinary = async (pics) => {
   const data = new FormData();
   data.append("file", pics);
   data.append("upload_preset", UPLOAD_PRESET);
-  data.append("cloud_name", CLOUD_NAME);
 
   try {
     const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_NAME}/image/upload`,
       {
         method: "POST",
         body: data,

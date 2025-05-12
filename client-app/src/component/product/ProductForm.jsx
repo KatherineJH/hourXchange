@@ -29,8 +29,8 @@ const ProductForm = () => {
     categoryId: "",
     providerType: "",
     images: [],
-    lat: "",
-    lng: "",
+    lat: 37.529521713,
+    lng: 126.964540921,
     startedAt: dayjs("2025-05-01T10:00:00"),
     endAt: dayjs("2025-05-01T10:00:00"),
   });

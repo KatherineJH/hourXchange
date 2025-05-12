@@ -1,3 +1,3 @@
-import api from "../state/Api.js";
+import api from "./Api.js";
 
 const apiServerUrl = "/api/user/";

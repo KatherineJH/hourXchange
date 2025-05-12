@@ -81,11 +81,12 @@ ip:
   backend: ${BACKEND_SERVER}
   frontend: ${FRONTEND_SERVER}
 
+
 port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: https://${FRONTEND_SERVER}
+  frontend: http://${FRONTEND_SERVER}:5173
   elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
   flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
@@ -94,3 +95,4 @@ logging:
   level:
     spring.security.web: TRACE
     spring.security.config: DEBUG
+

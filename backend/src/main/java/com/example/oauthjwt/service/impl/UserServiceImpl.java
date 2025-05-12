@@ -3,7 +3,11 @@ package com.example.oauthjwt.service.impl;
 import java.util.Collections;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.UserDTO;
+import com.example.oauthjwt.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -44,26 +48,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<String, String> notExistsByEmail(String email) {
-        if (userRepository.existsByEmail(email)) { // 이메일로 조회한 정보가 존재하는 경우
-            return Map.of("error", "해당 이메일은 이미 사용중입니다.");
+    public UserResponse login(UserDTO userDTO) {
+        User user = userRepository.findByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+        if(!user.getEmail().equals(userDTO.getEmail()) || !passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
         }
-        return Collections.emptyMap();
+        return UserResponse.toDto(user);
     }
 
     @Override
-    public Map<String, String> existsById(Long id) {
-        if (!userRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-            return Map.of("error", "사용자를 찾을 수 없습니다.");
-        }
-        return Collections.emptyMap();
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+        return UserResponse.toDto(user);
     }
 
-    @Override
-    public Map<String, String> isEquals(Long tokenId, Long requestId) {
-        if (!tokenId.equals(requestId)) {
-            return Map.of("error", "요청한 사용자의 아이디가 일치하지 않습니다.");
-        }
-        return Collections.emptyMap();
-    }
 }
