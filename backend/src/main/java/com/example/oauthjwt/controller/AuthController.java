@@ -78,8 +78,13 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
+        String email = "";
 
-        String email = jwtUtil.getEmail(refreshToken); // 토큰 만료도 같이 검사 가능
+        try{
+            email = jwtUtil.getEmail(refreshToken); // 토큰 만료도 같이 검사 가능
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
 
         String newAccessToken = jwtUtil.createToken(email, ACCESS_TOKEN_TIME);
 
@@ -105,8 +110,12 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
-
-        String email = jwtUtil.getEmail(authorization); // 토큰 만료도 같이 검사 가능
+        String email = "";
+        try{
+             email = jwtUtil.getEmail(authorization); // 토큰 만료도 같이 검사 가능
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
 
         UserResponse result = userService.getUserByEmail(email);
 

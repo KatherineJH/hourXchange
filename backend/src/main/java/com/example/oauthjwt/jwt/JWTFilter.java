@@ -35,9 +35,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
 //        // 프론트 테스트 시 없으면 에러 발생해서 추가했는데, 다른 방식이 있다면 바꿔주셔도 됩니다.
         String path = request.getRequestURI();
-        if(path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/login") || path.startsWith("/login/oauth2/code/")){
+        if(path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/api/auth/login") || path.startsWith("/login/oauth2/code/")){
             return true;
         };
 

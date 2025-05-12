@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +17,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Component
+@Log4j2
 public class JWTUtil {
 
     private SecretKey secretKey;
 
-    public static final int ACCESS_TOKEN_TIME = 15 * 60 * 1000; // Token (15분)
+//    public static final int ACCESS_TOKEN_TIME = 15 * 60 * 1000; // Token (15분)
+    public static final int ACCESS_TOKEN_TIME = 30 * 1000; // Token (15분)
     public static final int REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;
 
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -49,7 +52,8 @@ public class JWTUtil {
         return Jwts.builder()
                 .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TIME)).signWith(secretKey).compact();
+                .expiration(new Date(System.currentTimeMillis() + time))
+                .signWith(secretKey).compact();
     }
 
     public String getTokenFromCookiesByName(HttpServletRequest request, String name) {
@@ -62,6 +66,7 @@ public class JWTUtil {
     }
 
     public Cookie createCookie(String key, String value, int maxAgeInSeconds) {
+        log.info(key + " : " + value + " : " + maxAgeInSeconds);
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // 배포 후 -> true(HTTPS 환경에서만 동작)

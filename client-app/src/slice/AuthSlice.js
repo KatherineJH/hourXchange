@@ -94,12 +94,12 @@ const authSlice = createSlice({
           role: action.payload.role,
         };
       })
-    //   .addCase(fetchUserAsync.rejected, (slice, action) => {
-    //     slice.isLoading = false;
-    //     slice.isAuthenticated = false;
-    //     slice.user = null;
-    //     slice.error = action.payload || "사용자 정보 조회 실패";
-    //   });
+      .addCase(fetchUserAsync.rejected, (state, action) => {
+        // state.isLoading = false;
+        // state.isAuthenticated = false;
+        state.user = null;
+        // state.error = action.payload || "사용자 정보 조회 실패";
+      });
   },
 });
 
