@@ -30,14 +30,6 @@ public class CommentServiceImpl implements CommentService {
     private final BoardService boardService;
 
     @Override
-    public Map<String, String> existsById(Long id) {
-        if (!commentRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-            return Map.of("error", "댓글을 찾을 수 없습니다.");
-        }
-        return Collections.emptyMap();
-    }
-
-    @Override
     public CommentResponse findById(Long id) {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new ValidationException("댓글을 찾을 수 없습니다."));
         return CommentResponse.toDto(comment);
@@ -47,20 +39,6 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentResponse> findAllByBoardId(Long boardId) {
         List<Comment> comments = commentRepository.findByBoardId(boardId);
         return comments.stream().map(CommentResponse::toDto).toList();
-    }
-
-    @Override
-    public Map<String, String> saveCheck(CommentRequest commentRequest) {
-        Map<String, String> userCheck = userService.existsById(commentRequest.getAuthorId());
-        if (!userCheck.isEmpty()) { // 등록한 사용자의 id가 존재하지 않으면
-            return userCheck;
-        }
-        // 게시글이 있는지 조회
-        Map<String, String> boardCheck = boardService.existsById(commentRequest.getBoardId());
-        if (!boardCheck.isEmpty()) { // 게시글 id 값을 통해 값이 존재 하지 않으면
-            return boardCheck;
-        }
-        return Collections.emptyMap();
     }
 
     @Override

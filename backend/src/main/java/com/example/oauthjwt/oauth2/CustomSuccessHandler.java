@@ -18,6 +18,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
+import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
+
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Value("${url.frontend}")
@@ -37,7 +40,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
         // ✅ email 기반으로 JWT 생성
-        String username = customUserDetails.getEmail();
+        String email = customUserDetails.getEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -45,24 +48,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String role = auth.getAuthority();
 
         // JWT 토큰 생성
-        // String token = jwtUtil.createJwt(username, role, 60 * 60 * 60L); // 1일
-        String accessToken = jwtUtil.createJwt(username, role, 15 * 60 * 1000L); // 15분
-        String refreshToken = jwtUtil.createRefreshToken(username, 7 * 24 * 60 * 60 * 1000L); // 7일
+        String accessToken = jwtUtil.createToken(email, ACCESS_TOKEN_TIME); // 15분
+        String refreshToken = jwtUtil.createToken(email, REFRESH_TOKEN_TIME); // 7일
+
         // JWT 토큰을 쿠키로 전달
-        // response.addCookie(createCookie("Authorization", token));
-        response.addCookie(createCookie("Authorization", accessToken));
-        response.addCookie(createCookie("Refresh", refreshToken));
+        response.addCookie(jwtUtil.createCookie("Authorization", accessToken, ACCESS_TOKEN_TIME));
+        response.addCookie(jwtUtil.createCookie("Refresh", refreshToken, REFRESH_TOKEN_TIME));
         response.sendRedirect(urlFrontend);
 
-    }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge("Authorization".equals(key) ? 15 * 60 : 7 * 24 * 60 * 60); // 15분 or 7일
-        cookie.setPath("/");
-        cookie.setHttpOnly(true); // 클라이언트 자바스크립트 접근 방지
-        cookie.setSecure(false); // 배포 시 true
-        cookie.setAttribute("SameSite", "Lax");
-        return cookie;
     }
 }

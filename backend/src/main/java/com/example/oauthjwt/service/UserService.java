@@ -2,16 +2,18 @@ package com.example.oauthjwt.service;
 
 import java.util.Map;
 
+import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface UserService {
 
     UserResponse signup(UserRequest userRequest);
 
-    Map<String, String> notExistsByEmail(String email);
+    UserResponse login(UserDTO userDto);
 
-    Map<String, String> existsById(Long id);
+    UserResponse getUserByEmail(String email);
 
-    Map<String, String> isEquals(Long tokenId, Long requestId);
+
 }

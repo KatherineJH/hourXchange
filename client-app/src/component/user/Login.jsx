@@ -41,10 +41,8 @@ export default function EmailLoginForm() {
           if (!email || !password) {
             throw new Error("이메일 또는 비밀번호가 입력되지 않았습니다.");
           }
-          // const formData = new FormData();
-          // formData.append("email", email);
-          // formData.append("password", password);
 
+          console.log(formData.get("email"));
           const response = await dispatch(loginUserAsync(formData));
 
           console.log("로그인 성공 응답:", response); // 디버깅

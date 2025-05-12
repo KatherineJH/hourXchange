@@ -42,7 +42,7 @@ export default function Homepage() {
 
   useEffect(() => {
     // 상품 정보 조회
-    if(!user.username) return; // 로그인 정보가 없으면 패스
+    // if(!user.username) return; // 로그인 정보가 없으면 패스
 
     getList().then((response) => {
       setProducts(response.data.content);
@@ -53,7 +53,7 @@ export default function Homepage() {
 
   useEffect(() => {
     // 좋아요 정보 조회
-    if(!user.username) return; // 로그인 정보가 없으면 패스
+    // if(!user.username) return; // 로그인 정보가 없으면 패스
 
     getFavoriteList()
         .then((response) => {
