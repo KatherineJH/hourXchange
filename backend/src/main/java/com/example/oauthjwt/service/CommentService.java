@@ -8,13 +8,9 @@ import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.Comment;
 
 public interface CommentService {
-    Map<String, String> existsById(Long id);
-
     CommentResponse findById(Long id);
 
     List<CommentResponse> findAllByBoardId(Long boardId);
-
-    Map<String, String> saveCheck(CommentRequest commentRequest);
 
     CommentResponse save(CommentRequest commentRequest);
 

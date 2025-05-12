@@ -1,4 +1,4 @@
-import api from "../state/Api.js";
+import api from "./Api.js";
 
 const apiServerUrl = "/api/transaction/";
 const reviewApiUrl = "/api/reviews";

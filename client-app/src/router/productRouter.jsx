@@ -35,10 +35,6 @@ const productRouter = () => {
       element: <ListTable />,
     },
     {
-      path: "save",
-      element: <Save />,
-    },
-    {
       path: "register",
       element: <ProductForm />,
     },

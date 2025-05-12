@@ -39,16 +39,13 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
             if (token != null) {
                 log.info("🧪 JWT Checking...: {}", token);
-                try {
-                    if (!jwtUtil.isExpired(token)) {
-                        String username = jwtUtil.getUsername(token);
-                        attributes.put("userId", username);
-                        log.info("✅ User Verified: {}", username);
-                        return true;
-                    }
-                } catch (JwtException e) {
-                    log.error("❌ JWT validation failed: {}", e.getMessage());
-                }
+
+                String email = jwtUtil.getEmail(token); // 토큰 검사도 같이 가능
+                attributes.put("userId", email);
+                log.info("✅ User Verified: {}", email);
+                return true;
+
+
             }
         }
         return false; // 인증 실패 시 false 반환

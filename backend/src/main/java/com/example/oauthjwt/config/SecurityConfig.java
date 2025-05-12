@@ -3,6 +3,8 @@ package com.example.oauthjwt.config;
 import java.util.Arrays;
 import java.util.List;
 
+import com.example.oauthjwt.service.CustomUserDetailsService;
+import com.example.oauthjwt.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +25,7 @@ import com.example.oauthjwt.jwt.JWTFilter;
 import com.example.oauthjwt.jwt.JWTUtil;
 import com.example.oauthjwt.oauth2.CustomSuccessHandler;
 import com.example.oauthjwt.service.CustomOAuth2UserService;
-import com.example.oauthjwt.service.CustomUserDetailsService;
+//import com.example.oauthjwt.service.CustomUserDetailsService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
@@ -38,15 +40,15 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
-    private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
-            CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
+                          JWTUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
-        this.customUserDetailsService = customUserDetailsService;
         this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Bean
@@ -66,10 +68,10 @@ public class SecurityConfig {
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
-                // Actuator 공개 엔드포인트
-                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // Preflight OPTIONS 요청 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                // Actuator 공개 엔드포인트
+                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // 인증 없이 허용할 API
                 .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error").permitAll()
                 // 그 외 요청은 인증 필요

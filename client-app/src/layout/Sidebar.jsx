@@ -21,20 +21,12 @@ const menu = [
   { text: "봉사해요", to: "/product/volunteer" },
   { text: "지역별", to: "/product/list" },
   { text: "전체", to: "/product/listTable" },
-  { text: "제품등록", to: "/product/save" },
   { text: "마이 트랜잭션 리스트", to: "/transaction/my" },
   { text: "커뮤니티", to: "/board/list" },
 ];
 
 const Sidebar = () => {
   const [openRegion, setOpenRegion] = useState(false);
-  const navigate = useNavigate();
-
-  const handleMenuClick = (text) => {
-    if (text === "커뮤니티") {
-      navigate("/board/list"); // 게시판으로 이동
-    }
-  };
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
