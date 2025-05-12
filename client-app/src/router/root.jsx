@@ -7,6 +7,7 @@ import board from "./BoardRouter.jsx"; // 게시판 관련 라우터
 import userRouter from "./userRouter.jsx";
 import productRouter from "./productRouter.jsx";
 import transactionRouter from "./transactionRouter.jsx";
+import MyPageMain from "../page/MyPageMain.jsx";
 
 const root = createBrowserRouter([
   {
@@ -35,6 +36,11 @@ const root = createBrowserRouter([
   {
     path: "transaction",
     element: <Main />,
+    children: transactionRouter(),
+  },
+  {
+    path: "myPage",
+    element: <MyPageMain />,
     children: transactionRouter(),
   },
 ]);
