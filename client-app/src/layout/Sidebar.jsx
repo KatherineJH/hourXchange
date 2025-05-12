@@ -20,8 +20,6 @@ const menu = [
   { text: "팝니다", to: "/product/sell" },
   { text: "봉사해요", to: "/product/volunteer" },
   { text: "지역별", to: "/product/list" },
-  { text: "전체", to: "/product/listTable" },
-  { text: "마이 트랜잭션 리스트", to: "/transaction/my" },
   { text: "커뮤니티", to: "/board/list" },
 ];
 

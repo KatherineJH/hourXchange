@@ -163,4 +163,17 @@ public class ProductServiceImpl implements ProductService {
 
         return favoriteList.stream().map(FavoriteResponse::toDto).collect(Collectors.toList());
     }
+
+    @Override
+    public Page<ProductResponse> findByOwnerId(Long ownerId, Pageable pageable) {
+        Page<Product> products = productRepository.findByOwnerId(ownerId, pageable);
+        return products.map(product -> {
+            User owner = product.getOwner();
+            int favoriteCount = favoriteRepository.countByProduct(product);
+            int chatCount = chatRoomRepository.countByProduct(product);
+            double starsAverage = reviewRepository.getAverageStarsByOwner(owner);
+            int reviewCount = reviewRepository.countByOwner(owner);
+            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
+        });
+    }
 }

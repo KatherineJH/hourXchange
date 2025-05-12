@@ -7,10 +7,18 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import { useLocation } from "react-router-dom";
 
 function BoardTable({ boards, navigate }) {
+  const location = useLocation(); // 현재 경로 확인
   const goToDetail = (id) => {
-    navigate(`/board/${id}`);
+    let basePath = "/board"; // 기본 경로는 board
+    if (location.pathname.startsWith("/myPage")) {
+      basePath = "/myPage/board"; // /myPage에서 board로 가는 경우
+    } else if (location.pathname.startsWith("/admin")) {
+      basePath = "/admin/board"; // /admin에서 board로 가는 경우
+    }
+    navigate(`${basePath}/${id}`);
   };
 
   return (

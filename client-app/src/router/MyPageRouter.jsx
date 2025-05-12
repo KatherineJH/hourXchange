@@ -1,14 +1,21 @@
-import React from "react";
-import Login from "../component/user/Login.jsx";
-import EmailLoginForm from "../component/user/EmailLoginForm.jsx";
+import React, { lazy } from "react";
 import Chat from "../component/chat/ChatContainer.jsx";
-import Save from "../component/user/Save.jsx";
+const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
+const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
 
-const UserRouter = () => [
-    {
-        path: "chat",
-        element: <Chat />,
-    }
+const MyPageRouter = () => [
+  {
+    path: "chat",
+    element: <Chat />,
+  },
+  {
+    path: "myProducts",
+    element: <MyPostList />,
+  },
+  {
+    path: "myBoards",
+    element: <MyBoardPage />,
+  },
 ];
 
-export default UserRouter;
+export default MyPageRouter;

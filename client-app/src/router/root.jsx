@@ -8,6 +8,10 @@ import userRouter from "./userRouter.jsx";
 import productRouter from "./productRouter.jsx";
 import transactionRouter from "./transactionRouter.jsx";
 import MyPage from "../page/MyPage.jsx";
+import MyPageRouter from "./MyPageRouter.jsx";
+import Read from "../component/product/Read.jsx";
+import ProductForm from "../component/product/ProductForm.jsx";
+import Modify from "../component/product/Modify.jsx";
 
 const root = createBrowserRouter([
   {
@@ -34,14 +38,24 @@ const root = createBrowserRouter([
     children: board(),
   },
   {
-    path: "transaction",
-    element: <Main />,
-    children: transactionRouter(),
-  },
-  {
     path: "myPage",
     element: <MyPage />,
-    children: transactionRouter(),
+    children: [
+      ...MyPageRouter(),
+      {
+        path: "board",
+        children: board(),
+      },
+      ...transactionRouter(),
+      {
+        path: "product",
+        children: [
+          { path: "read/:id", element: <Read /> },
+          { path: "register", element: <ProductForm /> },
+          { path: "modify/:id", element: <Modify /> },
+        ],
+      },
+    ],
   },
 ]);
 

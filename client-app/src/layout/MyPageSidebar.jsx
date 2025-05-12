@@ -1,42 +1,44 @@
-// src/layout/Sidebar.jsx
+// src/layout/MyPageSidebar.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Box,
-    List,
-    ListItemButton,
-    ListItemText,
-    Divider,
-    RadioGroup,
-    Radio,
-    FormControlLabel,
-    Typography,
-    Collapse,
+  Box,
+  List,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  Typography,
+  Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
-    { text: "메뉴1", to: "/product/buy" },
-    { text: "메뉴2", to: "/product/sell" },
-    { text: "메뉴3", to: "/product/volunteer" },
+  { text: "내가 등록한 상품", to: "/myPage/myProducts" },
+  { text: "나의 트랜잭션", to: "/myPage/my" },
+  { text: "나의 게시글", to: "/myPage/myBoards" },
+  { text: "찜 리스트", to: "/myPage/favorites" },
+  { text: "내 지갑", to: "/myPage/wallet" },
 ];
 
-const Sidebar = () => {
-    return (
-        <Box component="nav" sx={{ p: 2 }}>
-            <List>
-                {menu.map((item) => (
-                    <ListItemButton
-                        key={item.text}
-                        component={RouterLink} // React Router <Link> 로 동작
-                        to={item.to} // 이동할 경로
-                    >
-                        <ListItemText primary={item.text} />
-                    </ListItemButton>
-                ))}
-            </List>
-        </Box>
-    );
+const MyPageSidebar = () => {
+  return (
+    <Box component="nav" sx={{ p: 2 }}>
+      <List>
+        {menu.map((item) => (
+          <ListItemButton
+            key={item.text}
+            component={RouterLink} // React Router <Link> 로 동작
+            to={item.to} // 이동할 경로
+          >
+            <ListItemText primary={item.text} />
+          </ListItemButton>
+        ))}
+      </List>
+    </Box>
+  );
 };
 
-export default Sidebar;
+export default MyPageSidebar;

@@ -26,4 +26,6 @@ public interface BoardService {
 
     /** 특정 게시글에 대해 좋아요 토글 처리 후, 최신 좋아요 개수와 내 좋아요 여부를 담은 DTO 반환 */
     BoardResponse toggleThumbsUp(Long boardId, Long userId) throws Exception;
+
+    Page<BoardResponse> findByAuthorId(Long authorId, Pageable pageable);
 }
