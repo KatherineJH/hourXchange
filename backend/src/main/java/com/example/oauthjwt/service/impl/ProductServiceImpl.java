@@ -32,6 +32,8 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final SPImageRepository spImageRepository;
     private final FavoriteRepository favoriteRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ReviewRepository reviewRepository;
 
     public ProductResponse save(ProductRequest productRequest) {
         // 검증
@@ -112,7 +114,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> findAll(Pageable pageable) {
         Page<Product> productList = productRepository.findAll(pageable);
-        return productList.map(ProductResponse::toDto);
+//        return productList.map(ProductResponse::toDto);
+        return productList.map(product -> {
+            User owner = product.getOwner();
+
+            int favoriteCount = favoriteRepository.countByProduct(product);
+            int chatCount = chatRoomRepository.countByProduct(product);
+            double starsAverage = reviewRepository.getAverageStarsByOwner(owner); // 판매자 기준
+            int reviewCount = reviewRepository.countByOwner(owner);               // 판매자 기준
+
+            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
+        });
     }
 
     @Override
