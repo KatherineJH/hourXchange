@@ -1,6 +1,6 @@
 //src/component/product/Read.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getRead } from "../../api/productApi.js";
 import { postSave } from "../../api/transactionApi.js";
@@ -37,6 +37,13 @@ function Read() {
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth);
 
+  const location = useLocation();
+  const pathPrefix = location.pathname.startsWith("/admin")
+    ? "/admin"
+    : location.pathname.startsWith("/myPage")
+      ? "/myPage"
+      : "";
+
   useEffect(() => {
     getRead(id)
       .then((response) => {
@@ -51,7 +58,7 @@ function Read() {
       const chatRoom = await initiateChat(serverData.id, auth.user.id);
       const transactionData = { productId: serverData.id, status: "PENDING" };
       await postSave(transactionData);
-      navigate(`/chat-room/${chatRoom.id}`);
+      navigate(`${pathPrefix}/chat-room/${chatRoom.id}`);
     } catch (error) {
       console.error("채팅방 생성 실패", error);
     }
@@ -162,7 +169,9 @@ function Read() {
               <Button
                 variant="outlined"
                 size="large"
-                onClick={() => navigate(`/product/modify/${serverData.id}`)}
+                onClick={() =>
+                  navigate(`${pathPrefix}/product/modify/${serverData.id}`)
+                }
               >
                 수정하기
               </Button>

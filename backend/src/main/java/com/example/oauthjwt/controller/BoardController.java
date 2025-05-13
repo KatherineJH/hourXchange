@@ -62,6 +62,15 @@ public class BoardController {
         // }
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<?> findMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<BoardResponse> result = boardService.findByAuthorId(userDetails.getUser().getId(), pageable);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {

@@ -59,3 +59,11 @@ export const updateBoardLike = async (id) => {
   const response = await api.put(`/api/board/${id}/thumbs-up`);
   return response.data;
 };
+
+// 나의 게시글 목록 조회 (페이지네이션 포함)
+export const getMyBoardList = async (page = 0, size = 10) => {
+  const response = await api.get("/api/board/my", {
+    params: { page, size },
+  });
+  return response.data;
+};

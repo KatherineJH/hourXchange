@@ -3,6 +3,7 @@ package com.example.oauthjwt.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.oauthjwt.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             (cru.user1.id = :user1Id AND cru.user2.id = :user2Id) OR (cru.user1.id = :user2Id AND cru.user2.id = :user1Id))""")
     Optional<ChatRoom> findByProductAndUsers(@Param("productId") Long productId, @Param("user1Id") Long user1Id,
             @Param("user2Id") Long user2Id);
+    int countByProduct(Product product);
 }

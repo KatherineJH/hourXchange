@@ -1,4 +1,4 @@
-// src/component/homepage/Homepage.jsx
+// src/component/product/SellPost.jsx
 import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import {
@@ -22,6 +22,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import { useNavigate } from "react-router-dom";
+import ListTable from "./ListTable";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -191,6 +192,7 @@ export default function SellPost() {
       </Box>
       {/* 🔥 모든 상품 나열 */}
       <div style={{ padding: "1rem" }}>{renderProductGrid()}</div>
+      <ListTable filterProviderType="SELLER" />
     </>
   );
 }

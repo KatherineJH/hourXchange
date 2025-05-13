@@ -161,4 +161,10 @@ public class BoardServiceImpl implements BoardService {
         // 5) DTO 반환
         return BoardResponse.toDto(board, totalLikes, likedByMe);
     }
+
+    @Override
+    public Page<BoardResponse> findByAuthorId(Long authorId, Pageable pageable) {
+        Page<Board> boards = boardRepository.findByAuthorId(authorId, pageable);
+        return boards.map(board -> BoardResponse.toDto(board));
+    }
 }

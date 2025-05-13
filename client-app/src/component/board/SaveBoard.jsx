@@ -79,7 +79,14 @@ function SaveBoard() {
         await createBoard(boardData);
         alert("게시글 작성 완료!");
       }
-      navigate("/board/list");
+      const currentPath = window.location.pathname;
+      let basePath = "/board"; // Default base path
+      if (currentPath.startsWith("/myPage")) {
+        basePath = "/myPage/board"; // If inside myPage, adjust the base path
+      } else if (currentPath.startsWith("/admin")) {
+        basePath = "/admin/board"; // If inside admin, adjust the base path
+      }
+      // navigate("/board/list");
     } catch (error) {
       console.error("게시글 저장 실패", error);
     }

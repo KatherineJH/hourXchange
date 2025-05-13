@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box, Button,
+  Box,
+  Button,
   Card,
-  CardContent, List, ListItem, ListItemButton, ListItemText, Pagination,
-  Paper, Stack,
+  CardContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Pagination,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow, TextField,
+  TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import {getList, getListWithKeyword} from "../../api/productApi.js";
+import { getList, getListWithKeyword } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
-import {getAutocompleteSuggestions} from "../../api/productApi.js";
+import { getAutocompleteSuggestions } from "../../api/productApi.js";
 
-function ListTable() {
+function ListTable({ filterProviderType }) {
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
@@ -28,24 +36,23 @@ function ListTable() {
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
 
-  useEffect(() => {
-    if (keyword.trim() === "") {
-      getList(page, size)
-          .then((response) => {
-            setServerDataList(response.data.content);
-            setTotalPages(response.data.totalPages);
-          })
-          .catch((error) => console.log(error));
-    }else{
-      getListWithKeyword(keyword, page, size).then((response) => {
-        setServerDataList(response.data.content);
-        setTotalPages(response.data.totalPages);
-        console.log(response.data.content);
-        console.log(response.data.totalPages)
-      })
-    }
-
-  }, [page, size, keyword]);
+  // useEffect(() => {
+  //   if (keyword.trim() === "") {
+  //     getList(page, size)
+  //       .then((response) => {
+  //         setServerDataList(response.data.content);
+  //         setTotalPages(response.data.totalPages);
+  //       })
+  //       .catch((error) => console.log(error));
+  //   } else {
+  //     getListWithKeyword(keyword, page, size).then((response) => {
+  //       setServerDataList(response.data.content);
+  //       setTotalPages(response.data.totalPages);
+  //       console.log(response.data.content);
+  //       console.log(response.data.totalPages);
+  //     });
+  //   }
+  // }, [page, size, keyword]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -64,6 +71,31 @@ function ListTable() {
     fetchSuggestions();
   }, [searchInput]);
 
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        let response;
+        if (keyword.trim() === "") {
+          response = await getList(page, size);
+        } else {
+          response = await getListWithKeyword(keyword, page, size);
+        }
+
+        // ✅ Seller or Buyer 필터링 로직 추가
+        const filtered = filterProviderType
+          ? response.data.content.filter(
+              (p) => p.providerType === filterProviderType
+            )
+          : response.data.content;
+
+        setServerDataList(filtered);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error("리스트 조회 실패:", error);
+      }
+    };
+    fetch();
+  }, [page, size, keyword, filterProviderType]);
 
   const handleSearch = () => {
     setKeyword(searchInput);
@@ -74,67 +106,66 @@ function ListTable() {
     <Box sx={{ mt: 4 }}>
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
+          {/* <Typography variant="h5" gutterBottom>
             제품 리스트
-          </Typography>
+          </Typography> */}
 
           {/* 검색창 */}
           <Box sx={{ position: "relative", width: "300px", margin: "1rem 0" }}>
             <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="검색어를 입력하세요"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                size="small"
+              fullWidth
+              variant="outlined"
+              placeholder="검색어를 입력하세요"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              size="small"
             />
             <Button
-                variant="contained"
-                onClick={handleSearch}
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  height: "100%",
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                }}
+              variant="contained"
+              onClick={handleSearch}
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                height: "100%",
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
             >
               검색
             </Button>
 
             {/* 추천 검색어 */}
             {suggestions.length > 0 && (
-                <Paper
-                    sx={{
-                      position: "absolute",
-                      width: "100%",
-                      mt: "4px",
-                      zIndex: 10,
-                      maxHeight: 200,
-                      overflowY: "auto",
-                    }}
-                >
-                  <List dense>
-                    {suggestions.map((s, idx) => (
-                        <ListItem key={idx} disablePadding>
-                          <ListItemButton
-                              onClick={() => {
-                                setSearchInput(s);
-                                setKeyword(s);
-                                setPage(0);
-                                setSuggestions([]);
-                              }}
-                          >
-                            <ListItemText primary={s} />
-                          </ListItemButton>
-                        </ListItem>
-                    ))}
-                  </List>
-                </Paper>
+              <Paper
+                sx={{
+                  position: "absolute",
+                  width: "100%",
+                  mt: "4px",
+                  zIndex: 10,
+                  maxHeight: 200,
+                  overflowY: "auto",
+                }}
+              >
+                <List dense>
+                  {suggestions.map((s, idx) => (
+                    <ListItem key={idx} disablePadding>
+                      <ListItemButton
+                        onClick={() => {
+                          setSearchInput(s);
+                          setKeyword(s);
+                          setPage(0);
+                          setSuggestions([]);
+                        }}
+                      >
+                        <ListItemText primary={s} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
             )}
           </Box>
-
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table stickyHeader aria-label="product table">
@@ -187,20 +218,20 @@ function ListTable() {
       </Card>
       {/* 페이지네이션 */}
       <Box
-          sx={{
-            marginTop: "1rem",
-            display: "flex",
-            justifyContent: "center",
-          }}
+        sx={{
+          marginTop: "1rem",
+          display: "flex",
+          justifyContent: "center",
+        }}
       >
         <Stack spacing={2}>
           <Pagination
-              count={totalPages}
-              page={page + 1}
-              onChange={(event, value) => setPage(value - 1)}
-              variant="outlined"
-              shape="rounded"
-              color="primary"
+            count={totalPages}
+            page={page + 1}
+            onChange={(event, value) => setPage(value - 1)}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
           />
         </Stack>
       </Box>
