@@ -5,7 +5,7 @@ import EmailLoginForm from "../component/user/EmailLoginForm.jsx";
 import Chat from "../component/chat/ChatContainer.jsx";
 import Save from "../component/user/Save.jsx";
 
-const UserRouter = () => [
+const userRouter = () => [
   {
     path: "chat",
     element: <Chat />,
@@ -24,4 +24,4 @@ const UserRouter = () => [
   }
 ];
 
-export default UserRouter;
+export default userRouter;
