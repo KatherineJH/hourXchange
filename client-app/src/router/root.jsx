@@ -12,6 +12,7 @@ import MyPageRouter from "./MyPageRouter.jsx";
 import Read from "../component/product/Read.jsx";
 import ProductForm from "../component/product/ProductForm.jsx";
 import Modify from "../component/product/Modify.jsx";
+import MyPostList from "../component/product/MyPostList.jsx";
 
 const root = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ const root = createBrowserRouter([
     element: <MyPage />,
     children: [
       ...MyPageRouter(),
+      { path: "", element: <MyPostList /> },
       {
         path: "chat-room/:chatRoomId",
         element: <ChatRoom />,
