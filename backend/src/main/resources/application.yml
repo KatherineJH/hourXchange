@@ -90,6 +90,11 @@ url:
   elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
   flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
+iamport:
+  api-key: ${IAMPORT_KEY}
+  api-secret: ${IAMPORT_SECRET}
+
+
 # ?? ? ?? ???? ?? ?? ??
 logging:
   level:

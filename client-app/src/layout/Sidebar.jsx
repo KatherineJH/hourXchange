@@ -14,9 +14,11 @@ import {
   Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import IamportButton from "../component/common/IamportButton.jsx";
 
 const menu = [
-  { text: "삽니다", to: "/product/buy" },
+  { text: "시간충전", to: "/payment/buy" },
+    { text: "삽니다", to: "/product/buy" },
   { text: "팝니다", to: "/product/sell" },
   { text: "봉사해요", to: "/product/volunteer" },
   { text: "지역별", to: "/product/list" },
