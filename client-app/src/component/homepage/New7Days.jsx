@@ -14,11 +14,16 @@ export default function New7Days({
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const filtered = [...products].filter(
-    (p) => new Date(p.startedAt) >= sevenDaysAgo &&
-    (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
+    (p) =>
+      new Date(p.startedAt) >= sevenDaysAgo &&
+      (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
   );
 
   const deduplicated = deduplicateByUser(filtered);
+
+  // console.log("🔥 New7Days 전체:", products.length);
+  // console.log("🔥 필터링 조건 (7일 이내 + 카테고리):", filtered.map((p) => p.title));
+  // console.log("🔥 중복 제거 후:", deduplicated.map((p) => p.title));
 
   return (
     <div style={{ padding: "1rem" }}>

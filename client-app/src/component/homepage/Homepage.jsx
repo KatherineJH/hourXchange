@@ -5,6 +5,7 @@ import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
 import NearMe from "./NearMe";
+import ListTable from "../product/ListTable";
 
 export default function Homepage() {
   const [products, setProducts] = useState([]);
@@ -83,6 +84,7 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
+      <ListTable />
     </div>
   );
 }

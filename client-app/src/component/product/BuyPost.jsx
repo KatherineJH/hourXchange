@@ -21,6 +21,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import { useNavigate } from "react-router-dom";
+import ListTable from "./ListTable";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -191,6 +192,7 @@ export default function BuyPost() {
       <div style={{ padding: "1rem" }}>
         {renderProductGrid(products)} {/* 모든 상품을 한 번에 나열 */}
       </div>
+      <ListTable filterProviderType="BUYER" />
     </>
   );
 }

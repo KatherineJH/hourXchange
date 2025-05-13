@@ -33,7 +33,11 @@ export default function NearMe({
             (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
           );
         });
-
+        // // ✅ 로깅 여기부터
+        // const deduped = deduplicateByUser(nearby);
+        // console.log("📍 위치 기반 필터링된 상품:",
+        //   nearby.map((p) => p.title));
+        // console.log("📍 중복 제거 후:",deduped.map((p) => p.title)); // ✅ 로깅 여기까지
         setNearbyProducts(deduplicateByUser(nearby));
       },
       (error) => {
