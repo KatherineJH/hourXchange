@@ -38,7 +38,11 @@ const Sidebar = () => {
 
   const handleCategoryChange = (e) => {
     const params = new URLSearchParams(location.search);
-    params.set("category", e.target.value);
+    if (e.target.value === "전체") {
+      params.delete("category"); // "전체" 선택 시 쿼리 파라미터 제거
+    } else {
+      params.set("category", e.target.value);
+    }
     navigate({ pathname: location.pathname, search: params.toString() });
   };
 
@@ -83,9 +87,10 @@ const Sidebar = () => {
           🗂️ 카테고리
         </Typography>
         <RadioGroup
-          value={new URLSearchParams(location.search).get("category") || ""}
+          value={new URLSearchParams(location.search).get("category") || "전체"}
           onChange={handleCategoryChange}
         >
+          <FormControlLabel value="전체" control={<Radio />} label="전체" />
           {categoryList.map((c) => (
             <FormControlLabel
               key={c.id}

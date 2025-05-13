@@ -101,12 +101,15 @@ public class ElasticSearchService {
                     .collect(Collectors.toList());
 
             if (isKorean) {
-                // Filter completion suggestions to include only nouns
+                // Filter completion suggestions to include only nouns with length > 1
                 nounSuggestions.addAll(completionSuggestions.stream()
                         .filter(s -> !KoreanNounExtractor.extractNouns(s).isEmpty())
+                        .filter(s -> s.length() > 1)
                         .collect(Collectors.toList()));
-                // Add nouns from prefix itself
-                nounSuggestions.addAll(KoreanNounExtractor.extractNouns(prefix));
+                // Add nouns from prefix itself, excluding single syllables
+                nounSuggestions.addAll(KoreanNounExtractor.extractNouns(prefix).stream()
+                        .filter(s -> s.length() > 1)
+                        .collect(Collectors.toList()));
             } else {
                 // For English, use completion suggestions directly
                 nounSuggestions.addAll(completionSuggestions);
@@ -154,6 +157,7 @@ public class ElasticSearchService {
                     nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
                             .map(hit -> hit.source().getTitle())
                             .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
+                            .filter(s -> !isKorean || s.length() > 1) // Exclude single syllables for Korean
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList()));
@@ -175,6 +179,7 @@ public class ElasticSearchService {
                     nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
                             .map(hit -> hit.source().getTitle())
                             .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
+                            .filter(s -> !isKorean || s.length() > 1) // Exclude single syllables for Korean
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList()));

@@ -24,7 +24,8 @@ import { getList, getListWithKeyword } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../../api/productApi.js";
 
-function ListTable({ filterProviderType }) {
+function ListTable({ filterProviderType, category }) {
+  const [tableData, setTableData] = useState([]);
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
@@ -74,28 +75,30 @@ function ListTable({ filterProviderType }) {
   useEffect(() => {
     const fetch = async () => {
       try {
-        let response;
-        if (keyword.trim() === "") {
-          response = await getList(page, size);
-        } else {
-          response = await getListWithKeyword(keyword, page, size);
+        const response =
+          keyword.trim() === ""
+            ? await getList(page, size)
+            : await getListWithKeyword(keyword, page, size);
+
+        let data = response.data.content;
+
+        if (filterProviderType) {
+          // ProviderType 타입 필터 필요한 경우
+          data = data.filter((p) => p.providerType === filterProviderType);
+        }
+        if (category) {
+          // 카테고리 필터 필요한 경우
+          data = data.filter((p) => p.category?.categoryName === category);
         }
 
-        // ✅ Seller or Buyer 필터링 로직 추가
-        const filtered = filterProviderType
-          ? response.data.content.filter(
-              (p) => p.providerType === filterProviderType
-            )
-          : response.data.content;
-
-        setServerDataList(filtered);
-        setTotalPages(response.data.totalPages);
+        setServerDataList(data);
+        setTotalPages(response.data.totalPages); // 전체 페이지 수는 변경하지 않음
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
     };
     fetch();
-  }, [page, size, keyword, filterProviderType]);
+  }, [page, size, keyword, filterProviderType, category]);
 
   const handleSearch = () => {
     setKeyword(searchInput);

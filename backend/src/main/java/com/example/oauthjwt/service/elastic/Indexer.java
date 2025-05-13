@@ -1,6 +1,7 @@
 package com.example.oauthjwt.service.elastic;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +43,7 @@ public class Indexer {
             return;
         }
         products.forEach(product -> {
-            List<String> keywords = Stream.of(product.getTitle(), product.getDescription(),
-                            product.getOwner() != null ? product.getOwner().getName() : null)
+            List<String> keywords = Stream.of(product.getTitle(), product.getDescription())
                     .filter(Objects::nonNull)
                     .flatMap(s -> {
                         if (s.matches(".*[가-힣].*")) {
@@ -57,12 +57,27 @@ public class Indexer {
                     .distinct()
                     .toList();
 
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String ownerName = product.getOwner() != null ? product.getOwner().getName() : "Unknown";
+            if (ownerName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(ownerName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(ownerName.toLowerCase());
+            }
+
             ProductDocument doc = ProductDocument.builder()
                     .id(product.getId())
                     .title(product.getTitle())
                     .description(product.getDescription())
-                    .ownerName(product.getOwner() != null ? product.getOwner().getName() : "Unknown")
-                    .suggest(keywords)
+                    .ownerName(ownerName)
+                    .suggest(finalKeywords)
                     .build();
 
             try {
@@ -85,8 +100,7 @@ public class Indexer {
             return;
         }
         boards.forEach(board -> {
-            List<String> keywords = Stream.of(board.getTitle(), board.getDescription(),
-                            board.getAuthor() != null ? board.getAuthor().getName() : null)
+            List<String> keywords = Stream.of(board.getTitle(), board.getDescription())
                     .filter(Objects::nonNull)
                     .flatMap(s -> {
                         if (s.matches(".*[가-힣].*")) {
@@ -100,13 +114,28 @@ public class Indexer {
                     .distinct()
                     .toList();
 
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String authorName = board.getAuthor() != null ? board.getAuthor().getName() : "Unknown";
+            if (authorName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(authorName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(authorName.toLowerCase());
+            }
+
             BoardDocument doc = BoardDocument.builder()
                     .id(board.getId())
                     .title(board.getTitle())
                     .description(board.getDescription())
-                    .authorName(board.getAuthor() != null ? board.getAuthor().getName() : "Unknown")
+                    .authorName(authorName)
                     .createdAt(board.getCreatedAt())
-                    .suggest(keywords)
+                    .suggest(finalKeywords)
                     .build();
 
             try {
