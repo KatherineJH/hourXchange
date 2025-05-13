@@ -43,6 +43,10 @@ const root = createBrowserRouter([
     children: [
       ...MyPageRouter(),
       {
+        path: "chat-room/:chatRoomId",
+        element: <ChatRoom />,
+      },
+      {
         path: "board",
         children: board(),
       },

@@ -19,7 +19,8 @@ const menu = [
   { text: "내가 등록한 상품", to: "/myPage/myProducts" },
   { text: "나의 트랜잭션", to: "/myPage/my" },
   { text: "나의 게시글", to: "/myPage/myBoards" },
-  { text: "찜 리스트", to: "/myPage/favorites" },
+  { text: "찜 리스트", to: "/myPage/chat" },
+  { text: "나의 채팅 목록", to: "/myPage/chat" },
   { text: "내 지갑", to: "/myPage/wallet" },
 ];
 

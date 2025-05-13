@@ -1,5 +1,6 @@
 // src/component/chat/Chat.jsx
 import React from "react";
+import { useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -10,6 +11,13 @@ import {
 } from "@mui/material";
 
 function Chat({ chatRooms, chatError, navigate }) {
+  const location = useLocation();  
+  const pathPrefix = location.pathname.startsWith("/admin")
+    ? "/admin"
+    : location.pathname.startsWith("/myPage")
+      ? "/myPage"
+      : "";
+
   if (!chatRooms) {
     return (
       <Box sx={{ mt: 4, textAlign: "center" }}>
@@ -40,7 +48,7 @@ function Chat({ chatRooms, chatError, navigate }) {
             chatRooms.map((room) => (
               <Card key={room.id} sx={{ mb: 2, borderRadius: 2 }}>
                 <CardActionArea
-                  onClick={() => navigate(`/chat-room/${room.id}`)}
+                  onClick={() => navigate(`${pathPrefix}/chat-room/${room.id}`)}
                 >
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
