@@ -114,41 +114,78 @@ public class ElasticSearchService {
 
             // Step 2: Generate phrase suggestions (at least two) using title only
             if (!nounSuggestions.isEmpty()) {
-                SearchResponse<BoardDocument> phraseResponse = client.search(s -> s.index(index)
-                        .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
-                                .fields("title^1.5")))
-                        .size(3), BoardDocument.class);
+                if (index.equals("board_index")) {
+                    SearchResponse<BoardDocument> phraseResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
+                                    .fields("title^1.5")))
+                            .size(3), BoardDocument.class);
 
-                phraseSuggestions = phraseResponse.hits().hits().stream()
-                        .map(hit -> hit.source().getTitle())
-                        .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
-                        .distinct()
-                        .limit(3)
-                        .collect(Collectors.toList());
+                    phraseSuggestions = phraseResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList());
+                } else if (index.equals("product_index")) {
+                    SearchResponse<ProductDocument> phraseResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
+                                    .fields("title^1.5")))
+                            .size(3), ProductDocument.class);
+
+                    phraseSuggestions = phraseResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList());
+                }
             }
 
             // Step 3: Fallback if insufficient suggestions
             if (nounSuggestions.isEmpty() && phraseSuggestions.isEmpty()) {
-                // Search title field directly
-                SearchResponse<BoardDocument> fallbackResponse = client.search(s -> s.index(index)
-                        .query(q -> q.multiMatch(m -> m.query(prefix)
-                                .fields("title^1.5")
-                                .fuzziness("AUTO")))
-                        .size(5), BoardDocument.class);
+                if (index.equals("board_index")) {
+                    // Search title field directly for boards
+                    SearchResponse<BoardDocument> fallbackResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(prefix)
+                                    .fields("title^1.5")
+                                    .fuzziness("AUTO")))
+                            .size(5), BoardDocument.class);
 
-                nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
-                        .map(hit -> hit.source().getTitle())
-                        .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
-                        .distinct()
-                        .limit(3)
-                        .collect(Collectors.toList()));
+                    nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
 
-                phraseSuggestions.addAll(fallbackResponse.hits().hits().stream()
-                        .map(hit -> hit.source().getTitle())
-                        .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
-                        .distinct()
-                        .limit(3)
-                        .collect(Collectors.toList()));
+                    phraseSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
+                } else if (index.equals("product_index")) {
+                    // Search title field directly for products
+                    SearchResponse<ProductDocument> fallbackResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(prefix)
+                                    .fields("title^1.5")
+                                    .fuzziness("AUTO")))
+                            .size(5), ProductDocument.class);
+
+                    nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
+
+                    phraseSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
+                }
             }
 
             // Combine results: nouns first, then phrases
