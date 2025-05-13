@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.example.oauthjwt.dto.UserDTO;
+import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.repository.AddressRepository;
 import com.example.oauthjwt.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
@@ -40,13 +41,17 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
         }
 
-        Address address = addressRepository.save(Address.of(userRequest.getAddress()));
+        User user = User.of(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-        userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        AddressRequest addressRequest = userRequest.getAddress();
+        if(addressRequest.isEmpty()){
+            Address address = addressRepository.save(Address.of(userRequest.getAddress()));
+            user.setAddress(address);
+        }
 
-        User result = userRepository.save(User.of(userRequest, address));
 
-        address.getUserList().add(result);
+        User result = userRepository.save(user);
 
         return UserResponse.toDto(result);
     }
@@ -54,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse login(UserDTO userDTO) {
         User user = userRepository.findByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
         if(!user.getEmail().equals(userDTO.getEmail()) || !passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
         }
@@ -64,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
 
         return UserResponse.toDto(user);
     }

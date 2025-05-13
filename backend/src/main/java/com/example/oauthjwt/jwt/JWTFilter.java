@@ -21,6 +21,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 public class JWTFilter extends OncePerRequestFilter {
@@ -67,6 +68,18 @@ public class JWTFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("JWT authentication successful for user: {}", email);
+            } catch (ResponseStatusException e){
+                // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)
+                log.warn("User not found during JWT auth, proceeding anonymously: {}", e.getMessage());
+                SecurityContextHolder.clearContext();
+
+                // 쿠키 초기화
+                Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+                Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+
+                response.addCookie(emptyAccessCookie);
+                response.addCookie(emptyRefreshCookie);
+
             } catch (JwtException e) {
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

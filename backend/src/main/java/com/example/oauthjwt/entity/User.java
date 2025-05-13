@@ -60,19 +60,15 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> Payments = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", nullable = false)
+    @JoinColumn(name = "address_id")
     private Address address; // 서비스 카테고리
 
-    public static User of(UserRequest userRequest, Address address) {
+    public static User of(UserRequest userRequest) {
         return User.builder().email(userRequest.getEmail()).password(userRequest.getPassword())
                 .name(userRequest.getName())
                 .username(userRequest.getUsername())
                 .birthdate(userRequest.getBirthdate())
-                .address(address)
                 .role(UserRole.ROLE_USER) // 일반유저
                 .credit(0) // 0시간
                 .status(UserStatus.ACTIVE) // 활성화
