@@ -1,6 +1,8 @@
 package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Payment;
+import com.example.oauthjwt.entity.PaymentItem;
+import com.example.oauthjwt.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,8 +26,9 @@ public class PaymentResponse {
     private String pgTid;         // PG 거래번호
     private String receiptUrl;    // 영수증 URL
     private UserResponse user;
+    private PaymentItemResponse paymentItem;
 
-    public static PaymentResponse toDto(Payment payment) {
+    public static PaymentResponse toDto(Payment payment, User user, PaymentItem paymentItem) {
         return PaymentResponse.builder()
                 .id(payment.getId())
                 .impUid(payment.getImpUid())
@@ -37,7 +40,8 @@ public class PaymentResponse {
                 .pgProvider(payment.getPgProvider())
                 .pgTid(payment.getPgTid())
                 .receiptUrl(payment.getReceiptUrl())
-                .user(UserResponse.toDto(payment.getBuyer()))
+                .user(UserResponse.toDto(user))
+                .paymentItem(PaymentItemResponse.toDto(paymentItem))
                 .build();
     }
 }

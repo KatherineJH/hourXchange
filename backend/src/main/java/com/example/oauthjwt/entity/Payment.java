@@ -23,10 +23,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String impUid;        // imp_uid
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String merchantUid;   // merchant_uid
 
     @Column(nullable = false)
@@ -44,21 +44,19 @@ public class Payment {
     @Column(nullable = false)
     private String pgProvider;    // html5_inicis, naverpay 등
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String pgTid;         // PG 거래번호
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String receiptUrl;    // 영수증 URL
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User buyer;
+    @Column(nullable = false)
+    private Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_id", nullable = false)
-    private PaymentItem item;
+    @Column(nullable = false)
+    private Long paymentItemId;
 
-    public static Payment of(Map payment, User buyer, PaymentItem item) {
+    public static Payment of(Map payment, Long userId, Long paymentItemId) {
         return Payment.builder()
                 .impUid((String) payment.get("imp_uid"))
                 .merchantUid((String) payment.get("merchant_uid"))
@@ -71,8 +69,8 @@ public class Payment {
                 .pgProvider((String) payment.get("pg_provider"))
                 .pgTid((String) payment.get("pg_tid"))
                 .receiptUrl((String) payment.get("receipt_url"))
-                .buyer(buyer)
-                .item(item)
+                .userId(userId)
+                .paymentItemId(paymentItemId)
                 .build();
     }
 }
