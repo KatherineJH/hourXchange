@@ -1,5 +1,7 @@
+// src/main/java/com/example/oauthjwt/service/impl/PaymentServiceImpl.java
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.response.PaymentItemRatioResponse;
 import com.example.oauthjwt.dto.response.PaymentLogResponse;
 import com.example.oauthjwt.dto.response.PaymentResponse;
 import com.example.oauthjwt.entity.Payment;
@@ -21,7 +23,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
 @RequiredArgsConstructor
 @Log4j2
@@ -39,52 +40,70 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
         // 구매한 금액과 사용자의 이메일이 같은지 검사
-        log.info(data);
-        if(paymentItem.getPrice() != (int) data.get("amount") || !user.getEmail().equals(data.get("buyer_email"))) {
-            log.info("{}:{}", paymentItem.getPrice(), data.get("amount"));
-            log.info("{}:{}", user.getEmail(), data.get("buyer_email"));
-
+        if (paymentItem.getPrice() != (int) data.get("amount")
+                || !user.getEmail().equals(data.get("buyer_email"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보와 상품 정보가 일치하지 않습니다.");
         }
 
         user.addTime(paymentItem.getTime()); // 사용자의 시간 추가
 
-        Payment payment = paymentRepository.save(Payment.of(data, user.getId(), paymentItem.getId())); // 결제 정보 저장
-
+        Payment payment = paymentRepository.save(Payment.of(data, user.getId(), paymentItem.getId()));
         return PaymentResponse.toDto(payment, user, paymentItem);
     }
 
+    /*--- 기존 countByXXX (건수) ---*/
     @Override
     public List<PaymentLogResponse> getDailyPaymentCounts(int daysBack) {
-        LocalDate todaySeoul = LocalDate.now(SEOUL);
-        LocalDate fromDate   = todaySeoul.minusDays(daysBack);
-        LocalDateTime from   = fromDate.atStartOfDay();
+        LocalDateTime from = LocalDate.now(SEOUL).minusDays(daysBack).atStartOfDay();
         return paymentRepository.countByDay(from);
     }
 
     @Override
     public List<PaymentLogResponse> getWeeklyPaymentCounts(int weeksBack) {
-        LocalDate todaySeoul = LocalDate.now(SEOUL);
-        LocalDate fromDate   = todaySeoul.minusWeeks(weeksBack);
-        LocalDateTime from   = fromDate.atStartOfDay();
+        LocalDateTime from = LocalDate.now(SEOUL).minusWeeks(weeksBack).atStartOfDay();
         return paymentRepository.countByWeek(from);
     }
 
     @Override
     public List<PaymentLogResponse> getMonthlyPaymentCounts(int monthsBack) {
-        LocalDate todaySeoul   = LocalDate.now(SEOUL);
-        LocalDate firstOfMonth = todaySeoul.minusMonths(monthsBack)
-                .withDayOfMonth(1);
-        LocalDateTime from     = firstOfMonth.atStartOfDay();
-        return paymentRepository.countByMonth(from);
+        LocalDate firstOfMonth = LocalDate.now(SEOUL).minusMonths(monthsBack).withDayOfMonth(1);
+        return paymentRepository.countByMonth(firstOfMonth.atStartOfDay());
     }
 
     @Override
     public List<PaymentLogResponse> getYearlyPaymentCounts(int yearsBack) {
-        LocalDate todaySeoul = LocalDate.now(SEOUL);
-        LocalDate firstOfYear = todaySeoul.minusYears(yearsBack)
-                .withDayOfYear(1);
-        LocalDateTime from    = firstOfYear.atStartOfDay();
-        return paymentRepository.countByYear(from);
+        LocalDate firstOfYear = LocalDate.now(SEOUL).minusYears(yearsBack).withDayOfYear(1);
+        return paymentRepository.countByYear(firstOfYear.atStartOfDay());
+    }
+
+    /*--- 추가: 금액 합계 ---*/
+    @Override
+    public List<PaymentLogResponse> getDailyAmountSums(int daysBack) {
+        LocalDateTime from = LocalDate.now(SEOUL).minusDays(daysBack).atStartOfDay();
+        return paymentRepository.sumAmountByDay(from);
+    }
+
+    @Override
+    public List<PaymentLogResponse> getWeeklyAmountSums(int weeksBack) {
+        LocalDateTime from = LocalDate.now(SEOUL).minusWeeks(weeksBack).atStartOfDay();
+        return paymentRepository.sumAmountByWeek(from);
+    }
+
+    @Override
+    public List<PaymentLogResponse> getMonthlyAmountSums(int monthsBack) {
+        LocalDate firstOfMonth = LocalDate.now(SEOUL).minusMonths(monthsBack).withDayOfMonth(1);
+        return paymentRepository.sumAmountByMonth(firstOfMonth.atStartOfDay());
+    }
+
+    @Override
+    public List<PaymentLogResponse> getYearlyAmountSums(int yearsBack) {
+        LocalDate firstOfYear = LocalDate.now(SEOUL).minusYears(yearsBack).withDayOfYear(1);
+        return paymentRepository.sumAmountByYear(firstOfYear.atStartOfDay());
+    }
+
+    /*--- 추가: 아이템별 비율 ---*/
+    @Override
+    public List<PaymentItemRatioResponse> getPaymentRatioByItem() {
+        return paymentRepository.ratioByItem();
     }
 }
