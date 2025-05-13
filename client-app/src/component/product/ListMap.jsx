@@ -8,6 +8,7 @@ import {
     Button
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import KakaoListMap from "../common/KakaoListMap.jsx";
 
 const initState = {
     id: '',
@@ -92,7 +93,9 @@ function ListMap() {
                 </Paper>
             </Box>
         <Box>
-            <GoogleListMap serverData={serverDataList} position={position} setPosition={setPosition}/>
+            {/*<GoogleListMap serverData={serverDataList} position={position} setPosition={setPosition}/>*/}
+            <KakaoListMap serverData={serverDataList} position={position} setPosition={setPosition}/>
+
         </Box>
         </>
     );

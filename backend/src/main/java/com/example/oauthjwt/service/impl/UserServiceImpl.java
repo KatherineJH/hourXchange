@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.example.oauthjwt.dto.UserDTO;
+import com.example.oauthjwt.repository.AddressRepository;
 import com.example.oauthjwt.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +28,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -38,11 +40,13 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
         }
 
-        Address address = Address.of(userRequest.getAddress());
+        Address address = addressRepository.save(Address.of(userRequest.getAddress()));
 
         userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         User result = userRepository.save(User.of(userRequest, address));
+
+        address.getUserList().add(result);
 
         return UserResponse.toDto(result);
     }

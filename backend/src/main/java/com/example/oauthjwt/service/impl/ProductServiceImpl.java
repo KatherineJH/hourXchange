@@ -32,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final SPImageRepository spImageRepository;
     private final FavoriteRepository favoriteRepository;
+    private final AddressRepository addressRepository;
 
     public ProductResponse save(ProductRequest productRequest) {
         // 검증
@@ -58,8 +59,9 @@ public class ProductServiceImpl implements ProductService {
                 images.add(spImage);
             }
         }
+        Address address = addressRepository.save(Address.of(productRequest.getAddress()));
         // 저장할 객체 생성
-        Product product = Product.of(productRequest, owner, category, providerType, images);
+        Product product = Product.of(productRequest, owner, category, providerType, address, images);
         // 저장 후 결과 반환
         Product result = productRepository.save(product);
         return ProductResponse.toDto(result);

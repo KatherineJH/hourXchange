@@ -20,6 +20,8 @@ import { getList } from "../../api/categoryApi.js";
 import { postSave } from "../../api/productApi";
 import uploadToCloudinary from "../../assets/image/uploadToCloudinary.js";
 import GoogleSaveMap from "../common/GoogleSaveMap.jsx";
+import KakaoSaveMap from "../common/KakaoSaveMap.jsx";
+import {useNavigate} from "react-router-dom";
 
 const ProductForm = () => {
   const [saveData, setSaveData] = useState({
@@ -33,6 +35,12 @@ const ProductForm = () => {
     lng: 126.964540921,
     startedAt: dayjs("2025-05-01T10:00:00"),
     endAt: dayjs("2025-05-01T10:00:00"),
+    address: {
+      zonecode: '',
+      roadAddress: '',
+      jibunAddress: '',
+      detailAddress: ''
+    }
   });
 
   const [categories, setCategories] = useState([]);
@@ -43,6 +51,7 @@ const ProductForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -189,8 +198,11 @@ const ProductForm = () => {
     e.preventDefault();
 
     try {
+      console.log(saveData)
       const response = await postSave(saveData);
+      console.log(response.data)
       alert("상품이 성공적으로 저장되었습니다.");
+      navigate("/product/read/" + response.data.id)
     } catch (error) {
       console.error("서버 전송 오류", error || error.message);
       alert("저장 중 문제가 발생하였습니다.");
@@ -390,7 +402,8 @@ const ProductForm = () => {
           {/* 지도만 표시 */}
           <Box mt={2}>
             {/* 구글 맵 컴포넌트 표시 */}
-            <GoogleSaveMap saveData={saveData} setSaveData={setSaveData} />
+            {/*<GoogleSaveMap saveData={saveData} setSaveData={setSaveData} />*/}
+            <KakaoSaveMap saveData={saveData} setSaveData={setSaveData} />
           </Box>
         </Box>
         {/* 전송 버튼 */}

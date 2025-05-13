@@ -31,6 +31,7 @@ public class ProductController {
     @PostMapping("/")
     public ResponseEntity<?> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info(productRequest);
         // 인증한 유저의 id 값으로 할당
         productRequest.setOwnerId(userDetails.getUser().getId());
 
