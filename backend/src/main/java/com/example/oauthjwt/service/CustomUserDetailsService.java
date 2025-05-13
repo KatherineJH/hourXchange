@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +10,7 @@ import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 /** loadUserByUsername */
 @Service
@@ -20,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public UserDetails getUserDetailsByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
 
         return new CustomUserDetails(user);
     }
