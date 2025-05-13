@@ -1,14 +1,13 @@
 import React from 'react';
-import MainLayout from "../layout/MainLayout.jsx";
 import {Outlet} from "react-router-dom";
-import MyPageMainLayout from "../layout/MyPageMainLayout.jsx";
+import AdminPageMainLayout from "../layout/AdminPageMainLayout.jsx";
 
 function AdminPageMain() {
 
     return (
-        <MyPageMainLayout>
+        <AdminPageMainLayout>
             <Outlet/>
-        </MyPageMainLayout>
+        </AdminPageMainLayout>
     )
 }
 

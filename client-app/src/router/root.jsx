@@ -54,7 +54,7 @@ const root = createBrowserRouter([
     children: myPageRouter(),
   },
   {
-    path: "adminPage",
+    path: "admin",
     element: <AdminPageMain />,
     children: adminPageRouter(),
   },

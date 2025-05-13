@@ -58,7 +58,7 @@ function Header() {
     }
 
     const handleMoveToAdminPage = () => {
-        navigate("/adminPage");
+        navigate("/admin");
     }
 
   return (

@@ -6,17 +6,12 @@ import {
     List,
     ListItemButton,
     ListItemText,
-    Divider,
-    RadioGroup,
-    Radio,
-    FormControlLabel,
-    Typography,
-    Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
-    { text: "메뉴1", to: "/product/buy" },
+    { text: "결제현황", to: "/admin/payment" },
+    { text: "유저접속현황", to: "/admin/user" },
     { text: "메뉴2", to: "/product/sell" },
     { text: "메뉴3", to: "/product/volunteer" },
 ];
