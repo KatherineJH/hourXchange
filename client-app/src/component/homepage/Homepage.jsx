@@ -1,5 +1,6 @@
 // src/component/homepage/Homepage.jsx
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
@@ -9,6 +10,13 @@ export default function Homepage() {
   const [products, setProducts] = useState([]);
   const [favorite, setFavorite] = useState([]);
   const [expandedProductId, setExpandedProductId] = useState(null);
+  const location = useLocation();
+  const selectedCategory =
+    new URLSearchParams(location.search).get("category") || "";
+
+  const filteredProducts = products.filter(
+    (p) => !selectedCategory || p.category?.categoryName === selectedCategory
+  );
 
   useEffect(() => {
     getList()
@@ -52,21 +60,24 @@ export default function Homepage() {
     <div style={{ padding: "1rem" }}>
       <h1>🏠 Home Page</h1>
       <New7Days
-        products={products}
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
         favorite={favorite}
         onToggleFavorite={handleClickFavorite}
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
       <HighRanked
-        products={products}
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
         favorite={favorite}
         onToggleFavorite={handleClickFavorite}
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
       <NearMe
-        products={products}
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
         favorite={favorite}
         onToggleFavorite={handleClickFavorite}
         expandedId={expandedProductId}

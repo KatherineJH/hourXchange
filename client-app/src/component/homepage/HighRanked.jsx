@@ -3,6 +3,7 @@ import React from "react";
 import ProductGrid from "../common/ProductGrid";
 
 export default function HighRanked({
+  selectedCategory,
   products,
   favorite,
   onToggleFavorite,
@@ -17,7 +18,8 @@ export default function HighRanked({
     return (
       createdAt >= thirtyDaysAgo &&
       (p.reviewCount ?? 0) > 0 &&
-      (p.starsAverage ?? 0) > 0
+      (p.starsAverage ?? 0) > 0 &&
+      (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
     );
   });
 

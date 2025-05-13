@@ -4,6 +4,7 @@ import ProductGrid from "../common/ProductGrid";
 import { Typography } from "@mui/material";
 
 export default function NearMe({
+  selectedCategory,
   products,
   favorite,
   onToggleFavorite,
@@ -27,7 +28,9 @@ export default function NearMe({
           const lat = parseFloat(p.lat);
           const lng = parseFloat(p.lng);
           return (
-            Math.abs(lat - latitude) < 0.01 && Math.abs(lng - longitude) < 0.01
+            Math.abs(lat - latitude) < 0.01 &&
+            Math.abs(lng - longitude) < 0.01 &&
+            (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
           );
         });
 

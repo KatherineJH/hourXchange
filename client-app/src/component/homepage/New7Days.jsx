@@ -3,6 +3,7 @@ import React from "react";
 import ProductGrid from "../common/ProductGrid";
 
 export default function New7Days({
+  selectedCategory,
   products,
   favorite,
   onToggleFavorite,
@@ -13,7 +14,8 @@ export default function New7Days({
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const filtered = [...products].filter(
-    (p) => new Date(p.startedAt) >= sevenDaysAgo
+    (p) => new Date(p.startedAt) >= sevenDaysAgo &&
+    (!selectedCategory || p.category?.categoryName === selectedCategory) // 홈 사이드 카테고리 필터링
   );
 
   const deduplicated = deduplicateByUser(filtered);

@@ -1,6 +1,6 @@
 // src/layout/Sidebar.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   List,
@@ -14,6 +14,7 @@ import {
   Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { getList } from "../api/categoryApi";
 
 const menu = [
   { text: "삽니다", to: "/product/buy" },
@@ -25,6 +26,21 @@ const menu = [
 
 const Sidebar = () => {
   const [openRegion, setOpenRegion] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [categoryList, setCategoryList] = useState([]);
+
+  useEffect(() => {
+    getList()
+      .then((res) => setCategoryList(res.data))
+      .catch((err) => console.error("카테고리 목록 조회 실패:", err));
+  }, []);
+
+  const handleCategoryChange = (e) => {
+    const params = new URLSearchParams(location.search);
+    params.set("category", e.target.value);
+    navigate({ pathname: location.pathname, search: params.toString() });
+  };
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
@@ -66,9 +82,17 @@ const Sidebar = () => {
         <Typography variant="subtitle2" gutterBottom>
           🗂️ 카테고리
         </Typography>
-        <RadioGroup defaultValue="운동">
-          {["운동", "음악", "청소"].map((c) => (
-            <FormControlLabel key={c} value={c} control={<Radio />} label={c} />
+        <RadioGroup
+          value={new URLSearchParams(location.search).get("category") || ""}
+          onChange={handleCategoryChange}
+        >
+          {categoryList.map((c) => (
+            <FormControlLabel
+              key={c.id}
+              value={c.categoryName}
+              control={<Radio />}
+              label={c.categoryName}
+            />
           ))}
         </RadioGroup>
       </Box>
