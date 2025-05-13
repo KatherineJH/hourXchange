@@ -67,20 +67,6 @@ export default function SellPost() {
     fetchProducts();
   }, [selectedCategory]); // selectedCategory가 바뀔 때마다 재요청
 
-  // useEffect(() => {
-  //   // 상품 정보 조회
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const response = await getList();
-  //       console.log("📦 받아온 상품 목록:", response.data.content);
-  //       setProducts(response.data.content);
-  //     } catch (error) {
-  //       console.error("상품 목록 불러오기 실패", error);
-  //     }
-  //   };
-  //   fetchProducts();
-  // }, []);
-
   useEffect(() => {
     // 좋아요 정보 조회
     getFavoriteList()
