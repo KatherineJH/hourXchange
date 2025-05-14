@@ -39,6 +39,30 @@ const ChatRoom = () => {
     }
   };
 
+  // 요청 버튼 클릭
+  const handleRequestClick = async () => {
+    try {
+      const result = await api.patch(`/api/chat/request/${numericRoomId}`);
+      setRoomInfo({ ...roomInfo, transactionStatus: "REQUESTED" });
+      alert("요청이 완료되었습니다!");
+    } catch (error) {
+      console.error("요청 실패", error);
+      alert("요청 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 수락 버튼 클릭
+  const handleAcceptClick = async () => {
+    try {
+      const result = await api.patch(`/api/chat/accept/${numericRoomId}`);
+      setRoomInfo({ ...roomInfo, transactionStatus: "ACCEPTED" });
+      alert("거래가 수락되었습니다!");
+    } catch (error) {
+      console.error("수락 실패", error);
+      alert("수락 중 오류가 발생했습니다.");
+    }
+  };
+
   useEffect(() => {
     async function loadRoomInfo() {
       // console.log("📌 loadRoomInfo() 진입:", numericRoomId);
@@ -136,7 +160,7 @@ const ChatRoom = () => {
       <Typography variant="h5" gutterBottom>
         💬 채팅방 #{numericRoomId}
       </Typography>
-      <Box
+      {/* <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -165,6 +189,56 @@ const ChatRoom = () => {
               ? "거래 성공!"
               : "거래 할까요?"}
           </Button>
+        ) : (
+          <CircularProgress size={20} />
+        )}
+      </Box> */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          {status === "🔌 연결 시도 중..." ? (
+            <CircularProgress size={16} />
+          ) : (
+            status
+          )}
+        </Typography>
+        {roomInfo ? (
+          <>
+            {/* 요청 버튼: 요청자이고 PENDING 상태일 때 */}
+            {currentUserId !== roomInfo.ownerId &&
+              roomInfo.transactionStatus === "PENDING" && (
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  onClick={handleRequestClick}
+                >
+                  요청
+                </Button>
+              )}
+            {/* 수락 버튼: 상품 소유자이고 REQUESTED 상태일 때 */}
+            {currentUserId === roomInfo.ownerId &&
+              roomInfo.transactionStatus === "REQUESTED" && (
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  onClick={handleAcceptClick}
+                >
+                  수락
+                </Button>
+              )}
+            {/* 거래 완료 상태 */}
+            {roomInfo.transactionStatus === "ACCEPTED" && (
+              <Typography variant="subtitle2" color="text.secondary">
+                거래 수락됨 (마이페이지에서 완료 처리)
+              </Typography>
+            )}
+          </>
         ) : (
           <CircularProgress size={20} />
         )}

@@ -32,14 +32,14 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public TransactionResponse save(TransactionRequest transactionRequest) {
-        // 1. 요청자 유저와 상품 조회
+        // 1. 요청자(buyer), 상품(product), 판매자(seller) 조회
         User buyer = userRepository.findById(transactionRequest.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         Product product = productRepository.findById(transactionRequest.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
         User seller = product.getOwner();
 
-        // 2. 요청자가 자신에게 요청하면 예외
+        // 2. 자기 자신에게 요청 시 에러
         if (buyer.getId().equals(seller.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신이 올린 글에는 요청할 수 없습니다.");
         }
@@ -51,20 +51,24 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
         }
 
-        // 4. 요청자 트랜잭션 생성
-        Transaction buyerTransaction = Transaction.of(transactionRequest, buyer, product, transactionStatus);
+        // 4. 채팅방 조회
+        ChatRoom chatRoom = chatService.findByProductAndUsers(product.getId(), buyer.getId(), seller.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
+
+        // 5. 요청자 트랜잭션 생성 및 저장
+        Transaction buyerTransaction = Transaction.of(transactionRequest, buyer, product, transactionStatus, chatRoom);
         transactionRepository.save(buyerTransaction);
 
-        // 5. 상품 주인(판매자) 트랜잭션도 함께 생성
+        // 6. 판매자 트랜잭션 요청 생성
         TransactionRequest sellerRequest = new TransactionRequest();
         sellerRequest.setUserId(seller.getId());
         sellerRequest.setProductId(product.getId());
         sellerRequest.setStatus(transactionRequest.getStatus());
 
-        Transaction sellerTransaction = Transaction.of(sellerRequest, seller, product, transactionStatus);
+        Transaction sellerTransaction = Transaction.of(sellerRequest, seller, product, transactionStatus, chatRoom);
         transactionRepository.save(sellerTransaction);
 
-        // 6. 요청자 기준으로만 응답 반환
+        // 7. 요청자 기준으로만 응답 반환
         return TransactionResponse.toDto(buyerTransaction);
     }
 
@@ -103,5 +107,45 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction result = transactionRepository
                 .save(transaction.setUpdateValue(transactionRequest, user, product, transactionStatus));
         return TransactionResponse.toDto(result);
+    }
+
+    @Override
+    @Transactional
+    public void updateTransactionStatusToRequested(Long chatRoomId, Long requesterId) {
+        ChatRoom chatRoom = chatService.findById(chatRoomId);
+        Long productId = chatRoom.getProduct().getId();
+        User owner = chatRoom.getProduct().getOwner();
+        User requester = chatRoom.getParticipants().stream()
+                .filter(user -> user.getId().equals(requesterId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청자를 찾을 수 없습니다."));
+
+        List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
+        for (Transaction transaction : transactions) {
+            if (transaction.getStatus() == TransactionStatus.PENDING) {
+                transaction.setStatus(TransactionStatus.REQUESTED);
+                transactionRepository.save(transaction);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateTransactionStatusToAccepted(Long chatRoomId) {
+        ChatRoom chatRoom = chatService.findById(chatRoomId);
+        Long productId = chatRoom.getProduct().getId();
+        User owner = chatRoom.getProduct().getOwner();
+        User requester = chatRoom.getParticipants().stream()
+                .filter(user -> !user.getId().equals(owner.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청자를 찾을 수 없습니다."));
+
+        List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
+        for (Transaction transaction : transactions) {
+            if (transaction.getStatus() == TransactionStatus.REQUESTED) {
+                transaction.setStatus(TransactionStatus.ACCEPTED);
+                transactionRepository.save(transaction);
+            }
+        }
     }
 }

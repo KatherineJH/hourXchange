@@ -1,17 +1,12 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.Collections;
-import java.util.Map;
-
 import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.repository.AddressRepository;
-import com.example.oauthjwt.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -74,4 +69,24 @@ public class UserServiceImpl implements UserService {
         return UserResponse.toDto(user);
     }
 
+    @Override
+    @Transactional
+    public void addCredits(Long userId, int hours) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.setCredit(user.getCredit() + hours);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deductCredits(Long userId, int hours) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        if (user.getCredit() < hours) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");
+        }
+        user.setCredit(user.getCredit() - hours);
+        userRepository.save(user);
+    }
 }

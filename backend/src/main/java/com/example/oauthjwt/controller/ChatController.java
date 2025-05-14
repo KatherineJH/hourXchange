@@ -168,4 +168,42 @@ public class ChatController {
                 .ownerId(chatRoom.getProduct().getOwner().getId()).transactionStatus(transactionStatus).build();
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/request/{chatRoomId}")
+    public ResponseEntity<?> requestTransaction(
+            @PathVariable Long chatRoomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            ChatRoom chatRoom = chatService.findById(chatRoomId);
+            Long requesterId = userDetails.getUser().getId();
+            if (chatRoom.getProduct().getOwner().getId().equals(requesterId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 소유자는 요청할 수 없습니다.");
+            }
+            transactionService.updateTransactionStatusToRequested(chatRoomId, requesterId);
+            return ResponseEntity.ok("요청이 완료되었습니다.");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+        }
+    }
+
+    @PatchMapping("/accept/{chatRoomId}")
+    public ResponseEntity<?> acceptTransaction(
+            @PathVariable Long chatRoomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            ChatRoom chatRoom = chatService.findById(chatRoomId);
+            Long ownerId = userDetails.getUser().getId();
+            if (!chatRoom.getProduct().getOwner().getId().equals(ownerId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 소유자만 수락할 수 있습니다.");
+            }
+            transactionService.updateTransactionStatusToAccepted(chatRoomId);
+            return ResponseEntity.ok("거래가 수락되었습니다.");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+        }
+    }
 }

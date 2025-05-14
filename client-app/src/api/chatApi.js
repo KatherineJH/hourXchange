@@ -20,6 +20,18 @@ export async function matchTransaction(chatRoomId) {
   return res.data;
 }
 
+// 요청 버튼 클릭 시 호출
+export async function requestTransaction(chatRoomId) {
+  const res = await api.patch(`/api/chat/request/${chatRoomId}`);
+  return res.data;
+}
+
+// 수락 버튼 클릭 시 호출
+export async function acceptTransaction(chatRoomId) {
+  const res = await api.patch(`/api/chat/accept/${chatRoomId}`);
+  return res.data;
+}
+
 // 채팅방 정보 가져오기 (거래 상태, 오너 ID)
 export async function fetchChatRoomInfo(chatRoomId) {
   const res = await api.get(`/api/chat/room-info/${chatRoomId}`);

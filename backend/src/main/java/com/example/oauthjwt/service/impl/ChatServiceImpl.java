@@ -25,6 +25,11 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final TransactionRepository transactionRepository;
 
+    @Override
+    public Optional<ChatRoom> findByProductAndUsers(Long productId, Long user1Id, Long user2Id) {
+        return chatRoomRepository.findByProductAndUsers(productId, user1Id, user2Id);
+    }
+
     @Transactional
     @Override
     public ChatRoom initiateChatFromPost(Long postId, Long requesterId) {
@@ -133,5 +138,11 @@ public class ChatServiceImpl implements ChatService {
         return transactionRepository.findByProductAndUser(product, buyer)
                 .map(tx -> tx.getStatus().name())
                 .orElse("PENDING");
+    }
+
+    @Override
+    public ChatRoom findByProductId(Long productId) {
+        return chatRoomRepository.findByProductId(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
     }
 }

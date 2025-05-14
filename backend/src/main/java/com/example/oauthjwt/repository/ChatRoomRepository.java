@@ -21,4 +21,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findByProductAndUsers(@Param("productId") Long productId, @Param("user1Id") Long user1Id,
             @Param("user2Id") Long user2Id);
     int countByProduct(Product product);
+
+    @Query("SELECT cr FROM ChatRoom cr WHERE cr.product.id = :productId")
+    Optional<ChatRoom> findByProductId(@Param("productId") Long productId);
 }
