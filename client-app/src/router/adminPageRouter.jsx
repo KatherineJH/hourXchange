@@ -22,6 +22,10 @@ const adminPageRouter = () => [
         path: "paymentAmount",
         element: <PaymentAmountDashboard />,
     },
+    {
+        path: "userList",
+        element: <PaymentAmountDashboard />,
+    },
 ];
 
 export default adminPageRouter;

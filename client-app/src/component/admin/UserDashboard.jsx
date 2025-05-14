@@ -8,67 +8,76 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
-import {getDaily, getMonthly, getWeekly, getYearly} from "../../api/visitLogApi.js";
+import {
+    getDaily,
+    getDailyUnique,
+    getWeekly,
+    getWeeklyUnique,
+    getMonthly,
+    getMonthlyUnique,
+    getYearly,
+    getYearlyUnique
+} from '../../api/visitLogApi.js';
 
-const initState = {
-    period: '',
-    count: '',
-}
-
-// 방문자 대시보드: 일/주/월/연 단위 접속자 수 그래프 2x2 레이아웃 (샘플 데이터 포함)
+// 방문자 대시보드: 요청 횟수(PV)와 고유 방문자 수(UV) 함께 표시
 export default function Dashboard() {
-    // state 초기화
-    const [dailyVisitors, saveDailyVisitors]   = useState([]);
-    const [weeklyVisitors, saveWeeklyVisitors]  = useState([]);
-    const [monthlyVisitors, saveMonthlyVisitors] = useState([]);
-    const [yearlyVisitors, saveYearlyVisitors]  = useState([]);
+    const [dailyData, setDailyData] = useState([]);
+    const [weeklyData, setWeeklyData] = useState([]);
+    const [monthlyData, setMonthlyData] = useState([]);
+    const [yearlyData, setYearlyData] = useState([]);
 
     useEffect(() => {
-        getDaily().then(response => {
-            console.log(response.data);
-            saveDailyVisitors(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
+        // helper to merge total & unique
+        const merge = (total, unique) => {
+            const map = new Map();
+            total.forEach(item => {
+                map.set(item.period, { period: item.period, total: item.count, unique: 0 });
+            });
+            unique.forEach(item => {
+                if (map.has(item.period)) {
+                    map.get(item.period).unique = item.count;
+                } else {
+                    map.set(item.period, { period: item.period, total: 0, unique: item.count });
+                }
+            });
+            return Array.from(map.values());
+        };
 
-        getWeekly().then(response => {
-            console.log(response.data);
-            saveWeeklyVisitors(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
-
-        getMonthly().then(response => {
-            console.log(response.data);
-            saveMonthlyVisitors(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
-
-        getYearly().then(response => {
-            console.log(response.data);
-            saveYearlyVisitors(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
+        // fetch daily
+        Promise.all([getDaily(), getDailyUnique()])
+            .then(([{ data: tot }, { data: uniq }]) => setDailyData(merge(tot, uniq)))
+            .catch(console.error);
+        // weekly
+        Promise.all([getWeekly(), getWeeklyUnique()])
+            .then(([{ data: tot }, { data: uniq }]) => setWeeklyData(merge(tot, uniq)))
+            .catch(console.error);
+        // monthly
+        Promise.all([getMonthly(), getMonthlyUnique()])
+            .then(([{ data: tot }, { data: uniq }]) => setMonthlyData(merge(tot, uniq)))
+            .catch(console.error);
+        // yearly
+        Promise.all([getYearly(), getYearlyUnique()])
+            .then(([{ data: tot }, { data: uniq }]) => setYearlyData(merge(tot, uniq)))
+            .catch(console.error);
     }, []);
 
-    const renderVisitorsChart = (data) => (
+    const renderChart = (data) => (
         <ResponsiveContainer width="100%" height={250}>
             <LineChart data={data} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
                 <XAxis dataKey="period" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="count" />
+                <Line type="monotone" dataKey="total" />
+                <Line type="monotone" dataKey="unique" />
             </LineChart>
         </ResponsiveContainer>
     );
 
     const configs = [
-        { title: '일별 방문자 수', data: dailyVisitors },
-        { title: '주별 방문자 수', data: weeklyVisitors },
-        { title: '월별 방문자 수', data: monthlyVisitors },
-        { title: '연별 방문자 수', data: yearlyVisitors },
+        { title: '일별 방문(PV) & 고유(UV)', data: dailyData },
+        { title: '주별 방문(PV) & 고유(UV)', data: weeklyData },
+        { title: '월별 방문(PV) & 고유(UV)', data: monthlyData },
+        { title: '연별 방문(PV) & 고유(UV)', data: yearlyData },
     ];
 
     return (
@@ -84,7 +93,7 @@ export default function Dashboard() {
                                 <Typography variant="h6" gutterBottom>
                                     {title}
                                 </Typography>
-                                {renderVisitorsChart(data)}
+                                {renderChart(data)}
                             </CardContent>
                         </Card>
                     </Box>

@@ -13,7 +13,7 @@ const menu = [
     { text: "결제횟수", to: "/admin/payment" },
     { text: "결제금액", to: "/admin/paymentAmount" },
     { text: "유저접속현황", to: "/admin/user" },
-    { text: "메뉴3", to: "/product/volunteer" },
+    { text: "유저관리", to: "/admin/userList" },
 ];
 
 const Sidebar = () => {

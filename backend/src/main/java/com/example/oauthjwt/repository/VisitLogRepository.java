@@ -71,4 +71,63 @@ public interface VisitLogRepository extends JpaRepository<VisitLog, Long> {
     """)
     List<VisitLogResponse> countByYear(@Param("from") LocalDateTime from);
 
+    /**
+     * 일별 고유 방문자 수(UV) 집계 (예: "2025-05-13")
+     */
+    @Query("""
+      SELECT new com.example.oauthjwt.dto.response.VisitLogResponse(
+        FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m-%d'),
+        COUNT(DISTINCT v.userId)
+      )
+      FROM VisitLog v
+      WHERE v.visitTime >= :from
+      GROUP BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m-%d')
+      ORDER BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m-%d')
+    """)
+    List<VisitLogResponse> countUniqueUsersByDay(@Param("from") LocalDateTime from);
+
+    /**
+     * 주별 고유 방문자 수(UV) 집계 (예: "2025-W20")
+     */
+    @Query("""
+      SELECT new com.example.oauthjwt.dto.response.VisitLogResponse(
+        FUNCTION('DATE_FORMAT', v.visitTime, '%x-W%v'),
+        COUNT(DISTINCT v.userId)
+      )
+      FROM VisitLog v
+      WHERE v.visitTime >= :from
+      GROUP BY FUNCTION('DATE_FORMAT', v.visitTime, '%x-W%v')
+      ORDER BY FUNCTION('DATE_FORMAT', v.visitTime, '%x-W%v')
+    """)
+    List<VisitLogResponse> countUniqueUsersByWeek(@Param("from") LocalDateTime from);
+
+    /**
+     * 월별 고유 방문자 수(UV) 집계 (예: "2025-05")
+     */
+    @Query("""
+      SELECT new com.example.oauthjwt.dto.response.VisitLogResponse(
+        FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m'),
+        COUNT(DISTINCT v.userId)
+      )
+      FROM VisitLog v
+      WHERE v.visitTime >= :from
+      GROUP BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m')
+      ORDER BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y-%m')
+    """)
+    List<VisitLogResponse> countUniqueUsersByMonth(@Param("from") LocalDateTime from);
+
+    /**
+     * 연별 고유 방문자 수(UV) 집계 (예: "2025")
+     */
+    @Query("""
+      SELECT new com.example.oauthjwt.dto.response.VisitLogResponse(
+        FUNCTION('DATE_FORMAT', v.visitTime, '%Y'),
+        COUNT(DISTINCT v.userId)
+      )
+      FROM VisitLog v
+      WHERE v.visitTime >= :from
+      GROUP BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y')
+      ORDER BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y')
+    """)
+    List<VisitLogResponse> countUniqueUsersByYear(@Param("from") LocalDateTime from);
 }
