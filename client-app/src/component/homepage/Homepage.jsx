@@ -12,9 +12,8 @@ export default function Homepage() {
   const [favorite, setFavorite] = useState([]);
   const [expandedProductId, setExpandedProductId] = useState(null);
   const location = useLocation();
-  const selectedCategory =
-    new URLSearchParams(location.search).get("category") || "";
-
+  const params = new URLSearchParams(location.search);
+  const selectedCategory = params.get("category"); // 현재 선택된 카테고리
   const filteredProducts = products.filter(
     (p) => !selectedCategory || p.category?.categoryName === selectedCategory
   );
@@ -84,7 +83,7 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
-      <ListTable />
+      <ListTable category={selectedCategory} />
     </div>
   );
 }

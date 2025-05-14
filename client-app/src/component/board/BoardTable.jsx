@@ -20,7 +20,6 @@ function BoardTable({ boards, navigate }) {
     }
     navigate(`${basePath}/${id}`);
   };
-
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", marginTop: "1rem" }}>
       <TableContainer>
@@ -45,7 +44,9 @@ function BoardTable({ boards, navigate }) {
                   <TableCell>{board.id}</TableCell>
                   <TableCell>{board.title}</TableCell>
                   {/* <TableCell>{board.author.name}</TableCell> */}
-                  <TableCell>{board.author?.name || "알 수 없음"}</TableCell>
+                  <TableCell>
+                    {board.authorName || board.author?.name || "알 수 없음"}
+                  </TableCell>
                   <TableCell>
                     {new Date(board.createdAt).toLocaleString()}
                   </TableCell>

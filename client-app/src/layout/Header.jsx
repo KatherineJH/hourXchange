@@ -10,6 +10,11 @@ import {
   Badge,
   Box,
   InputBase,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
 } from "@mui/material";
 import {
   AccountCircle,
@@ -19,16 +24,26 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import bgImage from "../assets/image/background.jpg";
+import { getAutocompleteSuggestions } from "../api/productApi.js";
 
 function Header() {
+  const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [keyword, setKeyword] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const params = new URLSearchParams(location.search);
+  const selectedKeyword = params.get("keyword") || "";
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
+
   const { user, isLoading, error } = useSelector((state) => state.auth);
   const isMenuOpen = Boolean(anchorEl);
-  console.log(user);
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
@@ -57,6 +72,41 @@ function Header() {
     navigate("/myPage");
   };
 
+  useEffect(() => {
+    if (searchInput.trim() === "" || searchInput === keyword) {
+      setSuggestions([]);
+      return;
+    }
+    const fetchSuggestions = async () => {
+      try {
+        const result = await getAutocompleteSuggestions(searchInput);
+        setSuggestions(result.data);
+      } catch (err) {
+        console.error("추천 검색어 오류", err);
+        setSuggestions([]);
+      }
+    };
+
+    fetchSuggestions();
+    setHighlightedIndex(-1);
+  }, [searchInput, keyword]);
+
+  const handleSearch = () => {
+    setKeyword(searchInput);
+    navigate(`/search?keyword=${encodeURIComponent(searchInput.trim())}`);
+    setSuggestions([]);
+  };
+
+  useEffect(() => {
+    // 쿼리파라미터로 넘어온 keyword를 keyword 상태로 반영
+    setKeyword(selectedKeyword);
+    setSearchInput(selectedKeyword); // input에도 반영
+  }, [selectedKeyword]);
+
+  const handleMoveToAdminPage = () => {
+    navigate("/admin");
+  };
+
   return (
     <>
       <Box
@@ -83,16 +133,95 @@ function Header() {
             {/* 🔍 Search bar */}
             <Box
               sx={{
+                position: "relative",
                 display: "flex",
-                alignItems: "center",
-                px: 1,
-                bgcolor: "#f1f3f4",
-                borderRadius: 1,
-                ml: 2,
+                flexDirection: "column",
               }}
             >
-              <SearchIcon fontSize="small" />
-              <InputBase placeholder="검색" sx={{ ml: 1 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  px: 1,
+                  bgcolor: "#f1f3f4",
+                  borderRadius: 1,
+                  ml: 2,
+                  width: 300,
+                }}
+              >
+                <SearchIcon fontSize="small" />
+                <InputBase
+                  placeholder="검색"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setHighlightedIndex((prev) =>
+                        prev < suggestions.length - 1 ? prev + 1 : 0
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setHighlightedIndex((prev) =>
+                        prev > 0 ? prev - 1 : suggestions.length - 1
+                      );
+                    } else if (e.key === "Enter") {
+                      if (
+                        highlightedIndex >= 0 &&
+                        highlightedIndex < suggestions.length
+                      ) {
+                        const selected = suggestions[highlightedIndex];
+                        setSearchInput(selected);
+                        navigate(
+                          `/search?keyword=${encodeURIComponent(selected)}`
+                        );
+                        setSuggestions([]);
+                      } else {
+                        handleSearch();
+                      }
+                    }
+                  }}
+                  sx={{
+                    bgcolor: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    width: "100%",
+                  }}
+                />
+              </Box>
+
+              {suggestions.length > 0 && (
+                <Paper
+                  sx={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    width: "300px",
+                    zIndex: 10,
+                    mt: "4px",
+                  }}
+                >
+                  <List dense>
+                    {suggestions.map((s, idx) => (
+                      <ListItem key={idx} disablePadding>
+                        <ListItemButton
+                          selected={idx === highlightedIndex}
+                          onMouseEnter={() => setHighlightedIndex(idx)}
+                          onClick={() => {
+                            setSearchInput(s);
+                            navigate(
+                              `/search?keyword=${encodeURIComponent(s)}`
+                            );
+                            setSuggestions([]);
+                          }}
+                        >
+                          <ListItemText primary={s} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+              )}
             </Box>
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -139,8 +268,21 @@ function Header() {
         >
           {user.username ? (
             <>
-              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
-              <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+              <MenuItem disabled>
+                {user.name + user.role}님, 환영합니다
+              </MenuItem>
+              {user.role === "ROLE_ADMIN" ? (
+                <MenuItem onClick={handleMoveToAdminPage}>
+                  어드민페이지
+                </MenuItem>
+              ) : (
+                <>
+                  <MenuItem onClick={handleMoveToAdminPage}>
+                    어드민페이지
+                  </MenuItem>
+                  <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+                </>
+              )}
               <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
             </>
           ) : (

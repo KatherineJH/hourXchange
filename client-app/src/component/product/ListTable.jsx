@@ -24,7 +24,11 @@ import { getList, getListWithKeyword } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../../api/productApi.js";
 
-function ListTable({ filterProviderType }) {
+function ListTable({
+  filterProviderType,
+  category,
+  keyword: keywordProp = "",
+}) {
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
@@ -32,34 +36,18 @@ function ListTable({ filterProviderType }) {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(keywordProp);
+  // const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
-
-  // useEffect(() => {
-  //   if (keyword.trim() === "") {
-  //     getList(page, size)
-  //       .then((response) => {
-  //         setServerDataList(response.data.content);
-  //         setTotalPages(response.data.totalPages);
-  //       })
-  //       .catch((error) => console.log(error));
-  //   } else {
-  //     getListWithKeyword(keyword, page, size).then((response) => {
-  //       setServerDataList(response.data.content);
-  //       setTotalPages(response.data.totalPages);
-  //       console.log(response.data.content);
-  //       console.log(response.data.totalPages);
-  //     });
-  //   }
-  // }, [page, size, keyword]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
 
   useEffect(() => {
+    if (searchInput.trim() === "" || searchInput === keyword) {
+      setSuggestions([]);
+      return;
+    }
     const fetchSuggestions = async () => {
-      if (searchInput.trim() === "") {
-        setSuggestions([]);
-        return;
-      }
       try {
         const result = await getAutocompleteSuggestions(searchInput);
         setSuggestions(result.data);
@@ -69,33 +57,40 @@ function ListTable({ filterProviderType }) {
       }
     };
     fetchSuggestions();
-  }, [searchInput]);
+    setHighlightedIndex(-1);
+  }, [searchInput, keyword]);
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        let response;
-        if (keyword.trim() === "") {
-          response = await getList(page, size);
-        } else {
-          response = await getListWithKeyword(keyword, page, size);
+        const response =
+          keyword.trim() === ""
+            ? await getList(page, size)
+            : await getListWithKeyword(keyword, page, size);
+
+        let data = response.data.content;
+
+        if (filterProviderType) {
+          // ProviderType 타입 필터 필요한 경우
+          data = data.filter((p) => p.providerType === filterProviderType);
+        }
+        if (category) {
+          // 카테고리 필터 필요한 경우
+          data = data.filter((p) => p.category?.categoryName === category);
         }
 
-        // ✅ Seller or Buyer 필터링 로직 추가
-        const filtered = filterProviderType
-          ? response.data.content.filter(
-              (p) => p.providerType === filterProviderType
-            )
-          : response.data.content;
-
-        setServerDataList(filtered);
-        setTotalPages(response.data.totalPages);
+        setServerDataList(data);
+        setTotalPages(response.data.totalPages); // 전체 페이지 수는 변경하지 않음
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
     };
     fetch();
-  }, [page, size, keyword, filterProviderType]);
+  }, [page, size, keyword, filterProviderType, category]);
+
+  useEffect(() => {
+    setKeyword(keywordProp); // 외부에서 넘어온 keyword로 반영
+  }, [keywordProp]);
 
   const handleSearch = () => {
     setKeyword(searchInput);
@@ -118,6 +113,33 @@ function ListTable({ filterProviderType }) {
               placeholder="검색어를 입력하세요"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) =>
+                    prev < suggestions.length - 1 ? prev + 1 : 0
+                  );
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) =>
+                    prev > 0 ? prev - 1 : suggestions.length - 1
+                  );
+                } else if (e.key === "Enter") {
+                  if (
+                    highlightedIndex >= 0 &&
+                    highlightedIndex < suggestions.length
+                  ) {
+                    const selected = suggestions[highlightedIndex];
+                    setSearchInput(selected);
+                    setKeyword(selected);
+                    setPage(0);
+                    setSuggestions([]);
+                    setHighlightedIndex(-1);
+                  } else {
+                    handleSearch();
+                  }
+                }
+              }}
               size="small"
             />
             <Button
@@ -151,11 +173,14 @@ function ListTable({ filterProviderType }) {
                   {suggestions.map((s, idx) => (
                     <ListItem key={idx} disablePadding>
                       <ListItemButton
+                        selected={idx === highlightedIndex}
+                        onMouseEnter={() => setHighlightedIndex(idx)}
                         onClick={() => {
                           setSearchInput(s);
                           setKeyword(s);
                           setPage(0);
                           setSuggestions([]);
+                          setHighlightedIndex(-1);
                         }}
                       >
                         <ListItemText primary={s} />
@@ -193,24 +218,32 @@ function ListTable({ filterProviderType }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {serverDataList.map((item) => (
-                  <TableRow
-                    hover
-                    key={item.id}
-                    onClick={() => navigate(`/product/read/${item.id}`)}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell>{item.id}</TableCell>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell>{item.hours}</TableCell>
-                    <TableCell>{item.startedAt}</TableCell>
-                    <TableCell>{item.endAt}</TableCell>
-                    <TableCell>{item.owner.name}</TableCell>
-                    <TableCell>{item.category.categoryName}</TableCell>
-                    <TableCell>{item.providerType}</TableCell>
+                {serverDataList && serverDataList.length > 0 ? (
+                  serverDataList.map((item) => (
+                    <TableRow
+                      hover
+                      key={item.id}
+                      onClick={() => navigate(`/product/read/${item.id}`)}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <TableCell>{item.id}</TableCell>
+                      <TableCell>{item.title}</TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell>{item.hours}</TableCell>
+                      <TableCell>{item.startedAt}</TableCell>
+                      <TableCell>{item.endAt}</TableCell>
+                      <TableCell>{item.owner.name}</TableCell>
+                      <TableCell>{item.category.categoryName}</TableCell>
+                      <TableCell>{item.providerType}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center">
+                      검색 결과가 없습니다.
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>

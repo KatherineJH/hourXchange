@@ -6,7 +6,7 @@ import Chat from "../component/chat/ChatContainer.jsx";
 import Save from "../component/user/Save.jsx";
 import Favorites from "../component/product/Favorites.jsx";
 
-const UserRouter = () => [
+const userRouter = () => [
   {
     path: "favorites", // ✅ 추가
     element: <Favorites />,
@@ -29,4 +29,4 @@ const UserRouter = () => [
   }
 ];
 
-export default UserRouter;
+export default userRouter;

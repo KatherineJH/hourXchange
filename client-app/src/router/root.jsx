@@ -8,11 +8,12 @@ import userRouter from "./userRouter.jsx";
 import productRouter from "./productRouter.jsx";
 import transactionRouter from "./transactionRouter.jsx";
 import MyPage from "../page/MyPage.jsx";
-import MyPageRouter from "./MyPageRouter.jsx";
+import myPageRouter from "./myPageRouter.jsx";
 import Read from "../component/product/Read.jsx";
 import ProductForm from "../component/product/ProductForm.jsx";
 import Modify from "../component/product/Modify.jsx";
 import MyPostList from "../component/product/MyPostList.jsx";
+import SearchProduct from "../component/homepage/SearchProduct.jsx";
 
 const root = createBrowserRouter([
   {
@@ -25,7 +26,8 @@ const root = createBrowserRouter([
     children: [
       { index: true, element: <Homepage /> },
       { path: "chat-room/:chatRoomId", element: <ChatRoom /> },
-      ...userRouter(), // /chat 등
+      { path: "search", element: <SearchProduct /> },
+      ...userRouter(),
     ],
   },
   {
@@ -42,7 +44,7 @@ const root = createBrowserRouter([
     path: "myPage",
     element: <MyPage />,
     children: [
-      ...MyPageRouter(),
+      ...myPageRouter(),
       { path: "", element: <MyPostList /> },
       {
         path: "chat-room/:chatRoomId",
