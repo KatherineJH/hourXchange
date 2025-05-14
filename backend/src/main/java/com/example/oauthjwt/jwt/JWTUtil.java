@@ -8,11 +8,12 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import io.jsonwebtoken.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -31,14 +32,13 @@ public class JWTUtil {
                 Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String getEmail(String token) {
+    public Claims getClaims(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
-                    .getPayload()
-                    .get("email", String.class);
+                    .getPayload();
         } catch (ExpiredJwtException e){ // 토큰 만료
             throw new JwtException("Expired JWT token");
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e){ // 토큰 형식, 구조, 서명 불일치
@@ -48,12 +48,13 @@ public class JWTUtil {
         }
     }
 
-    public String createToken(String email, int time) {
+    public String createToken(Map<String, Object> claims, int time) {
         return Jwts.builder()
-                .claim("email", email)
+                .claims(claims)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + time))
-                .signWith(secretKey).compact();
+                .signWith(secretKey)
+                .compact();
     }
 
     public String getTokenFromCookiesByName(HttpServletRequest request, String name) {

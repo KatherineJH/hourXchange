@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.Map;
 
 import com.example.oauthjwt.service.CustomUserDetails;
+import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -53,8 +54,8 @@ public class AuthController {
     public ResponseEntity<?> login(@ModelAttribute UserDTO userDTO, HttpServletResponse response) {
         UserResponse result = userService.login(userDTO);
 
-        String accessToken = jwtUtil.createToken(result.getEmail(), ACCESS_TOKEN_TIME);
-        String refreshToken = jwtUtil.createToken(result.getEmail(), REFRESH_TOKEN_TIME);
+        String accessToken = jwtUtil.createToken(Map.of("email", result.getEmail()), ACCESS_TOKEN_TIME);
+        String refreshToken = jwtUtil.createToken(Map.of("email", result.getEmail()), REFRESH_TOKEN_TIME);
 
         response.addCookie(jwtUtil.createCookie("Authorization", accessToken, ACCESS_TOKEN_TIME));
         response.addCookie(jwtUtil.createCookie("Refresh", refreshToken, REFRESH_TOKEN_TIME));
@@ -81,12 +82,14 @@ public class AuthController {
         String email = "";
 
         try{
-            email = jwtUtil.getEmail(refreshToken); // 토큰 만료도 같이 검사 가능
+            Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
+
+            email = claims.get("email", String.class);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
 
-        String newAccessToken = jwtUtil.createToken(email, ACCESS_TOKEN_TIME);
+        String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
 
         response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
 
@@ -112,7 +115,10 @@ public class AuthController {
         String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
         String email = "";
         try{
-             email = jwtUtil.getEmail(authorization); // 토큰 만료도 같이 검사 가능
+
+            Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
+
+            email = claims.get("email", String.class);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }

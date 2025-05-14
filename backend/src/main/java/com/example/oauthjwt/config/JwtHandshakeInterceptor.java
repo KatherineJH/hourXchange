@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -40,7 +41,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             if (token != null) {
                 log.info("🧪 JWT Checking...: {}", token);
 
-                String email = jwtUtil.getEmail(token); // 토큰 검사도 같이 가능
+                Claims claims = jwtUtil.getClaims(token); // 여기서 토큰 검증도 같이 함
+
+                String email = claims.get("email", String.class);
                 attributes.put("userId", email);
                 log.info("✅ User Verified: {}", email);
                 return true;

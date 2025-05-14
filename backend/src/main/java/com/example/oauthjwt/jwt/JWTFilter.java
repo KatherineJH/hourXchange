@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.example.oauthjwt.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,7 +61,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (token != null) { // 쿠키가 있으면
             try {
-                String email = jwtUtil.getEmail(token); // 여기서 토큰 검증도 같이 함
+                Claims claims = jwtUtil.getClaims(token); // 여기서 토큰 검증도 같이 함
+
+                String email = claims.get("email", String.class);
 
                 UserDetails userDetails = customUserDetailsService.getUserDetailsByEmail(email);
 
