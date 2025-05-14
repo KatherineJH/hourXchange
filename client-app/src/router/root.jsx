@@ -15,7 +15,6 @@ import ProductForm from "../component/product/ProductForm.jsx";
 import Modify from "../component/product/Modify.jsx";
 import MyPostList from "../component/product/MyPostList.jsx";
 import SearchProduct from "../component/homepage/SearchProduct.jsx";
-import myPageRouter from "./myPageRouter.jsx";
 import adminPageRouter from "./adminPageRouter.jsx";
 import paymentRouter from "./paymentRouter.jsx";
 

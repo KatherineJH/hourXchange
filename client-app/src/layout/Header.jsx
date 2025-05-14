@@ -108,10 +108,6 @@ function Header() {
     navigate("/admin");
   };
 
-    const handleMoveToAdminPage = () => {
-        navigate("/admin");
-    }
-
   return (
     <>
       <Box
