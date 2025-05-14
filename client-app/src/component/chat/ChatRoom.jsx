@@ -41,10 +41,16 @@ const ChatRoom = () => {
 
   useEffect(() => {
     async function loadRoomInfo() {
-      const info = await fetchChatRoomInfo(numericRoomId);
-      console.log("채팅방 정보:", info);
-      setRoomInfo(info); // ✅ 이 줄 추가!
+      // console.log("📌 loadRoomInfo() 진입:", numericRoomId);
+      try {
+        const info = await fetchChatRoomInfo(numericRoomId);
+        // console.log("🐛 채팅방 정보 응답:", info);
+        setRoomInfo(info);
+      } catch (error) {
+        // console.error("❌ 채팅방 정보 가져오기 실패:", error);
+      }
     }
+
     loadRoomInfo();
   }, [numericRoomId]);
 

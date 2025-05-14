@@ -139,7 +139,7 @@ public class ChatController {
         List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
         List<ChatRoomDTO> result = chatRooms.stream()
                 .map(room -> ChatRoomDTO.builder().id(room.getId()).name(room.getName())
-                        .serviceProductId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
+                        .productId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
