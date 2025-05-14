@@ -3,7 +3,6 @@ package com.example.oauthjwt.jwt;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -23,8 +22,7 @@ public class JWTUtil {
 
     private SecretKey secretKey;
 
-//    public static final int ACCESS_TOKEN_TIME = 15 * 60 * 1000; // Token (15분)
-    public static final int ACCESS_TOKEN_TIME = 30 * 1000; // Token (15분)
+    public static final int ACCESS_TOKEN_TIME = 60 * 60 * 1000; // Token (1시간)
     public static final int REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;
 
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {

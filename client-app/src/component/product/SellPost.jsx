@@ -1,5 +1,6 @@
-// src/component/homepage/Homepage.jsx
+// src/component/product/SellPost.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import {
   Card,
@@ -21,7 +22,8 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
-import { useNavigate } from "react-router-dom";
+
+import ListTable from "./ListTable";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -39,19 +41,31 @@ export default function SellPost() {
   const [expandedProductId, setExpandedProductId] = useState(null);
   const [favorite, setFavorite] = useState([]);
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const selectedCategory = params.get("category"); // 현재 선택된 카테고리
+
   useEffect(() => {
-    // 상품 정보 조회
     const fetchProducts = async () => {
       try {
         const response = await getList();
-        console.log("📦 받아온 상품 목록:", response.data.content);
-        setProducts(response.data.content);
+        const allProducts = response.data.content;
+
+        const filteredByCategory = selectedCategory
+          ? allProducts.filter(
+              (p) => p.category?.categoryName === selectedCategory
+            )
+          : allProducts;
+
+        setProducts(filteredByCategory);
       } catch (error) {
         console.error("상품 목록 불러오기 실패", error);
       }
     };
+
     fetchProducts();
-  }, []);
+  }, [selectedCategory]); // selectedCategory가 바뀔 때마다 재요청
 
   useEffect(() => {
     // 좋아요 정보 조회
@@ -191,6 +205,7 @@ export default function SellPost() {
       </Box>
       {/* 🔥 모든 상품 나열 */}
       <div style={{ padding: "1rem" }}>{renderProductGrid()}</div>
+      <ListTable filterProviderType="SELLER" category={selectedCategory} />
     </>
   );
 }

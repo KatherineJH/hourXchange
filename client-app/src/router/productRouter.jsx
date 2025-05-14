@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import SearchProduct from "../component/homepage/SearchProduct.jsx";
 
 const Read = lazy(() => import("../component/product/Read.jsx"));
 const SellPost = lazy(() => import("../component/product/SellPost.jsx"));
@@ -45,6 +46,10 @@ const productRouter = () => {
     {
       path: "volunteer",
       element: <VolunteerList />,
+    },
+    {
+      path: "search",
+      element: <SearchProduct />,
     },
   ];
 };

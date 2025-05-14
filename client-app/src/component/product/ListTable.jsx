@@ -1,22 +1,34 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box, Button,
+  Box,
+  Button,
   Card,
-  CardContent, List, ListItem, ListItemButton, ListItemText, Pagination,
-  Paper, Stack,
+  CardContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Pagination,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow, TextField,
+  TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import {getList, getListWithKeyword} from "../../api/productApi.js";
+import { getList, getListWithKeyword } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
-import {getAutocompleteSuggestions} from "../../api/productApi.js";
+import { getAutocompleteSuggestions } from "../../api/productApi.js";
 
-function ListTable() {
+function ListTable({
+  filterProviderType,
+  category,
+  keyword: keywordProp = "",
+}) {
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
@@ -24,35 +36,18 @@ function ListTable() {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(keywordProp);
+  // const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
 
   useEffect(() => {
-    if (keyword.trim() === "") {
-      getList(page, size)
-          .then((response) => {
-            setServerDataList(response.data.content);
-            setTotalPages(response.data.totalPages);
-          })
-          .catch((error) => console.log(error));
-    }else{
-      getListWithKeyword(keyword, page, size).then((response) => {
-        setServerDataList(response.data.content);
-        setTotalPages(response.data.totalPages);
-        console.log(response.data.content);
-        console.log(response.data.totalPages)
-      })
+    if (searchInput.trim() === "" || searchInput === keyword) {
+      setSuggestions([]);
+      return;
     }
-
-  }, [page, size, keyword]);
-
-  useEffect(() => {
     const fetchSuggestions = async () => {
-      if (searchInput.trim() === "") {
-        setSuggestions([]);
-        return;
-      }
       try {
         const result = await getAutocompleteSuggestions(searchInput);
         setSuggestions(result.data);
@@ -62,8 +57,40 @@ function ListTable() {
       }
     };
     fetchSuggestions();
-  }, [searchInput]);
+    setHighlightedIndex(-1);
+  }, [searchInput, keyword]);
 
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const response =
+          keyword.trim() === ""
+            ? await getList(page, size)
+            : await getListWithKeyword(keyword, page, size);
+
+        let data = response.data.content;
+
+        if (filterProviderType) {
+          // ProviderType 타입 필터 필요한 경우
+          data = data.filter((p) => p.providerType === filterProviderType);
+        }
+        if (category) {
+          // 카테고리 필터 필요한 경우
+          data = data.filter((p) => p.category?.categoryName === category);
+        }
+
+        setServerDataList(data);
+        setTotalPages(response.data.totalPages); // 전체 페이지 수는 변경하지 않음
+      } catch (error) {
+        console.error("리스트 조회 실패:", error);
+      }
+    };
+    fetch();
+  }, [page, size, keyword, filterProviderType, category]);
+
+  useEffect(() => {
+    setKeyword(keywordProp); // 외부에서 넘어온 keyword로 반영
+  }, [keywordProp]);
 
   const handleSearch = () => {
     setKeyword(searchInput);
@@ -74,67 +101,96 @@ function ListTable() {
     <Box sx={{ mt: 4 }}>
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
+          {/* <Typography variant="h5" gutterBottom>
             제품 리스트
-          </Typography>
+          </Typography> */}
 
           {/* 검색창 */}
           <Box sx={{ position: "relative", width: "300px", margin: "1rem 0" }}>
             <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="검색어를 입력하세요"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                size="small"
+              fullWidth
+              variant="outlined"
+              placeholder="검색어를 입력하세요"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) =>
+                    prev < suggestions.length - 1 ? prev + 1 : 0
+                  );
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) =>
+                    prev > 0 ? prev - 1 : suggestions.length - 1
+                  );
+                } else if (e.key === "Enter") {
+                  if (
+                    highlightedIndex >= 0 &&
+                    highlightedIndex < suggestions.length
+                  ) {
+                    const selected = suggestions[highlightedIndex];
+                    setSearchInput(selected);
+                    setKeyword(selected);
+                    setPage(0);
+                    setSuggestions([]);
+                    setHighlightedIndex(-1);
+                  } else {
+                    handleSearch();
+                  }
+                }
+              }}
+              size="small"
             />
             <Button
-                variant="contained"
-                onClick={handleSearch}
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  height: "100%",
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                }}
+              variant="contained"
+              onClick={handleSearch}
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                height: "100%",
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
             >
               검색
             </Button>
 
             {/* 추천 검색어 */}
             {suggestions.length > 0 && (
-                <Paper
-                    sx={{
-                      position: "absolute",
-                      width: "100%",
-                      mt: "4px",
-                      zIndex: 10,
-                      maxHeight: 200,
-                      overflowY: "auto",
-                    }}
-                >
-                  <List dense>
-                    {suggestions.map((s, idx) => (
-                        <ListItem key={idx} disablePadding>
-                          <ListItemButton
-                              onClick={() => {
-                                setSearchInput(s);
-                                setKeyword(s);
-                                setPage(0);
-                                setSuggestions([]);
-                              }}
-                          >
-                            <ListItemText primary={s} />
-                          </ListItemButton>
-                        </ListItem>
-                    ))}
-                  </List>
-                </Paper>
+              <Paper
+                sx={{
+                  position: "absolute",
+                  width: "100%",
+                  mt: "4px",
+                  zIndex: 10,
+                  maxHeight: 200,
+                  overflowY: "auto",
+                }}
+              >
+                <List dense>
+                  {suggestions.map((s, idx) => (
+                    <ListItem key={idx} disablePadding>
+                      <ListItemButton
+                        selected={idx === highlightedIndex}
+                        onMouseEnter={() => setHighlightedIndex(idx)}
+                        onClick={() => {
+                          setSearchInput(s);
+                          setKeyword(s);
+                          setPage(0);
+                          setSuggestions([]);
+                          setHighlightedIndex(-1);
+                        }}
+                      >
+                        <ListItemText primary={s} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
             )}
           </Box>
-
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table stickyHeader aria-label="product table">
@@ -162,24 +218,32 @@ function ListTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {serverDataList.map((item) => (
-                  <TableRow
-                    hover
-                    key={item.id}
-                    onClick={() => navigate(`/product/read/${item.id}`)}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell>{item.id}</TableCell>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell>{item.hours}</TableCell>
-                    <TableCell>{item.startedAt}</TableCell>
-                    <TableCell>{item.endAt}</TableCell>
-                    <TableCell>{item.owner.name}</TableCell>
-                    <TableCell>{item.category.categoryName}</TableCell>
-                    <TableCell>{item.providerType}</TableCell>
+                {serverDataList && serverDataList.length > 0 ? (
+                  serverDataList.map((item) => (
+                    <TableRow
+                      hover
+                      key={item.id}
+                      onClick={() => navigate(`/product/read/${item.id}`)}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <TableCell>{item.id}</TableCell>
+                      <TableCell>{item.title}</TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell>{item.hours}</TableCell>
+                      <TableCell>{item.startedAt}</TableCell>
+                      <TableCell>{item.endAt}</TableCell>
+                      <TableCell>{item.owner.name}</TableCell>
+                      <TableCell>{item.category.categoryName}</TableCell>
+                      <TableCell>{item.providerType}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center">
+                      검색 결과가 없습니다.
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -187,20 +251,20 @@ function ListTable() {
       </Card>
       {/* 페이지네이션 */}
       <Box
-          sx={{
-            marginTop: "1rem",
-            display: "flex",
-            justifyContent: "center",
-          }}
+        sx={{
+          marginTop: "1rem",
+          display: "flex",
+          justifyContent: "center",
+        }}
       >
         <Stack spacing={2}>
           <Pagination
-              count={totalPages}
-              page={page + 1}
-              onChange={(event, value) => setPage(value - 1)}
-              variant="outlined"
-              shape="rounded"
-              color="primary"
+            count={totalPages}
+            page={page + 1}
+            onChange={(event, value) => setPage(value - 1)}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
           />
         </Stack>
       </Box>

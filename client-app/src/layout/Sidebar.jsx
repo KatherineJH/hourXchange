@@ -1,6 +1,6 @@
 // src/layout/Sidebar.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   List,
@@ -14,21 +14,39 @@ import {
   Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { getList } from "../api/categoryApi";
 import IamportButton from "../component/common/IamportButton.jsx";
 
 const menu = [
   { text: "시간충전", to: "/payment/buy" },
-    { text: "삽니다", to: "/product/buy" },
+  { text: "삽니다", to: "/product/buy" },
   { text: "팝니다", to: "/product/sell" },
   { text: "봉사해요", to: "/product/volunteer" },
   { text: "지역별", to: "/product/list" },
-  { text: "전체", to: "/product/listTable" },
-  { text: "마이 트랜잭션 리스트", to: "/transaction/my" },
   { text: "커뮤니티", to: "/board/list" },
 ];
 
 const Sidebar = () => {
   const [openRegion, setOpenRegion] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [categoryList, setCategoryList] = useState([]);
+
+  useEffect(() => {
+    getList()
+      .then((res) => setCategoryList(res.data))
+      .catch((err) => console.error("카테고리 목록 조회 실패:", err));
+  }, []);
+
+  const handleCategoryChange = (e) => {
+    const params = new URLSearchParams(location.search);
+    if (e.target.value === "전체") {
+      params.delete("category"); // "전체" 선택 시 쿼리 파라미터 제거
+    } else {
+      params.set("category", e.target.value);
+    }
+    navigate({ pathname: location.pathname, search: params.toString() });
+  };
 
   return (
     <Box component="nav" sx={{ p: 2 }}>
@@ -70,9 +88,18 @@ const Sidebar = () => {
         <Typography variant="subtitle2" gutterBottom>
           🗂️ 카테고리
         </Typography>
-        <RadioGroup defaultValue="운동">
-          {["운동", "음악", "청소"].map((c) => (
-            <FormControlLabel key={c} value={c} control={<Radio />} label={c} />
+        <RadioGroup
+          value={new URLSearchParams(location.search).get("category") || "전체"}
+          onChange={handleCategoryChange}
+        >
+          <FormControlLabel value="전체" control={<Radio />} label="전체" />
+          {categoryList.map((c) => (
+            <FormControlLabel
+              key={c.id}
+              value={c.categoryName}
+              control={<Radio />}
+              label={c.categoryName}
+            />
           ))}
         </RadioGroup>
       </Box>

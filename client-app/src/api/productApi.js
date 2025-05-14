@@ -63,3 +63,11 @@ export const getListWithKeyword = async (keyword, page = 0, size = 10) => {
   });
   return response;
 };
+
+// 나의 상품 목록 조회 (페이지네이션 포함)
+export const getMyProductList = async (page = 0, size = 10) => {
+  const response = await api.get("/api/product/my", {
+    params: { page, size },
+  });
+  return response.data;
+};

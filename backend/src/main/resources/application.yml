@@ -81,7 +81,6 @@ ip:
   backend: ${BACKEND_SERVER}
   frontend: ${FRONTEND_SERVER}
 
-
 port:
   elastic: ${ELASTIC_PORT}
 
@@ -100,4 +99,3 @@ logging:
   level:
     spring.security.web: TRACE
     spring.security.config: DEBUG
-

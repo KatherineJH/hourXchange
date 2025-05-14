@@ -1,7 +1,7 @@
 // src/page/board/BoardDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getBoardDetail, updateBoardLike } from "../../api/boardApi";
 import { getCommentsByBoardId } from "../../api/commentApi";
 import {
@@ -19,6 +19,7 @@ import CommentTable from "../../component/board/CommentTable";
 function BoardDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [board, setBoard] = useState(null);
   const [comments, setComments] = useState([]);
   const { user } = useSelector((state) => state.auth);
@@ -64,6 +65,20 @@ function BoardDetail() {
   }
   const isAuthor = user && user.id === board.author.id;
 
+  const getBoardBasePath = () => {
+    if (location.pathname.startsWith("/myPage")) return "/myPage/board";
+    if (location.pathname.startsWith("/admin")) return "/admin/board";
+    return "/board";
+  };
+
+  const handleEdit = () => {
+    navigate(`${getBoardBasePath()}/update/${board.id}`);
+  };
+
+  const handleBackToList = () => {
+    navigate(`${getBoardBasePath()}/list`);
+  };
+
   return (
     <Box sx={{ mt: 4 }}>
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
@@ -81,10 +96,7 @@ function BoardDetail() {
             </Typography>
             <Box sx={{ display: "flex", gap: 1 }}>
               {isAuthor ? (
-                <Button
-                  variant="contained"
-                  onClick={() => navigate(`/board/update/${board.id}`)}
-                >
+                <Button variant="contained" onClick={handleEdit}>
                   수정
                 </Button>
               ) : (
@@ -97,7 +109,11 @@ function BoardDetail() {
                   )}
                 </Button>
               )}
-              <Button variant="contained" color="primary" href="/board/list">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBackToList}
+              >
                 목록으로
               </Button>
             </Box>

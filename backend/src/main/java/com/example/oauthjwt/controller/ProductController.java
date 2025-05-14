@@ -75,6 +75,15 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<?> findMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        Page<ProductResponse> result = productService.findByOwnerId(userDetails.getUser().getId(), pageable);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/listMap")
     public ResponseEntity<?> findAllWithPosition(@RequestParam(defaultValue = "37.496486063") double lat,
             @RequestParam(defaultValue = "127.028361548") double lng) {
