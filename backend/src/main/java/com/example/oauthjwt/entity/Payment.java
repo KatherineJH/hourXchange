@@ -1,6 +1,7 @@
 package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
+import java.util.UUID;
 
 @Builder
 @Entity
@@ -71,6 +73,22 @@ public class Payment {
                 .receiptUrl((String) payment.get("receipt_url"))
                 .userId(userId)
                 .paymentItemId(paymentItemId)
+                .build();
+    }
+
+    public static Payment of(Orders orders, User user, PaymentItem paymentItem) {
+        return Payment.builder()
+                .impUid(orders.getImpUid())
+                .merchantUid(orders.getMerchantUid())
+                .amount(paymentItem.getPrice())
+                .status("paid")
+                .paidAt(LocalDateTime.now())
+                .payMethod("hourXchangePay")
+                .pgProvider("hourXchange")
+                .pgTid(UUID.randomUUID().toString())
+                .receiptUrl(UUID.randomUUID().toString())
+                .userId(user.getId())
+                .paymentItemId(paymentItem.getId())
                 .build();
     }
 }

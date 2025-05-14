@@ -7,10 +7,16 @@ import {
     CardContent,
     CardActions,
     Button,
-    Divider
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
 import IamportButton from '../common/IamportButton.jsx';
 import { getList } from '../../api/paymentItemApi.js';
+import { useSelector } from 'react-redux';
+import {postOrder, postVerify} from "../../api/paymentApi.js";
 
 export default function PackagePaymentScreen() {
     // 서버에서 받아올 패키지 리스트: [{ id, name, time, price }, ...]
@@ -19,17 +25,48 @@ export default function PackagePaymentScreen() {
     // 선택된 카드 인덱스
     const [selectedIdx, setSelectedIdx] = useState(null);
 
+    // 결제 확인 모달 상태
+    const [openModal, setOpenModal] = useState(false);
+    const [modalPkg, setModalPkg] = useState(null);
+
+    const { user } = useSelector((state) => state.auth);
+
     useEffect(() => {
-        // 컴포넌트 마운트 시 한 번만 호출
         getList()
-            .then(response => {
-                // axios 기본형: response.data 에 실제 리스트가 들어 있다고 가정
-                setPackages(response.data);
-            })
-            .catch(error => {
-                console.error('패키지 리스트 로드 실패', error);
-            });
-    }, []); // 빈 deps: 마운트 시 단 한 번만 실행
+            .then(response => setPackages(response.data))
+            .catch(error => console.error('패키지 리스트 로드 실패', error));
+    }, []);
+
+    const handleModalClose = () => {
+        setOpenModal(false);
+        setModalPkg(null);
+    };
+
+    const handleModalConfirm = async (modalPkg) => {
+        console.log(`결제 요청: ${modalPkg.name}, 금액: ${modalPkg.price}`);
+        // TODO: 실제 결제 API 호출
+        console.log(modalPkg)
+        console.log(user)
+        try{
+            const merchantUid = `mid_${new Date().getTime()}`;
+            const formData = {
+                email: user.email,
+                paymentItemName: modalPkg.name,
+                paymentItemPrice: modalPkg.price,
+                merchantUid: merchantUid, // 가맹점 주문번호
+            }
+            const orderResponse = await postOrder(formData); // 결제 서버로 생각
+            console.log(orderResponse.data)
+
+            const verifyResponse = await postVerify(orderResponse.data); // api 서버
+            console.log(verifyResponse)
+        }catch(error){
+            console.log(error);
+        }
+
+
+        handleModalClose();
+    };
 
     return (
         <Box sx={{ maxWidth: 960, mx: 'auto', mt: 4, p: 2 }}>
@@ -44,25 +81,19 @@ export default function PackagePaymentScreen() {
                 {packages.map((pkg, idx) => {
                     const { id, name, time, price } = pkg;
                     const isSelected = selectedIdx === idx;
-                    // orderId: 가맹점 주문번호 (중복 방지를 위해 timestamp 추가)
                     const orderId = `${id}_${Date.now()}`;
 
                     return (
                         <Grid key={id} item>
                             <Card
                                 variant={isSelected ? 'elevation' : 'outlined'}
-                                sx={{
-                                    width: 280,
-                                    borderColor: isSelected ? 'primary.main' : undefined
-                                }}
+                                sx={{ width: 280, borderColor: isSelected ? 'primary.main' : undefined }}
                             >
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom>
                                         {name}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        {/* 예: time이 '1시간' 또는 숫자(시간)일 때 */}
-                                        {/* 문자열이면 그대로, 숫자면 `${time}시간` */}
                                         {typeof time === 'number' ? `${time}시간` : time}
                                     </Typography>
                                     <Divider sx={{ my: 1 }} />
@@ -84,11 +115,24 @@ export default function PackagePaymentScreen() {
 
                                 {isSelected && (
                                     <Box sx={{ p: 2 }}>
-                                        <IamportButton
-                                            orderId={orderId}
-                                            productName={name}
-                                            amount={price}
-                                        />
+                                        {user.role === 'ROLE_ADMIN' ? (
+                                            <IamportButton
+                                                orderId={orderId}
+                                                productName={name}
+                                                amount={price}
+                                            />
+                                        ) : (
+                                            <Button
+                                                variant="contained"
+                                                fullWidth
+                                                onClick={() => {
+                                                    setModalPkg(pkg);
+                                                    setOpenModal(true);
+                                                }}
+                                            >
+                                                결제
+                                            </Button>
+                                        )}
                                     </Box>
                                 )}
                             </Card>
@@ -96,6 +140,20 @@ export default function PackagePaymentScreen() {
                     );
                 })}
             </Grid>
+
+            {/* 일반 유저 결제 확인 모달 */}
+            <Dialog open={openModal} onClose={handleModalClose}>
+                <DialogTitle>결제 확인</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        패키지 "{modalPkg?.name}"을 {modalPkg?.price.toLocaleString()}원에 결제하시겠습니까?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleModalClose}>취소</Button>
+                    <Button variant="contained" onClick={() => handleModalConfirm(modalPkg)}>결제</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

@@ -16,7 +16,7 @@ public class PaymentItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name; // 상품명
 
     @Column(nullable = false)

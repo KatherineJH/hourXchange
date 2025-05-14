@@ -1,8 +1,8 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.response.PaymentItemRatioResponse;
-import com.example.oauthjwt.dto.response.PaymentLogResponse;
-import com.example.oauthjwt.dto.response.PaymentResponse;
+import com.example.oauthjwt.dto.request.PaymentOrderRequest;
+import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
+import com.example.oauthjwt.dto.response.*;
 
 import java.util.List;
 import java.util.Map;
@@ -20,4 +20,8 @@ public interface PaymentService {
     List<PaymentLogResponse> getYearlyAmountSums(int yearsBack);
 
     List<PaymentItemRatioResponse> getPaymentRatioByItem();
+
+    PaymentOrderResponse order(PaymentOrderRequest paymentOrderRequest);
+
+    PaymentVerifyResponse verify(PaymentVerifyRequest paymentVerifyRequest);
 }
