@@ -17,6 +17,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { getList } from "../api/categoryApi";
 
 const menu = [
+  { text: "시간충전", to: "/payment/buy" },
   { text: "삽니다", to: "/product/buy" },
   { text: "팝니다", to: "/product/sell" },
   { text: "봉사해요", to: "/product/volunteer" },

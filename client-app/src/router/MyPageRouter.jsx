@@ -4,7 +4,7 @@ import Favorites from "../component/product/Favorites.jsx";
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
 
-const MyPageRouter = () => [
+const myPageRouter = () => [
   {
     path: "chat",
     element: <Chat />,
@@ -23,4 +23,4 @@ const MyPageRouter = () => [
   },
 ];
 
-export default MyPageRouter;
+export default myPageRouter;

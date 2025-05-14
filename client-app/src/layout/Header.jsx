@@ -103,6 +103,10 @@ function Header() {
     setSearchInput(selectedKeyword); // input에도 반영
   }, [selectedKeyword]);
 
+  const handleMoveToAdminPage = () => {
+    navigate("/admin");
+  };
+
   return (
     <>
       <Box
@@ -264,8 +268,21 @@ function Header() {
         >
           {user.username ? (
             <>
-              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
-              <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+              <MenuItem disabled>
+                {user.name + user.role}님, 환영합니다
+              </MenuItem>
+              {user.role === "ROLE_ADMIN" ? (
+                <MenuItem onClick={handleMoveToAdminPage}>
+                  어드민페이지
+                </MenuItem>
+              ) : (
+                <>
+                  <MenuItem onClick={handleMoveToAdminPage}>
+                    어드민페이지
+                  </MenuItem>
+                  <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+                </>
+              )}
               <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
             </>
           ) : (
