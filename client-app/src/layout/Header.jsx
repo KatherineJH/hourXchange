@@ -25,7 +25,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
 import { useLocation, useNavigate } from "react-router-dom";
-import bgImage from "../assets/image/background.jpg";
+import bgImage from "../../public/background.jpg";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
 
 function Header() {
@@ -238,7 +238,7 @@ function Header() {
                 size="large"
                 aria-label="chat list"
                 color="inherit"
-                onClick={() => navigate("/chat")}
+                onClick={() => navigate("/myPage/chat")}
               >
                 <Badge badgeContent={17} color="error">
                   <NotificationsIcon />

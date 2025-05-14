@@ -189,20 +189,9 @@ export default function BuyPost() {
 
   return (
     <>
-      <Box
-        sx={{ display: "flex", justifyContent: "flex-end", padding: "1rem" }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/product/register")}
-        >
-          게시물 작성
-        </Button>
-      </Box>
-      <div style={{ padding: "1rem" }}>
+      <Box>
         {renderProductGrid(products)} {/* 모든 상품을 한 번에 나열 */}
-      </div>
+      </Box>
       <ListTable filterProviderType="BUYER" category={selectedCategory} />
     </>
   );
