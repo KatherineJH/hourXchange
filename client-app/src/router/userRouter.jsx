@@ -8,7 +8,7 @@ import Favorites from "../component/product/Favorites.jsx";
 
 const userRouter = () => [
   {
-    path: "favorites", // ✅ 추가
+    path: "favorites",
     element: <Favorites />,
   },
   {

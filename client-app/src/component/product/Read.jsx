@@ -14,6 +14,7 @@ import {
   Button,
 } from "@mui/material";
 import GoogleReadMap from "../common/GoogleReadMap.jsx";
+import KakaoReadMap from "../common/KakaoReadMap.jsx";
 
 const IMAGE_SIZE = 300;
 const initState = {
@@ -152,10 +153,15 @@ function Read() {
             <Typography variant="subtitle1" color="text.secondary" gutterBottom>
               위치
             </Typography>
-            <GoogleReadMap
-              serverData={serverData}
-              setSaveData={() => {}}
-              viewOnly
+            {/*<GoogleReadMap*/}
+            {/*  serverData={serverData}*/}
+            {/*  setSaveData={() => {}}*/}
+            {/*  viewOnly*/}
+            {/*/>*/}
+            <KakaoReadMap
+                serverData={serverData}
+                setSaveData={() => {}}
+                viewOnly
             />
           </Box>
 

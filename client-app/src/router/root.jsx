@@ -3,7 +3,8 @@ import Main from "../page/Main.jsx";
 import NotFound from "../component/common/NotFound.jsx";
 import Homepage from "../component/homepage/Homepage.jsx";
 import ChatRoom from "../component/chat/ChatRoom.jsx"; // WebSocket 채팅방
-import board from "./BoardRouter.jsx"; // 게시판 관련 라우터
+import AdminPageMain from "../page/AdminPageMain.jsx";
+import board from "./boardRouter.jsx"; // 게시판 관련 라우터
 import userRouter from "./userRouter.jsx";
 import productRouter from "./productRouter.jsx";
 import transactionRouter from "./transactionRouter.jsx";
@@ -14,6 +15,8 @@ import ProductForm from "../component/product/ProductForm.jsx";
 import Modify from "../component/product/Modify.jsx";
 import MyPostList from "../component/product/MyPostList.jsx";
 import SearchProduct from "../component/homepage/SearchProduct.jsx";
+import adminPageRouter from "./adminPageRouter.jsx";
+import paymentRouter from "./paymentRouter.jsx";
 
 const root = createBrowserRouter([
   {
@@ -41,6 +44,16 @@ const root = createBrowserRouter([
     children: board(),
   },
   {
+    path: "transaction",
+    element: <Main />,
+    children: transactionRouter(),
+  },
+  {
+    path: "payment",
+    element: <Main />,
+    children: paymentRouter(),
+  },
+  {
     path: "myPage",
     element: <MyPage />,
     children: [
@@ -64,6 +77,11 @@ const root = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "admin",
+    element: <AdminPageMain />,
+    children: adminPageRouter(),
   },
 ]);
 

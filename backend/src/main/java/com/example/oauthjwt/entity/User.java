@@ -52,9 +52,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.ACTIVE; // nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Address address;
-
     // single user can have multiple reviews, but each review belongs to a single
     // user
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,10 +60,16 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    public static User of(UserRequest userRequest, Address address) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address; // 서비스 카테고리
+
+    public static User of(UserRequest userRequest) {
         return User.builder().email(userRequest.getEmail()).password(userRequest.getPassword())
-                .name(userRequest.getName()).username(userRequest.getUsername()).birthdate(userRequest.getBirthdate())
-                .address(address).role(UserRole.ROLE_USER) // 일반유저
+                .name(userRequest.getName())
+                .username(userRequest.getUsername())
+                .birthdate(userRequest.getBirthdate())
+                .role(UserRole.ROLE_USER) // 일반유저
                 .credit(0) // 0시간
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
@@ -81,6 +84,10 @@ public class User {
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
                 .build();
+    }
+
+    public void addTime(int time){
+        this.credit += time;
     }
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =

@@ -1,0 +1,37 @@
+// src/layout/Sidebar.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Box,
+    List,
+    ListItemButton,
+    ListItemText,
+} from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+
+const menu = [
+    { text: "결제횟수", to: "/admin/payment" },
+    { text: "결제금액", to: "/admin/paymentAmount" },
+    { text: "유저접속현황", to: "/admin/user" },
+    { text: "유저관리", to: "/admin/userList" },
+];
+
+const Sidebar = () => {
+    return (
+        <Box component="nav" sx={{ p: 2 }}>
+            <List>
+                {menu.map((item) => (
+                    <ListItemButton
+                        key={item.text}
+                        component={RouterLink} // React Router <Link> 로 동작
+                        to={item.to} // 이동할 경로
+                    >
+                        <ListItemText primary={item.text} />
+                    </ListItemButton>
+                ))}
+            </List>
+        </Box>
+    );
+};
+
+export default Sidebar;

@@ -19,4 +19,12 @@ public class AddressRequest {
     private String jibunAddress; // 지번주소
 
     private String detailAddress; // 상세주소
+
+    public boolean isEmpty() {
+        // 전부 값이 없어야 참
+        return (zonecode      == null || zonecode.isBlank())
+                && (roadAddress   == null || roadAddress.isBlank())
+                && (jibunAddress  == null || jibunAddress.isBlank())
+                && (detailAddress == null || detailAddress.isBlank());
+    }
 }

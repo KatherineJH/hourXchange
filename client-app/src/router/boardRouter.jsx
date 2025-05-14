@@ -1,4 +1,4 @@
-// src/router/BoardRouter.jsx
+// src/router/boardRouter.jsx
 import React, { lazy } from "react";
 import SaveBoard from "../component/board/SaveBoard.jsx";
 

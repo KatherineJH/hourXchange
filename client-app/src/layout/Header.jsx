@@ -44,6 +44,7 @@ function Header() {
 
   const { user, isLoading, error } = useSelector((state) => state.auth);
   const isMenuOpen = Boolean(anchorEl);
+  console.log(user)
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
@@ -229,7 +230,7 @@ function Header() {
                 size="large"
                 aria-label="wishlist"
                 color="inherit"
-                onClick={() => navigate("/favorites")}
+                onClick={() => alert("위시리스트로 이동합니다")}
               >
                 <FavoriteBorder />
               </IconButton>

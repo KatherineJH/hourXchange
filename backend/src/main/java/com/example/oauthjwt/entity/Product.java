@@ -60,6 +60,10 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 서비스 카테고리
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address; // 서비스 카테고리
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProviderType providerType; // SP 타입 (구매, 판매)
@@ -84,26 +88,45 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Favorite> favoriteList = new ArrayList<>();
 
-    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
-        return Product.builder().title(productRequest.getTitle()).description(productRequest.getDescription())
-                .hours(productRequest.getHours()).startedAt(productRequest.getStartedAt())
-                .endAt(productRequest.getEndAt()).lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
-                .createAt(LocalDateTime.now()).owner(owner).category(category).providerType(providerType).build();
+    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address) {
+        return Product.builder()
+                .title(productRequest.getTitle())
+                .description(productRequest.getDescription())
+                .hours(productRequest.getHours())
+                .startedAt(productRequest.getStartedAt())
+                .endAt(productRequest.getEndAt())
+                .lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
+                .createAt(LocalDateTime.now())
+                .owner(owner)
+                .category(category)
+                .providerType(providerType)
+                .address(address)
+                .build();
     }
 
-    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType,
+    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address,
             List<SPImage> images) {
-        Product product = of(productRequest, owner, category, providerType);
+        Product product = of(productRequest, owner, category, providerType, address);
         images.forEach(image -> image.setProduct(product));
         product.getImages().addAll(images);
         return product;
     }
 
     public static Product of(Item item, User user, Category category, ProviderType providerType, String[] position) {
-        return Product.builder().title(item.getTitle()).description(item.getSeq()).hours(0)
-                .startedAt(LocalDateTime.now()).endAt(LocalDateTime.now()).lat(position[0]).lng(position[1])
-                .viewCount(0).createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
-                .owner(user).category(category).providerType(providerType).build();
+        return Product.builder()
+                .title(item.getTitle())
+                .description(item.getSeq())
+                .hours(0)
+                .startedAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .lat(position[0])
+                .lng(position[1])
+                .viewCount(0)
+                .createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+                .owner(user)
+                .category(category)
+                .providerType(providerType)
+                .build();
     }
 
     public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType,

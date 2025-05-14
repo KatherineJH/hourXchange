@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { getList } from "../api/categoryApi";
+import IamportButton from "../component/common/IamportButton.jsx";
 
 const menu = [
   { text: "시간충전", to: "/payment/buy" },

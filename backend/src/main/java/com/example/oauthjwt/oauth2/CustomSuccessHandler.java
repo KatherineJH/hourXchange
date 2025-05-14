@@ -3,6 +3,7 @@ package com.example.oauthjwt.oauth2;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -48,8 +49,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String role = auth.getAuthority();
 
         // JWT 토큰 생성
-        String accessToken = jwtUtil.createToken(email, ACCESS_TOKEN_TIME); // 15분
-        String refreshToken = jwtUtil.createToken(email, REFRESH_TOKEN_TIME); // 7일
+        String accessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME); // 15분
+        String refreshToken = jwtUtil.createToken(Map.of("email", email), REFRESH_TOKEN_TIME); // 7일
 
         // JWT 토큰을 쿠키로 전달
         response.addCookie(jwtUtil.createCookie("Authorization", accessToken, ACCESS_TOKEN_TIME));

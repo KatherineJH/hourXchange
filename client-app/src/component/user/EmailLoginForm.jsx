@@ -44,7 +44,7 @@ export default function EmailLoginForm() {
           }
 
           const response = await dispatch(
-            loginUser({ email, password })
+              loginUserAsync({ email, password })
           ).unwrap();
 
           console.log("로그인 성공 응답:", response); // 디버깅
