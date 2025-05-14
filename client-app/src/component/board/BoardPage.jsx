@@ -35,6 +35,7 @@ function BoardPage() {
   const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
 
   const fetchBoards = async () => {
     try {
@@ -57,11 +58,12 @@ function BoardPage() {
   }, [page, size, keyword]);
 
   useEffect(() => {
+    if (searchInput.trim() === "" || searchInput === keyword) {
+      setSuggestions([]);
+      return;
+    }
+
     const fetchSuggestions = async () => {
-      if (searchInput.trim() === "") {
-        setSuggestions([]);
-        return;
-      }
       try {
         const result = await getAutocompleteSuggestions(searchInput);
         setSuggestions(result);
@@ -70,6 +72,7 @@ function BoardPage() {
         setSuggestions([]);
       }
     };
+
     fetchSuggestions();
   }, [searchInput]);
 
@@ -103,6 +106,33 @@ function BoardPage() {
                 placeholder="검색어를 입력하세요"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) =>
+                      prev < suggestions.length - 1 ? prev + 1 : 0
+                    );
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) =>
+                      prev > 0 ? prev - 1 : suggestions.length - 1
+                    );
+                  } else if (e.key === "Enter") {
+                    if (
+                      highlightedIndex >= 0 &&
+                      highlightedIndex < suggestions.length
+                    ) {
+                      const selected = suggestions[highlightedIndex];
+                      setSearchInput(selected);
+                      setKeyword(selected);
+                      setPage(0);
+                      setSuggestions([]);
+                      setHighlightedIndex(-1);
+                    } else {
+                      handleSearch();
+                    }
+                  }
+                }}
                 size="small"
               />
               <Button
@@ -136,11 +166,14 @@ function BoardPage() {
                     {suggestions.map((s, idx) => (
                       <ListItem key={idx} disablePadding>
                         <ListItemButton
+                          selected={idx === highlightedIndex}
+                          onMouseEnter={() => setHighlightedIndex(idx)}
                           onClick={() => {
                             setSearchInput(s);
                             setKeyword(s);
                             setPage(0);
                             setSuggestions([]);
+                            setHighlightedIndex(-1);
                           }}
                         >
                           <ListItemText primary={s} />
