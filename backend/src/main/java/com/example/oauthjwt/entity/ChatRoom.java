@@ -38,10 +38,9 @@ public class ChatRoom {
     public List<User> getParticipants() {
         Set<User> participants = new HashSet<>();
         for (ChatRoomUser cru : chatRoomUsers) {
-            if (cru.getUser1() != null)
-                participants.add(cru.getUser1());
-            if (cru.getUser2() != null)
-                participants.add(cru.getUser2());
+            if (cru.getUser() != null) {
+                participants.add(cru.getUser());
+            }
         }
         return new ArrayList<>(participants);
     }

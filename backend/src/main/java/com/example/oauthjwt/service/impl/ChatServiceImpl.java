@@ -52,10 +52,11 @@ public class ChatServiceImpl implements ChatService {
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder().name(chatRoomName).product(product).build());
 
-        ChatRoomUser chatters = ChatRoomUser.builder().chatRoom(chatRoom).user1(requester).user2(product.getOwner())
-                .build();
+        ChatRoomUser requesterChatter = ChatRoomUser.of(requester, chatRoom);
+        ChatRoomUser ownerChatter = ChatRoomUser.of(product.getOwner(), chatRoom);
 
-        chatRoomUserRepository.save(chatters);
+        chatRoomUserRepository.save(requesterChatter);
+        chatRoomUserRepository.save(ownerChatter);
         return chatRoom;
     }
 
