@@ -24,4 +24,6 @@ public interface ProductService {
     FavoriteResponse toggleFavorite(Long productId, Long userId);
 
     List<FavoriteResponse> findAllFavorite(Long userId);
+
+    List<ProductResponse> findProductsByUserId(Long userId);
 }

@@ -151,4 +151,15 @@ public class ProductServiceImpl implements ProductService {
 
         return favoriteList.stream().map(FavoriteResponse::toDto).collect(Collectors.toList());
     }
+
+    @Override
+    public List<ProductResponse> findProductsByUserId(Long userId) {
+        // 유저 ID로 상품 리스트 조회
+        List<Product> products = productRepository.findByOwnerId(userId);
+
+        // Product -> ProductResponse 변환
+        return products.stream()
+                .map(ProductResponse::toDto)
+                .collect(Collectors.toList());
+    }
 }

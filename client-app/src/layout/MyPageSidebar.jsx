@@ -15,9 +15,10 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import MyList from "../component/transaction/MyList";
+import MyProductList from "../component/product/MyProductList";
 
 const menu = [
-  { text: "메뉴1", to: "/product/buy" },
+  { text: "메뉴1", to: "/myPage/my-products" },
   { text: "메뉴2", to: "/myPage/my" },
   { text: "메뉴3", to: "/product/volunteer" },
 ];

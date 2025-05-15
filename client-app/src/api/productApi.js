@@ -14,6 +14,11 @@ export const getList = async (page, size) => {
   return response;
 };
 
+export const getMyProductList = async () => {
+  const response = await api.get(apiServerUrl + "my-products");
+  return response;
+};
+
 export const getListWithPosition = async (position) => {
   const response = await api.get(apiServerUrl + "listMap", {
     params: { lat: position.lat, lng: position.lng },

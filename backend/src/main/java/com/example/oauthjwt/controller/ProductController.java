@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -93,4 +94,14 @@ public class ProductController {
         List<FavoriteResponse> result = productService.findAllFavorite(userDetails.getUser().getId());
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/my-products")
+    public ResponseEntity<List<ProductResponse>> getMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        List<ProductResponse> products = productService.findProductsByUserId(userId);
+        return ResponseEntity.ok(products);
+    }
+
+
+
 }

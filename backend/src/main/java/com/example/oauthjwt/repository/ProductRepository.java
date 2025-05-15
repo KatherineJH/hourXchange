@@ -20,4 +20,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findNearby1Km(@Param("lat") double lat, @Param("lng") double lng);
 
     Page<Product> findByIdIn(List<Long> ids, Pageable pageable);
+
+    List<Product> findByOwnerId(Long ownerId);
 }
