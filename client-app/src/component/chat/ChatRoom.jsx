@@ -1,213 +1,150 @@
-// src/component/chat/ChatRoom.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import { Client } from "@stomp/stompjs";
-import { useParams } from "react-router-dom";
-import { matchTransaction, fetchChatRoomInfo } from "../../api/chatApi";
+import { useParams} from "react-router-dom";
+import { fetchChatRoomInfo } from "../../api/chatApi";
+import api from "../../api/Api.js";
 import {
   Box,
-  Card,
-  CardContent,
   Typography,
   TextField,
   Button,
-  CircularProgress,
+  IconButton,
 } from "@mui/material";
-import api from "../../api/Api.js";
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import SendIcon from '@mui/icons-material/Send';
+import uploadToCloudinary from "../../assets/uploadToCloudinary.js";
+import {useSelector} from "react-redux";  // Cloudinary helper
+
+const IMAGE_SIZE = 300;
 
 const ChatRoom = () => {
-  const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8282";
   const { chatRoomId } = useParams();
-  const numericRoomId = Number(chatRoomId);
+  const roomId = Number(chatRoomId);
+
+  const [status, setStatus] = useState("🔌 연결 시도 중...");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [status, setStatus] = useState("🔌 연결 시도 중...");
+  const [roomInfo, setRoomInfo] = useState(null);
+
   const clientRef = useRef(null);
   const messageBoxRef = useRef(null);
-  const [roomInfo, setRoomInfo] = useState(null);
+  const fileInputRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
-  const currentUserId = user?.id;
-  console.log("🔐 로그인한 사용자:", user);
 
-  const handleMatchClick = async () => {
-    try {
-      const result = await matchTransaction(numericRoomId);
-      alert(result || "거래가 완료되었습니다!");
-    } catch (error) {
-      console.error("거래 성사 실패", error);
-      alert("거래 성사 중 오류가 발생했습니다.");
-    }
-  };
-
+  // Load room info
   useEffect(() => {
-    async function loadRoomInfo() {
-      const info = await fetchChatRoomInfo(numericRoomId);
-      console.log("채팅방 정보:", info);
-      setRoomInfo(info); // ✅ 이 줄 추가!
-    }
-    loadRoomInfo();
-  }, [numericRoomId]);
+    (async () => {
+      const info = await fetchChatRoomInfo(roomId);
+      setRoomInfo(info);
+    })();
+  }, [roomId]);
 
+  // WebSocket connect
   useEffect(() => {
-    if (!numericRoomId || isNaN(numericRoomId)) {
-      setStatus("❌ 잘못된 채팅방 ID");
+    if (isNaN(roomId)) {
+      setStatus("❌ 잘못된 방 번호");
       return;
     }
-    const connectWebSocket = async () => {
-      try {
-        const res = await api.get("/api/auth/token", {
-          withCredentials: true,
-        });
-        const token = res.data.token;
-
-        const client = new Client({
-          brokerURL: `${wsBaseUrl}/ws?token=${token}`,
-          reconnectDelay: 5000,
-          // debug: (str) => console.log(str),
-          onConnect: () => {
-            setStatus("🟢 연결됨");
-            client.subscribe(`/topic/room/${numericRoomId}`, (message) => {
-              const body = JSON.parse(message.body);
-              if (body.type === "JOIN" || body.type === "LEAVE") {
-                setMessages((prev) => [
-                  ...prev,
-                  { content: body.content, system: true },
-                ]);
-              } else if (body.type === "CHAT") {
-                setMessages((prev) => [...prev, body]);
-              }
-            });
-            client.publish({
-              destination: "/app/chat.addUser",
-              body: JSON.stringify({ chatRoomId: numericRoomId }),
-            });
-          },
-          onStompError: (frame) => {
-            console.error("❌ STOMP 오류:", frame);
-            setStatus("❌ 연결 실패");
-          },
-        });
-
-        client.activate();
-        clientRef.current = client;
-      } catch (err) {
-        console.error("❌ 인증 실패", err);
-        setStatus("❌ 인증 실패");
-      }
+    const connect = async () => {
+      const res = await api.get('/api/auth/token', { withCredentials: true });
+      const token = res.data.token;
+      const client = new Client({
+        brokerURL: `${import.meta.env.VITE_WS_URL}/ws?token=${token}`,
+        reconnectDelay: 5000,
+        onConnect: () => {
+          setStatus("🟢 연결됨");
+          client.subscribe(`/topic/room/${roomId}`, msg => {
+            const body = JSON.parse(msg.body);
+            console.log(msg)
+            console.log(msg.body);
+            setMessages(prev => [...prev, body]);
+          });
+          client.publish({ destination: "/app/chat.addUser", body: JSON.stringify({ chatRoomId: roomId }) });
+        },
+        onStompError: frame => {
+          console.error(frame);
+          setStatus("❌ STOMP 오류");
+        }
+      });
+      client.activate();
+      clientRef.current = client;
     };
+    connect();
+    return () => clientRef.current?.deactivate();
+  }, [roomId]);
 
-    connectWebSocket();
-
-    return () => {
-      if (clientRef.current) {
-        clientRef.current.deactivate();
-        setStatus("⚪ 연결 해제됨");
-      }
-    };
-  }, [numericRoomId]);
-
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    clientRef.current?.publish({
-      destination: "/app/chat.sendMessage",
-      body: JSON.stringify({
-        chatRoomId: numericRoomId,
-        content: input,
-        type: "CHAT",
-      }),
-    });
-    setInput("");
-  };
-
+  // Scroll messages
   useEffect(() => {
     if (messageBoxRef.current) {
       messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
     }
   }, [messages]);
 
+  // Send text
+  const sendText = () => {
+    if (!input.trim()) return;
+    clientRef.current.publish({
+      destination: "/app/chat.sendMessage",
+      body: JSON.stringify({ chatRoomId: roomId, type: "TEXT", content: input })
+    });
+    setInput("");
+  };
+
+  // Send image
+  const sendImage = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const url = await uploadToCloudinary(file);
+      clientRef.current.publish({
+        destination: "/app/chat.sendMessage",
+        body: JSON.stringify({ chatRoomId: roomId, type: "IMAGE", content: url })
+      });
+    } catch (err) {
+      console.error("이미지 업로드 중 오류", err);
+      alert("이미지 전송에 실패했습니다.");
+    }
+    e.target.value = null;
+  };
+
   return (
-    <Box sx={{ mt: 4, maxWidth: "700px", mx: "auto" }}>
-      <Typography variant="h5" gutterBottom>
-        💬 채팅방 #{numericRoomId}
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Typography variant="subtitle2" color="text.secondary">
-          {status === "🔌 연결 시도 중..." ? (
-            <CircularProgress size={16} />
-          ) : (
-            status
-          )}
+      <Box sx={{ mt: 4, maxWidth: '700px', mx: 'auto' }}>
+        <Typography variant="h5" gutterBottom>💬 채팅방 #{roomId}</Typography>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          {status}
         </Typography>
-        {roomInfo ? (
-          <Button
-            variant="outlined"
-            size="medium"
-            disabled={
-              roomInfo.transactionStatus === "COMPLETED" ||
-              currentUserId !== roomInfo.ownerId
-            }
-            onClick={handleMatchClick}
-          >
-            {roomInfo.transactionStatus === "COMPLETED"
-              ? "거래 성공!"
-              : "거래 할까요?"}
-          </Button>
-        ) : (
-          <CircularProgress size={20} />
-        )}
-      </Box>
-      <Card variant="outlined" sx={{ height: 400, overflowY: "auto", mb: 2 }}>
-        <CardContent ref={messageBoxRef} sx={{ px: 2 }}>
-          {messages.length === 0 ? (
-            <Typography color="text.secondary">메시지가 없습니다.</Typography>
-          ) : (
-            messages.map((msg, idx) => (
-              <Box key={idx} sx={{ mb: 1 }}>
-                {msg.system ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    fontStyle="italic"
-                  >
-                    {msg.content}
-                  </Typography>
-                ) : (
-                  <Typography variant="body2">
-                    <strong>{msg.senderUsername}</strong>: {msg.content}
-                  </Typography>
+
+        <Box ref={messageBoxRef} sx={{ height: 400, overflowY: 'auto', border: 1, borderColor: 'divider', p: 2, mb: 2 }}>
+          {messages.map((msg, i) => (
+              <Box key={i} sx={{mb: 1, textAlign: user.id == msg.sender.id ? 'right' : 'left'}}>
+                {msg.chatMessageType === 'IMAGE' ?
+                    <>
+                      <Typography><strong>{msg.sender.name}:</strong></Typography>
+                      <img src={msg.content} alt="img" style={{ maxWidth: IMAGE_SIZE, borderRadius: 4 }} />
+                    </> : (
+                    <Typography><strong>{msg.sender.name}:</strong> {msg.content}</Typography>
                 )}
               </Box>
-            ))
-          )}
-        </CardContent>
-      </Card>
+          ))}
+        </Box>
 
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <TextField
-          fullWidth
-          size="small"
-          variant="outlined"
-          placeholder="메시지를 입력하세요"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={sendMessage}
-          sx={{ minWidth: "100px" }}
-        >
-          보내기
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          {/* Photo button */}
+          <IconButton color="primary" component="label" sx={{ p: 1 }}>
+            <PhotoCamera sx={{ width: 24, height: 24 }} />
+            <input type="file" hidden accept="image/*" onChange={sendImage} ref={fileInputRef} />
+          </IconButton>
+          {/* Text input */}
+          <TextField
+              fullWidth size="small" variant="outlined"
+              placeholder="메시지를 입력하세요" value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && sendText()}
+          />
+          <Button variant="contained" onClick={sendText} sx={{ minWidth: 100 }}>
+            <SendIcon />
+          </Button>
+        </Box>
       </Box>
-    </Box>
   );
 };
 

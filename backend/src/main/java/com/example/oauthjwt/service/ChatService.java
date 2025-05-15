@@ -2,22 +2,25 @@ package com.example.oauthjwt.service;
 
 import java.util.List;
 
+import com.example.oauthjwt.dto.request.ChatMessageRequest;
+import com.example.oauthjwt.dto.response.ChatMessageResponse;
+import com.example.oauthjwt.dto.response.ChatRoomResponse;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 public interface ChatService {
     @Transactional
-    public abstract ChatRoom initiateChatFromPost(Long postId, Long requesterId);
+    ChatRoomResponse initiateChatFromPost(Long postId, Long requesterId);
 
     @Transactional
-    public abstract ChatMessage saveMessage(Long chatRoomId, Long senderId, String content, ChatRoomUserStatus type);
+    ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, String email);
 
     List<ChatMessage> getMessages(Long chatRoomId);
-
-    Long getUserIdByUsername(String username);
 
     List<ChatRoom> findChatRoomsByUserId(Long userId);
 
@@ -29,4 +32,8 @@ public interface ChatService {
     ChatRoom findById(Long chatRoomId);
 
     String getTransactionStatusByChatRoomId(Long chatRoomId);
+
+    ChatMessageResponse addUser(ChatMessageRequest chatMessageRequest, SimpMessageHeaderAccessor simpMessageHeaderAccessor);
+
+    ChatMessageResponse leaveUser(SessionDisconnectEvent sessionDisconnectEvent);
 }

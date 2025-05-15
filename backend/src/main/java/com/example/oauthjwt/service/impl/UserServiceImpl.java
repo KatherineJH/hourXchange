@@ -1,15 +1,9 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.Collections;
-import java.util.Map;
-
 import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.repository.AddressRepository;
-import com.example.oauthjwt.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,7 +39,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         AddressRequest addressRequest = userRequest.getAddress();
-        if(addressRequest.isEmpty()){
+        if(!addressRequest.isEmpty()){
             Address address = addressRepository.save(Address.of(userRequest.getAddress()));
             user.setAddress(address);
         }

@@ -9,6 +9,7 @@ import java.util.List;
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.VollcolectionResponse.Item;
 
+import com.example.oauthjwt.entity.type.ProviderType;
 import jakarta.persistence.*;
 import lombok.*;
 

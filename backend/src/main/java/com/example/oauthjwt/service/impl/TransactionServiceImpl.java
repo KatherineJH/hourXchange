@@ -3,6 +3,7 @@ package com.example.oauthjwt.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.entity.type.TransactionStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

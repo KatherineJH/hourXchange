@@ -2,6 +2,8 @@ package com.example.oauthjwt.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.oauthjwt.entity.type.ChatMessageType;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +32,7 @@ public class ChatMessage {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private ChatRoomUserStatus chatRoomUserStatus;
+    private ChatMessageType chatMessageType; // 채팅 메시지 타입
 
     @Column(name = "sent_at", nullable = false, updatable = false)
     private LocalDateTime sentAt;
@@ -38,5 +40,14 @@ public class ChatMessage {
     @PrePersist
     protected void onCreate() {
         sentAt = LocalDateTime.now();
+    }
+
+    public static ChatMessage of(ChatRoom chatRoom, User sender, String content, ChatMessageType chatMessageType) {
+        return ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .content(content)
+                .chatMessageType(chatMessageType)
+                .build();
     }
 }

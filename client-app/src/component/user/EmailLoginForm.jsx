@@ -16,7 +16,7 @@ export default function EmailLoginForm() {
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
   const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:8282";
+    import.meta.env.VITE_BACKEND_URL;
   const signIn = async (provider, formData) => {
     console.log("선택된 provider:", provider.id); // 디버깅: 어떤 provider가 호출되었는지 확인
 

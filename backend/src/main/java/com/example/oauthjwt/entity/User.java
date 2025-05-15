@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
