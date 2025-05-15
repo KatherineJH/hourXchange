@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.example.oauthjwt.entity.type.ChatMessageType;
 import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

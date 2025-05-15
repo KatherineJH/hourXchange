@@ -32,12 +32,59 @@ const ChatRoom = () => {
   const { user } = useSelector((state) => state.auth);
 
   // Load room info
+  const handleMatchClick = async () => {
+    try {
+      const result = await matchTransaction(numericRoomId);
+      alert(result || "거래가 완료되었습니다!");
+    } catch (error) {
+      console.error("거래 성사 실패", error);
+      alert("거래 성사 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 요청 버튼 클릭
+  const handleRequestClick = async () => {
+    try {
+      const result = await api.patch(`/api/chat/request/${numericRoomId}`);
+      setRoomInfo({ ...roomInfo, transactionStatus: "REQUESTED" });
+      alert("요청이 완료되었습니다!");
+    } catch (error) {
+      console.error("요청 실패", error);
+      alert("요청 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 수락 버튼 클릭
+  const handleAcceptClick = async () => {
+    try {
+      const result = await api.patch(`/api/chat/accept/${numericRoomId}`);
+      setRoomInfo({ ...roomInfo, transactionStatus: "ACCEPTED" });
+      alert("거래가 수락되었습니다!");
+    } catch (error) {
+      console.error("수락 실패", error);
+      alert("수락 중 오류가 발생했습니다.");
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const info = await fetchChatRoomInfo(roomId);
       setRoomInfo(info);
     })();
   }, [roomId]);
+    async function loadRoomInfo() {
+      // console.log("📌 loadRoomInfo() 진입:", numericRoomId);
+      try {
+        const info = await fetchChatRoomInfo(numericRoomId);
+        // console.log("🐛 채팅방 정보 응답:", info);
+        setRoomInfo(info);
+      } catch (error) {
+        // console.error("❌ 채팅방 정보 가져오기 실패:", error);
+      }
+    }
+
+    loadRoomInfo();
+  }, [numericRoomId]);
 
   // WebSocket connect
   useEffect(() => {
@@ -112,6 +159,24 @@ const ChatRoom = () => {
         <Typography variant="h5" gutterBottom>💬 채팅방 #{roomId}</Typography>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
           {status}
+    <Box sx={{ mt: 4, maxWidth: "700px", mx: "auto" }}>
+      <Typography variant="h5" gutterBottom>
+        💬 채팅방 #{numericRoomId}
+      </Typography>
+      {/* <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          {status === "🔌 연결 시도 중..." ? (
+            <CircularProgress size={16} />
+          ) : (
+            status
+          )}
         </Typography>
 
         <Box ref={messageBoxRef} sx={{ height: 400, overflowY: 'auto', border: 1, borderColor: 'divider', p: 2, mb: 2 }}>
@@ -127,6 +192,99 @@ const ChatRoom = () => {
               </Box>
           ))}
         </Box>
+        {roomInfo ? (
+          <Button
+            variant="outlined"
+            size="medium"
+            disabled={
+              roomInfo.transactionStatus === "COMPLETED" ||
+              currentUserId !== roomInfo.ownerId
+            }
+            onClick={handleMatchClick}
+          >
+            {roomInfo.transactionStatus === "COMPLETED"
+              ? "거래 성공!"
+              : "거래 할까요?"}
+          </Button>
+        ) : (
+          <CircularProgress size={20} />
+        )}
+      </Box> */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          {status === "🔌 연결 시도 중..." ? (
+            <CircularProgress size={16} />
+          ) : (
+            status
+          )}
+        </Typography>
+        {roomInfo ? (
+          <>
+            {/* 요청 버튼: 요청자이고 PENDING 상태일 때 */}
+            {currentUserId !== roomInfo.ownerId &&
+              roomInfo.transactionStatus === "PENDING" && (
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  onClick={handleRequestClick}
+                >
+                  요청
+                </Button>
+              )}
+            {/* 수락 버튼: 상품 소유자이고 REQUESTED 상태일 때 */}
+            {currentUserId === roomInfo.ownerId &&
+              roomInfo.transactionStatus === "REQUESTED" && (
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  onClick={handleAcceptClick}
+                >
+                  수락
+                </Button>
+              )}
+            {/* 거래 완료 상태 */}
+            {roomInfo.transactionStatus === "ACCEPTED" && (
+              <Typography variant="subtitle2" color="text.secondary">
+                거래 수락됨 (마이페이지에서 완료 처리)
+              </Typography>
+            )}
+          </>
+        ) : (
+          <CircularProgress size={20} />
+        )}
+      </Box>
+      <Card variant="outlined" sx={{ height: 400, overflowY: "auto", mb: 2 }}>
+        <CardContent ref={messageBoxRef} sx={{ px: 2 }}>
+          {messages.length === 0 ? (
+            <Typography color="text.secondary">메시지가 없습니다.</Typography>
+          ) : (
+            messages.map((msg, idx) => (
+              <Box key={idx} sx={{ mb: 1 }}>
+                {msg.system ? (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontStyle="italic"
+                  >
+                    {msg.content}
+                  </Typography>
+                ) : (
+                  <Typography variant="body2">
+                    <strong>{msg.senderUsername}</strong>: {msg.content}
+                  </Typography>
+                )}
+              </Box>
+            ))
+          )}
+        </CardContent>
+      </Card>
 
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           {/* Photo button */}

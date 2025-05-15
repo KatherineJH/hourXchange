@@ -1,6 +1,7 @@
 package com.example.oauthjwt.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.response.ChatMessageResponse;
@@ -14,6 +15,8 @@ import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 public interface ChatService {
+    Optional<ChatRoom> findByProductAndUsers(Long productId, Long user1Id, Long user2Id);
+
     @Transactional
     ChatRoomResponse initiateChatFromPost(Long postId, Long requesterId);
 

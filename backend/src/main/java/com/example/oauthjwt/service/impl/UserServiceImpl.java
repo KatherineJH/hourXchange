@@ -6,6 +6,7 @@ import com.example.oauthjwt.repository.AddressRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -43,10 +44,7 @@ public class UserServiceImpl implements UserService {
             Address address = addressRepository.save(Address.of(userRequest.getAddress()));
             user.setAddress(address);
         }
-
-
         User result = userRepository.save(user);
-
         return UserResponse.toDto(result);
     }
 
@@ -66,6 +64,24 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
 
         return UserResponse.toDto(user);
+    }
+
+    @Override
+    @Transactional
+    public void addCredits(Long userId, int hours) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.addTime(hours); // 내부적으로 wallet.addCredit 호출
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deductCredits(Long userId, int hours) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.subtractTime(hours); // 내부적으로 wallet.subtractCredit 호출
+        userRepository.save(user);
     }
 
 }
