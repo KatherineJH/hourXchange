@@ -1,6 +1,6 @@
 // router/userRouter.jsx
 import React from "react";
-import PackagePaymentScreen from "../component/payment/Buy.jsx";
+import PackagePaymentScreen from "../component/payment/Buy";
 
 const paymentRouter = () => [
   {
