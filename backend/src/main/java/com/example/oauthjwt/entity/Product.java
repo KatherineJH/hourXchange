@@ -63,7 +63,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
-    private Address address; // 서비스 카테고리
+    private Address address; // 주소
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -137,6 +137,8 @@ public class Product {
         this.hours = productRequest.getHours();
         this.startedAt = productRequest.getStartedAt();
         this.endAt = productRequest.getEndAt();
+        this.lat = productRequest.getLat();
+        this.lng = productRequest.getLng();
         this.category = category;
         this.providerType = providerType;
         this.getImages().addAll(images);

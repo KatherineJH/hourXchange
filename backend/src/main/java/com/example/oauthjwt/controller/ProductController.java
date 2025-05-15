@@ -53,13 +53,10 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (!userDetails.getUser().getId().equals(productRequest.getOwnerId())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "본인이 등록한 제품만 수정이 가능합니다.");
-        }
         // url 주소로 받은 id 값 지정
         productRequest.setId(id);
         // 로직
-        ProductResponse result = productService.update(productRequest);
+        ProductResponse result = productService.update(productRequest, userDetails);
         // 반환
         return ResponseEntity.ok(result);
     }

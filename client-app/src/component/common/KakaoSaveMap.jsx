@@ -103,7 +103,7 @@ function KakaoSaveMap({ saveData, setSaveData }) {
                 );
             }
         });
-    }, [setSaveData]);
+    }, []);
 
     return <div ref={mapRef} style={containerStyle} />;
 }

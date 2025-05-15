@@ -18,29 +18,22 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography,
 } from "@mui/material";
-import { getList, getListWithKeyword } from "../../api/productApi.js";
+import { getList, getListWithKeyword, getAutocompleteSuggestions } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
-import { getAutocompleteSuggestions } from "../../api/productApi.js";
 
-function ListTable({
-  filterProviderType,
-  category,
-  keyword: keywordProp = "",
-}) {
+function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
   const [serverDataList, setServerDataList] = useState([]);
   const navigate = useNavigate();
 
-  const [page, setPage] = useState(0); // JPA는 0부터 시작
+  const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
   const [keyword, setKeyword] = useState(keywordProp);
-  // const [keyword, setKeyword] = useState("");
-  const [searchInput, setSearchInput] = useState(""); // 검색어 입력
-  const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
-  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
+  const [searchInput, setSearchInput] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   useEffect(() => {
     if (searchInput.trim() === "" || searchInput === keyword) {
@@ -64,23 +57,21 @@ function ListTable({
     const fetch = async () => {
       try {
         const response =
-          keyword.trim() === ""
-            ? await getList(page, size)
-            : await getListWithKeyword(keyword, page, size);
+            keyword.trim() === ""
+                ? await getList(page, size)
+                : await getListWithKeyword(keyword, page, size);
 
         let data = response.data.content;
 
         if (filterProviderType) {
-          // ProviderType 타입 필터 필요한 경우
           data = data.filter((p) => p.providerType === filterProviderType);
         }
         if (category) {
-          // 카테고리 필터 필요한 경우
           data = data.filter((p) => p.category?.categoryName === category);
         }
 
         setServerDataList(data);
-        setTotalPages(response.data.totalPages); // 전체 페이지 수는 변경하지 않음
+        setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
@@ -89,7 +80,7 @@ function ListTable({
   }, [page, size, keyword, filterProviderType, category]);
 
   useEffect(() => {
-    setKeyword(keywordProp); // 외부에서 넘어온 keyword로 반영
+    setKeyword(keywordProp);
   }, [keywordProp]);
 
   const handleSearch = () => {
@@ -98,177 +89,189 @@ function ListTable({
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-        <CardContent>
-          {/* <Typography variant="h5" gutterBottom>
-            제품 리스트
-          </Typography> */}
-
-          {/* 검색창 */}
-          <Box sx={{ position: "relative", width: "300px", margin: "1rem 0" }}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="검색어를 입력하세요"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown") {
-                  e.preventDefault();
-                  setHighlightedIndex((prev) =>
-                    prev < suggestions.length - 1 ? prev + 1 : 0
-                  );
-                } else if (e.key === "ArrowUp") {
-                  e.preventDefault();
-                  setHighlightedIndex((prev) =>
-                    prev > 0 ? prev - 1 : suggestions.length - 1
-                  );
-                } else if (e.key === "Enter") {
-                  if (
-                    highlightedIndex >= 0 &&
-                    highlightedIndex < suggestions.length
-                  ) {
-                    const selected = suggestions[highlightedIndex];
-                    setSearchInput(selected);
-                    setKeyword(selected);
-                    setPage(0);
-                    setSuggestions([]);
-                    setHighlightedIndex(-1);
-                  } else {
-                    handleSearch();
-                  }
-                }
-              }}
-              size="small"
-            />
-            <Button
-              variant="contained"
-              onClick={handleSearch}
-              sx={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                height: "100%",
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0,
-              }}
-            >
-              검색
-            </Button>
-
-            {/* 추천 검색어 */}
-            {suggestions.length > 0 && (
-              <Paper
+      <Box>
+        <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          <CardContent>
+            {/* 검색창 + 버튼 영역 */}
+            <Box
                 sx={{
-                  position: "absolute",
-                  width: "100%",
-                  mt: "4px",
-                  zIndex: 10,
-                  maxHeight: 200,
-                  overflowY: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 2,
                 }}
-              >
-                <List dense>
-                  {suggestions.map((s, idx) => (
-                    <ListItem key={idx} disablePadding>
-                      <ListItemButton
-                        selected={idx === highlightedIndex}
-                        onMouseEnter={() => setHighlightedIndex(idx)}
-                        onClick={() => {
-                          setSearchInput(s);
-                          setKeyword(s);
+            >
+              {/* 검색창 */}
+              <Box sx={{ position: "relative", width: "300px" }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="검색어를 입력하세요"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setHighlightedIndex((prev) =>
+                            prev < suggestions.length - 1 ? prev + 1 : 0
+                        );
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setHighlightedIndex((prev) =>
+                            prev > 0 ? prev - 1 : suggestions.length - 1
+                        );
+                      } else if (e.key === "Enter") {
+                        if (
+                            highlightedIndex >= 0 &&
+                            highlightedIndex < suggestions.length
+                        ) {
+                          const selected = suggestions[highlightedIndex];
+                          setSearchInput(selected);
+                          setKeyword(selected);
                           setPage(0);
                           setSuggestions([]);
                           setHighlightedIndex(-1);
-                        }}
-                      >
-                        <ListItemText primary={s} />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Paper>
-            )}
-          </Box>
+                        } else {
+                          handleSearch();
+                        }
+                      }
+                    }}
+                    size="small"
+                />
+                <Button
+                    variant="contained"
+                    onClick={handleSearch}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      height: "100%",
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                    }}
+                >
+                  검색
+                </Button>
 
-          <TableContainer component={Paper} sx={{ mt: 2 }}>
-            <Table stickyHeader aria-label="product table">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>Id</TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>제목</TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>설명</TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    시간(비용)
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    시작시간
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    끝시간
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    작성자
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    카테고리
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>타입</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {serverDataList && serverDataList.length > 0 ? (
-                  serverDataList.map((item) => (
-                    <TableRow
-                      hover
-                      key={item.id}
-                      onClick={() => navigate(`/product/read/${item.id}`)}
-                      sx={{ cursor: "pointer" }}
+                {/* 추천 검색어 */}
+                {suggestions.length > 0 && (
+                    <Paper
+                        sx={{
+                          position: "absolute",
+                          width: "100%",
+                          mt: "4px",
+                          zIndex: 10,
+                          maxHeight: 200,
+                          overflowY: "auto",
+                        }}
                     >
-                      <TableCell>{item.id}</TableCell>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell>{item.hours}</TableCell>
-                      <TableCell>{item.startedAt}</TableCell>
-                      <TableCell>{item.endAt}</TableCell>
-                      <TableCell>{item.owner.name}</TableCell>
-                      <TableCell>{item.category.categoryName}</TableCell>
-                      <TableCell>{item.providerType}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center">
-                      검색 결과가 없습니다.
-                    </TableCell>
-                  </TableRow>
+                      <List dense>
+                        {suggestions.map((s, idx) => (
+                            <ListItem key={idx} disablePadding>
+                              <ListItemButton
+                                  selected={idx === highlightedIndex}
+                                  onMouseEnter={() => setHighlightedIndex(idx)}
+                                  onClick={() => {
+                                    setSearchInput(s);
+                                    setKeyword(s);
+                                    setPage(0);
+                                    setSuggestions([]);
+                                    setHighlightedIndex(-1);
+                                  }}
+                              >
+                                <ListItemText primary={s} />
+                              </ListItemButton>
+                            </ListItem>
+                        ))}
+                      </List>
+                    </Paper>
                 )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-      {/* 페이지네이션 */}
-      <Box
-        sx={{
-          marginTop: "1rem",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <Stack spacing={2}>
-          <Pagination
-            count={totalPages}
-            page={page + 1}
-            onChange={(event, value) => setPage(value - 1)}
-            variant="outlined"
-            shape="rounded"
-            color="primary"
-          />
-        </Stack>
+              </Box>
+
+              {/* 오른쪽 정렬된 검색2 버튼 */}
+              <Button variant="contained" onClick={() => navigate("/product/register")}>
+                게시물 작성
+              </Button>
+            </Box>
+
+            {/* 테이블 */}
+            <TableContainer component={Paper} sx={{ mt: 2 }}>
+              <Table stickyHeader aria-label="product table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>Id</TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>제목</TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>설명</TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>
+                      시간(비용)
+                    </TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>
+                      시작시간
+                    </TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>
+                      끝시간
+                    </TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>
+                      작성자
+                    </TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>
+                      카테고리
+                    </TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>타입</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {serverDataList && serverDataList.length > 0 ? (
+                      serverDataList.map((item) => (
+                          <TableRow
+                              hover
+                              key={item.id}
+                              onClick={() => navigate(`/product/read/${item.id}`)}
+                              sx={{ cursor: "pointer" }}
+                          >
+                            <TableCell>{item.id}</TableCell>
+                            <TableCell>{item.title}</TableCell>
+                            <TableCell>{item.description}</TableCell>
+                            <TableCell>{item.hours}</TableCell>
+                            <TableCell>{item.startedAt}</TableCell>
+                            <TableCell>{item.endAt}</TableCell>
+                            <TableCell>{item.owner.name}</TableCell>
+                            <TableCell>{item.category.categoryName}</TableCell>
+                            <TableCell>{item.providerType}</TableCell>
+                          </TableRow>
+                      ))
+                  ) : (
+                      <TableRow>
+                        <TableCell colSpan={9} align="center">
+                          검색 결과가 없습니다.
+                        </TableCell>
+                      </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+        {/* 페이지네이션 */}
+        <Box
+            sx={{
+              marginTop: "1rem",
+              display: "flex",
+              justifyContent: "center",
+            }}
+        >
+          <Stack spacing={2}>
+            <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={(event, value) => setPage(value - 1)}
+                variant="outlined"
+                shape="rounded"
+                color="primary"
+            />
+          </Stack>
+        </Box>
       </Box>
-    </Box>
   );
 }
 

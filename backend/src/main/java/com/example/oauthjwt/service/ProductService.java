@@ -15,7 +15,7 @@ public interface ProductService {
 
     ProductResponse findById(Long id);
 
-    ProductResponse update(ProductRequest productRequest);
+    ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails);
 
     Page<ProductResponse> findAll(Pageable pageable);
 

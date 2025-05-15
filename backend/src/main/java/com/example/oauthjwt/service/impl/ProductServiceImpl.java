@@ -81,17 +81,22 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse update(ProductRequest productRequest) {
+    public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 검증
         Product product = productRepository.findById(productRequest.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "제품이 존재하지 않습니다."));
+        if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신이 등록한 제품만 수정이 가능합니다.");
+        }
+        Address address = product.getAddress();
         Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "카테고리 정보가 존재하지 않습니다."));
 
         ProviderType providerType = ProviderType.parseProviderType(productRequest.getProviderType().toUpperCase());
         if (providerType == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
         }
+
         // 이미지 리스트 생성
         List<SPImage> images = new ArrayList<>();
         if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
@@ -110,6 +115,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         // 저장 및 반환
+        address.setUpdateValue(productRequest);
         Product result = productRepository.save(product.setUpdateValue(productRequest, category, providerType, images));
         return ProductResponse.toDto(result);
     }
