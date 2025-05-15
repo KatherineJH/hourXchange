@@ -30,23 +30,24 @@ const ChatRoom = () => {
   const [roomInfo, setRoomInfo] = useState(null);
 
   const clientRef = useRef(null);
+  // 스크롤 컨테이너를 Card에 붙입니다.
   const messageBoxRef = useRef(null);
   const fileInputRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
 
-  // 1) 방 정보 로드
+  // 방 정보 로드 및 WebSocket 연결
   useEffect(() => {
     if (isNaN(roomId)) {
       setStatus("❌ 잘못된 방 번호");
       return;
     }
+
+    // 1) 방 정보 가져오기
     fetchChatRoomInfo(roomId)
         .then((info) => setRoomInfo(info))
-        .catch((e) => {
-          console.error("채팅방 정보 로드 실패");
-        });
+        .catch(() => console.error("채팅방 정보 로드 실패"));
 
-    // 2) WebSocket 연결
+    // 2) JWT 토큰 받아서 STOMP 클라이언트 설정
     api
         .get("/api/auth/token", { withCredentials: true })
         .then((res) => {
@@ -57,7 +58,6 @@ const ChatRoom = () => {
             onConnect: () => {
               setStatus("🟢 연결됨");
               client.subscribe(`/topic/room/${roomId}`, (msg) => {
-                console.log(msg.body)
                 const body = JSON.parse(msg.body);
                 setMessages((prev) => [...prev, body]);
               });
@@ -84,14 +84,15 @@ const ChatRoom = () => {
     };
   }, [roomId]);
 
-  // 메시지 스크롤
+  // 메시지 리스트가 바뀔 때마다 스크롤 최하단으로 이동
   useEffect(() => {
-    if (messageBoxRef.current) {
-      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+    const el = messageBoxRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [messages]);
 
-  // 거래 버튼 핸들러
+  // 거래 요청/수락 핸들러
   const handleRequestClick = async () => {
     try {
       await api.patch(`/api/chat/request/${roomId}`);
@@ -111,7 +112,7 @@ const ChatRoom = () => {
     }
   };
 
-  // 텍스트 전송
+  // 텍스트/이미지 전송
   const sendText = () => {
     if (!input.trim()) return;
     clientRef.current.publish({
@@ -120,7 +121,6 @@ const ChatRoom = () => {
     });
     setInput("");
   };
-  // 이미지 전송
   const sendImage = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -136,7 +136,6 @@ const ChatRoom = () => {
     e.target.value = null;
   };
 
-  // 렌더링
   return (
       <Box sx={{ mt: 4, maxWidth: 700, mx: "auto" }}>
         <Typography variant="h5">💬 채팅방 #{roomId}</Typography>
@@ -148,7 +147,7 @@ const ChatRoom = () => {
           )}
         </Typography>
 
-        {/* 거래 버튼 */}
+        {/* 거래 버튼 그룹 */}
         <Box sx={{ mb: 2 }}>
           {roomInfo ? (
               <>
@@ -167,22 +166,34 @@ const ChatRoom = () => {
           )}
         </Box>
 
-        {/* 메시지 리스트 */}
-        <Card variant="outlined" sx={{ height: 400, overflowY: "auto", mb: 2 }}>
-          <CardContent ref={messageBoxRef}>
+        {/* 메시지 리스트 (스크롤 컨테이너에 ref) */}
+        <Card
+            variant="outlined"
+            ref={messageBoxRef}
+            sx={{ height: 400, overflowY: "auto", mb: 2 }}
+        >
+          <CardContent>
             {messages.length === 0 ? (
                 <Typography color="text.secondary">메시지가 없습니다.</Typography>
             ) : (
                 messages.map((msg, i) => (
-                    <Box key={i} sx={{ mb: 1, textAlign: user.id === msg.sender.id ? "right" : "left" }}>
-                      {msg.chatMessageType === "IMAGE" ?
+                    <Box
+                        key={i}
+                        sx={{
+                          mb: 1,
+                          textAlign: user.id === msg.sender.id ? "right" : "left",
+                        }}
+                    >
+                      {msg.chatMessageType === "IMAGE" ? (
                           <>
-                            <Typography>
-                              <strong>{msg.sender.name}:</strong>
-                            </Typography>
-                            <img src={msg.content} alt="" style={{ maxWidth: IMAGE_SIZE }} />
+                            <Typography><strong>{msg.sender.name}:</strong></Typography>
+                            <img
+                                src={msg.content}
+                                alt=""
+                                style={{ maxWidth: IMAGE_SIZE }}
+                            />
                           </>
-                       : msg.system ? (
+                      ) : msg.system ? (
                           <Typography color="text.secondary" fontStyle="italic">
                             {msg.content}
                           </Typography>
@@ -201,7 +212,13 @@ const ChatRoom = () => {
         <Box sx={{ display: "flex", gap: 1 }}>
           <IconButton component="label">
             <PhotoCamera />
-            <input type="file" hidden accept="image/*" onChange={sendImage} ref={fileInputRef} />
+            <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={sendImage}
+                ref={fileInputRef}
+            />
           </IconButton>
           <TextField
               fullWidth
