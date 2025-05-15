@@ -16,11 +16,12 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import MyList from "../component/transaction/MyList";
 import MyProductList from "../component/product/MyProductList";
+import MyBoardList from "../component/board/MyBoardList";
 
 const menu = [
   { text: "메뉴1", to: "/myPage/my-products" },
   { text: "메뉴2", to: "/myPage/my" },
-  { text: "메뉴3", to: "/product/volunteer" },
+  { text: "메뉴3", to: "/myPage/my-board" },
 ];
 
 const Sidebar = () => {

@@ -59,3 +59,8 @@ export const updateBoardLike = async (id) => {
   const response = await api.put(`/api/board/${id}/thumbs-up`);
   return response.data;
 };
+
+export const getMyBoardList = async () => {
+  const response = await api.get("/api/board/my-board");
+  return response;
+};

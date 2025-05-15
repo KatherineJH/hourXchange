@@ -1,6 +1,7 @@
 package com.example.oauthjwt.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -160,5 +161,13 @@ public class BoardServiceImpl implements BoardService {
 
         // 5) DTO 반환
         return BoardResponse.toDto(board, totalLikes, likedByMe);
+    }
+
+    @Override
+    public List<BoardResponse> findBoardsByUserId(Long userId) {
+        List<Board> boards = boardRepository.findByAuthorId(userId);
+        return boards.stream()
+                .map(BoardResponse::toDto)
+                .collect(Collectors.toList());
     }
 }

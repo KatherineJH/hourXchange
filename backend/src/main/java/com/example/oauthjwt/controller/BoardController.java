@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.entity.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ import com.example.oauthjwt.service.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.List;
 
 @Log4j2
 @RestController
@@ -116,4 +119,18 @@ public class BoardController {
             return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
         }
     }
+
+    @GetMapping("/my-board")
+    public ResponseEntity<?> getMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            Long userId = userDetails.getUser().getId();
+            List<BoardResponse> responses = boardService.findBoardsByUserId(userId);
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.serverError("내 게시글 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+
 }
