@@ -40,6 +40,17 @@ public class ChatRoom {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+//    public List<User> getParticipants() {
+//        Set<User> participants = new HashSet<>();
+//        for (ChatRoomUser cru : chatRoomUsers) {
+//            if (cru.getUser1() != null)
+//                participants.add(cru.getUser1());
+//            if (cru.getUser2() != null)
+//                participants.add(cru.getUser2());
+//        }
+//        return new ArrayList<>(participants);
+//    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

@@ -40,7 +40,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Optional<ChatRoom> findByProductAndUsers(Long productId, Long user1Id, Long user2Id) {
-        return chatRoomRepository.findByProductAndUsers(productId, user1Id, user2Id);
+        return chatRoomRepository.findByProductAndParticipants(productId, user1Id, user2Id);
     }
 
     @Transactional
@@ -100,11 +100,11 @@ public class ChatServiceImpl implements ChatService {
         return chatMessageRepository.findByChatRoomId(chatRoomId);
     }
 
-    @Override
-    public Long getUserIdByUsername(String username) {
-        return userRepository.findByEmail(username).map(User::getId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
+//    @Override
+//    public Long getUserIdByUsername(String username) {
+//        return userRepository.findByEmail(username).map(User::getId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//    }
 
     @Override
     public List<ChatRoom> findChatRoomsByUserId(Long userId) {
@@ -149,26 +149,9 @@ public class ChatServiceImpl implements ChatService {
             throw new IllegalStateException("채팅방에 연결된 상품이 없습니다.");
         }
 
-        // 나(현재 로그인 사용자)가 누구인지 찾기 위해 채팅방 참여자 확인
-        List<User> participants = chatRoom.getParticipants();
-        if (participants.size() != 2) {
-            throw new IllegalStateException("채팅방 참여자가 2명이 아닙니다.");
-        }
-        // 게시자는 product.getOwner(), 컨택한 자는 그 외 한 명
-        User buyer = participants.stream()
-                .filter(p -> !p.getId().equals(product.getOwner().getId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("구매자 정보를 찾을 수 없습니다."));
-
-        return transactionRepository.findByProductAndUser(product, buyer)
-                .map(tx -> tx.getStatus().name())
-                .orElse("PENDING");
-    }
-
-    @Override
-    public ChatRoom findByProductId(Long productId) {
-        return chatRoomRepository.findByProductId(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
+        return transactionRepository.findByProduct(product).map(tx -> tx.getStatus().name()).orElse("PENDING"); // 거래가
+        // 없으면
+        // PENDING
     }
 
     @Override

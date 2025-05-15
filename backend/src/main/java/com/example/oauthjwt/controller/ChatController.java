@@ -39,6 +39,7 @@ public class ChatController {
     private final ChatService chatService;
     private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final TransactionService transactionService;
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessageRequest chatMessageRequest, SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
