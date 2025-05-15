@@ -1,4 +1,4 @@
-package com.example.oauthjwt.entity;
+package com.example.oauthjwt.entity.type;
 
 public enum TransactionStatus {
     PENDING, // 시작 전

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 
 public interface ChatService {
     Optional<ChatRoom> findByProductAndUsers(Long productId, Long user1Id, Long user2Id);

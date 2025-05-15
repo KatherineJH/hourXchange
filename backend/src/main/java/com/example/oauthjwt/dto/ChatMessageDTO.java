@@ -1,6 +1,6 @@
 package com.example.oauthjwt.dto;
 
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 
 import lombok.*;
 

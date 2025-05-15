@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.UserStatus;
+import com.example.oauthjwt.entity.type.UserStatus;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
 
+import com.example.oauthjwt.entity.type.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -21,7 +21,7 @@ import com.example.oauthjwt.dto.response.ChatRoomInfoResponse;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.ProductService;

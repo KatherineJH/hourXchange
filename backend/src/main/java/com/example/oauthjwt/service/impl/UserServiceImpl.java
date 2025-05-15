@@ -44,10 +44,7 @@ public class UserServiceImpl implements UserService {
             Address address = addressRepository.save(Address.of(userRequest.getAddress()));
             user.setAddress(address);
         }
-
-
         User result = userRepository.save(user);
-
         return UserResponse.toDto(result);
     }
 
@@ -74,7 +71,7 @@ public class UserServiceImpl implements UserService {
     public void addCredits(Long userId, int hours) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-        user.setCredit(user.getCredit() + hours);
+        user.addTime(hours); // 내부적으로 wallet.addCredit 호출
         userRepository.save(user);
     }
 
@@ -83,10 +80,8 @@ public class UserServiceImpl implements UserService {
     public void deductCredits(Long userId, int hours) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-        if (user.getCredit() < hours) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");
-        }
-        user.setCredit(user.getCredit() - hours);
+        user.subtractTime(hours); // 내부적으로 wallet.subtractCredit 호출
         userRepository.save(user);
     }
+
 }
