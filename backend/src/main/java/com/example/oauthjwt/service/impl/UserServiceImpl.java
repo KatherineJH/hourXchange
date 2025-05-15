@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         AddressRequest addressRequest = userRequest.getAddress();
-        if(addressRequest.isEmpty()){
+        if(!addressRequest.isEmpty()){
             Address address = addressRepository.save(Address.of(userRequest.getAddress()));
             user.setAddress(address);
         }

@@ -149,7 +149,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상대방 유저가 없습니다."));
 
-        // 상태 변경
+        // 트랜잭션 상태 변경
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
         for (Transaction transaction : transactions) {
             if (transaction.getStatus() == TransactionStatus.REQUESTED) {
@@ -158,44 +158,24 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
 
-        // 크레딧 이동 로직
+        // 크레딧 차감 로직 ONLY
         try {
             if (type == ProviderType.SELLER) {
                 opponent.subtractTime(hours);
-                owner.addTime(hours);
-
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(opponent.getWallet())
                         .product(product)
                         .type(WalletATM.SPEND)
-                        .amount(hours)
-                        .createdAt(LocalDateTime.now())
-                        .build());
-
-                walletHistoryRepository.save(WalletHistory.builder()
-                        .wallet(owner.getWallet())
-                        .product(product)
-                        .type(WalletATM.EARN)
                         .amount(hours)
                         .createdAt(LocalDateTime.now())
                         .build());
 
             } else if (type == ProviderType.BUYER) {
                 owner.subtractTime(hours);
-                opponent.addTime(hours);
-
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(owner.getWallet())
                         .product(product)
                         .type(WalletATM.SPEND)
-                        .amount(hours)
-                        .createdAt(LocalDateTime.now())
-                        .build());
-
-                walletHistoryRepository.save(WalletHistory.builder()
-                        .wallet(opponent.getWallet())
-                        .product(product)
-                        .type(WalletATM.EARN)
                         .amount(hours)
                         .createdAt(LocalDateTime.now())
                         .build());
@@ -203,6 +183,5 @@ public class TransactionServiceImpl implements TransactionService {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");
         }
-
     }
 }
