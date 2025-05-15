@@ -92,9 +92,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionResponse> findByUserId(Long userId) {
-        List<Transaction> transactions = transactionRepository.findByUserId(userId);
+        List<Transaction> myTransactions = transactionRepository.findByUserId(userId);
 
-        return transactions.stream().map(TransactionResponse::toDto).collect(Collectors.toList());
+        return myTransactions.stream()
+                .map(transaction -> {
+                    // 각 트랜잭션마다 해당 트랜잭션의 상대방을 찾음
+                    Transaction opponent = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId()).stream()
+                            .filter(t -> t.getProduct().getId().equals(transaction.getProduct().getId()) &&
+                                    !t.getUser().getId().equals(userId))
+                            .findFirst()
+                            .orElse(null);
+
+                    return TransactionResponse.toDto(transaction, opponent);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -167,6 +178,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .product(product)
                         .type(WalletATM.SPEND)
                         .amount(hours)
+                        .balance(opponent.getWallet().getCredit())
                         .createdAt(LocalDateTime.now())
                         .build());
 
@@ -177,6 +189,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .product(product)
                         .type(WalletATM.SPEND)
                         .amount(hours)
+                        .balance(opponent.getWallet().getCredit())
                         .createdAt(LocalDateTime.now())
                         .build());
             }
@@ -203,7 +216,6 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionRepository.save(t);
             }
         }
-
         // 지급 대상 계산
         Product product = transaction.getProduct();
         int hours = product.getHours();
@@ -218,8 +230,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .product(product)
                 .type(WalletATM.EARN)
                 .amount(hours)
+                .balance(receiver.getWallet().getCredit())
                 .createdAt(LocalDateTime.now())
                 .build());
     }
-
 }

@@ -21,13 +21,6 @@ export const getMyTransactionList = async () => {
   return response;
 };
 
-// 리뷰
-export const postReview = async (reviewData) => {
-  const response = await api.post(reviewApiUrl, reviewData, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-};
 
 export const getReviewById = async (reviewId) => {
   const response = await api.get(`${reviewApiUrl}/${reviewId}`);
@@ -36,6 +29,21 @@ export const getReviewById = async (reviewId) => {
 
 export const updateReview = async (reviewId, reviewData) => {
   const response = await api.put(`${reviewApiUrl}/${reviewId}`, reviewData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+};
+
+// 거래 상태 완료 처리
+export const patchCompleteTransaction = async (transactionId) => {
+  const response = await api.patch(`${apiServerUrl}complete/${transactionId}`);
+  return response.data;
+};
+
+
+// 리뷰
+export const postReview = async (reviewData) => {
+  const response = await api.post(reviewApiUrl, reviewData, {
     headers: { "Content-Type": "application/json" },
   });
   return response.data;

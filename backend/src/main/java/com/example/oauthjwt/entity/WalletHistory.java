@@ -26,7 +26,10 @@ public class WalletHistory {
     private WalletATM type; // EARN, SPEND, ADJUST, etc.
 
     @Column(nullable = false)
-    private int amount;
+    private int amount; // 출금 or 입금 금액
+
+    @Column(nullable = false)
+    private int balance; // 돈이 나가거나 빠시는 시점의 잔액
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
