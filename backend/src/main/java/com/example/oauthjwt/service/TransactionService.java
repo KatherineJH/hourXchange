@@ -23,4 +23,7 @@ public interface TransactionService {
 
     @Transactional
     void updateTransactionStatusToAccepted(Long chatRoomId);
+
+    @Transactional
+    void completeTransaction(Long transactionId);
 }

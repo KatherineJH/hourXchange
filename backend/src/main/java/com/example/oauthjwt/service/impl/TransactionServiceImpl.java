@@ -184,4 +184,42 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");
         }
     }
+
+    @Transactional
+    @Override
+    public void completeTransaction(Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션이 존재하지 않습니다."));
+
+        // 같은 chatRoomId, productId 를 가진 짝 트랜잭션 모두 조회
+        List<Transaction> pair = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId())
+                .stream()
+                .filter(t -> t.getProduct().getId().equals(transaction.getProduct().getId()))
+                .collect(Collectors.toList());
+
+        for (Transaction t : pair) {
+            if (t.getStatus() == TransactionStatus.ACCEPTED) {
+                t.setStatus(TransactionStatus.COMPLETED);
+                transactionRepository.save(t);
+            }
+        }
+
+        // 지급 대상 계산
+        Product product = transaction.getProduct();
+        int hours = product.getHours();
+        ProviderType type = product.getProviderType();
+        User giver = (type == ProviderType.SELLER) ? transaction.getUser() : product.getOwner();
+        User receiver = (type == ProviderType.SELLER) ? product.getOwner() : transaction.getUser();
+
+        // 크레딧 지급
+        receiver.addTime(hours);
+        walletHistoryRepository.save(WalletHistory.builder()
+                .wallet(receiver.getWallet())
+                .product(product)
+                .type(WalletATM.EARN)
+                .amount(hours)
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
 }

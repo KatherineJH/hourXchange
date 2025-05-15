@@ -66,4 +66,10 @@ public class TransactionController {
         TransactionResponse result = transactionService.update(transactionRequest);
         return ResponseEntity.ok(result);
     }
+
+    @PatchMapping("/complete/{transactionId}")
+    public ResponseEntity<?> complete(@PathVariable Long transactionId) {
+        transactionService.completeTransaction(transactionId);
+        return ResponseEntity.ok("거래가 완료되었습니다.");
+    }
 }
