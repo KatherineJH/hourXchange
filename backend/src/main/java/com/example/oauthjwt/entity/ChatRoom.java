@@ -52,4 +52,12 @@ public class ChatRoom {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public static ChatRoom of(Product product, User user) {
+        return ChatRoom.builder()
+                .name(product.getTitle() + "채팅방")
+                .product(product)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
