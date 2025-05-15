@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.entity.type.TransactionStatus;
 import com.example.oauthjwt.entity.type.WalletATM;
-import com.example.oauthjwt.repository.WalletHistoryRepository;
+import com.example.oauthjwt.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.repository.ProductRepository;
-import com.example.oauthjwt.repository.TransactionRepository;
-import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.TransactionService;
 import com.example.oauthjwt.service.UserService;
@@ -34,6 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final ChatService chatService;
     private final WalletHistoryRepository walletHistoryRepository;
     private final UserService userService;
+    private final ChatRoomUserRepository chatRoomUserRepository;
 
     @Override
     @Transactional
@@ -58,6 +56,8 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // 4. 채팅방 조회
+//        ChatRoom chatRoom = chatService.findByProductAndUsers(product.getId(), buyer.getId(), buyer.getId())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
         ChatRoom chatRoom = chatService.findByProductAndUsers(product.getId(), buyer.getId(), seller.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
 
@@ -132,10 +132,18 @@ public class TransactionServiceImpl implements TransactionService {
         ChatRoom chatRoom = chatService.findById(chatRoomId);
         Long productId = chatRoom.getProduct().getId();
         User owner = chatRoom.getProduct().getOwner();
-        User requester = chatRoom.getParticipants().stream()
-                .filter(user -> user.getId().equals(requesterId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청자를 찾을 수 없습니다."));
+        User user = userRepository.findById(requesterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+        ChatRoomUser chatRoomUser = chatRoomUserRepository.findByChatRoomAndUser(chatRoom, user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
+
+//        User requester = chatRoom.getParticipants().stream()
+//                .filter(user -> user.getId().equals(requesterId))
+//                .findFirst()
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청자를 찾을 수 없습니다."));
+
+
 
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
         for (Transaction transaction : transactions) {
@@ -155,10 +163,11 @@ public class TransactionServiceImpl implements TransactionService {
         int hours = product.getHours();
 
         User owner = product.getOwner();
-        User opponent = chatRoom.getParticipants().stream()
-                .filter(user -> !user.getId().equals(owner.getId()))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상대방 유저가 없습니다."));
+        User opponent = product.getOwner();
+//        User opponent = chatRoom.getParticipants().stream()
+//                .filter(user -> !user.getId().equals(owner.getId()))
+//                .findFirst()
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상대방 유저가 없습니다."));
 
         // 트랜잭션 상태 변경
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);

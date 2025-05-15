@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {getList, getListWithPosition} from "../../api/productApi.js";
-import GoogleListMap from "../common/GoogleListMap.jsx";
+
 import {
     Box,
     Typography,

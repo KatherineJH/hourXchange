@@ -192,19 +192,9 @@ export default function SellPost() {
   return (
     <>
       {/*게시물 등록 버튼 */}
-      <Box
-        sx={{ display: "flex", justifyContent: "flex-end", padding: "1rem" }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/product/register")}
-        >
-          게시물 작성
-        </Button>
-      </Box>
+
       {/* 🔥 모든 상품 나열 */}
-      <div style={{ padding: "1rem" }}>{renderProductGrid()}</div>
+      <Box>{renderProductGrid()}</Box>
       <ListTable filterProviderType="SELLER" category={selectedCategory} />
     </>
   );

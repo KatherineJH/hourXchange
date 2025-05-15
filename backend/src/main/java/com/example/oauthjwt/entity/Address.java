@@ -1,6 +1,7 @@
 package com.example.oauthjwt.entity;
 
 import com.example.oauthjwt.dto.request.AddressRequest;
+import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
 
 import jakarta.persistence.*;
@@ -51,5 +52,12 @@ public class Address {
     public static Address of(Item item) {
         return Address.builder().zonecode(item.getZipCode()).roadAddress(item.getAddr())
                 .detailAddress(item.getAddrDetail()).build();
+    }
+
+    public void setUpdateValue(ProductRequest productRequest) {
+        this.zonecode = productRequest.getAddress().getZonecode();
+        this.roadAddress = productRequest.getAddress().getRoadAddress();
+        this.jibunAddress = productRequest.getAddress().getJibunAddress();
+        this.detailAddress = productRequest.getAddress().getDetailAddress();
     }
 }

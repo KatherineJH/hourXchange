@@ -1,5 +1,3 @@
-// src/assets/uploadToCloudinary.js
-
 const CLOUDINARY_NAME = import.meta.env.VITE_CLOUDINARY_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
 
