@@ -25,7 +25,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
 import { useLocation, useNavigate } from "react-router-dom";
-import bgImage from "../../public/background.jpg";
+import bgImage from "/background.jpg";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
 
 function Header() {
@@ -44,7 +44,7 @@ function Header() {
 
   const { user, isLoading, error } = useSelector((state) => state.auth);
   const isMenuOpen = Boolean(anchorEl);
-  console.log(user)
+  console.log(user);
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
