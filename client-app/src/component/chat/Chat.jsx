@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 function Chat({ chatRooms, chatError, navigate }) {
-  const location = useLocation();  
+  const location = useLocation();
   const pathPrefix = location.pathname.startsWith("/admin")
     ? "/admin"
     : location.pathname.startsWith("/myPage")
@@ -55,7 +55,7 @@ function Chat({ chatRooms, chatError, navigate }) {
                       🗨️ {room.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      상품 ID: {room.serviceProductId}
+                      상품 ID: {room.productId}
                     </Typography>
                   </CardContent>
                 </CardActionArea>

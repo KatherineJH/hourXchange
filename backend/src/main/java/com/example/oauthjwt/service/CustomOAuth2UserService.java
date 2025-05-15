@@ -14,8 +14,8 @@ import com.example.oauthjwt.dto.response.GoogleResponse;
 import com.example.oauthjwt.dto.response.NaverResponse;
 import com.example.oauthjwt.dto.response.OAuth2Response;
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.UserRole;
-import com.example.oauthjwt.entity.UserStatus;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.extern.log4j.Log4j2;

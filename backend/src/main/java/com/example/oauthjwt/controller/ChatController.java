@@ -21,7 +21,7 @@ import com.example.oauthjwt.dto.response.ChatRoomInfoResponse;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.ProductService;
@@ -139,7 +139,7 @@ public class ChatController {
         List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
         List<ChatRoomDTO> result = chatRooms.stream()
                 .map(room -> ChatRoomDTO.builder().id(room.getId()).name(room.getName())
-                        .serviceProductId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
+                        .productId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
@@ -167,5 +167,43 @@ public class ChatController {
         ChatRoomInfoResponse response = ChatRoomInfoResponse.builder().chatRoomId(chatRoom.getId())
                 .ownerId(chatRoom.getProduct().getOwner().getId()).transactionStatus(transactionStatus).build();
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/request/{chatRoomId}")
+    public ResponseEntity<?> requestTransaction(
+            @PathVariable Long chatRoomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            ChatRoom chatRoom = chatService.findById(chatRoomId);
+            Long requesterId = userDetails.getUser().getId();
+            if (chatRoom.getProduct().getOwner().getId().equals(requesterId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 소유자는 요청할 수 없습니다.");
+            }
+            transactionService.updateTransactionStatusToRequested(chatRoomId, requesterId);
+            return ResponseEntity.ok("요청이 완료되었습니다.");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+        }
+    }
+
+    @PatchMapping("/accept/{chatRoomId}")
+    public ResponseEntity<?> acceptTransaction(
+            @PathVariable Long chatRoomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            ChatRoom chatRoom = chatService.findById(chatRoomId);
+            Long ownerId = userDetails.getUser().getId();
+            if (!chatRoom.getProduct().getOwner().getId().equals(ownerId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 소유자만 수락할 수 있습니다.");
+            }
+            transactionService.updateTransactionStatusToAccepted(chatRoomId);
+            return ResponseEntity.ok("거래가 수락되었습니다.");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+        }
     }
 }

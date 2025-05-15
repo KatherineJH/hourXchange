@@ -38,7 +38,9 @@ public class UserResponse {
     public static UserResponse toDto(User user) {
         return UserResponse.builder().id(user.getId()).name(user.getName()).role(user.getRole().toString())
                 .username(user.getUsername()).email(user.getEmail()).birthdate(user.getBirthdate())
-                .createdAt(user.getCreatedAt()).credit(user.getCredit()).status(user.getStatus().toString())
+                .createdAt(user.getCreatedAt())
+                .credit(user.getWallet() != null ? user.getWallet().getCredit() : 0)
+                .status(user.getStatus().toString())
                 .address(AddressResponse.toDto(user.getAddress())).build();
     }
 }

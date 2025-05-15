@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.example.oauthjwt.entity.ChatMessage;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.UserRepository;
 

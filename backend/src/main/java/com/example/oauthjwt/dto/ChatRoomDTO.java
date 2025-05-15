@@ -12,6 +12,6 @@ import lombok.*;
 public class ChatRoomDTO {
     private Long id;
     private String name;
-    private Long serviceProductId;
+    private Long productId;
     private LocalDateTime createdAt;
 }

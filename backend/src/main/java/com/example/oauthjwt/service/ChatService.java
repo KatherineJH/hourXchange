@@ -1,14 +1,17 @@
 package com.example.oauthjwt.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 
 public interface ChatService {
+    Optional<ChatRoom> findByProductAndUsers(Long productId, Long user1Id, Long user2Id);
+
     @Transactional
     public abstract ChatRoom initiateChatFromPost(Long postId, Long requesterId);
 
@@ -29,4 +32,6 @@ public interface ChatService {
     ChatRoom findById(Long chatRoomId);
 
     String getTransactionStatusByChatRoomId(Long chatRoomId);
+
+    ChatRoom findByProductId(Long productId);
 }
