@@ -1,8 +1,6 @@
 package com.example.oauthjwt.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.dto.response.*;
@@ -21,7 +19,6 @@ import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.ChatRoomDTO;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.ProductService;
@@ -123,14 +120,8 @@ public class ChatController {
 
     @PatchMapping("/match/{chatRoomId}")
     public ResponseEntity<?> completeTransaction(@PathVariable Long chatRoomId) {
-        try {
-            chatService.completeTransactionByChatRoomId(chatRoomId);
-            return ResponseEntity.ok("거래가 완료되었습니다.");
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
-        }
+        chatService.completeTransactionByChatRoomId(chatRoomId);
+        return ResponseEntity.ok("거래가 완료되었습니다.");
     }
 
     @GetMapping("/room-info/{chatRoomId}")

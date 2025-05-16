@@ -35,30 +35,16 @@ public class CategoryController {
 
     @PostMapping("/")
     public ResponseEntity<?> create(@RequestParam String categoryName) {
-        // try {
         Category category = categoryService.addCategory(categoryName);
         CategoryResponse categoryResponse = CategoryResponse.toDto(category);
         return new ResponseEntity<>(categoryResponse, HttpStatus.CREATED);
-        // } catch (Exception e) {
-        // log.error("카테고리 생성 오류",e);
-        // return
-        // ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 생성 도중
-        // 오류 발생"));
-        // }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        try {
-            Category category = categoryService.findById(id);
-            CategoryResponse categoryResponse = CategoryResponse.toDto(category);
-            return ResponseEntity.ok(categoryResponse);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-        } catch (Exception e) {
-            log.error("카테고리 조회 오류", e);
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("카테고리 조회 오류"));
-        }
+        Category category = categoryService.findById(id);
+        CategoryResponse categoryResponse = CategoryResponse.toDto(category);
+        return ResponseEntity.ok(categoryResponse);
     }
 
     @PutMapping("/{id}")

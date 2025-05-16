@@ -10,7 +10,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
 import com.example.oauthjwt.entity.Advertisement;
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.repository.AdvertisementRepository;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.AdvertisementService;
@@ -62,9 +61,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     public Advertisement updateAdvertisement(AdvertisementRequest advertisementRequest) {
         Advertisement advertisement = advertisementRepository.findById(advertisementRequest.getId())
-                .orElseThrow(() -> new ValidationException("수정할 광고가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "수정할 광고가 존재하지 않습니다."));
         if (!advertisement.getOwner().getId().equals(advertisementRequest.getOwnerId())) {
-            throw new ValidationException("작성자만 수정할 수 있습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다.");
         }
         advertisement.setTitle(advertisementRequest.getTitle());
         advertisement.setDescription(advertisementRequest.getDescription());
