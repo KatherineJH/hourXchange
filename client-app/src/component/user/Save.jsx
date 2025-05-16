@@ -1,22 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import DaumPostcode from "react-daum-postcode";
 
 import {
   Box,
   Button,
-  CssBaseline,
-  FormControl,
-  FormLabel,
   TextField,
   Typography,
   Stack,
+  Modal,
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-
-import { styled } from "@mui/material/styles";
-
-import AddressForm from "./AddressForm.jsx";
 import { postSave } from "../../api/authApi.js";
 
 const initState = {
@@ -36,15 +31,51 @@ const initState = {
 
 export default function Save() {
   const navigate = useNavigate();
-  const [saveData, setSaveData] = useState(initState);
+  const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+  const [saveData, setSaveData] = useState(initState); //모달 숨기기
+  //오늘 날짜 계산
+  const today = new Date().toISOString().split("T")[0];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSaveData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAddressComplete = (data) => {
+    setSaveData((prev) => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        zonecode: data.zonecode,
+        roadAddress: data.roadAddress,
+        jibunAddress: data.jibunAddress,
+      },
+    }));
+    setIsPostcodeOpen(false);
+  };
+
+  const handleDetailChange = (e) => {
+    setSaveData((prev) => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        detailAddress: e.target.value,
+      },
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const birthDate = new Date(saveData.birthdate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간을 00:00으로 초기화
+
+    if (birthDate > today) {
+      alert("생일은 미래 날짜로 설정할 수 없습니다.");
+      return;
+    }
+
     if (saveData.password !== saveData.passwordCheck) {
       alert("비밀번호가 일치하지 않습니다.");
       return; // 서버로 요청 보내지 않음
@@ -126,18 +157,71 @@ export default function Save() {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                inputProps={{ max: new Date().toISOString().split("T")[0] }}
               />
 
-              {/* 주소 입력 컴포넌트 */}
-              <AddressForm saveData={saveData} setSaveData={setSaveData} />
-
+              {/*주소 정보*/}
+              <Button
+                variant="outlined"
+                onClick={() => setIsPostcodeOpen(true)}
+              >
+                주소 검색
+              </Button>
+              {/* <TextField
+                label="우편번호"
+                value={saveData.address.zonecode}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              />
+              <TextField
+                label="도로명 주소"
+                value={saveData.address.roadAddress}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              />
+              <TextField
+                label="지번 주소"
+                value={saveData.address.jibunAddress}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              /> */}
+              <TextField
+                label="상세 주소"
+                vlaue={saveData.address.detailAddress}
+                onChange={handleDetailChange}
+                fullwidh
+                required
+              />
               <Button type="submit" variant="contained" fullWidth>
                 저장
               </Button>
+              <Typography sx={{ textAlign: "center" }}>
+                이미 계정이 있으신가요?{" "}
+                <Link to="/login" variant="body2" sx={{ alignSelf: "center" }}>
+                  Sign in
+                </Link>
+              </Typography>
             </Box>
           </Stack>
         </CardContent>
       </Card>
+      {/* 주소 검색 모달 */}
+      <Modal open={isPostcodeOpen} onClose={() => setIsPostcodeOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 2,
+          }}
+        >
+          <DaumPostcode onComplete={handleAddressComplete} />
+        </Box>
+      </Modal>
     </Box>
   );
 }

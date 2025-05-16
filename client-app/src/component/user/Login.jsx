@@ -1,9 +1,9 @@
 import * as React from "react";
 import { SignInPage } from "@toolpad/core/SignInPage";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
-import { TextField } from "@mui/material";
+import { TextField, Typography, Box } from "@mui/material";
 
 const providers = [
   { id: "naver", name: "Naver" },
@@ -66,43 +66,55 @@ export default function EmailLoginForm() {
   };
 
   return (
-    <SignInPage
-      signIn={signIn}
-      providers={providers}
-      slotProps={{
-        form: { noValidate: true },
-        credentials: {
-          inputs: (
-            <>
-              <TextField
-                name="email"
-                label="이메일"
-                type="email"
-                fullWidth
-                margin="normal"
-                required
-                disabled={isLoading}
-              />
-              <TextField
-                name="password"
-                label="비밀번호"
-                type="password"
-                fullWidth
-                margin="normal"
-                required
-                disabled={isLoading}
-              />
-            </>
-          ),
-        },
-      }}
-      sx={{
-        "& form > .MuiStack-root": {
-          marginTop: "2rem",
-          rowGap: "0.5rem",
-        },
-      }}
-      disabled={isLoading}
-    />
+    <Box
+      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
+      <SignInPage
+        signIn={signIn}
+        providers={providers}
+        slotProps={{
+          form: { noValidate: true },
+          credentials: {
+            inputs: (
+              <>
+                <TextField
+                  name="email"
+                  label="Email"
+                  type="email"
+                  fullWidth
+                  margin="normal"
+                  required
+                  disabled={isLoading}
+                />
+                <TextField
+                  name="password"
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  margin="normal"
+                  required
+                  disabled={isLoading}
+                />
+              </>
+            ),
+          },
+        }}
+        sx={{
+          "& form > .MuiStack-root": {
+            marginTop: "2rem",
+            rowGap: "0.5rem",
+          },
+        }}
+        disabled={isLoading}
+      />
+
+      {/* 👇 로그인 폼 바로 아래에 Sign up 문구 삽입 */}
+      <Typography sx={{ mt: 2 }}>
+        계정이 없으신가요?{" "}
+        <Link to="/save" style={{ textDecoration: "underline" }}>
+          Sign up
+        </Link>
+      </Typography>
+    </Box>
   );
 }
