@@ -15,7 +15,6 @@ import com.example.oauthjwt.service.AdvertisementService;
 import com.example.oauthjwt.service.CustomUserDetails;
 
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -24,7 +23,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/api/advertisement")
 @RequiredArgsConstructor
 public class AdvertisementController {
-    
+
     private final AdvertisementService advertisementService;
 
     @PostMapping("/")
@@ -44,38 +43,6 @@ public class AdvertisementController {
         List<Advertisement> responses = advertisementService.findAllAdvertisements();
         return ResponseEntity.ok(responses);
     }
-
-//    @GetMapping("/{advertisementId}")
-//    public ResponseEntity<?> findAdvertisementById(@PathVariable Long advertisementId,
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        try {
-//            Advertisement advertisement = advertisementService.findAdvertisementById(advertisementId,
-//                    userDetails.getUser().getId());
-//            Advertisement response = AdvertisementResponse.toDto(advertisement);
-//            return ResponseEntity.ok(ApiResponse.success("광고 조회 성공"));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-//        } catch (Exception e) {
-//            log.error("광고 조회 중 오류 발생", e);
-//            return ResponseEntity.internalServerError().body(ApiResponse.serverError("광고 조회 중 오류 발생"));
-//        }
-//    }
-//
-//    @PutMapping("/{advertisementId}")
-//    public ResponseEntity<?> updateAdvertisement(@PathVariable Long advertisementId,
-//            @RequestBody AdvertisementRequest advertisementRequest,
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        try {
-//            advertisementRequest.setId(advertisementId);
-//            advertisementRequest.setOwnerId(userDetails.getUser().getId());
-//            Advertisement result = advertisementService.updateAdvertisement(advertisementRequest);
-//            return ResponseEntity.ok(result);
-//        } catch (ValidationException e) {
-//            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-//        } catch (Exception e) {
-//            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부에서 오류 발생"));
-//        }
-//    }
 
     @GetMapping("/{advertisementId}")
     public ResponseEntity<?> findAdvertisementById(@PathVariable Long advertisementId,
