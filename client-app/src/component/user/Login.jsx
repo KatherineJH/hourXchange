@@ -66,9 +66,7 @@ export default function EmailLoginForm() {
   };
 
   return (
-    <Box
-      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
+    <>
       <SignInPage
         signIn={signIn}
         providers={providers}
@@ -79,7 +77,7 @@ export default function EmailLoginForm() {
               <>
                 <TextField
                   name="email"
-                  label="Email"
+                  label="이메일"
                   type="email"
                   fullWidth
                   margin="normal"
@@ -88,7 +86,7 @@ export default function EmailLoginForm() {
                 />
                 <TextField
                   name="password"
-                  label="Password"
+                  label="비밀번호"
                   type="password"
                   fullWidth
                   margin="normal"
@@ -108,13 +106,13 @@ export default function EmailLoginForm() {
         disabled={isLoading}
       />
 
-      {/* 👇 로그인 폼 바로 아래에 Sign up 문구 삽입 */}
-      <Typography sx={{ mt: 2 }}>
-        계정이 없으신가요?{" "}
-        <Link to="/save" style={{ textDecoration: "underline" }}>
-          Sign up
+      {/* ⬇️ 여기 SignInPage 밑에 추가되는 부분 */}
+      <Typography sx={{ textAlign: "center", mt: 3 }}>
+        이미 계정이 있으신가요?{" "}
+        <Link to="/login" style={{ textDecoration: "underline" }}>
+          Sign in
         </Link>
       </Typography>
-    </Box>
+    </>
   );
 }
