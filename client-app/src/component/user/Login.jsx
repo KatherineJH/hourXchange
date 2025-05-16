@@ -107,10 +107,16 @@ export default function EmailLoginForm() {
       />
 
       {/* ⬇️ 여기 SignInPage 밑에 추가되는 부분 */}
-      <Typography sx={{ textAlign: "center", mt: 3 }}>
-        이미 계정이 있으신가요?{" "}
-        <Link to="/login" style={{ textDecoration: "underline" }}>
-          Sign in
+      <Typography
+        sx={{
+          textAlign: "center",
+          position: "relative",
+          top: "-20px",
+        }}
+      >
+        계정이 없으신가요?{" "}
+        <Link to="/save" style={{ textDecoration: "underline" }}>
+          Sign up
         </Link>
       </Typography>
     </>
