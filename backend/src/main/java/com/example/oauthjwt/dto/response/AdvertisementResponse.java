@@ -20,9 +20,12 @@ public class AdvertisementResponse {
 
     private int hours;
 
-    public static Advertisement toDto(Advertisement advertisement) {
-        return Advertisement.builder().id(advertisement.getId()).title(advertisement.getTitle())
-                .description(advertisement.getDescription()).hours(advertisement.getHours())
-                .owner(advertisement.getOwner()).build();
+    public static AdvertisementResponse toDto(Advertisement advertisement) {
+        return AdvertisementResponse.builder()
+                .id(advertisement.getId())
+                .title(advertisement.getTitle())
+                .description(advertisement.getDescription())
+                .hours(advertisement.getHours())
+                .build();
     }
 }
