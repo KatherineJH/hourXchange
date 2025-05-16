@@ -76,9 +76,9 @@ public class ChatServiceImpl implements ChatService {
         room.getChatRoomUsers().add(chatRoomProductOwner);
         room.getChatRoomUsers().add(chatRoomRequester);
 
-        ChatRoom result = chatRoomRepository.save(room);
+        ChatRoom savedRoom = chatRoomRepository.save(room); // chatRoomUser도 같이 저장됨
 
-        return ChatRoomResponse.toDto(result);
+        return ChatRoomResponse.toDto(savedRoom);
     }
 
     @Transactional
@@ -141,17 +141,18 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public String getTransactionStatusByChatRoomId(Long chatRoomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+        List<Transaction> txList = transactionRepository.findByChatRoomId(chatRoomId);
 
-        Product product = chatRoom.getProduct();
-        if (product == null) {
-            throw new IllegalStateException("채팅방에 연결된 상품이 없습니다.");
+        if (txList.isEmpty()) {
+            throw new IllegalStateException("해당 채팅방에 연결된 거래가 존재하지 않습니다.");
         }
 
-        return transactionRepository.findByProduct(product).map(tx -> tx.getStatus().name()).orElse("PENDING"); // 거래가
-        // 없으면
-        // PENDING
+        // 가장 최신 거래 기준으로 처리
+        Transaction latest = txList.stream()
+                .max((t1, t2) -> t1.getCreatedAt().compareTo(t2.getCreatedAt()))
+                .orElseThrow(); // theoretically never null
+
+        return latest.getStatus().name();
     }
 
     @Override

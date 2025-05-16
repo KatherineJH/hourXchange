@@ -27,10 +27,6 @@ public class ChatRoomUser {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user2_id", nullable = false)
-//    private User user2;
-
     @Enumerated(EnumType.STRING)
     private ChatRoomUserStatus chatRoomUserStatus;
 

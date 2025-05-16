@@ -37,19 +37,18 @@ public class ChatRoom {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    public List<User> getParticipants() {
+        Set<User> participants = new HashSet<>();
+        for (ChatRoomUser cru : chatRoomUsers) {
+            if (cru.getUser() != null) {
+                participants.add(cru.getUser());
+            }
+        }
+        return new ArrayList<>(participants);
+    }
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-//    public List<User> getParticipants() {
-//        Set<User> participants = new HashSet<>();
-//        for (ChatRoomUser cru : chatRoomUsers) {
-//            if (cru.getUser1() != null)
-//                participants.add(cru.getUser1());
-//            if (cru.getUser2() != null)
-//                participants.add(cru.getUser2());
-//        }
-//        return new ArrayList<>(participants);
-//    }
 
     @PrePersist
     protected void onCreate() {
@@ -63,5 +62,4 @@ public class ChatRoom {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-
 }
