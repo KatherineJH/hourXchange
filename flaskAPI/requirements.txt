@@ -10,3 +10,7 @@ scikit-learn==1.6.0
 konlpy
 jpype1
 fugashi
+
+# for the time series model
+prophet
+pandas
