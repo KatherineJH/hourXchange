@@ -9,6 +9,6 @@ def create_app():
     
     app.register_blueprint(sentiment_bp, url_prefix="/sentiment")
     app.register_blueprint(forecast_bp, url_prefix="/forecast")
-    app.register_blueprint(user_grade_bp, url_prefix="/user") 
+    app.register_blueprint(user_grade_bp, url_prefix="/user-grade") 
 
     return app
