@@ -111,7 +111,6 @@ export default function Save() {
                 fullWidth
                 required
               />
-
               <TextField
                 label="비밀번호"
                 name="password"
@@ -121,7 +120,6 @@ export default function Save() {
                 fullWidth
                 required
               />
-
               <TextField
                 label="비밀번호 확인"
                 name="passwordCheck"
@@ -131,7 +129,6 @@ export default function Save() {
                 fullWidth
                 required
               />
-
               <TextField
                 label="이름"
                 name="name"
@@ -140,7 +137,6 @@ export default function Save() {
                 fullWidth
                 required
               />
-
               <TextField
                 label="별명"
                 name="username"
@@ -148,7 +144,6 @@ export default function Save() {
                 onChange={handleChange}
                 fullWidth
               />
-
               <TextField
                 label="생일"
                 name="birthdate"
@@ -159,7 +154,6 @@ export default function Save() {
                 InputLabelProps={{ shrink: true }}
                 inputProps={{ max: new Date().toISOString().split("T")[0] }}
               />
-
               {/*주소 정보*/}
               <Button
                 variant="outlined"
@@ -167,24 +161,11 @@ export default function Save() {
               >
                 주소 검색
               </Button>
-              {/* <TextField
-                label="우편번호"
-                value={saveData.address.zonecode}
-                InputProps={{ readOnly: true }}
-                fullWidth
-              />
-              <TextField
-                label="도로명 주소"
-                value={saveData.address.roadAddress}
-                InputProps={{ readOnly: true }}
-                fullWidth
-              />
-              <TextField
-                label="지번 주소"
-                value={saveData.address.jibunAddress}
-                InputProps={{ readOnly: true }}
-                fullWidth
-              /> */}
+              <p>
+                {saveData.address.zonecode + " " +
+                  saveData.address.roadAddress +
+                  saveData.address.jibunAddress}
+              </p>
               <TextField
                 label="상세 주소"
                 vlaue={saveData.address.detailAddress}
