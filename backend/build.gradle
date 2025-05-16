@@ -41,6 +41,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2' // xml 파싱용
 	implementation 'org.springframework.boot:spring-boot-starter-actuator' // aws 상태 검사용
+
+
+	implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient
+	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
