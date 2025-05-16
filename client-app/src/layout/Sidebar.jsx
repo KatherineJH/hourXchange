@@ -22,6 +22,7 @@ const menu = [
   { text: "삽니다", to: "/product/buy" },
   { text: "팝니다", to: "/product/sell" },
   { text: "봉사해요", to: "/product/volunteer" },
+  { text: "기부해요", to: "/product/donation" },
   { text: "지역별", to: "/product/list" },
   { text: "커뮤니티", to: "/board/list" },
 ];

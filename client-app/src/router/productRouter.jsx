@@ -8,9 +8,8 @@ const ListMap = lazy(() => import("../component/product/ListMap.jsx"));
 const ListTable = lazy(() => import("../component/product/ListTable.jsx"));
 const Modify = lazy(() => import("../component/product/Modify.jsx"));
 const ProductForm = lazy(() => import("../component/product/ProductForm.jsx"));
-const VolunteerList = lazy(
-  () => import("../component/product/VolunteerList.jsx")
-);
+const VolunteerList = lazy(() => import("../component/product/VolunteerList.jsx"));
+const DonationList = lazy(() => import("../component/product/DonationList.jsx"));
 
 const productRouter = () => {
   return [
@@ -45,6 +44,10 @@ const productRouter = () => {
     {
       path: "volunteer",
       element: <VolunteerList />,
+    },
+    {
+      path: "donation",
+      element: <DonationList />,
     },
     {
       path: "search",

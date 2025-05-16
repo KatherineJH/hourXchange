@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {getList, getListWithPosition} from "../../api/productApi.js";
+import {getListWithPosition} from "../../api/productApi.js";
 
 import {
     Box,
@@ -93,7 +93,6 @@ function ListMap() {
                 </Paper>
             </Box>
         <Box>
-            {/*<GoogleListMap serverData={serverDataList} position={position} setPosition={setPosition}/>*/}
             <KakaoListMap serverData={serverDataList} position={position} setPosition={setPosition}/>
 
         </Box>
