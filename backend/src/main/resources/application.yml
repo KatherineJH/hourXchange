@@ -96,6 +96,10 @@ iamport:
   api-key: ${IAMPORT_KEY}
   api-secret: ${IAMPORT_SECRET}
 
+dialogflow:
+  project-id: ${GCP_PROJECT_ID}
+  language-code: ko-KR
+  credentials-path: classpath:dialogflow-key.json
 
 # ?? ? ?? ???? ?? ?? ??
 logging:
