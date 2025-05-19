@@ -5,6 +5,8 @@ import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.entity.type.TransactionStatus;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.TransactionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,8 @@ public class TransactionServiceTest {
     @Mock private TransactionRepository transactionRepository;
     @Mock private ChatService chatService;
     @Mock private ChatRoomUserRepository chatRoomUserRepository;
+    @Mock private WalletHistoryRepository walletHistoryRepository;
+    @Mock private UserService userService;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -55,9 +59,25 @@ public class TransactionServiceTest {
         request.setProductId(2L);
         request.setStatus("PENDING");
 
-        User buyer = User.builder().id(1L).build();
-        User seller = User.builder().id(2L).build();
-        Product product = Product.builder().id(2L).owner(seller).build();
+        User buyer = User.builder()
+                .id(1L)
+                .name("구매자")
+                .email("buyer@example.com")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+        User seller = User.builder()
+                .id(2L)
+                .name("판매자")
+                .email("seller@example.com")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+        Category category = Category.builder()
+                .id(1L)
+                .categoryName("운동")
+                .build();
+        Product product = Product.builder().id(2L).owner(seller).category(category).providerType(ProviderType.SELLER).build();
         ChatRoom chatRoom = ChatRoom.builder().id(10L).product(product).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(buyer));

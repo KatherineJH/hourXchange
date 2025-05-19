@@ -6,6 +6,8 @@ import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.entity.Address;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.AddressRepository;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.impl.UserServiceImpl;
@@ -25,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * UserServiceTest는 UserServiceImpl의 주요 기능에 대한 단위 테스트 수행.
+ * {@link UserServiceTest}는 {@link UserServiceImpl}의 주요 기능에 대한 단위 테스트 수행.
  * 테스트는 각 기능이 비즈니스 요구사항에 맞게 동작하는지를 검증.
  * 외부 의존성은 Mockito로 모킹.
  */
@@ -107,6 +109,8 @@ public class UserServiceTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("encodedPassword")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
                 .build();
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
@@ -132,6 +136,8 @@ public class UserServiceTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("encodedPassword")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
                 .build();
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
@@ -158,6 +164,8 @@ public class UserServiceTest {
         User user = User.builder()
                 .email("test@example.com")
                 .username("tester")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
                 .build();
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
