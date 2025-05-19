@@ -207,7 +207,7 @@ export default function Save() {
 
           <Typography align="center" sx={{ mt: 1 }}>
             이미 계정이 있으신가요?{" "}
-            <Link component={RouterLink} to="/email-login" underline="hover">
+            <Link component={RouterLink} to="/login" underline="hover">
               Sign in
             </Link>
           </Typography>
