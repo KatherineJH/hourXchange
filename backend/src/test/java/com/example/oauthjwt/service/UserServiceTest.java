@@ -24,6 +24,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * UserServiceTest는 UserServiceImpl의 주요 기능에 대한 단위 테스트 수행.
+ * 테스트는 각 기능이 비즈니스 요구사항에 맞게 동작하는지를 검증.
+ * 외부 의존성은 Mockito로 모킹.
+ */
 public class UserServiceTest {
 
     @Mock
@@ -43,6 +48,11 @@ public class UserServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * 1. 회원가입 성공 (signup_success)
+     *    - 이메일과 닉네임이 중복되지 않은 경우, 비밀번호를 암호화하고 주소를 저장한 뒤 유저를 저장한다.
+     *    - 저장된 User 엔티티가 UserResponse로 변환되어 올바르게 반환되는지 검증한다.
+     * */
     @Test
     @DisplayName("회원가입 성공")
     void signup_success() {
@@ -65,6 +75,11 @@ public class UserServiceTest {
         assertThat(result.getUsername()).isEqualTo("tester");
     }
 
+    /**
+     * 2. 회원가입 실패 - 이메일 중복 (signup_fail_duplicate_email)
+     *    - 이미 존재하는 이메일로 가입 요청 시, ResponseStatusException 예외를 발생시킨다.
+     *    - 예외 메시지에 "이메일이 중복되었습니다"가 포함되어야 한다.
+     * */
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
     void signup_fail_duplicate_email() {
@@ -81,6 +96,11 @@ public class UserServiceTest {
                 .hasMessageContaining("이메일이 중복되었습니다");
     }
 
+    /**
+     * 3. 로그인 성공 (login_success)
+     *    - 이메일로 유저를 조회하고, 비밀번호가 일치하는 경우 로그인에 성공한다.
+     *    - 결과적으로 반환된 UserResponse의 이메일이 기대값과 일치하는지 검증한다.
+     */
     @Test
     @DisplayName("로그인 성공")
     void login_success() {
@@ -101,6 +121,11 @@ public class UserServiceTest {
         assertThat(result.getEmail()).isEqualTo("test@example.com");
     }
 
+    /**
+     * 4. 로그인 실패 - 비밀번호 불일치 (login_fail_invalid_password)
+     *    - 이메일은 존재하지만 비밀번호가 일치하지 않을 경우, ResponseStatusException 예외를 발생시킨다.
+     *    - 예외 메시지에 "아이디 또는 비밀번호가 일치하지 않습니다"가 포함되어야 한다.
+     */
     @Test
     @DisplayName("로그인 실패 - 비밀번호 불일치")
     void login_fail_invalid_password() {
@@ -122,6 +147,11 @@ public class UserServiceTest {
                 .hasMessageContaining("아이디 또는 비밀번호가 일치하지 않습니다");
     }
 
+    /**
+     * 5. 이메일로 사용자 조회 성공 (getUserByEmail_success)
+     *    - 이메일을 기반으로 유저를 조회할 수 있으며, UserResponse로 올바르게 변환된다.
+     *    - 반환된 결과의 이메일이 정확히 매핑되었는지 확인한다.
+     */
     @Test
     @DisplayName("이메일로 사용자 조회 성공")
     void getUserByEmail_success() {
@@ -137,6 +167,11 @@ public class UserServiceTest {
         assertThat(result.getEmail()).isEqualTo("test@example.com");
     }
 
+    /**
+     * 6. 이메일로 사용자 조회 실패 (getUserByEmail_fail)
+     *    - 존재하지 않는 이메일로 조회할 경우, ResponseStatusException 예외가 발생한다.
+     *    - 예외 메시지에 "유저 정보가 존재하지 않습니다"가 포함되어야 한다.
+     */
     @Test
     @DisplayName("이메일로 사용자 조회 실패")
     void getUserByEmail_fail() {
