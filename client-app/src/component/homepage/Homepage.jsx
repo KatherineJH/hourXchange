@@ -6,6 +6,7 @@ import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
 import NearMe from "./NearMe";
 import ListTable from "../product/ListTable";
+import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 export default function Homepage() {
   const [products, setProducts] = useState([]);
@@ -59,6 +60,7 @@ export default function Homepage() {
   return (
     <div style={{ padding: "1rem" }}>
       <h1>🏠 Home Page</h1>
+        <TopDonatorsChart/>
       <New7Days
         selectedCategory={selectedCategory}
         products={filteredProducts}

@@ -27,7 +27,7 @@ import {
     DialogActions,
     Stack
 } from '@mui/material';
-import { getCntrProgramList } from '../../api/donationApi';
+import { getCntrProgramList } from '../../api/donationApi.js';
 
 const VITE_OPENAPI_KEY = import.meta.env.VITE_OPENAPI_KEY;
 

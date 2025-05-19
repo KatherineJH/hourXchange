@@ -17,6 +17,7 @@ import MyPostList from "../component/product/MyPostList.jsx";
 import SearchProduct from "../component/homepage/SearchProduct.jsx";
 import adminPageRouter from "./adminPageRouter.jsx";
 import paymentRouter from "./paymentRouter.jsx";
+import donationRouter from "./donationRouter.jsx";
 
 const root = createBrowserRouter([
   {
@@ -82,6 +83,11 @@ const root = createBrowserRouter([
     path: "admin",
     element: <AdminPageMain />,
     children: adminPageRouter(),
+  },
+  {
+    path: "donation",
+    element: <Main />,
+    children: donationRouter(),
   },
 ]);
 
