@@ -38,4 +38,4 @@ out/
 
 ## private files ##
 .env
-.json
+*.json
