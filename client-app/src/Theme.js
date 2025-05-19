@@ -18,6 +18,13 @@ const Theme = createTheme({
       contrastText: "#333333", // 읽기 쉬운 텍스트 대비
     },
   },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        size: "small", // ✅ 이제 모든 TextField가 기본적으로 작아짐
+      },
+    },
+  },
 });
 
 export default Theme;

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { SignInPage } from "@toolpad/core/SignInPage";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
-import { TextField, Typography, Box } from "@mui/material";
+import { TextField, Typography, Box, Link as MuiLink } from "@mui/material";
 
 const providers = [
   { id: "naver", name: "Naver" },
@@ -66,59 +66,52 @@ export default function EmailLoginForm() {
   };
 
   return (
-    <>
-      <SignInPage
-        signIn={signIn}
-        providers={providers}
-        slotProps={{
-          form: { noValidate: true },
-          credentials: {
-            inputs: (
-              <>
-                <TextField
-                  name="email"
-                  label="이메일"
-                  type="email"
-                  fullWidth
-                  margin="normal"
-                  required
-                  disabled={isLoading}
-                />
-                <TextField
-                  name="password"
-                  label="비밀번호"
-                  type="password"
-                  fullWidth
-                  margin="normal"
-                  required
-                  disabled={isLoading}
-                />
-              </>
-            ),
-          },
-        }}
-        sx={{
-          "& form > .MuiStack-root": {
-            marginTop: "2rem",
-            rowGap: "0.5rem",
-          },
-        }}
-        disabled={isLoading}
-      />
-
-      {/* ⬇️ 여기 SignInPage 밑에 추가되는 부분 */}
-      <Typography
-        sx={{
-          textAlign: "center",
-          position: "relative",
-          top: "-20px",
-        }}
-      >
-        계정이 없으신가요?{" "}
-        <Link to="/save" style={{ textDecoration: "underline" }}>
-          Sign up
-        </Link>
-      </Typography>
-    </>
+    <SignInPage
+      signIn={signIn}
+      providers={providers}
+      slots={{
+        // SignInPage 내부에 Sign up 문구를 완전히 커스터마이징
+        signUpLink: () => (
+          <Typography sx={{ textAlign: "center", mt: 2 }}>
+            계정이 없으신가요?{" "}
+            <MuiLink component={RouterLink} to="/save" underline="hover">
+              Sign up
+            </MuiLink>
+          </Typography>
+        ),
+      }}
+      slotProps={{
+        credentials: {
+          inputs: (
+            <>
+              <TextField
+                name="email"
+                label="이메일"
+                type="email"
+                fullWidth
+                margin="normal"
+                required
+                disabled={isLoading}
+              />
+              <TextField
+                name="password"
+                label="비밀번호"
+                type="password"
+                fullWidth
+                margin="normal"
+                required
+                disabled={isLoading}
+              />
+            </>
+          ),
+        },
+      }}
+      sx={{
+        // 추가 여백 조정 필요시 여기에 적용
+        "& .MuiStack-root": {
+          rowGap: "0.75rem",
+        },
+      }}
+    />
   );
 }
