@@ -4,6 +4,7 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import { Box } from "@mui/material";
+import AiChat from "../component/common/AiChatbotWidget.jsx";
 
 function MainLayout({ children }) {
   return (
@@ -14,6 +15,7 @@ function MainLayout({ children }) {
           <Sidebar />
         </Box>
         <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
+          <AiChat/>
       </Box>
       <Footer />
     </Box>
