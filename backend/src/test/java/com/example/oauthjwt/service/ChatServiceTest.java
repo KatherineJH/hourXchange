@@ -4,6 +4,9 @@ import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.response.ChatMessageResponse;
 import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.entity.type.ChatMessageType;
+import com.example.oauthjwt.entity.type.ProviderType;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.ChatServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,18 +51,48 @@ public class ChatServiceTest {
         Long productId = 1L;
         Long requesterId = 2L;
 
-        User requester = User.builder().id(requesterId).name("요청자").build();
-        User owner = User.builder().id(1L).name("상품주인").build();
-        Product product = Product.builder().id(productId).owner(owner).build();
+        Category category = Category.builder()
+                .id(10L)
+                .categoryName("운동")
+                .build();
+
+        User requester = User.builder()
+                .id(requesterId)
+                .name("요청자")
+                .email("requester@example.com")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        User owner = User.builder()
+                .id(1L)
+                .name("상품주인")
+                .email("owner@example.com")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        Product product = Product.builder()
+                .id(productId)
+                .owner(owner)
+                .category(category)
+                .providerType(ProviderType.SELLER)
+                .build();
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
-        when(chatRoomRepository.findByProductAndParticipants(productId, owner.getId(), requesterId)).thenReturn(Optional.empty());
-        when(chatRoomRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(chatRoomRepository.findByProductAndParticipants(productId, owner.getId(), requesterId))
+                .thenReturn(Optional.empty());
+        when(chatRoomRepository.save(any())).thenAnswer(i -> {
+            ChatRoom room = i.getArgument(0);
+            room.setProduct(product);
+            return room;
+        });
 
         var result = chatService.initiateChatFromPost(productId, requesterId);
 
         assertThat(result.getProduct().getId()).isEqualTo(productId);
+        assertThat(result.getProduct().getCategory().getId()).isEqualTo(10L);
     }
 
     /**
@@ -71,13 +104,33 @@ public class ChatServiceTest {
     void saveMessage_success() {
         Long roomId = 1L;
         String email = "user@example.com";
+
+        Category category = Category.builder().id(10L).categoryName("운동").build();
+
+        User sender = User.builder()
+                .id(99L)
+                .email(email)
+                .name("홍길동")
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .owner(sender)
+                .category(category)
+                .providerType(ProviderType.SELLER)
+                .build();
+
+        ChatRoom chatRoom = ChatRoom.builder()
+                .id(roomId)
+                .product(product)
+                .build();
+
         ChatMessageRequest request = new ChatMessageRequest();
         request.setChatRoomId(roomId);
         request.setContent("안녕하세요");
         request.setType(ChatMessageType.TEXT);
-
-        ChatRoom chatRoom = ChatRoom.builder().id(roomId).build();
-        User sender = User.builder().email(email).name("홍길동").build();
 
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(chatRoom));
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(sender));
@@ -87,7 +140,6 @@ public class ChatServiceTest {
 
         assertThat(response.getContent()).isEqualTo("안녕하세요");
         assertThat(response.getChatMessageType()).isEqualTo(ChatMessageType.TEXT.toString());
-
     }
 
     /**
