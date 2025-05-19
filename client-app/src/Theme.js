@@ -21,7 +21,7 @@ const Theme = createTheme({
   components: {
     MuiTextField: {
       defaultProps: {
-        size: "small", // ✅ 이제 모든 TextField가 기본적으로 작아짐
+        size: "small",
       },
     },
   },
