@@ -1,9 +1,9 @@
 import * as React from "react";
 import { SignInPage } from "@toolpad/core/SignInPage";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
-import { TextField } from "@mui/material";
+import { TextField, Typography, Box, Link as MuiLink } from "@mui/material";
 
 const providers = [
   { id: "naver", name: "Naver" },
@@ -69,8 +69,18 @@ export default function EmailLoginForm() {
     <SignInPage
       signIn={signIn}
       providers={providers}
+      slots={{
+        // SignInPage 내부에 Sign up 문구를 완전히 커스터마이징
+        signUpLink: () => (
+          <Typography sx={{ textAlign: "center", mt: 2 }}>
+            계정이 없으신가요?{" "}
+            <MuiLink component={RouterLink} to="/save" underline="hover">
+              Sign up
+            </MuiLink>
+          </Typography>
+        ),
+      }}
       slotProps={{
-        form: { noValidate: true },
         credentials: {
           inputs: (
             <>
@@ -97,12 +107,11 @@ export default function EmailLoginForm() {
         },
       }}
       sx={{
-        "& form > .MuiStack-root": {
-          marginTop: "2rem",
-          rowGap: "0.5rem",
+        // 추가 여백 조정 필요시 여기에 적용
+        "& .MuiStack-root": {
+          rowGap: "0.75rem",
         },
       }}
-      disabled={isLoading}
     />
   );
 }
