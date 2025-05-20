@@ -1,12 +1,15 @@
 // src/component/board/BoardTable.jsx
 import React from "react";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CardMedia,
+} from "@mui/material";
 import { useLocation } from "react-router-dom";
 
 function BoardTable({ boards, navigate }) {
@@ -27,6 +30,7 @@ function BoardTable({ boards, navigate }) {
           <TableHead>
             <TableRow>
               <TableCell sx={{ bgcolor: "secondary.main" }}> ID </TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}> 이미지 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 제목 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 작성자 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 작성일 </TableCell>
@@ -42,8 +46,21 @@ function BoardTable({ boards, navigate }) {
                   sx={{ cursor: "pointer" }}
                 >
                   <TableCell>{board.id}</TableCell>
+                  <TableCell>
+                    <CardMedia
+                      component="img"
+                      image={board.images[0]}
+                      alt={`board-${board.id}-img`}
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        objectFit: "cover",
+                        borderRadius: 1,
+                      }}
+                    />
+                  </TableCell>
+
                   <TableCell>{board.title}</TableCell>
-                  {/* <TableCell>{board.author.name}</TableCell> */}
                   <TableCell>
                     {board.authorName || board.author?.name || "알 수 없음"}
                   </TableCell>
