@@ -9,7 +9,7 @@ const ListTable = lazy(() => import("../component/product/ListTable.jsx"));
 const Modify = lazy(() => import("../component/product/Modify.jsx"));
 const ProductForm = lazy(() => import("../component/product/ProductForm.jsx"));
 const VolunteerList = lazy(() => import("../component/product/VolunteerList.jsx"));
-const DonationList = lazy(() => import("../component/product/DonationList.jsx"));
+const DonationList = lazy(() => import("../component/donation/DonationList.jsx"));
 
 const productRouter = () => {
   return [

@@ -33,7 +33,7 @@ function BoardTable({ boards, navigate }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {boards.length > 0 ? (
+            {boards?.length > 0 ? (
               boards.map((board) => (
                 <TableRow
                   hover

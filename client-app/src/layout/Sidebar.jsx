@@ -21,10 +21,11 @@ const menu = [
   { text: "시간충전", to: "/payment/buy" },
   { text: "삽니다", to: "/product/buy" },
   { text: "팝니다", to: "/product/sell" },
-  { text: "봉사해요", to: "/product/volunteer" },
-  { text: "기부해요", to: "/product/donation" },
   { text: "지역별", to: "/product/list" },
   { text: "커뮤니티", to: "/board/list" },
+  { text: "기부모집", to: "/donation/list" },
+  { text: "봉사해요", to: "/product/volunteer" },
+  { text: "기부해요", to: "/product/donation" },
 ];
 
 const Sidebar = () => {
