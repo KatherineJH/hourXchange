@@ -7,7 +7,7 @@ import {
     TextField,
     Button,
     Divider,
-    CircularProgress
+    CircularProgress,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -30,8 +30,9 @@ export default function DonationEdit() {
         title: '',
         description: '',
         startDate: dayjs().format('YYYY-MM-DD'),
-        endDate: dayjs().add(7, 'day').format('YYYY-MM-DD')
+        endDate: dayjs().add(7, 'day').format('YYYY-MM-DD'),
     });
+    const imageSize = 150;
     const [images, setImages] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function DonationEdit() {
                     title: d.title,
                     description: d.description,
                     startDate: dayjs(d.startDate).format('YYYY-MM-DD'),
-                    endDate: dayjs(d.endDate).format('YYYY-MM-DD')
+                    endDate: dayjs(d.endDate).format('YYYY-MM-DD'),
                 });
                 setImages(d.images || []);
             } catch (err) {
@@ -91,6 +92,10 @@ export default function DonationEdit() {
     const handleImageUpload = async e => {
         const file = e.target.files[0];
         if (!file) return;
+        if (images.length >= 3) {
+            alert('이미지는 최대 3장까지 등록이 가능합니다.');
+            return;
+        }
         try {
             setUploading(true);
             const url = await uploadToCloudinary(file);
@@ -119,9 +124,8 @@ export default function DonationEdit() {
                 description: form.description,
                 startDate: form.startDate,
                 endDate: form.endDate,
-                images // include updated image URLs
+                images,
             };
-            console.log(data)
             await putUpdateDonation(id, data);
             alert('모금 정보가 수정되었습니다.');
             navigate(readPath);
@@ -132,7 +136,11 @@ export default function DonationEdit() {
     };
 
     if (loading) {
-        return <Typography align="center" sx={{ mt: 4 }}>로딩 중...</Typography>;
+        return (
+            <Typography align="center" sx={{ mt: 4 }}>
+                로딩 중...
+            </Typography>
+        );
     }
 
     return (
@@ -143,16 +151,25 @@ export default function DonationEdit() {
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <form onSubmit={handleSubmit}>
-                    {/* 이미지 업로드 */}
+                    {/* 이미지 업로드 (가로 스크롤) */}
                     <Box sx={{ mb: 3 }}>
-                        <Typography variant="subtitle1" gutterBottom>
-                            🖼️ 사진 업로드
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                overflowX: 'auto',
+                                gap: 1,
+                                p: 1,
+                            }}
+                        >
                             <Button
                                 component="label"
                                 variant="outlined"
-                                sx={{ width: 100, height: 100, borderRadius: 2 }}
+                                sx={{
+                                    width: imageSize,
+                                    height: imageSize,
+                                    borderRadius: 2,
+                                    flex: '0 0 auto',
+                                }}
                             >
                                 <AddPhotoAlternateIcon sx={{ fontSize: 40 }} />
                                 <input
@@ -162,51 +179,49 @@ export default function DonationEdit() {
                                     onChange={handleImageUpload}
                                 />
                             </Button>
-                            {uploading && <CircularProgress size={24} />}
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {images.map((url, idx) => (
-                                    <Box
-                                        key={idx}
-                                        onClick={() => handleDeleteImage(idx)}
-                                        sx={{
-                                            width: 100, height: 100,
-                                            border: 1, borderRadius: 2,
-                                            overflow: 'hidden', cursor: 'pointer'
+
+                            {images.map((url, idx) => (
+                                <Box
+                                    key={idx}
+                                    onClick={() => handleDeleteImage(idx)}
+                                    sx={{
+                                        width: imageSize,
+                                        height: imageSize,
+                                        border: 1,
+                                        borderRadius: 2,
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                        flex: '0 0 auto',
+                                    }}
+                                >
+                                    <img
+                                        src={url}
+                                        alt={`업로드된 이미지 ${idx}`}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
                                         }}
-                                    >
-                                        <img
-                                            src={url}
-                                            alt={`업로드된 이미지 ${idx}`}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    </Box>
-                                ))}
-                            </Box>
+                                    />
+                                </Box>
+                            ))}
+
+                            {uploading && (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        pl: 1,
+                                        flex: '0 0 auto',
+                                    }}
+                                >
+                                    <CircularProgress size={24} />
+                                </Box>
+                            )}
                         </Box>
                     </Box>
 
-                    <TextField
-                        label="모집 목적"
-                        name="purpose"
-                        value={form.purpose}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                    />
-
-                    <TextField
-                        label="모집 목표액(시간)"
-                        name="targetAmount"
-                        type="number"
-                        value={form.targetAmount}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                        inputProps={{ min: 0 }}
-                    />
-
+                    {/* 나머지 입력 폼 */}
                     <TextField
                         label="제목"
                         name="title"
@@ -216,7 +231,6 @@ export default function DonationEdit() {
                         margin="normal"
                         required
                     />
-
                     <TextField
                         label="설명"
                         name="description"
@@ -228,9 +242,37 @@ export default function DonationEdit() {
                         margin="normal"
                         required
                     />
+                    <TextField
+                        label="모집 목표액(시간)"
+                        name="targetAmount"
+                        type="number"
+                        value={form.targetAmount}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal"
+                        required
+                        inputProps={{ min: 0 }}
+                    />
+                    <TextField
+                        label="모집 목적"
+                        name="purpose"
+                        value={form.purpose}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal"
+                        required
+                    />
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 3 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                mt: 2,
+                                mb: 3,
+                                justifyContent: 'space-between',
+                            }}
+                        >
                             <DatePicker
                                 label="시작일"
                                 value={dayjs(form.startDate)}

@@ -48,6 +48,9 @@ public class Donation {
     private LocalDateTime createdAt; // 생성일자
 
     @Column(nullable = false)
+    private int viewCount; // 조회수
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
@@ -96,5 +99,9 @@ public class Donation {
 
     public void addTime(int amount) {
         this.currentAmount += amount;
+    }
+
+    public void addViewCount(){
+        this.viewCount++;
     }
 }

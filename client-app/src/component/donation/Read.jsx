@@ -30,6 +30,7 @@ export default function DonationDetail() {
     const [openModal, setOpenModal] = useState(false);
     const [selectedHours, setSelectedHours] = useState(null);
     const [customHours, setCustomHours] = useState('');
+    const imageSize = 150;
 
     const listPath = pathname.startsWith('/admin')
         ? `/admin/donation/list`
@@ -81,25 +82,48 @@ export default function DonationDetail() {
         }
     };
 
-    if (loading) return (
-        <Box sx={{ display:'flex', justifyContent:'center', mt:4 }}>
-            <CircularProgress/>
-        </Box>
-    );
+    if (loading) {
+        return (
+            <Box sx={{ display:'flex', justifyContent:'center', mt:4 }}>
+                <CircularProgress/>
+            </Box>
+        );
+    }
     if (!donation) return null;
 
     return (
         <>
             <Box sx={{ maxWidth:600, mx:'auto', mt:4, p:2 }}>
                 <Paper elevation={3} sx={{ p:3 }}>
+                    {/* 상단 컨트롤: 리스트로 돌아가기, 삭제, 수정 */}
+                    <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center', mb:2 }}>
+                        <Button size="small" onClick={() => navigate(listPath)}>
+                            리스트로 돌아가기
+                        </Button>
+                        <Box>
+                            <Button variant="outlined" color="error" onClick={handleDelete} sx={{ mr:1 }}>
+                                삭제하기
+                            </Button>
+                            <Button variant="outlined" onClick={() => navigate(modifyPath)}>
+                                수정하기
+                            </Button>
+                        </Box>
+                    </Box>
+
+                    {/* 제목 */}
                     <Typography variant="h5" gutterBottom>
                         {donation.title}
+                    </Typography>
+
+                    {/* 작성자 · 작성일 · 조회수 */}
+                    <Typography variant="body2" color="text.secondary" sx={{ mb:2 }}>
+                        {donation.author.username} • {dayjs(donation.createdAt).format('YYYY-MM-DD HH:mm')} • 조회 {donation.viewCount}
                     </Typography>
                     <Divider sx={{ mb:2 }}/>
 
                     {/* 이미지 갤러리 */}
-                    {donation.images && donation.images.length > 0 && (
-                        <Box sx={{ display:'flex', flexWrap:'wrap', gap:1, mb:2 }}>
+                    {donation.images?.length > 0 && (
+                        <Box sx={{ display:'flex', overflowX:'auto', gap:1, mb:2, p:1 }}>
                             {donation.images.map((url, idx) => (
                                 <Box
                                     key={idx}
@@ -107,12 +131,13 @@ export default function DonationDetail() {
                                     src={url}
                                     alt={`Donation Image ${idx}`}
                                     sx={{
-                                        width: 100,
-                                        height: 100,
+                                        width: imageSize,
+                                        height: imageSize,
                                         objectFit: 'cover',
                                         borderRadius: 1,
                                         border: 1,
-                                        borderColor: 'grey.300'
+                                        borderColor: 'grey.300',
+                                        flex: '0 0 auto'
                                     }}
                                 />
                             ))}
@@ -147,19 +172,10 @@ export default function DonationDetail() {
                         </Box>
                     </Box>
 
-                    <Divider sx={{ my:2 }}/>
-                    <Box sx={{ display:'flex', justifyContent:'flex-end', gap:1 }}>
-                        <Button variant="outlined" onClick={handleDelete} color="error">
-                            삭제하기
-                        </Button>
-                        <Button variant="outlined" onClick={() => navigate(modifyPath)}>
-                            수정하기
-                        </Button>
+                    {/* 기부하기 버튼 */}
+                    <Box sx={{ display:'flex', justifyContent:'flex-end', mt:3 }}>
                         <Button variant="contained" onClick={() => setOpenModal(true)}>
                             기부하기
-                        </Button>
-                        <Button variant="text" onClick={() => navigate(listPath)}>
-                            목록
                         </Button>
                     </Box>
                 </Paper>
@@ -172,8 +188,11 @@ export default function DonationDetail() {
                         {[1,2,3,4,5,10].map(h => (
                             <Button
                                 key={h}
-                                variant={selectedHours===h ? 'contained':'outlined'}
-                                onClick={()=>{ setSelectedHours(h); setCustomHours(''); }}
+                                variant={selectedHours===h ? 'contained' : 'outlined'}
+                                onClick={() => {
+                                    setSelectedHours(h);
+                                    setCustomHours('');
+                                }}
                             >
                                 {h}시간
                             </Button>
@@ -184,11 +203,14 @@ export default function DonationDetail() {
                         type="number"
                         fullWidth
                         value={customHours}
-                        onChange={e=>{ setCustomHours(e.target.value); setSelectedHours(null); }}
+                        onChange={e => {
+                            setCustomHours(e.target.value);
+                            setSelectedHours(null);
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenModal(false)}>취소</Button>
+                    <Button onClick={() => setOpenModal(false)}>취소</Button>
                     <Button variant="contained" onClick={handleDonate}>기부</Button>
                 </DialogActions>
             </Dialog>

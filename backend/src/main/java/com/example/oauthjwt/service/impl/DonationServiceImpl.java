@@ -96,6 +96,9 @@ public class DonationServiceImpl implements DonationService {
         Donation result = donationRepository.findById(donationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
 
+        result.addViewCount();
+        donationRepository.save(result);
+
         return DonationResponse.toDto(result);
     }
 

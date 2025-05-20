@@ -9,6 +9,7 @@ import DonationTable from "./DonationTable.jsx";
 import CustomPagination from "../common/CustomPagination.jsx";
 import DonationSearch from "./DonationSearch.jsx";
 import CustomHeader from "../common/CustomHeader.jsx";
+import DonationCardList from "./DonationCardList.jsx";
 
 export default function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
     const [serverDataList, setServerDataList] = useState([]);
@@ -78,6 +79,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
             </Box>
             {/* 테이블 내용*/}
             <DonationTable serverDataList={serverDataList} navigate={navigate} pathname={pathname}/>
+            <DonationCardList serverDataList={serverDataList} navigate={navigate} pathname={pathname}/>
             {/* 페이지네이션 */}
             <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />
         </>
