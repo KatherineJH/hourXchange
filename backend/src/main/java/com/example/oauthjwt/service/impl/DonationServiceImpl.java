@@ -13,6 +13,7 @@ import com.example.oauthjwt.repository.DonationHistoryRepository;
 import com.example.oauthjwt.repository.DonationRepository;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.repository.WalletRepository;
+import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,8 @@ public class DonationServiceImpl implements DonationService {
     private final UserRepository userRepository;
 
     @Override
-    public DonationResponse createDonation(DonationRequest donationRequest) {
-        Donation result = donationRepository.save(Donation.of(donationRequest));
+    public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
+        Donation result = donationRepository.save(Donation.of(donationRequest, userDetails.getUser()));
 
         return DonationResponse.toDto(result);
     }

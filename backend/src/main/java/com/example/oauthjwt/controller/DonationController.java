@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +25,11 @@ public class DonationController {
     private final DonationService donationService;
 
     @PostMapping("/")
-    public ResponseEntity<?> createDonation(@RequestBody DonationRequest donationRequest) {
+    public ResponseEntity<?> createDonation(@RequestBody DonationRequest donationRequest,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
 
-        DonationResponse result = donationService.createDonation(donationRequest);
+        DonationResponse result = donationService.createDonation(donationRequest, userDetails);
         return ResponseEntity.ok(result);
     }
 

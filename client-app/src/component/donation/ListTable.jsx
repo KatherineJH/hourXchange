@@ -20,6 +20,7 @@ import {
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { getList, getListWithKeyword, getAutocompleteSuggestions } from "../../api/donationApi.js";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useDebounce} from "../../assets/useDebounce.js";
 
 export default function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
     const [serverDataList, setServerDataList] = useState([]);
@@ -43,24 +44,21 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
         ? '/admin/donation/read/'
         : '/donation/read/';
 
+    const debouncedInput = useDebounce(searchInput, 300);
 
     useEffect(() => {
         if (searchInput.trim() === "" || searchInput === keyword) {
             setSuggestions([]);
             return;
         }
-        const fetchSuggestions = async () => {
-            try {
-                const result = await getAutocompleteSuggestions(searchInput);
-                setSuggestions(result.data);
-            } catch (e) {
+        getAutocompleteSuggestions(debouncedInput)
+            .then(res => setSuggestions(res.data))
+            .catch(e => {
                 console.error("추천 검색어 실패", e);
                 setSuggestions([]);
-            }
-        };
-        fetchSuggestions();
+            });
         setHighlightedIndex(-1);
-    }, [searchInput, keyword]);
+    }, [debouncedInput, keyword]);
 
     useEffect(() => {
         const fetch = async () => {

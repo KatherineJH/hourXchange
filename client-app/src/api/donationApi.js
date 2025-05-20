@@ -51,7 +51,7 @@ export const getAutocompleteSuggestions = async (prefix) => {
 
 // 📌 게시판 검색 (keyword, page, size로 검색)
 export const getListWithKeyword = async (keyword, page = 0, size = 10) => {
-    const response = await api.get("/api/search/donation", {
+    const response = await api.get("/api/search/donations", {
         params: { keyword, page, size },
     });
     return response;

@@ -66,6 +66,9 @@ public class User {
     @JoinColumn(name = "address_id")
     private Address address; // 서비스 카테고리
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Donation> donationHistory = new ArrayList<>();
+
     @OneToMany(mappedBy = "donator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 

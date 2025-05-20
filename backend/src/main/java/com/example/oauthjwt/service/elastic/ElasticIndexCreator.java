@@ -15,6 +15,7 @@ public class ElasticIndexCreator {
     public void createIndices() {
         createIndex("product_index", getProductIndexPayload());
         createIndex("board_index", getBoardIndexPayload());
+        createIndex("donation_index", getDonationIndexPayload());
     }
 
     private void createIndex(String indexName, String payload) {
@@ -119,6 +120,72 @@ public class ElasticIndexCreator {
     }
 
     private String getBoardIndexPayload() {
+        return """
+
+                    {
+                      "settings": {
+                        "analysis": {
+                          "analyzer": {
+                            "my_custom_analyzer": {
+                              "type": "custom",
+                              "char_filter": [],
+                              "tokenizer": "my_nori_tokenizer",
+                              "filter": ["my_pos_filter", "lowercase_filter"]
+                            }
+                          },
+                          "tokenizer": {
+                            "my_nori_tokenizer": {
+                              "type": "nori_tokenizer",
+                              "decompound_mode": "mixed",
+                              "discard_punctuation": "true",
+                              "lenient": true
+                            }
+                          },
+                          "filter": {
+                            "my_pos_filter": {
+                              "type": "nori_part_of_speech"
+                            },
+                            "lowercase_filter": {
+                              "type": "lowercase"
+                            }
+                          }
+                        }
+                      },
+                      "mappings": {
+                        "properties": {
+                          "id": { "type": "long", "index": false },
+                          "title": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "description": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "authorName": {
+                            "type": "text",
+                            "analyzer": "my_custom_analyzer",
+                            "fields": {
+                              "keyword": { "type": "keyword" }
+                            }
+                          },
+                          "createdAt": { "type": "date" },
+                          "suggest": {
+                            "type": "completion",
+                            "analyzer": "my_custom_analyzer"
+                          }
+                        }
+                      }
+                    }
+                """;
+    }
+    private String getDonationIndexPayload() {
         return """
 
                     {

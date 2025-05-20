@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.entity.Donation;
+import com.example.oauthjwt.repository.DonationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +30,14 @@ import lombok.extern.slf4j.Slf4j;
 public class Indexer {
     private final ProductRepository productRepository;
     private final BoardRepository boardRepository;
+    private final DonationRepository donationRepository;
     private final ElasticsearchClient elasticsearchClient;
 
     @Transactional(readOnly = true)
     public void indexAll() {
         indexProducts();
         indexBoards();
+        indexDonations();
     }
 
     private void indexProducts() {
@@ -148,5 +153,69 @@ public class Indexer {
             }
         });
         log.info("Completed indexing Boards");
+    }
+
+    private void indexDonations() {
+        List<Donation> Donations = donationRepository.findAll();
+        log.info("Found {} Donations to index", Donations.size());
+        if (Donations.isEmpty()) {
+            log.warn("No Donations found in database");
+            return;
+        }
+        Donations.forEach(donation -> {
+            List<String> keywords = Stream.of(donation.getTitle(), donation.getDescription())
+                    .filter(Objects::nonNull)
+                    .flatMap(s -> {
+                        if (s.matches(".*[가-힣].*")) {
+                            return KoreanNounExtractor.extractNouns(s).stream();
+                        } else {
+                            return Arrays.stream(s.split("[\\s\\p{Punct}]"))
+                                    .filter(w -> w.matches(".*[a-zA-Z].*")); // English nouns only
+                        }
+                    })
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toList();
+
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String authorName = donation.getAuthor() != null ? donation.getAuthor().getName() : "Unknown";
+            if (authorName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(authorName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(authorName.toLowerCase());
+            }
+
+            DonationDocument doc = DonationDocument.builder()
+                    .id(donation.getId())
+                    .title(donation.getTitle())
+                    .description(donation.getDescription())
+                    .authorName(authorName)
+                    .currentAmount(donation.getCurrentAmount())
+                    .targetAmount(donation.getTargetAmount())
+                    .startDate(donation.getStartDate())
+                    .endDate(donation.getEndDate())
+                    .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
+                            donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
+                    .createdAt(donation.getCreatedAt())
+                    .suggest(finalKeywords)
+                    .build();
+
+            try {
+                elasticsearchClient.index(i -> i.index("donation_index").id(String.valueOf(doc.getId())).document(doc));
+                log.info("Indexed Donation: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
+                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
+            } catch (IOException e) {
+                log.error("Donation indexing error for id={}: {}", donation.getId(), e.getMessage());
+                throw new RuntimeException("Donation 인덱싱 중 오류", e);
+            }
+        });
+        log.info("Completed indexing Donations");
     }
 }
