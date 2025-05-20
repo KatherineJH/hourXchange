@@ -32,10 +32,10 @@ function MyWallet() {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+      <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            나의 지갑: 현재 남은 크레딧 - {currentBalance} 시간
+            🙋 나의 지갑: 현재 남은 크레딧 - {currentBalance} 시간
           </Typography>
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
@@ -74,7 +74,7 @@ function MyWallet() {
             </Table>
           </TableContainer>
         </CardContent>
-      </Card>
+      </Box>
     </Box>
   );
 }
