@@ -73,7 +73,7 @@ function MyBoardPage() {
               <Pagination
                 count={totalPages}
                 page={page + 1}
-                onChange={(event, value) => setPage(value - 1)}
+                onChange={(value) => setPage(value - 1)}
                 variant="outlined"
                 shape="rounded"
                 color="primary"
