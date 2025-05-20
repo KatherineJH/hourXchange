@@ -76,6 +76,7 @@ public class Donation {
                 .startDate(donationRequest.getStartDate())
                 .endDate(donationRequest.getEndDate())
                 .createdAt(LocalDateTime.now())
+                .viewCount(0)
                 .status(DonationStatus.ONGOING)
                 .author(user)
                 .build();

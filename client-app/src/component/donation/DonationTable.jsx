@@ -50,8 +50,8 @@ function DonationTable({serverDataList, navigate, pathname}) {
                                 <TableCell>
                                     <CardMedia
                                     component="img"
-                                    image={item.images[0]}
-                                    alt={'/default.png'}
+                                    image={item.images[0] ?? '/default.png'}
+                                    alt={item.title}
                                     sx={{
                                         width: 100,
                                         height: 100,
