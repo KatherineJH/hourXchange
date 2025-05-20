@@ -51,6 +51,11 @@ public class Donation {
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DonationImage> images = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 

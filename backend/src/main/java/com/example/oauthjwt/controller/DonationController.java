@@ -51,9 +51,10 @@ public class DonationController {
     }
 
     @PutMapping("/modify/{donationId}")
-    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest) {
+    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
-        DonationResponse result = donationService.update(donationId, donationRequest);
+        DonationResponse result = donationService.update(donationId, donationRequest, userDetails);
 
         return ResponseEntity.ok(result);
     }

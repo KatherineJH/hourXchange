@@ -4,15 +4,9 @@ import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
 import com.example.oauthjwt.dto.response.ProductResponse;
-import com.example.oauthjwt.entity.Donation;
-import com.example.oauthjwt.entity.DonationHistory;
-import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.entity.type.DonationStatus;
-import com.example.oauthjwt.repository.DonationHistoryRepository;
-import com.example.oauthjwt.repository.DonationRepository;
-import com.example.oauthjwt.repository.UserRepository;
-import com.example.oauthjwt.repository.WalletRepository;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.transaction.Transactional;
@@ -34,10 +28,65 @@ public class DonationServiceImpl implements DonationService {
     private final DonationHistoryRepository donationHistoryRepository;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final DonationImageRepository donationImageRepository;
 
     @Override
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
-        Donation result = donationRepository.save(Donation.of(donationRequest, userDetails.getUser()));
+        Long userId = userDetails.getUser().getId();
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성자 정보가 존재하지 않습니다."));
+
+        // 기부 생성
+        Donation donation = Donation.of(donationRequest, author);
+
+        // 이미지 중복 검사 및 저장
+        if (donationRequest.getImages() != null) {
+            for (String url : donationRequest.getImages()) {
+                if (donationImageRepository.existsByImgUrl(url)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 등록된 이미지입니다: " + url);
+                }
+                DonationImage donationImage = DonationImage.of(url, donation);
+                donation.getImages().add(donationImage);
+            }
+        }
+
+        // 저장
+        Donation result = donationRepository.save(donation);
+
+        return DonationResponse.toDto(result);
+    }
+
+    @Override
+    @Transactional
+    public DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성자 정보가 존재하지 않습니다."));
+
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
+
+        if(!donation.getAuthor().getId().equals(author.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시글을 삭제할 권한이 없습니다.");
+        }
+
+        if(donationRequest.getTargetAmount() < donation.getCurrentAmount()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "모집 목표시간은 현재 모집된 시간보다 높아야합니다.");
+        }
+
+        // 이미지 중복 검사 및 저장
+        if (donationRequest.getImages() != null) {
+            donationImageRepository.deleteByDonationId(donation.getId());
+            for (String url : donationRequest.getImages()) {
+                if (donationImageRepository.existsByImgUrl(url)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 등록된 이미지입니다.");
+                }
+                DonationImage donationImage = DonationImage.of(url, donation);
+                donation.getImages().add(donationImage);
+            }
+        }
+
+        Donation result = donationRepository.save(donation.setUpdateValue(donationRequest));
 
         return DonationResponse.toDto(result);
     }
@@ -57,17 +106,7 @@ public class DonationServiceImpl implements DonationService {
         return donationPage.map(DonationResponse::toDto);
     }
 
-    @Override
-    public DonationResponse update(Long donationId, DonationRequest donationRequest) {
-        Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
-        if(donationRequest.getTargetAmount() < donation.getCurrentAmount()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "모집 목표시간은 현재 모집된 시간보다 높아야합니다.");
-        }
-        Donation result = donationRepository.save(donation.setUpdateValue(donationRequest));
 
-        return DonationResponse.toDto(result);
-    }
 
     @Override
     @Transactional

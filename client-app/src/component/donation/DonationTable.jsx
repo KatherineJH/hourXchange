@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    CardMedia,
     LinearProgress,
     Paper,
     Table,
@@ -22,6 +23,7 @@ function DonationTable({serverDataList, navigate, pathname}) {
             <TableHead>
                 <TableRow>
                     <TableCell sx={{ bgcolor: "secondary.main" }}>Id</TableCell>
+                    <TableCell sx={{ bgcolor: "secondary.main" }}>사진</TableCell>
                     <TableCell sx={{ bgcolor: "secondary.main" }}>상태</TableCell>
                     <TableCell sx={{ bgcolor: "secondary.main" }}>제목</TableCell>
                     <TableCell sx={{ bgcolor: "secondary.main" }}>설명</TableCell>
@@ -45,6 +47,19 @@ function DonationTable({serverDataList, navigate, pathname}) {
                                 sx={{ cursor: "pointer" }}
                             >
                                 <TableCell>{item.id}</TableCell>
+                                <TableCell>
+                                    <CardMedia
+                                    component="img"
+                                    image={item.images[0]}
+                                    alt={'/default.png'}
+                                    sx={{
+                                        width: 100,
+                                        height: 100,
+                                        objectFit: "cover",
+                                        borderRadius: 1,
+                                    }}
+                                    />
+                                </TableCell>
                                 <TableCell>{item.status}</TableCell>
                                 <TableCell>{item.title}</TableCell>
                                 <TableCell>{item.description}</TableCell>

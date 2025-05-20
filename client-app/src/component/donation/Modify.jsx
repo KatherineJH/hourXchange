@@ -6,17 +6,20 @@ import {
     Typography,
     TextField,
     Button,
-    Divider
+    Divider,
+    CircularProgress
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getDonation, putUpdateDonation } from '../../api/donationApi.js';
+import uploadToCloudinary from '../../assets/uploadToCloudinary';
 
-export default function Modify() {
+export default function DonationEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { pathname } = useLocation();
@@ -29,9 +32,10 @@ export default function Modify() {
         startDate: dayjs().format('YYYY-MM-DD'),
         endDate: dayjs().add(7, 'day').format('YYYY-MM-DD')
     });
+    const [images, setImages] = useState([]);
+    const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Determine navigation paths
     const readPath = pathname.startsWith('/admin')
         ? `/admin/donation/read/${id}`
         : `/donation/read/${id}`;
@@ -39,7 +43,6 @@ export default function Modify() {
         ? '/admin/donation/list'
         : '/donation/list';
 
-    // Load existing donation
     useEffect(() => {
         async function fetch() {
             try {
@@ -53,6 +56,7 @@ export default function Modify() {
                     startDate: dayjs(d.startDate).format('YYYY-MM-DD'),
                     endDate: dayjs(d.endDate).format('YYYY-MM-DD')
                 });
+                setImages(d.images || []);
             } catch (err) {
                 console.error(err);
                 alert('데이터 로드 중 오류가 발생했습니다.');
@@ -63,12 +67,12 @@ export default function Modify() {
         fetch();
     }, [id]);
 
-    const handleChange = (e) => {
+    const handleChange = e => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleStartDate = (newDate) => {
+    const handleStartDate = newDate => {
         if (newDate.isAfter(dayjs(form.endDate))) {
             alert('시작일은 종료일 이전이어야 합니다.');
             return;
@@ -76,7 +80,7 @@ export default function Modify() {
         setForm(prev => ({ ...prev, startDate: newDate.format('YYYY-MM-DD') }));
     };
 
-    const handleEndDate = (newDate) => {
+    const handleEndDate = newDate => {
         if (newDate.isBefore(dayjs(form.startDate))) {
             alert('종료일은 시작일 이후여야 합니다.');
             return;
@@ -84,19 +88,41 @@ export default function Modify() {
         setForm(prev => ({ ...prev, endDate: newDate.format('YYYY-MM-DD') }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleImageUpload = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            setUploading(true);
+            const url = await uploadToCloudinary(file);
+            setImages(prev => [...prev, url]);
+        } catch (err) {
+            console.error('이미지 업로드 실패', err);
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleDeleteImage = idx => {
+        if (window.confirm('정말 이 사진을 삭제하시겠습니까?')) {
+            setImages(prev => prev.filter((_, i) => i !== idx));
+        }
+    };
+
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
             const data = {
                 purpose: form.purpose,
-                targetAmount: parseInt(form.targetAmount, 10), // 10진수로 변환
+                targetAmount: parseInt(form.targetAmount, 10),
                 title: form.title,
                 description: form.description,
                 startDate: form.startDate,
-                endDate: form.endDate
+                endDate: form.endDate,
+                images // include updated image URLs
             };
-            const response = await putUpdateDonation(id, data);
-            console.log(response)
+            console.log(data)
+            await putUpdateDonation(id, data);
             alert('모금 정보가 수정되었습니다.');
             navigate(readPath);
         } catch (err) {
@@ -117,6 +143,48 @@ export default function Modify() {
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <form onSubmit={handleSubmit}>
+                    {/* 이미지 업로드 */}
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            🖼️ 사진 업로드
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+                            <Button
+                                component="label"
+                                variant="outlined"
+                                sx={{ width: 100, height: 100, borderRadius: 2 }}
+                            >
+                                <AddPhotoAlternateIcon sx={{ fontSize: 40 }} />
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                />
+                            </Button>
+                            {uploading && <CircularProgress size={24} />}
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {images.map((url, idx) => (
+                                    <Box
+                                        key={idx}
+                                        onClick={() => handleDeleteImage(idx)}
+                                        sx={{
+                                            width: 100, height: 100,
+                                            border: 1, borderRadius: 2,
+                                            overflow: 'hidden', cursor: 'pointer'
+                                        }}
+                                    >
+                                        <img
+                                            src={url}
+                                            alt={`업로드된 이미지 ${idx}`}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    </Box>
+
                     <TextField
                         label="모집 목적"
                         name="purpose"

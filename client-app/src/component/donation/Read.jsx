@@ -1,3 +1,4 @@
+// src/components/DonationDetail.jsx
 import React, { useState, useEffect } from 'react';
 import {
     Box,
@@ -13,7 +14,7 @@ import {
     TextField
 } from '@mui/material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import {getDonation, putDeleteDonation} from '../../api/donationApi.js';
+import { getDonation, putDeleteDonation } from '../../api/donationApi.js';
 import { postDonationHistory } from '../../api/donationHistoryApi.js';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
@@ -80,46 +81,86 @@ export default function DonationDetail() {
         }
     };
 
-    if (loading) return <Box sx={{ display:'flex', justifyContent:'center', mt:4 }}><CircularProgress/></Box>;
+    if (loading) return (
+        <Box sx={{ display:'flex', justifyContent:'center', mt:4 }}>
+            <CircularProgress/>
+        </Box>
+    );
     if (!donation) return null;
 
     return (
         <>
             <Box sx={{ maxWidth:600, mx:'auto', mt:4, p:2 }}>
                 <Paper elevation={3} sx={{ p:3 }}>
-                    <Typography variant="h5" gutterBottom>{donation.title}</Typography>
+                    <Typography variant="h5" gutterBottom>
+                        {donation.title}
+                    </Typography>
                     <Divider sx={{ mb:2 }}/>
+
+                    {/* 이미지 갤러리 */}
+                    {donation.images && donation.images.length > 0 && (
+                        <Box sx={{ display:'flex', flexWrap:'wrap', gap:1, mb:2 }}>
+                            {donation.images.map((url, idx) => (
+                                <Box
+                                    key={idx}
+                                    component="img"
+                                    src={url}
+                                    alt={`Donation Image ${idx}`}
+                                    sx={{
+                                        width: 100,
+                                        height: 100,
+                                        objectFit: 'cover',
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'grey.300'
+                                    }}
+                                />
+                            ))}
+                        </Box>
+                    )}
 
                     <Typography variant="subtitle2">모집 목적</Typography>
                     <Typography>{donation.purpose}</Typography>
 
                     <Typography variant="subtitle2" sx={{ mt:2 }}>현황</Typography>
-                    <Typography>{donation.currentAmount} / {donation.targetAmount} 시간</Typography>
+                    <Typography>
+                        {donation.currentAmount} / {donation.targetAmount} 시간
+                    </Typography>
 
                     <Typography variant="subtitle2" sx={{ mt:2 }}>설명</Typography>
-                    <Typography sx={{ whiteSpace:'pre-line' }}>{donation.description}</Typography>
+                    <Typography sx={{ whiteSpace:'pre-line' }}>
+                        {donation.description}
+                    </Typography>
 
                     <Box sx={{ display:'flex', gap:2, mt:2 }}>
                         <Box>
                             <Typography variant="subtitle2">시작일</Typography>
-                            <Typography>{dayjs(donation.startDate).format('YYYY-MM-DD')}</Typography>
+                            <Typography>
+                                {dayjs(donation.startDate).format('YYYY-MM-DD')}
+                            </Typography>
                         </Box>
                         <Box>
                             <Typography variant="subtitle2">종료일</Typography>
-                            <Typography>{dayjs(donation.endDate).format('YYYY-MM-DD')}</Typography>
+                            <Typography>
+                                {dayjs(donation.endDate).format('YYYY-MM-DD')}
+                            </Typography>
                         </Box>
                     </Box>
 
                     <Divider sx={{ my:2 }}/>
                     <Box sx={{ display:'flex', justifyContent:'flex-end', gap:1 }}>
-                        {/*{user?.role === 'ADMIN' && (*/}
-                        {/*    <Button variant="outlined" onClick={handleDelete} color="error">삭제하기</Button>*/}
-                        {/*    <Button variant="outlined" onClick={() => navigate(modifyPath)}>수정하기</Button>    */}
-                        {/*)}*/}
-                        <Button variant="outlined" onClick={handleDelete} color="error">삭제하기</Button>
-                        <Button variant="outlined" onClick={() => navigate(modifyPath)}>수정하기</Button>
-                        <Button variant="contained" onClick={() => setOpenModal(true)}>기부하기</Button>
-                        <Button variant="text" onClick={() => navigate(listPath)}>목록</Button>
+                        <Button variant="outlined" onClick={handleDelete} color="error">
+                            삭제하기
+                        </Button>
+                        <Button variant="outlined" onClick={() => navigate(modifyPath)}>
+                            수정하기
+                        </Button>
+                        <Button variant="contained" onClick={() => setOpenModal(true)}>
+                            기부하기
+                        </Button>
+                        <Button variant="text" onClick={() => navigate(listPath)}>
+                            목록
+                        </Button>
                     </Box>
                 </Paper>
             </Box>
@@ -133,7 +174,9 @@ export default function DonationDetail() {
                                 key={h}
                                 variant={selectedHours===h ? 'contained':'outlined'}
                                 onClick={()=>{ setSelectedHours(h); setCustomHours(''); }}
-                            >{h}시간</Button>
+                            >
+                                {h}시간
+                            </Button>
                         ))}
                     </Box>
                     <TextField

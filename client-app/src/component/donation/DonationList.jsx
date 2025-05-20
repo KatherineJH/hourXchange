@@ -120,7 +120,6 @@ function DonationList() {
     return(
         <>
             <CustomHeader text={'1365 기부모집 정보'}/>
-
             <Card variant="outlined" sx={{mb:3}}>
                 <CardHeader title="검색 조건" />
                 <CardContent>
