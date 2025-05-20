@@ -54,7 +54,11 @@ public class Donation {
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 
-    public static Donation of(DonationRequest donationRequest) {
+    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User author;
+
+    public static Donation of(DonationRequest donationRequest, User user) {
         return Donation.builder()
                 .purpose(donationRequest.getPurpose())
                 .currentAmount(0)
@@ -65,6 +69,7 @@ public class Donation {
                 .endDate(donationRequest.getEndDate())
                 .createdAt(LocalDateTime.now())
                 .status(DonationStatus.ONGOING)
+                .author(user)
                 .build();
     }
 

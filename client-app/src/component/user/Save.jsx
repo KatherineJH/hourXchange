@@ -37,6 +37,7 @@ function Save(props) {
             console.log(response.data);
             navigate('/email-login',{replace:true});
         }catch (error){
+            alert(error.response.data.message);
             console.log(error);
         }
 

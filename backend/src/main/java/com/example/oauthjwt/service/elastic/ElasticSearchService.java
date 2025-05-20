@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.DonationDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,27 @@ public class ElasticSearchService {
         }
     }
 
+    public PageResult<DonationDocument> searchDonations(String keyword, int page, int size) {
+        try {
+            int from = Math.max(0, page * size);
+            SearchResponse<DonationDocument> response = client.search(s -> s.index("donation_index").from(from).size(size)
+                    .query(q -> q.multiMatch(m -> m.query(keyword)
+                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
+                                    "authorName^0.2")
+                            .fuzziness("1").prefixLength(1).minimumShouldMatch("75%")))
+                    .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))), DonationDocument.class);
+
+            List<DonationDocument> hits = response.hits().hits().stream().map(Hit::source).filter(Objects::nonNull)
+                    .toList();
+            long total = response.hits().total() != null ? response.hits().total().value() : 0;
+            int totalPages = (int) Math.ceil((double) total / size);
+            return new PageResult<>(hits, page, size, total, totalPages);
+        } catch (IOException e) {
+            log.error("Donation search error: {}", e.getMessage());
+            throw new RuntimeException("Donation 검색 중 오류", e);
+        }
+    }
+
     public List<String> autocomplete(String prefix, String index) {
         try {
             // Detect if the prefix is Korean (contains Hangul)
@@ -141,6 +163,18 @@ public class ElasticSearchService {
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList());
+                } else if (index.equals("donation_index")) {
+                    SearchResponse<DonationDocument> phraseResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
+                                    .fields("title^1.5")))
+                            .size(3), DonationDocument.class);
+
+                    phraseSuggestions = phraseResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList());
                 }
             }
 
@@ -175,6 +209,28 @@ public class ElasticSearchService {
                                     .fields("title^1.5")
                                     .fuzziness("AUTO")))
                             .size(5), ProductDocument.class);
+
+                    nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .flatMap(s -> isKorean ? KoreanNounExtractor.extractNouns(s).stream() : List.of(s).stream())
+                            .filter(s -> !isKorean || s.length() > 1) // Exclude single syllables for Korean
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
+
+                    phraseSuggestions.addAll(fallbackResponse.hits().hits().stream()
+                            .map(hit -> hit.source().getTitle())
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) + "..." : s)
+                            .distinct()
+                            .limit(3)
+                            .collect(Collectors.toList()));
+                } else if (index.equals("donation_index")) {
+                    // Search title field directly for products
+                    SearchResponse<DonationDocument> fallbackResponse = client.search(s -> s.index(index)
+                            .query(q -> q.multiMatch(m -> m.query(prefix)
+                                    .fields("title^1.5")
+                                    .fuzziness("AUTO")))
+                            .size(5), DonationDocument.class);
 
                     nounSuggestions.addAll(fallbackResponse.hits().hits().stream()
                             .map(hit -> hit.source().getTitle())
