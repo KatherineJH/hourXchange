@@ -8,6 +8,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import DonationTable from "./DonationTable.jsx";
 import CustomPagination from "../common/CustomPagination.jsx";
 import DonationSearch from "./DonationSearch.jsx";
+import CustomHeader from "../common/CustomHeader.jsx";
 
 export default function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
     const [serverDataList, setServerDataList] = useState([]);
@@ -60,9 +61,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
 
     return (
         <>
-            <Typography variant="h4" sx={{mt: 4}} gutterBottom>
-                기부모집
-            </Typography>
+            <CustomHeader text={'기부모집'}/>
             {/* 검색창 + 버튼 영역 */}
             <Box sx={{
                     display: "flex",
