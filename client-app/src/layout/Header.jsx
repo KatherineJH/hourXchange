@@ -110,7 +110,7 @@ function Header() {
 
   return (
     <>
-      <Box
+      {/* <Box
         sx={{
           width: "100%",
           height: 250,
@@ -119,7 +119,7 @@ function Header() {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
-      />
+      /> */}
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" elevation={0}>
           <Toolbar>

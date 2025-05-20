@@ -11,6 +11,7 @@ import {
   Avatar,
   IconButton,
   Typography,
+  Box,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -82,15 +83,23 @@ export default function ProductGrid({
                   <FavoriteBorderIcon />
                 )}
               </IconButton>
-              <IconButton>
+              {/* <IconButton>
                 <ShareIcon />
-              </IconButton>
-              <IconButton
+              </IconButton> */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  ml: "auto",
+                  cursor: "pointer",
+                }}
                 onClick={() => onToggleExpand(product.id)}
-                aria-expanded={expandedId === product.id}
               >
                 <ExpandMoreIcon />
-              </IconButton>
+                <Typography variant="body2" sx={{ ml: 0.5 }}>
+                  (상세보기 클릭)
+                </Typography>
+              </Box>
             </CardActions>
             <Collapse
               in={expandedId === product.id}
