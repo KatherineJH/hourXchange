@@ -3,6 +3,7 @@ package com.example.oauthjwt.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -133,5 +134,15 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         return new ReviewResponse(review.getId(), review.getContent(), rating, review.getStars(), tags);
+    }
+
+    @Override
+    public List<String> getReviewTagsByReceiverId(Long userId) {
+        List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
+        return reviews.stream()
+                .flatMap(review -> review.getTags().stream())
+                .map(ReviewTag::getTag)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
