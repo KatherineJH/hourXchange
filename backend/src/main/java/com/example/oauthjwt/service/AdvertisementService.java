@@ -3,15 +3,16 @@ package com.example.oauthjwt.service;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
+import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.entity.Advertisement;
 
 public interface AdvertisementService {
 
     Advertisement createAdvertisement(AdvertisementRequest advertisementRequest);
 
-    Advertisement findAdvertisementById(Long advertisementId, Long ownerId);
+    Advertisement findById(Long advertisementId);
 
-    Advertisement updateAdvertisement(AdvertisementRequest advertisementRequest);
+    AdvertisementResponse updateAdvertisement(AdvertisementRequest advertisementRequest);
 
-    List<Advertisement> findAllAdvertisements();
+    List<AdvertisementResponse> findAllAdvertisements();
 }

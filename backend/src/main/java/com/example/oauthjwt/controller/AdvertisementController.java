@@ -1,22 +1,26 @@
 package com.example.oauthjwt.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.example.oauthjwt.dto.response.AdvertisementResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
-import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.entity.Advertisement;
-import com.example.oauthjwt.repository.AdvertisementRepository;
 import com.example.oauthjwt.service.AdvertisementService;
 import com.example.oauthjwt.service.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @Log4j2
@@ -31,26 +35,30 @@ public class AdvertisementController {
             @RequestBody @Valid AdvertisementRequest advertisementRequest) {
         log.info(advertisementRequest);
         // 인증한 유저의 id 값으로 할당
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
         advertisementRequest.setOwnerId(userDetails.getUser().getId());
-        Advertisement result = advertisementService.createAdvertisement(advertisementRequest);
-        AdvertisementResponse response = AdvertisementResponse.toDto(result);
-        return ResponseEntity.ok(ApiResponse.success("광고가 생성되었습니다."));
+
+        log.info(advertisementRequest.toString());
+        Advertisement ad = advertisementService.createAdvertisement(advertisementRequest);
+        AdvertisementResponse response = AdvertisementResponse.toDto(ad);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> findAllAdvertisement(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info("userDetails: {}", userDetails);
-        List<Advertisement> responses = advertisementService.findAllAdvertisements();
+    public ResponseEntity<?>  findAllAdvertisement() {
+        List<AdvertisementResponse> responses = advertisementService.findAllAdvertisements();
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{advertisementId}")
-    public ResponseEntity<?> findAdvertisementById(@PathVariable Long advertisementId,
-                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Advertisement advertisement = advertisementService.findAdvertisementById(
-                advertisementId, userDetails.getUser().getId());
-        AdvertisementResponse response = AdvertisementResponse.toDto(advertisement);
-        return ResponseEntity.ok(ApiResponse.success("광고 조회 성공"));
+    public ResponseEntity<?> findById(@PathVariable Long advertisementId) {
+        Advertisement ad = advertisementService.findById(advertisementId);
+        AdvertisementResponse response = AdvertisementResponse.toDto(ad);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{advertisementId}")
@@ -58,9 +66,12 @@ public class AdvertisementController {
                                                  @RequestBody @Valid AdvertisementRequest advertisementRequest,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         advertisementRequest.setId(advertisementId);
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
         advertisementRequest.setOwnerId(userDetails.getUser().getId());
-        Advertisement result = advertisementService.updateAdvertisement(advertisementRequest);
-        AdvertisementResponse response = AdvertisementResponse.toDto(result);
-        return ResponseEntity.ok(ApiResponse.success("광고 수정 성공"));
+        AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementRequest);
+        return ResponseEntity.ok("광고 수정 성공");
     }
 }

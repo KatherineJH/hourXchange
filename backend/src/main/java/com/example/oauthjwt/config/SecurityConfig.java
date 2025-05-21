@@ -73,7 +73,7 @@ public class SecurityConfig {
                 // Actuator 공개 엔드포인트
                 .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // 인증 없이 허용할 API
-                .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error").permitAll()
+                .requestMatchers("/", "/api/auth/**", "/api/advertisement/**", "/login/oauth2/code/**", "/error").permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated());
 
