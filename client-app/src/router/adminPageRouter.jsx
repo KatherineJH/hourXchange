@@ -9,7 +9,8 @@ const ListTable               = lazy(() => import("../component/donation/ListTab
 const ReadDonation            = lazy(() => import("../component/donation/Read.jsx"))
 const RegisterDonation        = lazy(() => import("../component/donation/DonationForm.jsx"))
 const ModifyDonation          = lazy(() => import("../component/donation/Modify.jsx"))
-
+const UserAnalysisPage        = lazy(() => import("../component/analysis/UserAnalysisPage.jsx"));
+const UserDetailPage          = lazy(() => import("../component/analysis/UserDetailPage.jsx"));
 
 const adminPageRouter = () => [
     {
@@ -47,6 +48,14 @@ const adminPageRouter = () => [
     {
         path: "donation/modify/:id",
         element: <ModifyDonation />,
+    },
+    { 
+        path: "userAnalysis", 
+        element: <UserAnalysisPage /> 
+    },
+    {
+        path: "user/:id", // ✅ 상세 페이지 연결
+        element: <UserDetailPage />,
     },
 ];
 

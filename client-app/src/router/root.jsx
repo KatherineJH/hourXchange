@@ -18,6 +18,7 @@ import SearchProduct from "../component/homepage/SearchProduct.jsx";
 import adminPageRouter from "./adminPageRouter.jsx";
 import paymentRouter from "./paymentRouter.jsx";
 import donationRouter from "./donationRouter.jsx";
+import UserAnalysisPage from "../component/analysis/UserAnalysisPage.jsx";
 
 const root = createBrowserRouter([
   {
@@ -88,6 +89,10 @@ const root = createBrowserRouter([
     path: "donation",
     element: <Main />,
     children: donationRouter(),
+  },
+  {
+    path: "userAnalysis",
+    element: <UserAnalysisPage />,
   },
 ]);
 
