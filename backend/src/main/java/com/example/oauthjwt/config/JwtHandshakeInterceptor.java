@@ -29,10 +29,10 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
 
-        log.info("⚠️ [HandshakeInterceptor] executed");
+        log.info("[HandshakeInterceptor] executed");
         URI uri = request.getURI();
         String query = uri.getQuery(); // ?token=eyJ...
-        log.info("🔐 WebSocket Request: {}", query);
+        log.info("WebSocket Request: {}", query);
 
         if (query != null) {
             String token = Arrays.stream(query.split("&")).filter(param -> param.startsWith("token="))
@@ -57,6 +57,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
             Exception exception) {
-        log.info("🔁 After handshake executed");
+        log.info("After handshake executed");
     }
 }

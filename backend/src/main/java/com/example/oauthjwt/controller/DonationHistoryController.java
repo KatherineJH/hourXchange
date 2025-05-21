@@ -38,12 +38,12 @@ public class DonationHistoryController {
 
 //    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
 //                                     @RequestParam(defaultValue = "10") int size) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // ✅ 최신순 정렬
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
     @GetMapping("/")
     public ResponseEntity<?> getDonationHistory(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // ✅ 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         Page<DonationHistoryResponse> result = donationHistoryService.getDonationHistoryByDonator(pageable);
 
@@ -54,7 +54,7 @@ public class DonationHistoryController {
     public ResponseEntity<?> getMyDonationHistory(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // ✅ 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         Page<DonationHistoryResponse> result = donationHistoryService.getMyDonationHistoryByDonator(pageable, userDetails.getUser());
 

@@ -41,38 +41,40 @@ public class AuthController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
 
-    // ✅ 일반 회원가입 처리
+    // 일반 회원가입 처리
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody @Valid UserRequest userRequest) {
-
+        // 서비스 호출
         UserResponse result = userService.signup(userRequest);
-
+        // 반환
         return ResponseEntity.ok(result);
     }
 
+    // 이메일 로그인 처리
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute UserDTO userDTO, HttpServletResponse response) {
+        // 서비스 호출
         UserResponse result = userService.login(userDTO);
-
+        // 토큰 생성
         String accessToken = jwtUtil.createToken(Map.of("email", result.getEmail()), ACCESS_TOKEN_TIME);
         String refreshToken = jwtUtil.createToken(Map.of("email", result.getEmail()), REFRESH_TOKEN_TIME);
-
+        // 토큰 반환
         response.addCookie(jwtUtil.createCookie("Authorization", accessToken, ACCESS_TOKEN_TIME));
         response.addCookie(jwtUtil.createCookie("Refresh", refreshToken, REFRESH_TOKEN_TIME));
-
+        // 반환
         return ResponseEntity.ok(result);
     }
 
-    // ✅ JWT 쿠키 삭제를 통한 로그아웃 처리
+    // JWT 쿠키 삭제를 통한 로그아웃 처리
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-
+        // 쿠키 생성
         Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
         Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
-
+        // 쿠키 반환
         response.addCookie(emptyAccessCookie);
         response.addCookie(emptyRefreshCookie);
-
+        // 반환
         return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
     }
 

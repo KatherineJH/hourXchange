@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatController {
 
     private final ChatService chatService;
-    private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
     private final TransactionService transactionService;
 
@@ -54,17 +53,8 @@ public class ChatController {
 
         messagingTemplate.convertAndSend("/topic/room/" + result.getChatRoom().getId(), result);
 
-        log.info("🚪 {} 입장 메시지 브로드캐스트 완료", result.getSender().getName());
+        log.info("{} 입장 메시지 브로드캐스트 완료", result.getSender().getName());
     }
-
-    // @PostMapping("/initiate/{postId}")
-    // public ResponseEntity<ChatRoomDTO> initiateChat(
-    // @PathVariable Long postId, @RequestParam Long requesterId) {
-    // ChatRoom chatRoom = chatService.initiateChatFromPost(postId, requesterId);
-    // ChatRoomDTO chatRoomDTO =
-    // ChatRoomDTO.builder().id(chatRoom.getId()).name(chatRoom.getName()).build();
-    // return ResponseEntity.ok(chatRoomDTO);
-    // }
 
     @PostMapping("/initiate/{productId}")
     public ResponseEntity<?> initiateChat(@PathVariable Long productId, @RequestParam Long requesterId) {
@@ -77,32 +67,8 @@ public class ChatController {
     public ResponseEntity<List<ChatMessageResponse>> getMessages(@PathVariable Long chatRoomId) {
         List<ChatMessage> messages = chatService.getMessages(chatRoomId);
         List<ChatMessageResponse> messageDTOs = messages.stream().map(ChatMessageResponse::toDto).collect(Collectors.toList());
-//                        ChatMessageRequest.builder()
-//                        .id(msg.getId())
-//                        .chatRoomId(msg.getChatRoom().getId())
-//                        .senderUsername(msg.getSender().getUsername())
-//                        .content(msg.getContent())
-//                        .status(msg.getChatRoomUserStatus())
-//                        .sentAt(msg.getSentAt().toString())
-//                        .build())
-//                .collect(Collectors.toList());
         return ResponseEntity.ok(messageDTOs);
     }
-
-//     @GetMapping("/rooms")
-//     public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(@RequestParam Long
-//     userId) {
-//     List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
-//     List<ChatRoomDTO> result = chatRooms.stream()
-//     .map(room -> ChatRoomDTO.builder()
-//     .id(room.getId())
-//     .name(room.getName())
-//     .serviceProductId(room.getServiceProduct().getId())
-//     .createdAt(room.getCreatedAt())
-//     .build())
-//     .collect(Collectors.toList());
-//     return ResponseEntity.ok(result);
-//     }
 
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(Authentication authentication) {

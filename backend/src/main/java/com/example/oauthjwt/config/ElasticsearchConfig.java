@@ -24,7 +24,7 @@ public class ElasticsearchConfig {
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-        RestClient restClient = RestClient.builder(new HttpHost(ipBackend, portElastic, "http") // 포트 9202, HTTP 사용
+        RestClient restClient = RestClient.builder(new HttpHost(ipBackend, portElastic, "http") // 포트 9200, HTTP 사용
         ).build();
 
         // 커스텀 ObjectMapper 생성

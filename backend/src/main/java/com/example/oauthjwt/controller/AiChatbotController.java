@@ -13,19 +13,23 @@ import java.util.*;
 public class AiChatbotController {
     private final AiChatbotService aiChatbotService;
 
+    // ai 챗봇
     @PostMapping("/query")
     public ResponseEntity<Map<String, String>> query(@RequestBody Map<String, String> req) {
+        // 메세지와 세션 아이디 조회 및 생성
         String message = req.get("message");
         String sessionId = req.getOrDefault("sessionId", UUID.randomUUID().toString());
-        try {
+
+//        try {
+            // 서비스 호출 및 응답 생성
             String reply = aiChatbotService.detectIntent(message, sessionId);
             Map<String, String> res = new HashMap<>();
             res.put("fulfillmentText", reply);
             res.put("sessionId", sessionId);
             return ResponseEntity.ok(res);
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(Collections.singletonMap("error", e.getMessage()));
-        }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500)
+//                    .body(Collections.singletonMap("error", e.getMessage()));
+//        }
     }
 }
