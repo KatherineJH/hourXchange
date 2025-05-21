@@ -13,6 +13,7 @@ const menu = [
   { text: "== 분석 마케팅 ==" },
   { text: "회원 관리 페이지 ", to: "/admin/userAnalysis" },
   { text: "매출 관리 페이지 ", to: "/admin/salesAnalysis" },
+  { text: "기부 관리 페이지 ", to: "/admin/donationAnalysis" },
 ];
 
 const Sidebar = () => {

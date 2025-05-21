@@ -25,3 +25,13 @@ export const predictUserGrade = async (userId) => {
   console.log("✅ 예측 응답:", response.data);
   return response.data;
 };
+
+// TimeSeries 예측
+export const getForecast = async (historyData) => {
+  console.log("📌 getForecast 호출됨:", historyData);
+  const response = await api.post("/api/forecast", {
+    history: historyData,
+  });
+  console.log("✅ 시계열 예측 결과:", response.data);
+  return response.data;
+};

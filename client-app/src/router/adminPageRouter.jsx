@@ -1,5 +1,6 @@
 import React from "react";
 import { lazy } from 'react'
+import PaymentAnalysisPage from "../component/analysis/PaymentAnalysisPage.jsx";
 
 const PaymentDashboard        = lazy(() => import("../component/admin/PaymentDashboard.jsx"))
 const PaymentAmountDashboard  = lazy(() => import("../component/admin/PaymentAmountDashboard.jsx"))
@@ -54,8 +55,12 @@ const adminPageRouter = () => [
         element: <UserAnalysisPage /> 
     },
     {
-        path: "user/:id", // ✅ 상세 페이지 연결
+        path: "user/:id",
         element: <UserDetailPage />,
+    },
+    { 
+        path: "salesAnalysis", 
+        element: <PaymentAnalysisPage /> 
     },
 ];
 

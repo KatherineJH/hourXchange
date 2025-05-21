@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -168,5 +167,15 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.ratioByItem();
     }
 
+    @Override
+    public List<PaymentLogResponse> getPaymentsBetween(String from, String to) {
+        try {
+            LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+            LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay(); // 포함 처리
 
+            return paymentRepository.countByRange(fromDate, toDate);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. yyyy-MM-dd 형식이어야 합니다.");
+        }
+    }
 }
