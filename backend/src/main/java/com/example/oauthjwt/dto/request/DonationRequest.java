@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,4 +28,6 @@ public class DonationRequest {
     private LocalDate startDate; // 모집시작일
 
     private LocalDate endDate; // 모집끝일
+
+    private List<String> images = new ArrayList<>(); // 이미지 url
 }

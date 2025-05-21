@@ -48,9 +48,17 @@ public class Donation {
     private LocalDateTime createdAt; // 생성일자
 
     @Column(nullable = false)
+    private int viewCount; // 조회수
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DonationImage> images = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 
@@ -68,6 +76,7 @@ public class Donation {
                 .startDate(donationRequest.getStartDate())
                 .endDate(donationRequest.getEndDate())
                 .createdAt(LocalDateTime.now())
+                .viewCount(0)
                 .status(DonationStatus.ONGOING)
                 .author(user)
                 .build();
@@ -91,5 +100,9 @@ public class Donation {
 
     public void addTime(int amount) {
         this.currentAmount += amount;
+    }
+
+    public void addViewCount(){
+        this.viewCount++;
     }
 }

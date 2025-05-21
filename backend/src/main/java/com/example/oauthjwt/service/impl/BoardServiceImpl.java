@@ -28,22 +28,6 @@ public class BoardServiceImpl implements BoardService {
     private final ThumbsUpRepository thumbsUpRepository;
 
     @Override
-    public Map<String, String> existsById(Long id) {
-        if (!boardRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-            return Map.of("error", "게시글를 찾을 수 없습니다.");
-        }
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public Map<String, String> existsByImgUrl(String imgUrl) {
-        if (boardImageRepository.existsByImgUrl(imgUrl)) {
-            return Map.of("error", "중복된 이미지 주소입니다.");
-        }
-        return Collections.emptyMap();
-    }
-
-    @Override
     public BoardResponse save(BoardRequest boardRequest) {
         User author = userRepository.findById(boardRequest.getAuthorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));

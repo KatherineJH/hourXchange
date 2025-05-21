@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +52,10 @@ public class DonationController {
     }
 
     @PutMapping("/modify/{donationId}")
-    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest) {
+    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
-        DonationResponse result = donationService.update(donationId, donationRequest);
+        DonationResponse result = donationService.update(donationId, donationRequest, userDetails);
 
         return ResponseEntity.ok(result);
     }
@@ -64,5 +66,25 @@ public class DonationController {
         return ResponseEntity.ok(result);
     }
 
+    // 목표 대비 진행률 상위 n개
+    @GetMapping("/top-progress")
+    public ResponseEntity<?> topByProgress(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+        List<DonationResponse> result = donationService.getTopByProgress(limit);
+        return ResponseEntity.ok(result);
+    }
+
+    // 조회수 상위 n개
+    @GetMapping("/top-views")
+    public ResponseEntity<?> topByViews(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+        List<DonationResponse> result = donationService.getTopByViewCount(limit);
+        return ResponseEntity.ok(result);
+    }
+
+    // 최신 생성 순 상위 n개
+    @GetMapping("/recent")
+    public ResponseEntity<?> topByRecent(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+        List<DonationResponse> result = donationService.getTopByRecent(limit);
+        return ResponseEntity.ok(result);
+    }
 
 }
