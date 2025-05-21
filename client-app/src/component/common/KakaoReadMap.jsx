@@ -24,9 +24,9 @@ function KakaoReadMap({ serverData }) {
             // 기본 마커 생성
             const marker = new kakao.maps.Marker({ position, map });
             markerInstance.current = marker;
-            kakao.maps.event.addListener(marker, 'click', () => {
-                window.location.href = `/detail/${serverData.id}`;
-            });
+            // kakao.maps.event.addListener(marker, 'click', () => {
+            //     window.location.href = `${serverData.id}`;
+            // });
         });
 
         return () => {
