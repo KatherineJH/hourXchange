@@ -31,9 +31,9 @@ public class ProductResponse {
 
     private LocalDateTime endAt; // 끝시간
 
-    private String lat;
+    private Double lat;
 
-    private String lng;
+    private Double lng;
 
     private int viewCount;
 
@@ -53,9 +53,15 @@ public class ProductResponse {
     private List<String> images = new ArrayList<>(); // 이미지 url
 
     public static ProductResponse toDto(Product product) {
-        return ProductResponse.builder().id(product.getId()).title(product.getTitle())
-                .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
-                .endAt(product.getEndAt()).lat(product.getLat()).lng(product.getLng()).viewCount(product.getViewCount())
+        return ProductResponse.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .hours(product.getHours())
+                .startedAt(product.getStartedAt())
+                .endAt(product.getEndAt())
+                .lat(Double.valueOf(product.getLat()))
+                .lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
                 .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
@@ -72,7 +78,7 @@ public class ProductResponse {
                                         int reviewCount) {
         return ProductResponse.builder().id(product.getId()).title(product.getTitle())
                 .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
-                .endAt(product.getEndAt()).lat(product.getLat()).lng(product.getLng()).viewCount(product.getViewCount())
+                .endAt(product.getEndAt()).lat(Double.valueOf(product.getLat())).lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
                 .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())

@@ -30,10 +30,9 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
                 }
             );
         });
-        // (cleanup 은 필요 없습니다. 맵 인스턴스는 언마운트 때 없어짐)
-    }, []); // 빈 deps → 마운트 시 단 한번
+    }, []);
 
-    // 2) position이 바뀌면 map.setCenter 만 호출
+    // 2) position이 바뀌면 map.setCenter만 호출
     useEffect(() => {
         if (mapInstance.current && window.kakao) {
             const kakao = window.kakao;
@@ -55,7 +54,6 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
         markers.current = [];
         overlays.current = [];
 
-        // 새 데이터로 마커 + 오버레이 생성
         serverData.forEach(item => {
             if (!item.lat || !item.lng) return;
             const pos = new kakao.maps.LatLng(
@@ -70,7 +68,7 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
             });
             markers.current.push(marker);
 
-            // ▶ 오버레이 컨텐츠
+            // ▶ 오버레이 컨텐츠 생성
             const wrap = document.createElement('div');
             Object.assign(wrap.style, {
                 cursor: 'pointer',
@@ -80,9 +78,14 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
                 background: '#fff',
                 borderRadius: '6px',
                 boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                pointerEvents: 'auto'
             });
             const img = document.createElement('img');
-            Object.assign(img.style, { width: '100%', height: 'auto', borderRadius: '4px' });
+            Object.assign(img.style, {
+                width: '100%',
+                height: 'auto',
+                borderRadius: '4px'
+            });
             img.src = item.images[0] || '';
             img.alt = item.title;
             wrap.appendChild(img);
@@ -92,7 +95,7 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
             Object.assign(titleEl.style, {
                 display: 'block',
                 margin: '6px 0 2px',
-                fontSize: '14px',
+                fontSize: '14px'
             });
             wrap.appendChild(titleEl);
 
@@ -101,7 +104,7 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
             Object.assign(descEl.style, {
                 margin: 0,
                 fontSize: '12px',
-                color: '#555',
+                color: '#555'
             });
             wrap.appendChild(descEl);
 
@@ -109,21 +112,36 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
                 navigate(`/product/read/${item.id}`);
             });
 
-            // ▶ 오버레이
+            // ▶ 오버레이 생성
             const overlay = new kakao.maps.CustomOverlay({
                 content: wrap,
                 position: pos,
                 xAnchor: 0.5,
                 yAnchor: 1,
-                offset: new kakao.maps.Point(0, -20),
+                offset: new kakao.maps.Point(0, -20)
             });
             overlays.current.push(overlay);
 
-            // hover 이벤트
-            kakao.maps.event.addListener(marker, 'mouseover', () => overlay.setMap(map));
-            kakao.maps.event.addListener(marker, 'mouseout', () => overlay.setMap(null));
-            wrap.addEventListener('mouseover', () => overlay.setMap(map));
-            wrap.addEventListener('mouseout', () => overlay.setMap(null));
+            // hide 타이머 변수(클로저)
+            let hideTimeout;
+
+            // hover 이벤트:  마커 → 오버레이
+            kakao.maps.event.addListener(marker, 'mouseover', () => {
+                clearTimeout(hideTimeout);
+                overlay.setMap(map);
+            });
+            kakao.maps.event.addListener(marker, 'mouseout', () => {
+                hideTimeout = setTimeout(() => overlay.setMap(null), 100);
+            });
+
+            // 오버레이 자체에 동일한 hover 로직
+            wrap.addEventListener('mouseover', () => {
+                clearTimeout(hideTimeout);
+                overlay.setMap(map);
+            });
+            wrap.addEventListener('mouseout', () => {
+                hideTimeout = setTimeout(() => overlay.setMap(null), 100);
+            });
         });
     }, [serverData, navigate]);
 
