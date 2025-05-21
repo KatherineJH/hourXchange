@@ -60,8 +60,10 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable());
 
         // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler));
+        http.oauth2Login(oauth2 ->
+                oauth2.userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler));
 
         // JWT 필터 추가
         http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
