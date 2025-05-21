@@ -3,7 +3,10 @@ import {
     Box,
     Button, Typography
 } from "@mui/material";
-import { getList, getListWithKeyword } from "../../api/donationApi.js";
+import {
+    getList,
+    getListWithKeyword,
+} from "../../api/donationApi.js";
 import {useLocation, useNavigate} from "react-router-dom";
 import DonationTable from "./DonationTable.jsx";
 import CustomPagination from "../common/CustomPagination.jsx";
@@ -14,7 +17,6 @@ import DonationCardList from "./DonationCardList.jsx";
 export default function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
     const [serverDataList, setServerDataList] = useState([]);
     const navigate = useNavigate();
-
     const [page, setPage] = useState(0);
     const [size,setSize] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
@@ -57,7 +59,6 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
     useEffect(() => {
         setKeyword(keywordProp);
     }, [keywordProp]);
-
 
 
     return (

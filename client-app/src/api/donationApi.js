@@ -3,8 +3,6 @@ import axios from 'axios';
 import qs from 'qs';
 import api from "./Api.js";
 
-const API_URL = '/openapi/service/rest/ContributionGroupService';
-
 const apiServerUrl = "/api/donation/";
 
 export const postDonation = async (data) => {
@@ -38,6 +36,36 @@ export const getList = async (page, size) => {
     return response;
 };
 
+/**
+ * 목표 대비 진행률 상위 n개 기부 리스트
+ * @param {number} limit 반환할 개수 (default 5)
+ */
+export const getTopByProgress = async (limit = 5) => {
+    return await api.get(`${apiServerUrl}top-progress`, {
+        params: { limit }
+    });
+};
+
+/**
+ * 조회수 상위 n개 기부 리스트
+ * @param {number} limit 반환할 개수 (default 5)
+ */
+export const getTopByViews = async (limit = 5) => {
+    return await api.get(`${apiServerUrl}top-views`, {
+        params: { limit }
+    });
+};
+
+/**
+ * 생성일 최신 순 상위 n개 기부 리스트
+ * @param {number} limit 반환할 개수 (default 5)
+ */
+export const getRecentDonations = async (limit = 5) => {
+    return await api.get(`${apiServerUrl}recent`, {
+        params: { limit }
+    });
+};
+
 // 추천 검색어 불러오기
 export const getAutocompleteSuggestions = async (prefix) => {
     const response = await api.get("/api/search/autocomplete", {
@@ -56,6 +84,9 @@ export const getListWithKeyword = async (keyword, page = 0, size = 10) => {
     });
     return response;
 };
+
+
+const API_URL = '/openapi/service/rest/ContributionGroupService';
 
 export const getCntrProgramList = async (params) => {
     // 예시: 올바른 파라미터 key 사용

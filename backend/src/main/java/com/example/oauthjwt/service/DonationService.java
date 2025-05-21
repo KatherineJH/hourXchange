@@ -19,4 +19,8 @@ public interface DonationService {
     DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails);
 
     List<DonationHistoryResponse> delete(Long donationId);
+
+    List<DonationResponse> getTopByProgress(int limit);
+    List<DonationResponse> getTopByViewCount(int limit);
+    List<DonationResponse> getTopByRecent(int limit);
 }
