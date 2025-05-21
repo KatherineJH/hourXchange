@@ -6,6 +6,7 @@ import com.example.oauthjwt.dto.response.DonationResponse;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -35,8 +36,14 @@ public class DonationController {
     }
 
     @GetMapping("/{donationId}")
-    public ResponseEntity<?> getDonation(@PathVariable Long donationId) {
-        DonationResponse result = donationService.getDonation(donationId);
+    public ResponseEntity<?> getDonation(@PathVariable Long donationId, HttpServletRequest request,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // 인증된 유저면 userId, 아니면 클라이언트 IP
+        String userKey = (userDetails != null)
+                ? "user:" + userDetails.getUser().getId()
+                : "ip:"   + request.getRemoteAddr();
+
+        DonationResponse result = donationService.getDonation(donationId, userKey);
         return ResponseEntity.ok(result);
     }
 

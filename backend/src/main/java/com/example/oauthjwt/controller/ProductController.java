@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,10 +43,17 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> findById(@PathVariable Long productId, HttpServletRequest request,
+                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // 인증된 유저면 userId, 아니면 클라이언트 IP
+        String userKey = (userDetails != null)
+                ? "user:" + userDetails.getUser().getId()
+                : "ip:"   + request.getRemoteAddr();
+
         // 로직 실행
-        ProductResponse result = productService.findById(id);
+        ProductResponse result = productService.findById(productId, userKey);
         // 반환
         return ResponseEntity.ok(result);
     }

@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 
 function DonationTable({serverDataList, navigate, pathname}) {
+    console.log(serverDataList);
     const readPath = pathname.startsWith('/admin')
         ? '/admin/donation/read/'
         : '/donation/read/';

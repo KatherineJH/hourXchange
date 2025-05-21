@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.entity.type.DonationStatus;
@@ -46,4 +47,6 @@ public class DonationDocument {
     private LocalDateTime createdAt;
 
     private List<String> suggest;
+
+    private List<String> images  = new ArrayList<>(); // 이미지 리스트;
 }

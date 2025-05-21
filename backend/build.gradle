@@ -51,6 +51,9 @@ dependencies {
 	// radis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	// Java 8+ 날짜/시간 지원
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 
 
 	compileOnly 'org.projectlombok:lombok'

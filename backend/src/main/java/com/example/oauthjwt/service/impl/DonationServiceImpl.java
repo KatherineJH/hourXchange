@@ -11,13 +11,16 @@ import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +28,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository donationRepository;
     private final DonationHistoryRepository donationHistoryRepository;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final DonationImageRepository donationImageRepository;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
@@ -94,12 +99,21 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public DonationResponse getDonation(Long donationId) {
+    public DonationResponse getDonation(Long donationId, String userKey) {
         Donation result = donationRepository.findById(donationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
 
-        result.addViewCount();
-        donationRepository.save(result);
+        String key = "view donationId: " + donationId + ", by: " + userKey;
+
+        Boolean alreadyExists = stringRedisTemplate.hasKey(key);
+        if(!alreadyExists) { // 존재하지 않으면
+            log.info("캐싱");
+            // 뷰 카운트 증가
+            donationRepository.save(result.addViewCount());
+            // 24시간 TTL로 기록
+            stringRedisTemplate.opsForValue().set(key, "1", Duration.ofHours(24));
+        }
+        log.info("무시");
 
         return DonationResponse.toDto(result);
     }

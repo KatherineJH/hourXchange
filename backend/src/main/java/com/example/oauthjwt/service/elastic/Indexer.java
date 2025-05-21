@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.example.oauthjwt.dto.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
+import com.example.oauthjwt.entity.DonationImage;
 import com.example.oauthjwt.repository.DonationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,7 +157,8 @@ public class Indexer {
         log.info("Completed indexing Boards");
     }
 
-    private void indexDonations() {
+    @Transactional
+    public void indexDonations() {
         List<Donation> Donations = donationRepository.findAll();
         log.info("Found {} Donations to index", Donations.size());
         if (Donations.isEmpty()) {
@@ -205,6 +208,9 @@ public class Indexer {
                             donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
                     .createdAt(donation.getCreatedAt())
                     .suggest(finalKeywords)
+                    .images(donation.getImages().stream()
+                            .map(DonationImage::getImgUrl)
+                            .collect(Collectors.toList()))
                     .build();
 
             try {

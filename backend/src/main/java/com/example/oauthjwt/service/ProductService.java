@@ -13,7 +13,7 @@ public interface ProductService {
 
     ProductResponse save(ProductRequest productRequest);
 
-    ProductResponse findById(Long id);
+    ProductResponse findById(Long id, String userKey);
 
     ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails);
 
