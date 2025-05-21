@@ -1,26 +1,33 @@
+// src/components/ProductForm.jsx
 import React, { useState, useEffect, useRef } from "react";
 import {
+  Box,
   TextField,
   MenuItem,
   Button,
   Select,
   InputLabel,
   FormControl,
-  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
+import DaumPostcode from "react-daum-postcode";
+
 import { getList } from "../../api/categoryApi.js";
-import { postSave } from "../../api/productApi";
+import { postSave } from "../../api/productApi.js";
 import uploadToCloudinary from "../../assets/uploadToCloudinary.js";
 import KakaoSaveMap from "../common/KakaoSaveMap.jsx";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
-const ProductForm = () => {
+export default function ProductForm() {
   const [saveData, setSaveData] = useState({
     title: "",
     description: "",
@@ -30,7 +37,6 @@ const ProductForm = () => {
     images: [],
     lat: 37.529521713,
     lng: 126.964540921,
-    // ISO 문자열로 초기화
     startedAt: dayjs().add(30, "minute").format("YYYY-MM-DDTHH:mm:ss"),
     endAt: dayjs().add(2, "hour").format("YYYY-MM-DDTHH:mm:ss"),
     address: {
@@ -40,278 +46,265 @@ const ProductForm = () => {
       detailAddress: "",
     },
   });
-
   const [categories, setCategories] = useState([]);
-  const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef();
   const [uploading, setUploading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  // 주소 검색 모달
+  const [openPostcode, setOpenPostcode] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      const response = await getList();
-      setCategories(response.data);
-    };
-    fetchCategories();
+    getList().then(res => setCategories(res.data));
   }, []);
 
-  const handleAddClick = () => {
-    fileInputRef.current.click();
+  // 주소 검색 완료 핸들러
+  const handlePostcodeComplete = data => {
+    const geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.addressSearch(data.address, (result, status) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const { y, x } = result[0];
+        setSaveData(prev => ({
+          ...prev,
+          lat: parseFloat(y),
+          lng: parseFloat(x),
+          address: {
+            zonecode: data.zonecode,
+            roadAddress: data.roadAddress,
+            jibunAddress: data.jibunAddress,
+            detailAddress: "",
+          },
+        }));
+      } else {
+        alert("주소 검색에 실패했습니다.");
+      }
+    });
+    setOpenPostcode(false);
   };
 
-  const handleImageChange = (e) => {
+  // 지도 클릭 시 호출되는 콜백
+  const handleMapClick = ({ lat, lng }) => {
+    setSaveData(prev => ({ ...prev, lat, lng }));
+  };
+
+  // 이미지 업로드 & 미리보기
+  const handleAddClick = () => fileInputRef.current.click();
+  const handleImageChange = e => {
     const files = Array.from(e.target.files);
-    if (!files.length) return;
-    files.forEach((file) => {
+    files.forEach(f => {
       const reader = new FileReader();
-      reader.onloadend = () => setPreviews((prev) => [...prev, reader.result]);
-      reader.readAsDataURL(file);
+      reader.onloadend = () => setPreviews(prev => [...prev, reader.result]);
+      reader.readAsDataURL(f);
     });
     uploadImagesToCloudinary(files);
   };
-
-  const uploadImagesToCloudinary = async (imageFiles) => {
+  const uploadImagesToCloudinary = async files => {
     setUploading(true);
     try {
-      const newFiles = imageFiles.filter((f) => !images.includes(f.name));
-      if (newFiles.length) {
-        const urls = await Promise.all(
-          newFiles.map((f) => uploadToCloudinary(f))
-        );
-        setImages((prev) => [...prev, ...urls]);
-        setSaveData((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
-      }
-    } catch (error) {
-      console.error("이미지 업로드 실패", error);
+      const urls = await Promise.all(files.map(f => uploadToCloudinary(f)));
+      setSaveData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
+    } catch {
+      alert("이미지 업로드 실패");
     } finally {
       setUploading(false);
     }
   };
 
-  const handleChange = (e) => {
+  // 입력 핸들러
+  const handleChange = e => {
     const { name, value } = e.target;
     if (name === "hours") {
       const num = parseInt(value, 10);
-      setSaveData((prev) => ({
-        ...prev,
-        hours: isNaN(num) || num < 0 ? 0 : num,
-      }));
+      setSaveData(prev => ({ ...prev, hours: isNaN(num) ? 0 : num }));
     } else {
-      setSaveData((prev) => ({ ...prev, [name]: value }));
+      setSaveData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleStartTimeChange = (newValue) => {
-    if (!newValue) return;
-
-    const now = dayjs(); // 현재 시간
-    const newStart = newValue;
-
-    if (newStart.isBefore(now)) {
-      alert("시작 시간은 현재 시간보다 이전으로 설정할 수 없습니다.");
-      return;
-    }
-
-    setSaveData((prev) => ({
-      ...prev,
-      startedAt: newStart.format("YYYY-MM-DDTHH:mm:ss"),
-    }));
+  // 날짜 시간 변경
+  const handleStartTimeChange = newVal => {
+    if (newVal.isBefore(dayjs())) return alert("현재 이후로 설정하세요");
+    setSaveData(prev => ({ ...prev, startedAt: newVal.format("YYYY-MM-DDTHH:mm:ss") }));
+  };
+  const handleEndTimeChange = newVal => {
+    if (newVal.isBefore(dayjs(saveData.startedAt))) return alert("시작 이후로 설정하세요");
+    setSaveData(prev => ({ ...prev, endAt: newVal.format("YYYY-MM-DDTHH:mm:ss") }));
   };
 
-  const handleEndTimeChange = (newValue) => {
-    if (!newValue) return;
-
-    const newEnd = newValue;
-    const currentStart = dayjs(saveData.startedAt);
-
-    if (newEnd.isBefore(currentStart)) {
-      alert("종료 시간은 시작 시간 이후로 설정해야 합니다.");
-      return;
-    }
-
-    setSaveData((prev) => ({
-      ...prev,
-      endAt: newEnd.format("YYYY-MM-DDTHH:mm:ss"),
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
-      // saveData.startedAt과 endAt은 이미 ISO 문자열
-      console.log("전송 payload:", saveData);
-      const res = await postSave(saveData);
-      alert("상품이 성공적으로 저장되었습니다.");
-      navigate(`/product/read/${res.data.id}`);
-    } catch (err) {
-      console.error("서버 전송 오류", err);
-      alert("저장 중 문제가 발생하였습니다.");
+      const response = await postSave(saveData);
+      navigate('/product/read/' + response.data.id)
+      alert("저장 성공!");
+      // navigate 등…
+    } catch {
+      alert("저장 실패");
     }
+  };
+
+  // 미리보기 클릭 시 해당 이미지 제거
+  const handlePreviewClick = idx => {
+    if (!window.confirm("이 사진을 삭제하시겠습니까?")) return;
+    setPreviews(prev => prev.filter((_, i) => i !== idx));
+    setSaveData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx)
+    }));
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
-      <form onSubmit={handleSubmit}>
-        {/* 이미지 업로드 및 미리보기 */}
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-            multiple
-          />
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+      <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
+        <form onSubmit={handleSubmit}>
+          {/* 이미지 업로드 */}
+          <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+            <input
+                type="file"
+                hidden
+                multiple
+                ref={fileInputRef}
+                onChange={handleImageChange}
+            />
             <Button
-              variant="outlined"
-              onClick={handleAddClick}
-              sx={{
-                width: 150,
-                height: 150,
-                borderRadius: 2,
-                border: "1px solid #ddd",
-              }}
+                variant="outlined"
+                onClick={handleAddClick}
+                sx={{ width: 150, height: 150 }}
             >
               <AddPhotoAlternateIcon />
             </Button>
-            {previews.map((src, idx) => (
-              <Box
-                key={idx}
-                sx={{
-                  width: 150,
-                  height: 150,
-                  position: "relative",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  if (window.confirm("사진을 지우시겠습니까?")) {
-                    setPreviews((prev) => prev.filter((_, i) => i !== idx));
-                    setImages((prev) => prev.filter((_, i) => i !== idx));
-                    setSaveData((prev) => ({
-                      ...prev,
-                      images: prev.images.filter((_, i) => i !== idx),
-                    }));
-                  }
-                }}
-              >
-                <img
-                  src={src}
-                  alt={`preview-${idx}`}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    borderRadius: 4,
-                  }}
+            {previews.map((src, i) => (
+                <Box
+                    key={i}
+                    component="img"
+                    src={src}
+                    sx={{ width: 150, height: 150, objectFit: "cover", borderRadius: 1, cursor: 'pointer' }}
+                    onClick={() => handlePreviewClick(i)}
                 />
-              </Box>
             ))}
           </Box>
-        </Box>
 
-        {/* 타입 및 카테고리 */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="providerType-label">타입</InputLabel>
-            <Select
-              labelId="providerType-label"
-              name="providerType"
-              value={saveData.providerType}
-              label="타입"
+          {/* 타입·카테고리 */}
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>타입</InputLabel>
+              <Select
+                  name="providerType"
+                  value={saveData.providerType}
+                  label="타입"
+                  onChange={handleChange}
+              >
+                <MenuItem value="BUYER">BUYER</MenuItem>
+                <MenuItem value="SELLER">SELLER</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>카테고리</InputLabel>
+              <Select
+                  name="categoryId"
+                  value={saveData.categoryId}
+                  label="카테고리"
+                  onChange={handleChange}
+              >
+                {categories.map(c => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.categoryName}
+                    </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* 제목·설명 */}
+          <TextField
+              label="제목"
+              name="title"
+              fullWidth
+              margin="normal"
+              value={saveData.title}
               onChange={handleChange}
-            >
-              <MenuItem value="">---타입---</MenuItem>
-              <MenuItem value="BUYER">BUYER</MenuItem>
-              <MenuItem value="SELLER">SELLER</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth size="small">
-            <InputLabel id="categoryId-label">카테고리</InputLabel>
-            <Select
-              labelId="categoryId-label"
-              name="categoryId"
-              value={saveData.categoryId}
-              label="카테고리"
+          />
+          <TextField
+              label="설명"
+              name="description"
+              fullWidth
+              multiline
+              rows={4}
+              margin="normal"
+              value={saveData.description}
               onChange={handleChange}
-            >
-              <MenuItem value="">---카테고리---</MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  {cat.categoryName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+          />
 
-        {/* 제목 */}
-        <TextField
-          label="제목"
-          name="title"
-          value={saveData.title}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-
-        {/* 설명 */}
-        <TextField
-          label="내용"
-          name="description"
-          value={saveData.description}
-          onChange={handleChange}
-          fullWidth
-          multiline
-          rows={4}
-          margin="normal"
-        />
-
-        {/* 날짜 */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          {/* 시간픽커 */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="시작 시간"
-              value={dayjs(saveData.startedAt)}
-              onChange={handleStartTimeChange}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
+            <Box sx={{ display: "flex", gap: 1, my: 2 }}>
+              <DateTimePicker
+                  sx={{ flex: 1 }}
+                  label="시작 시간"
+                  value={dayjs(saveData.startedAt)}
+                  onChange={handleStartTimeChange}
+                  renderInput={props => <TextField {...props} fullWidth />}
+              />
+              <DateTimePicker
+                  sx={{ flex: 1 }}
+                  label="종료 시간"
+                  value={dayjs(saveData.endAt)}
+                  onChange={handleEndTimeChange}
+                  renderInput={props => <TextField {...props} fullWidth />}
+              />
+            </Box>
           </LocalizationProvider>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="종료 시간"
-              value={dayjs(saveData.endAt)}
-              onChange={handleEndTimeChange}
-              renderInput={(params) => <TextField {...params} fullWidth />}
+
+          {/* 상품 시간 */}
+          <TextField
+              label="상품 시간(분)"
+              name="hours"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={saveData.hours}
+              onChange={handleChange}
+          />
+
+          {/* 주소 직접검색 버튼 */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+            <Button variant="outlined" onClick={() => setOpenPostcode(true)}>
+              주소 직접검색
+            </Button>
+          </Box>
+
+          {/* 주소검색 다이얼로그 */}
+          <Dialog
+              open={openPostcode}
+              onClose={() => setOpenPostcode(false)}
+              fullWidth
+              maxWidth="sm"
+          >
+            <DialogTitle>주소 검색</DialogTitle>
+            <DialogContent sx={{ height: 400, p: 0 }}>
+              <DaumPostcode onComplete={handlePostcodeComplete} style={{ height: "100%" }} />
+            </DialogContent>
+          </Dialog>
+
+          {/* 지도 클릭 or 드래그로 좌표 선택 */}
+          <Box sx={{ height: 400, mb: 2 }}>
+            <KakaoSaveMap
+                saveData={saveData}
+                setSaveData={setSaveData}
+                onMapClick={handleMapClick}
             />
-          </LocalizationProvider>
-        </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+              선택된 좌표: {saveData.lat.toFixed(6)}, {saveData.lng.toFixed(6)}
+            </Typography>
+          </Box>
 
-        {/* 상품 시간 */}
-        <TextField
-          label="상품 시간"
-          name="hours"
-          type="number"
-          value={saveData.hours}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-
-        {/* 지도 */}
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <KakaoSaveMap saveData={saveData} setSaveData={setSaveData} />
-        </Box>
-
-        {/* 전송 버튼 */}
-        <Box sx={{ textAlign: "right", mb: 2 }}>
-          <Button variant="contained" endIcon={<SendIcon />} type="submit">
-            등록
-          </Button>
-        </Box>
-      </form>
-    </Box>
+          {/* 저장 버튼 */}
+          <Box sx={{ textAlign: "right" }}>
+            <Button type="submit" variant="contained" endIcon={<SendIcon />}>
+              등록
+            </Button>
+          </Box>
+        </form>
+      </Box>
   );
-};
-
-export default ProductForm;
+}
