@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Donation;
+import com.example.oauthjwt.entity.DonationImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -33,7 +37,13 @@ public class DonationResponse {
 
     private LocalDateTime createdAt; // 생성일자
 
+    private int viewCount; // 조회수
+
+    private UserResponse author; // 작성자
+
     private String status; // 상태
+
+    private List<String> images= new ArrayList<>(); // 이미지 리스트
 
     public static DonationResponse toDto(Donation donation) {
         return DonationResponse.builder()
@@ -46,8 +56,13 @@ public class DonationResponse {
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
                 .createdAt(donation.getCreatedAt())
+                .viewCount(donation.getViewCount())
+                .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
                         donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
+                .images(donation.getImages().stream()
+                        .map(DonationImage::getImgUrl)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

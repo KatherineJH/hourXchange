@@ -1,5 +1,5 @@
 // src/components/DonationList.jsx
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Card,
@@ -28,6 +28,8 @@ import {
     Stack
 } from '@mui/material';
 import { getCntrProgramList } from '../../api/donationApi.js';
+import CustomPagination from "../common/CustomPagination.jsx";
+import CustomHeader from "../common/CustomHeader.jsx";
 
 const VITE_OPENAPI_KEY = import.meta.env.VITE_OPENAPI_KEY;
 
@@ -76,13 +78,9 @@ function DonationList() {
     });
     const [items,setItems]=useState([]);
     const [totalCount,setTotalCount]=useState(0);
+    const [searchTrigger, setSearchTrigger] = useState(false);
 
-    // 모달 상태
-    const [openDonate, setOpenDonate] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [donationAmount, setDonationAmount] = useState('1000');
-
-    const handleChange=key=>e=>{
+    const handleChange = key => e => {
         const val=e.target.value;
         setFilters(f=>({
             ...f,
@@ -91,10 +89,9 @@ function DonationList() {
         }));
     };
 
-    const fetchList=async()=>{
-        try{
-            const res=await getCntrProgramList(filters);
-            const body=res.data.response?.body||{};
+    useEffect(() => {
+        getCntrProgramList(filters).then(response=>{
+            const body=response.data.response?.body||{};
             const raw=body.items;
             console.log(body.items)
             let list=[];
@@ -104,51 +101,25 @@ function DonationList() {
             }
             setItems(list);
             setTotalCount(Number(body.totalCount)||0);
-        }catch(err){console.error('조회 실패',err);}
-    };
+        }).catch(error=>{
+            console.log(error);
+        })
+    }, [filters.pageNo, searchTrigger]);
+
+    const setPage = (page)=>{
+        setFilters(f=>({...f, pageNo: page + 1}));
+    }
 
     const totalPages=Math.ceil(totalCount/filters.numOfRows);
-    const handlePageChange=(_,page)=>{
-        setFilters(f=>({...f,pageNo:page}));
-        fetchList();
-    };
 
-    const openDonateModal=item=>{
-        setSelectedItem(item);
-        setDonationAmount('1000');
-        setOpenDonate(true);
-    };
-    const closeDonateModal=()=>setOpenDonate(false);
-
-    const handleDonationChange=e=>{
-        let value = e.target.value < 1000 ? 1000 : Math.floor(e.target.value / 1000) * 1000;
-        setDonationAmount(value);
-    };
-
-    const selectPresetAmount=amt=>setDonationAmount(String(amt));
-
-    const handleConfirmDonate=async()=>{
-        const amount=Number(donationAmount);
-        if(!amount||amount<1000) return;
-        try{
-            const response = await postDonation({ registNo:selectedItem.cntrProgrmRegistNo, amount });
-            console.log(response);
-            closeDonateModal();
-            if(!confirm('1000원에 1시간이 차감됩니다.')){
-                return;
-            }
-            alert('기부 완료');
-        }catch(err){console.error(err);alert('오류');}
-    };
-
-    const openDetail=rcritrId=>{
+    const openDetail = (rcritrId) => {
         const url=`https://www.nanumkorea.go.kr/ctgp/viewCntrGrpDetail.do?grpRqstSn=${rcritrId}`;
         window.open(url,'_blank');
     };
 
     return(
-        <Box p={2}>
-            <Typography variant="h5" gutterBottom>기부모집정보 목록</Typography>
+        <>
+            <CustomHeader text={'1365 기부모집 정보'}/>
             <Card variant="outlined" sx={{mb:3}}>
                 <CardHeader title="검색 조건" />
                 <CardContent>
@@ -170,29 +141,42 @@ function DonationList() {
                         <Box sx={{flex:'1 1 200px'}}><TextField label="검색어" size="small" fullWidth value={filters.schCntrNm} onChange={handleChange('schCntrNm')} /></Box>
                     </Box>
                 </CardContent>
-                <CardActions sx={{justifyContent:'flex-end',pr:2,pb:2}}><Button variant="contained" onClick={fetchList}>조회</Button></CardActions>
+                <CardActions sx={{justifyContent:'flex-end',pr:2,pb:2}}><Button variant="contained" onClick={() => setSearchTrigger(!searchTrigger)}>조회</Button></CardActions>
             </Card>
             {/* 테이블 */}
-            <TableContainer component={Paper} variant="outlined" sx={{mb:2}}>
-                <Table size="small">
+            <TableContainer component={Paper} sx={{ width: "100%", overflow: "hidden", marginTop: "1rem" }}>
+                <Table stickyHeader aria-label="donation table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>단체정보</TableCell>
-                            <TableCell>등록번호</TableCell>
-                            <TableCell>제목</TableCell>
-                            <TableCell>시작일</TableCell>
-                            <TableCell>완료일</TableCell>
-                            <TableCell>상태</TableCell>
-                            <TableCell>목표액</TableCell>
-                            <TableCell>단체명</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>단체정보</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>등록번호</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>제목</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>시작일</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>완료일</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>상태</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>목표액</TableCell>
+                            <TableCell sx={{ bgcolor: "secondary.main" }}>단체명</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {items.map(item=>(<TableRow key={item.cntrProgrmRegistNo} hover>
                             <TableCell>
-                                <Button size="small" onClick={()=>openDetail(item.rcritrId)}>단체정보</Button></TableCell><TableCell>{item.cntrProgrmRegistNo}</TableCell><TableCell><Typography variant="body2" sx={{display:'-webkit-box',WebkitBoxOrient:'vertical',WebkitLineClamp:2,overflow:'hidden'}}>{item.reprsntSj}</Typography></TableCell><TableCell>{formatDisplayDate(item.rcritBgnde)}</TableCell><TableCell>{formatDisplayDate(item.rcritEndde)}</TableCell><TableCell>{item.step}</TableCell><TableCell>{Number(item.rcritGoalAm).toLocaleString()}원</TableCell><TableCell>{item.rcritrNm}</TableCell></TableRow>))}</TableBody></Table></TableContainer>
-            <Box display="flex" justifyContent="center"><Pagination count={totalPages} page={filters.pageNo} onChange={handlePageChange} color="primary" shape="rounded"/></Box>
-        </Box>
+                                <Button size="small" onClick={()=>openDetail(item.rcritrId)}>단체정보</Button>
+                            </TableCell>
+                            <TableCell>{item.cntrProgrmRegistNo}</TableCell>
+                            <TableCell><Typography variant="body2" sx={{display:'-webkit-box',WebkitBoxOrient:'vertical',WebkitLineClamp:2,overflow:'hidden'}}>{item.reprsntSj}</Typography></TableCell>
+                            <TableCell>{formatDisplayDate(item.rcritBgnde)}</TableCell>
+                            <TableCell>{formatDisplayDate(item.rcritEndde)}</TableCell>
+                            <TableCell>{item.step}</TableCell>
+                            <TableCell>{Number(item.rcritGoalAm).toLocaleString()}원</TableCell>
+                            <TableCell>{item.rcritrNm}</TableCell>
+                        </TableRow>))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {/* 페이지네이션 */}
+            <CustomPagination totalPages={totalPages} page={filters.pageNo - 1} setPage={setPage} />
+        </>
     );
 }
 
