@@ -1,14 +1,20 @@
 package com.example.oauthjwt.service.elastic;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.dto.DonationDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.BoundValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import com.example.oauthjwt.dto.BoardDocument;
@@ -31,9 +37,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Log4j2
 public class ElasticSearchService {
+    private static final String CACHE_PREFIX = "donation:search:";
+    private static final Duration CACHE_TTL = Duration.ofMinutes(10);
 
     private final ElasticsearchClient client;
     private final ProductRepository productRepository;
+    private final RedisTemplate<String, PageResult<DonationDocument>> redisTemplate;
 
     public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
         try {
@@ -82,24 +91,58 @@ public class ElasticSearchService {
     }
 
     public PageResult<DonationDocument> searchDonations(String keyword, int page, int size) {
+
+        // 1) 캐시 키 생성
+        String cacheKey = CACHE_PREFIX + keyword + ":" + page + ":" + size;
+        BoundValueOperations<String, PageResult<DonationDocument>> ops = redisTemplate.boundValueOps(cacheKey);
+
+        // 2) 캐시 조회
         try {
-            int from = Math.max(0, page * size);
-            SearchResponse<DonationDocument> response = client.search(s -> s.index("donation_index").from(from).size(size)
+            PageResult<DonationDocument> cached = ops.get();
+            if (cached != null) {
+                log.info("CACHE HIT — key={}", cacheKey);
+                return cached;
+            }
+        } catch (Exception e) {
+            log.warn("Redis read 실패 — key={}, error={}", cacheKey, e.getMessage());
+        }
+
+        // 3) 엘라스틱 서치 조회
+        int from = Math.max(0, page * size);
+        SearchResponse<DonationDocument> response;
+        try {
+            response = client.search(s -> s.index("donation_index").from(from).size(size)
                     .query(q -> q.multiMatch(m -> m.query(keyword)
                             .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
                                     "authorName^0.2")
                             .fuzziness("1").prefixLength(1).minimumShouldMatch("75%")))
                     .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))), DonationDocument.class);
-
-            List<DonationDocument> hits = response.hits().hits().stream().map(Hit::source).filter(Objects::nonNull)
-                    .toList();
-            long total = response.hits().total() != null ? response.hits().total().value() : 0;
-            int totalPages = (int) Math.ceil((double) total / size);
-            return new PageResult<>(hits, page, size, total, totalPages);
         } catch (IOException e) {
             log.error("Donation search error: {}", e.getMessage());
             throw new RuntimeException("Donation 검색 중 오류", e);
         }
+
+        // 4) 결과 가공
+        List<DonationDocument> hits = response.hits().hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        long total = Optional.ofNullable(response.hits().total())
+                .map(t -> t.value())
+                .orElse(0L);
+        int totalPages = (int) Math.ceil((double) total / size);
+        PageResult<DonationDocument> result =
+                new PageResult<>(hits, page, size, total, totalPages);
+
+        // 5) 캐시에 저장
+        try {
+            ops.set(result, CACHE_TTL);
+            log.info("CACHE PUT — key={}", cacheKey);
+        } catch (Exception e) {
+            log.warn("Redis write 실패 — key={}, error={}", cacheKey, e.getMessage());
+        }
+
+        return result;
     }
 
     public List<String> autocomplete(String prefix, String index) {

@@ -48,6 +48,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	// SecureSessionAgent 클래스를 포함하는 Auth 라이브러리
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.35.0'
+	// radis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	// Java 8+ 날짜/시간 지원
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 
 
 	compileOnly 'org.projectlombok:lombok'

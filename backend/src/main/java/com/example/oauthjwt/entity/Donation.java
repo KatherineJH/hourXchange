@@ -102,7 +102,8 @@ public class Donation {
         this.currentAmount += amount;
     }
 
-    public void addViewCount(){
+    public Donation addViewCount(){
         this.viewCount++;
+        return this;
     }
 }

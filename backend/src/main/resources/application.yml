@@ -1,14 +1,15 @@
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
-
 spring:
-#  # .env (?? ??? ????)?? ${?} ??????? ?????.
+  # redis 설정
+  data:
+    redis:
+      host: ${REDIS_SERVER}        # Redis 호스트 (환경 변수)
+      port: ${REDIS_PORT}          # Redis 포트 (환경 변수)
+#      database: ${REDIS_DATABASE:0}  # 선택적 Redis 데이터베이스 번호 (기본값 0)
+#      username: ${REDIS_USERNAME:}   # 인증이 필요한 경우 사용자명
+#      password: ${REDIS_PASSWORD:}   # 인증이 필요한 경우 비밀번호
+#      ssl:
+#        enabled: ${REDIS_SSL_ENABLED:false} # SSL 사용 여부 (기본값 false)
+
   config:
     import: optional:file:.env[.properties]
 
@@ -70,13 +71,11 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
-openai:
-  api-key: ${OPENAI_API_KEY}
-  endpoint: https://api.openai.com/v1/chat/completions
 
 server:
   port: ${SERVER_PORT}
 
+# 봉사정보
 openapi:
   key: ${OPENAPI_KEY}
 
@@ -92,17 +91,28 @@ url:
   elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
   flask: http://${BACKEND_SERVER}:${FLASK_PORT}
 
+# 결제 연동
 iamport:
   api-key: ${IAMPORT_KEY}
   api-secret: ${IAMPORT_SECRET}
 
+# ai챗봇
 dialogflow:
   project-id: ${GCP_PROJECT_ID}
   language-code: ko-KR
   credentials-path: classpath:dialogflow-key.json
 
-# ?? ? ?? ???? ?? ?? ??
 logging:
   level:
     spring.security.web: TRACE
     spring.security.config: DEBUG
+
+# 서버 상태 체크
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

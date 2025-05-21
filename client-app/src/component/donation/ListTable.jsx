@@ -38,7 +38,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
                     keyword.trim() === ""
                         ? await getList(page, size)
                         : await getListWithKeyword(keyword, page, size);
-
+                console.log(response)
                 let data = response.data.content;
 
                 if (filterProviderType) {
@@ -47,7 +47,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
                 if (category) {
                     data = data.filter((p) => p.category?.categoryName === category);
                 }
-
+                console.log(data)
                 setServerDataList(data);
                 setTotalPages(response.data.totalPages);
             } catch (error) {
