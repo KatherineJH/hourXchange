@@ -6,6 +6,7 @@ import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
 import NearMe from "./NearMe";
 import ListTable from "../product/ListTable";
+import ProductGrid from "../common/ProductGrid";
 import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 import CustomHeader from "../common/CustomHeader.jsx";
 import DonationCardList from "../donation/DonationCardList.jsx";
