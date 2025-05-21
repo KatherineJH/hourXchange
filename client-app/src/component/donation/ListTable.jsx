@@ -13,6 +13,7 @@ import CustomPagination from "../common/CustomPagination.jsx";
 import DonationSearch from "./DonationSearch.jsx";
 import CustomHeader from "../common/CustomHeader.jsx";
 import DonationCardList from "./DonationCardList.jsx";
+import InfiniteScrollList from "./InfiniteScrollList.jsx";
 
 export default function ListTable({ filterProviderType, category, keyword: keywordProp = "" }) {
     const [serverDataList, setServerDataList] = useState([]);
@@ -80,9 +81,12 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
             </Box>
             {/* 테이블 내용*/}
             <DonationTable serverDataList={serverDataList} navigate={navigate} pathname={pathname}/>
+            {/* 테이블 내용(카드)*/}
             <DonationCardList serverDataList={serverDataList} navigate={navigate} pathname={pathname}/>
             {/* 페이지네이션 */}
             <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />
+            {/*무한 스크롤*/}
+            <InfiniteScrollList />
         </>
     );
 }
