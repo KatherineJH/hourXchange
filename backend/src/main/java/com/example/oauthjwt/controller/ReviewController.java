@@ -12,6 +12,8 @@ import com.example.oauthjwt.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -34,5 +36,10 @@ public class ReviewController {
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id, @RequestBody @Valid ReviewRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(reviewService.updateReview(id, request, userDetails.getUser()));
+    }
+
+    @GetMapping("/receiver/{userId}/tags")
+    public ResponseEntity<List<String>> getTagsByReceiverId(@PathVariable Long userId) {
+        return ResponseEntity.ok(reviewService.getReviewTagsByReceiverId(userId));
     }
 }

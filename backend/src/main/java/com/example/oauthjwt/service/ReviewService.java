@@ -4,6 +4,8 @@ import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
 import com.example.oauthjwt.entity.User;
 
+import java.util.List;
+
 public interface ReviewService {
 
     ReviewResponse saveReview(ReviewRequest request, User reviewer);
@@ -11,4 +13,6 @@ public interface ReviewService {
     ReviewResponse getReviewById(Long id);
 
     ReviewResponse updateReview(Long id, ReviewRequest request, User user);
+
+    List<String> getReviewTagsByReceiverId(Long userId);
 }

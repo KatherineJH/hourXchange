@@ -32,7 +32,7 @@ def extract_positive_tags(text, top_k=5, threshold=0.3):
     model = SentenceTransformer("snunlp/KR-SBERT-V40K-klueNLI-augSTS")
 
     def normalize_adjective(word: str) -> str:
-        word = re.sub(r"(하고|하며|하면서|하구요)$", "", word)
+        word = re.sub(r"(하고|하며|하면서|하구요|하십니다)$", "", word)
         word = re.sub(r"(한|했던|하던|스러운|스럽다)$", "", word)
         word = re.sub(r"(았어요|었어요|했어요|네요|했네요|해요|했습니다|해봤어요)$", "음", word)
         return word
