@@ -148,4 +148,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
       ORDER BY COUNT(p) DESC
     """)
     List<PaymentItemRatioResponse> ratioByItem();
+
+    // 고객 등급 분류
+    @Query("SELECT COUNT(p) FROM Payment p WHERE p.userId = :userId AND p.status = 'paid'")
+    int countPaymentsByUserId(@Param("userId") Long userId);
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.userId = :userId AND p.status = 'paid'")
+    Integer sumPaymentsByUserId(@Param("userId") Long userId);
 }
