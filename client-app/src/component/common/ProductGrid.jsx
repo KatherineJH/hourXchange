@@ -164,7 +164,7 @@ export default function ProductGrid({
                   <Box
                     key={idx}
                     sx={{
-                      backgroundColor: "#f0f0f0",
+                      backgroundColor: "secondary.main",
                       padding: "4px 10px",
                       borderRadius: "16px",
                       fontSize: "0.8rem",
