@@ -9,9 +9,6 @@ import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 
 public interface BoardService {
-    Map<String, String> existsById(Long id);
-
-    Map<String, String> existsByImgUrl(String imgUrl);
 
     BoardResponse save(BoardRequest boardRequest);
 

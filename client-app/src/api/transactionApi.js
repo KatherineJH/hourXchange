@@ -40,11 +40,15 @@ export const patchCompleteTransaction = async (transactionId) => {
   return response.data;
 };
 
-
-// 리뷰
+// ====================== 리뷰 관련 API ======================
 export const postReview = async (reviewData) => {
   const response = await api.post(reviewApiUrl, reviewData, {
     headers: { "Content-Type": "application/json" },
   });
+  return response.data;
+};
+// 특정 유저가 받은 리뷰들의 태그 조회
+export const getReviewTagsByReceiverId = async (userId) => {
+  const response = await api.get(`${reviewApiUrl}/receiver/${userId}/tags`);
   return response.data;
 };

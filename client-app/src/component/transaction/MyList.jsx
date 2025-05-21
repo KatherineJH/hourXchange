@@ -133,10 +133,10 @@ function MyList() {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+      <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            나의 거래 내역
+            🙋 나의 거래 내역
           </Typography>
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
@@ -154,7 +154,9 @@ function MyList() {
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     생성일자
                   </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>완료 👉 리뷰</TableCell>
+                  <TableCell sx={{ bgcolor: "secondary.main" }}>
+                    완료 👉 리뷰
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -195,7 +197,7 @@ function MyList() {
             </Table>
           </TableContainer>
         </CardContent>
-      </Card>
+      </Box>
 
       {/* 모달 영역 */}
       <Modal open={openModal} onClose={handleCloseModal}>

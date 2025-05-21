@@ -12,7 +12,6 @@ import {
   ListItemText,
   Stack,
   Pagination,
-  Card,
   CardContent,
   Box,
   Typography,
@@ -83,7 +82,7 @@ function BoardPage() {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+      <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
             📋 Board 검색 & 리스트
@@ -218,7 +217,7 @@ function BoardPage() {
             </Stack>
           </Box>
         </CardContent>
-      </Card>
+      </Box>
     </Box>
   );
 }

@@ -36,7 +36,7 @@ function MyBoardPage() {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+      <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
             🙋‍♀️ 나의 게시글 리스트
@@ -73,7 +73,7 @@ function MyBoardPage() {
               <Pagination
                 count={totalPages}
                 page={page + 1}
-                onChange={(event, value) => setPage(value - 1)}
+                onChange={(value) => setPage(value - 1)}
                 variant="outlined"
                 shape="rounded"
                 color="primary"
@@ -81,7 +81,7 @@ function MyBoardPage() {
             </Stack>
           </Box>
         </CardContent>
-      </Card>
+      </Box>
     </Box>
   );
 }
