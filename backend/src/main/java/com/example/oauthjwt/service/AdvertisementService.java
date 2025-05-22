@@ -5,14 +5,15 @@ import java.util.List;
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
 import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.entity.Advertisement;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 public interface AdvertisementService {
 
-    Advertisement createAdvertisement(AdvertisementRequest advertisementRequest);
+    Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
     Advertisement findById(Long advertisementId);
 
-    AdvertisementResponse updateAdvertisement(AdvertisementRequest advertisementRequest);
+    AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
     List<AdvertisementResponse> findAllAdvertisements();
 }

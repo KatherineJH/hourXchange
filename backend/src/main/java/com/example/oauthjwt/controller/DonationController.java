@@ -72,8 +72,9 @@ public class DonationController {
 
     @PutMapping("/delete/{donationId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> deleteDonation(@PathVariable Long donationId) {
-        List<DonationHistoryResponse> result = donationService.delete(donationId);
+    public ResponseEntity<?> deleteDonation(@PathVariable Long donationId,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<DonationHistoryResponse> result = donationService.delete(donationId, userDetails);
         return ResponseEntity.ok(result);
     }
 

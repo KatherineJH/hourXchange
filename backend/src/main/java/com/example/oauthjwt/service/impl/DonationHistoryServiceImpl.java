@@ -36,13 +36,13 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
     @Transactional
     public DonationHistoryResponse createDonationHistory(DonationHistoryRequest donationHistoryRequest, Long userId) {
         User donator = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         if(donator.getWallet().getCredit() < donationHistoryRequest.getAmount()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시간이 충분하지 않습니다.");
         }
 
         Donation donation = donationRepository.findById(donationHistoryRequest.getDonationId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부모집 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부모집 정보가 존재하지 않습니다."));
         if(donation.getCurrentAmount() + donationHistoryRequest.getAmount() > donation.getTargetAmount()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "목표액 이상으로 기부하실 수 없습니다.");
         }

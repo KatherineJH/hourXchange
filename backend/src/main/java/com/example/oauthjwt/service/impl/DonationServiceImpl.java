@@ -39,7 +39,7 @@ public class DonationServiceImpl implements DonationService {
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성자 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
 
         // 기부 생성
         Donation donation = Donation.of(donationRequest, author);
@@ -66,13 +66,13 @@ public class DonationServiceImpl implements DonationService {
     public DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성자 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
 
         Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
 
         if(!donation.getAuthor().getId().equals(author.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시글을 삭제할 권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글을 수정할 권한이 없습니다.");
         }
 
         if(donationRequest.getTargetAmount() < donation.getCurrentAmount()){
@@ -99,7 +99,7 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public DonationResponse getDonation(Long donationId, String userKey) {
         Donation result = donationRepository.findById(donationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
 
         String key = "view donationId: " + donationId + ", by: " + userKey;
 
@@ -127,9 +127,14 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     @Transactional
-    public List<DonationHistoryResponse> delete(Long donationId) {
+    public List<DonationHistoryResponse> delete(Long donationId, CustomUserDetails userDetails) {
         Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
+
+        if(!donation.getAuthor().getId().equals(userDetails.getUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글을 삭제할 권한이 없습니다.");
+        }
+
         Donation result = donationRepository.save(donation.setDelete());
 
         // 2) 기부 히스토리에서 유저별 기부량 집계
@@ -141,7 +146,7 @@ public class DonationServiceImpl implements DonationService {
             Long userId = (Long) row[0];
             Integer hours = ((Number) row[1]).intValue();
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
             DonationHistory donationHistory = donationHistoryRepository.save(DonationHistory.of(result, user, hours));
             donationHistoryResponseList.add(DonationHistoryResponse.toDto(donationHistory));
             walletRepository.addCredit(userId, hours);

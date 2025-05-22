@@ -98,10 +98,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         User user = userRepository.findByEmail(orders.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         PaymentItem paymentItem = paymentItemRepository.findByName(orders.getPaymentItemName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
 
         user.addCredit(paymentItem.getTime()); // 시간 추가

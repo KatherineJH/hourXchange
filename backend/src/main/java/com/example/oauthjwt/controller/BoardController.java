@@ -29,15 +29,16 @@ public class BoardController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest) {
+    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(boardRequest);
-        BoardResponse result = boardService.save(boardRequest);
+        BoardResponse result = boardService.save(boardRequest, userDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/all")
     public ResponseEntity<?> findAllBoards(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                           @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<BoardResponse> responses = boardService.findAllBoards(pageable);
         return ResponseEntity.ok(responses);
@@ -69,13 +70,11 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{boardId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BoardRequest boardRequest,
+    public ResponseEntity<?> update(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        boardRequest.setId(id);
-        boardRequest.setAuthorId(userDetails.getUser().getId());
-        BoardResponse result = boardService.update(boardRequest);
+        BoardResponse result = boardService.update(boardRequest, boardId, userDetails);
         return ResponseEntity.ok(result);
     }
 

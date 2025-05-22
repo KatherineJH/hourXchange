@@ -23,4 +23,11 @@ public class BoardImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+
+    public static BoardImage of(String url, Board board) {
+        return BoardImage.builder()
+                .imgUrl(url)
+                .board(board)
+                .build();
+    }
 }

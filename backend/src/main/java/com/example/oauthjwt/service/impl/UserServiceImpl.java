@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse login(UserRequest userRequest) {
         // 유저 조회
         User user = userRepository.findByEmail(userRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         // 입력값 확인
         if(!user.getEmail().equals(userRequest.getEmail()) || !passwordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         return UserResponse.toDto(user);
     }
