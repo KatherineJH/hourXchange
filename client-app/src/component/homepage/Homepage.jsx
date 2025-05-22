@@ -1,6 +1,6 @@
 // src/component/homepage/Homepage.jsx
 import React, { useEffect, useState } from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
@@ -18,9 +18,7 @@ import {
 import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
 import { height } from "@mui/system";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
-import AdvertisementCard from "../component/advertisement/AdvertisementCard";
-import {getRecentDonations, getTopByProgress, getTopByViews} from "../../api/donationApi.js";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 const modalStyle = {
   position: "absolute",
@@ -50,8 +48,13 @@ export default function Homepage() {
   const filteredProducts = products.filter(
     (p) => !selectedCategory || p.category?.categoryName === selectedCategory
   );
-    const { pathname } = useLocation();              // 현재 경로
-    const user = useSelector((state) => state.auth);
+  const { pathname } = useLocation(); // 현재 경로
+  const user = useSelector((state) => state.auth);
+  const [openModal, setOpenModal] = useState(true);
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   useEffect(() => {
     getList()
@@ -64,7 +67,7 @@ export default function Homepage() {
   }, []);
 
   useEffect(() => {
-      if(!user.email) return
+    if (!user.email) return;
 
     getFavoriteList()
       .then((response) => {
@@ -93,25 +96,31 @@ export default function Homepage() {
     setExpandedProductId((prev) => (prev === id ? null : id));
   };
 
-    useEffect(() => {
-        getTopByProgress().then(response => {
-            setTopByProgress(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
+  useEffect(() => {
+    getTopByProgress()
+      .then((response) => {
+        setTopByProgress(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
-        getTopByViews().then(response => {
-            setTopByViews(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
+    getTopByViews()
+      .then((response) => {
+        setTopByViews(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
-        getRecentDonations().then(response => {
-            setRecentDonations(response.data)
-        }).catch(error => {
-            console.log(error);
-        })
-    }, [])
+    getRecentDonations()
+      .then((response) => {
+        setRecentDonations(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <div style={{ padding: "1rem" }}>
@@ -125,49 +134,49 @@ export default function Homepage() {
             </Box>
           </Box>
 
-          {/* 체크박스 + 닫기 버튼 */}
+          {/*닫기 버튼 */}
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               gap: 1,
+              mt: 3,
             }}
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checked}
-                  onChange={handleChange}
-                  color="primary"
-                />
-              }
-              label="오늘 하루 보지 않기"
-              sx={{
-                "& .MuiFormControlLabel-label": {
-                  fontSize: "1rem", // 원하는 크기로 조절
-                  lineHeight: 1.2,
-                },
-                "& .MuiSvgIcon-root": {
-                  color: (theme) => theme.palette.primary.main,
-                },
-              }}
-            />
-            <Button variant="contained" size="small" onClick={handleCloseModal}>
-              닫기
-            </Button>
+            <Box>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleCloseModal}
+              >
+                닫기
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Modal>
       <h1>🏠 Home Page</h1>
-        <TopDonatorsChart/>
+      <TopDonatorsChart />
 
-        <CustomHeader text={'거의 모집이 완료된 기부'}/>
-        <DonationCardList serverDataList={TopByProgress} navigate={navigate} pathname={pathname}/>
-        <CustomHeader text={'가장 조회수가 높은 기부'}/>
-        <DonationCardList serverDataList={TopByViews} navigate={navigate} pathname={pathname}/>
-        <CustomHeader text={'가장 최근 등록된 기부'}/>
-        <DonationCardList serverDataList={RecentDonations} navigate={navigate} pathname={pathname}/>
+      <CustomHeader text={"거의 모집이 완료된 기부"} />
+      <DonationCardList
+        serverDataList={TopByProgress}
+        navigate={navigate}
+        pathname={pathname}
+      />
+      <CustomHeader text={"가장 조회수가 높은 기부"} />
+      <DonationCardList
+        serverDataList={TopByViews}
+        navigate={navigate}
+        pathname={pathname}
+      />
+      <CustomHeader text={"가장 최근 등록된 기부"} />
+      <DonationCardList
+        serverDataList={RecentDonations}
+        navigate={navigate}
+        pathname={pathname}
+      />
 
       <New7Days
         selectedCategory={selectedCategory}
