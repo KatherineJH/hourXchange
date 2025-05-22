@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -82,5 +83,19 @@ public class PaymentLogController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<PaymentItemRatioResponse> ratioByItem() {
         return paymentService.getPaymentRatioByItem();
+    }
+
+    /** 기간을 선택하여 데이터를 로드 */
+    @GetMapping("/range")
+    public List<PaymentLogResponse> getPaymentsByDateRange(
+            @RequestParam("from") String fromDateStr,
+            @RequestParam("to") String toDateStr) {
+        return paymentService.getPaymentsBetween(fromDateStr, toDateStr);
+    }
+    @GetMapping("/range/amount")
+    public List<PaymentLogResponse> getAmountSumByRange(
+            @RequestParam("from") String from,
+            @RequestParam("to") String to) {
+        return paymentService.getAmountSumBetween(from, to);
     }
 }
