@@ -12,11 +12,11 @@ import com.example.oauthjwt.dto.response.ProductResponse;
 
 public interface ProductService {
 
-    ProductResponse save(ProductRequest productRequest);
+    ProductResponse save(ProductRequest productRequest, CustomUserDetails userDetails);
 
     ProductResponse findById(Long id, String userKey);
 
-    ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails);
+    ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId);
 
     Page<ProductResponse> findAll(Pageable pageable);
 

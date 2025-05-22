@@ -87,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 토큰이 정상이라면 해당 merchantUid를 사용해 주문 내역 조회
         Orders orders = ordersRepository.findByImpUidAndMerchantUid((claims.get("impUid", String.class)), claims.get("merchantUid", String.class))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."));
 
         // 토큰으로 조회한 주문 내역과 토큰의 내용이 다르면
         if(!orders.getImpUid().equals(claims.get("impUid", String.class)) ||

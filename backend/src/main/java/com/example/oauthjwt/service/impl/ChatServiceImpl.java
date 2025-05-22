@@ -66,7 +66,7 @@ public class ChatServiceImpl implements ChatService {
             return ChatRoomResponse.toDto(existing.get());
         }
 
-        ChatRoom room = ChatRoom.of(product, requester);
+        ChatRoom room = ChatRoom.of(product);
 
         ChatRoomUser chatRoomProductOwner = ChatRoomUser.of(product.getOwner(), room);
         ChatRoomUser chatRoomRequester = ChatRoomUser.of(requester, room);

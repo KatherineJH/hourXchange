@@ -16,6 +16,8 @@ public class PaymentOrderResponse {
 
     private String merchantUid;
 
+    private String impUid;
+
     private String email;
 
     private String paymentItemName;
@@ -28,6 +30,7 @@ public class PaymentOrderResponse {
         return PaymentOrderResponse.builder()
                 .id(orders.getId())
                 .merchantUid(orders.getMerchantUid())
+                .impUid(orders.getImpUid())
                 .email(orders.getEmail())
                 .paymentItemName(orders.getPaymentItemName())
                 .paymentItemPrice(orders.getPaymentItemPrice())

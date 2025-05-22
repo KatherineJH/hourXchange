@@ -134,6 +134,9 @@ public class DonationServiceImpl implements DonationService {
         if(!donation.getAuthor().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글을 삭제할 권한이 없습니다.");
         }
+        if(donation.getStatus().equals(DonationStatus.CANCELLED)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 삭제된 기부모집입니다.");
+        }
 
         Donation result = donationRepository.save(donation.setDelete());
 

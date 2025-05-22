@@ -44,9 +44,14 @@ public class Transaction {
     @OneToOne(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Review review;
 
-    public static Transaction of(TransactionRequest transactionRequest, User user, Product product,
-            TransactionStatus status, ChatRoom chatRoom) {
-        return Transaction.builder().user(user).product(product).status(status).chatRoom(chatRoom).createdAt(LocalDateTime.now()).build();
+    public static Transaction of(User user, Product product, TransactionStatus status, ChatRoom chatRoom) {
+        return Transaction.builder()
+                .user(user)
+                .product(product)
+                .status(status)
+                .chatRoom(chatRoom)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
     public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, Product product,

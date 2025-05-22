@@ -34,12 +34,8 @@ public class ProductController {
     public ResponseEntity<?> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
-        // 인증한 유저의 id 값으로 할당
-        productRequest.setOwnerId(userDetails.getUser().getId());
-
-        log.info(productRequest.toString());
         // 로직 실행
-        ProductResponse result = productService.save(productRequest);
+        ProductResponse result = productService.save(productRequest, userDetails);
         // 저장된 값 반환
         return ResponseEntity.ok(result);
     }
@@ -59,21 +55,19 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{productId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest,
+    public ResponseEntity<?> update(@PathVariable Long productId, @RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // url 주소로 받은 id 값 지정
-        productRequest.setId(id);
         // 로직
-        ProductResponse result = productService.update(productRequest, userDetails);
+        ProductResponse result = productService.update(productRequest, userDetails, productId);
         // 반환
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+                                     @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
 
         // 로직 실행
