@@ -27,11 +27,12 @@ export const predictUserGrade = async (userId) => {
 };
 
 // TimeSeries 예측
-export const getForecast = async (historyData) => {
-  console.log("📌 getForecast 호출됨:", historyData);
+export const getForecast = async (historyData, periods = 7) => {
+  // console.log("📌 getForecast 호출됨:", historyData, `periods=${periods}`);
   const response = await api.post("/api/forecast", {
     history: historyData,
+    periods, // ✅ Include prediction length
   });
-  console.log("✅ 시계열 예측 결과:", response.data);
+  // console.log("✅ 시계열 예측 결과:", response.data);
   return response.data;
 };

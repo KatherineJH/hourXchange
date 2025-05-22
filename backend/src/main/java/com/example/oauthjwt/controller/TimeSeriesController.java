@@ -19,9 +19,10 @@ public class TimeSeriesController {
     private final TimeSeriesServiece timeSeriesServiece;
 
     @PostMapping
-    public ResponseEntity<?> predict(@RequestBody Map<String, List<Map<String, Object>>> body) {
-        List<Map<String, Object>> history = body.get("history");
-        List<Map<String, Object>> forecast = timeSeriesServiece.getForecast(history);
+    public ResponseEntity<?> predict(@RequestBody Map<String, Object> body) {
+        List<Map<String, Object>> history = (List<Map<String, Object>>) body.get("history");
+        Integer periods = (Integer) body.getOrDefault("periods", 7); // default to 7
+        List<Map<String, Object>> forecast = timeSeriesServiece.getForecast(history, periods);
         return ResponseEntity.ok(forecast);
     }
 }
