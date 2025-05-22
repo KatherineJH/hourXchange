@@ -3,7 +3,7 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

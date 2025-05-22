@@ -10,18 +10,16 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
-import com.example.oauthjwt.dto.ChatRoomDTO;
+import com.example.oauthjwt.dto.response.ChatRoomResponse;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.service.ChatService;
-import com.example.oauthjwt.service.CustomUserDetails;
-import com.example.oauthjwt.service.ProductService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
 
 import lombok.RequiredArgsConstructor;
@@ -71,15 +69,8 @@ public class ChatController {
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
-
-        List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
-        List<ChatRoomDTO> result = chatRooms.stream()
-                .map(room -> ChatRoomDTO.builder().id(room.getId()).name(room.getName())
-                        .productId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<ChatRoomResponse> result = chatService.findChatRoomsByUserId(userDetails);
 
         return ResponseEntity.ok(result);
     }

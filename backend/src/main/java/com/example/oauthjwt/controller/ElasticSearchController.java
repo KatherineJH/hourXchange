@@ -2,14 +2,14 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
-import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.dto.document.DonationDocument;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.oauthjwt.dto.BoardDocument;
+import com.example.oauthjwt.dto.document.BoardDocument;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.elastic.Indexer;

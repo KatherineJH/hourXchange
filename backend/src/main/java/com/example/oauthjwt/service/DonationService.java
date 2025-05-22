@@ -3,7 +3,7 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
-import com.example.oauthjwt.dto.response.ProductResponse;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

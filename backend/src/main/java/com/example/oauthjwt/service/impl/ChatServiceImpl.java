@@ -3,19 +3,17 @@ package com.example.oauthjwt.service.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.response.ChatMessageResponse;
 import com.example.oauthjwt.dto.response.ChatRoomResponse;
-import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.type.ChatMessageType;
 import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import com.example.oauthjwt.entity.type.TransactionStatus;
-import com.example.oauthjwt.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -107,8 +105,9 @@ public class ChatServiceImpl implements ChatService {
 //    }
 
     @Override
-    public List<ChatRoom> findChatRoomsByUserId(Long userId) {
-        return chatRoomRepository.findChatRoomsByUserId(userId);
+    public List<ChatRoomResponse> findChatRoomsByUserId(CustomUserDetails userDetails) {
+        List<ChatRoom> chatRoomList = chatRoomRepository.findChatRoomsByUserId(userDetails.getUser().getId());
+        return chatRoomList.stream().map(ChatRoomResponse::toDto).collect(Collectors.toList());
     }
 
     @Transactional

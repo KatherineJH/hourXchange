@@ -8,17 +8,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.dto.document.DonationDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.stereotype.Service;
 
-import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ProductDocument;
+import com.example.oauthjwt.dto.document.BoardDocument;
+import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.Product;

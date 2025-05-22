@@ -2,7 +2,7 @@ package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.response.WalletHistoryResponse;
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,8 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.document;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -10,12 +12,12 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import jakarta.persistence.Id;
 import lombok.*;
 
-@Document(indexName = "board_index")
+@Document(indexName = "donation_index")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BoardDocument {
+public class DonationDocument {
 
     @Id
     private Long id;
@@ -29,8 +31,20 @@ public class BoardDocument {
     @Field(type = FieldType.Text, analyzer = "my_custom_analyzer")
     private String authorName;
 
+    private int currentAmount; // 현재모집목표액
+
+    private int targetAmount; // 모집목표액
+
+    private LocalDate startDate; // 모집시작일
+
+    private LocalDate endDate; // 모집끝일
+
+    private String status;
+
     @Field(type = FieldType.Date)
     private LocalDateTime createdAt;
 
     private List<String> suggest;
+
+    private List<String> images  = new ArrayList<>(); // 이미지 리스트;
 }

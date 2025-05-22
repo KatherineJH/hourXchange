@@ -2,24 +2,14 @@ package com.example.oauthjwt.controller;
 
 import java.util.Map;
 
-import com.example.oauthjwt.service.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.dto.request.UserRequest;
-import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.repository.UserRepository;
-//import com.example.oauthjwt.service.CustomUserDetailsService;
 import com.example.oauthjwt.service.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -52,9 +42,9 @@ public class AuthController {
 
     // 이메일 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute UserDTO userDTO, HttpServletResponse response) {
+    public ResponseEntity<?> login(@ModelAttribute UserRequest userRequest, HttpServletResponse response) {
         // 서비스 호출
-        UserResponse result = userService.login(userDTO);
+        UserResponse result = userService.login(userRequest);
         // 토큰 생성
         String accessToken = jwtUtil.createToken(Map.of("email", result.getEmail()), ACCESS_TOKEN_TIME);
         String refreshToken = jwtUtil.createToken(Map.of("email", result.getEmail()), REFRESH_TOKEN_TIME);
@@ -80,21 +70,20 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        // 리프레쉬 쿠키 가져오기
         String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
         String email = "";
 
-        try{
-            Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
+        // 토큰의 클레임 값 가져오기
+        Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
+        // 클레임 중 email 값 가져오기
+        email = claims.get("email", String.class);
 
-            email = claims.get("email", String.class);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-
+        // 토큰에 이상이 없을 경우 가져온 email 값을 가지고 새로운 토큰을 생성
         String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
-
+        // 토큰을 새로운 엑세스 쿠키로 반환
         response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
-
+        // 반환
         return ResponseEntity.ok(Map.of("message", "토큰 재발급 성공"));
     }
 

@@ -39,13 +39,13 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                     .map(param -> param.substring("token=".length())).findFirst().orElse(null);
 
             if (token != null) {
-                log.info("🧪 JWT Checking...: {}", token);
+                log.info("JWT Checking...: {}", token);
 
                 Claims claims = jwtUtil.getClaims(token); // 여기서 토큰 검증도 같이 함
 
                 String email = claims.get("email", String.class);
                 attributes.put("userId", email);
-                log.info("✅ User Verified: {}", email);
+                log.info("User Verified: {}", email);
                 return true;
 
 

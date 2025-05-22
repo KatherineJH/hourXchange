@@ -21,8 +21,15 @@ public class Wallet {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    public void addCredit(int amount) {
-        this.credit += amount;
+    public static Wallet of(User user) {
+        return Wallet.builder()
+                .credit(0)
+                .user(user)
+                .build();
+    }
+
+    public void addCredit(int credit) {
+        this.credit += credit;
     }
 
     public void subtractCredit(int amount) {

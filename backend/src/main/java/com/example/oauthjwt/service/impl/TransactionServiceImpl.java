@@ -181,7 +181,7 @@ public class TransactionServiceImpl implements TransactionService {
         // 크레딧 차감 로직 ONLY
         try {
             if (type == ProviderType.SELLER) {
-                opponent.subtractTime(hours);
+                opponent.subtractCredit(hours);
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(opponent.getWallet())
                         .product(product)
@@ -192,7 +192,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .build());
 
             } else if (type == ProviderType.BUYER) {
-                owner.subtractTime(hours);
+                owner.subtractCredit(hours);
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(owner.getWallet())
                         .product(product)
@@ -233,7 +233,7 @@ public class TransactionServiceImpl implements TransactionService {
         User receiver = (type == ProviderType.SELLER) ? product.getOwner() : transaction.getUser();
 
         // 크레딧 지급
-        receiver.addTime(hours);
+        receiver.addCredit(hours);
         walletHistoryRepository.save(WalletHistory.builder()
                 .wallet(receiver.getWallet())
                 .product(product)

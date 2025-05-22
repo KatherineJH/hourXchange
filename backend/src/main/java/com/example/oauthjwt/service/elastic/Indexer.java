@@ -8,15 +8,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationImage;
 import com.example.oauthjwt.repository.DonationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ProductDocument;
+import com.example.oauthjwt.dto.document.BoardDocument;
+import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.entity.Board;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.repository.BoardRepository;

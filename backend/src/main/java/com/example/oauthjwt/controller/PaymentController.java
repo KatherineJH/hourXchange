@@ -5,7 +5,7 @@ import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.PaymentOrderResponse;
 import com.example.oauthjwt.dto.response.PaymentResponse;
 import com.example.oauthjwt.dto.response.PaymentVerifyResponse;
-import com.example.oauthjwt.service.IamportService;
+import com.example.oauthjwt.service.impl.IamportService;
 import com.example.oauthjwt.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

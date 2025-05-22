@@ -1,12 +1,12 @@
-package com.example.oauthjwt.service;
+package com.example.oauthjwt.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.example.oauthjwt.dto.response.GitHubResponse;
+import com.example.oauthjwt.dto.response.*;
+import com.example.oauthjwt.dto.CustomOAuth2User;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,13 +18,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.example.oauthjwt.dto.*;
-import com.example.oauthjwt.dto.response.GoogleResponse;
-import com.example.oauthjwt.dto.response.NaverResponse;
-import com.example.oauthjwt.dto.response.OAuth2Response;
 import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.type.UserRole;
-import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -97,18 +91,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> existData = userRepository.findByEmail(oAuth2Response.getEmail()); // 이메일을 기준으로 조회
 
         if (existData.isEmpty()) { // 테이블에 유저가 없으면
-            User user = User.builder().username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
-                    .email(oAuth2Response.getEmail()) // 이메일
-                    .name(oAuth2Response.getName()).createdAt(LocalDateTime.now()).status(UserStatus.ACTIVE)
-                    .role(UserRole.ROLE_USER).build();
+            User user = User.of(oAuth2Response);
 
             User result = userRepository.save(user); // 저장 결과
 
-            UserDTO userDTO = UserDTO.builder() // 반환값 설정
-                    .username(result.getUsername()).email(result.getEmail()).name(result.getName())
-                    .role(result.getRole().toString()).build();
-
-            return new CustomOAuth2User(userDTO);
+            return new CustomOAuth2User(UserResponse.toDto(result));
         } else { // 있으면 최신화
             User existUser = existData.get(); // 존재하는 정보 get()
 
@@ -117,11 +104,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             User result = userRepository.save(existUser); // 저장 결과
 
-            UserDTO userDTO = UserDTO.builder() // 반환값 설정
-                    .username(result.getUsername()).email(result.getEmail()).name(result.getName())
-                    .role(result.getRole().toString()).build();
-
-            return new CustomOAuth2User(userDTO);
+            return new CustomOAuth2User(UserResponse.toDto(result));
         }
     }
 }

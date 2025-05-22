@@ -6,12 +6,12 @@ import java.util.Optional;
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.response.ChatMessageResponse;
 import com.example.oauthjwt.dto.response.ChatRoomResponse;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 public interface ChatService {
@@ -25,7 +25,7 @@ public interface ChatService {
 
     List<ChatMessage> getMessages(Long chatRoomId);
 
-    List<ChatRoom> findChatRoomsByUserId(Long userId);
+    List<ChatRoomResponse> findChatRoomsByUserId(CustomUserDetails userDetails);
 
     @Transactional
     void completeTransactionByChatRoomId(Long chatRoomId);

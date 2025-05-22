@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.service.BoardService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

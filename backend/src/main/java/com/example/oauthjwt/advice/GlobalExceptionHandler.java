@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.oauthjwt.exception.ValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,26 +37,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    // 1) ValidationException 처리 (e.g. 400 BAD_REQUEST)
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-        body.put("message", ex.getMessage());
-        return ResponseEntity.badRequest().body(body);
-    }
-
-    // 3) 기타 예외 (500 INTERNAL_SERVER_ERROR)
-    // @ExceptionHandler(Exception.class)
-    // public ResponseEntity<Map<String,Object>> handleAll(Exception ex) {
-    // Map<String,Object> body = new HashMap<>();
-    // body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-    // body.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-    // body.put("message", "알 수 없는 서버 오류가 발생했습니다.");
-    // // 필요한 경우 ex.getMessage() 또는 스택트레이스 로깅
-    // return ResponseEntity
-    // .status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(body);
-    // }
 }

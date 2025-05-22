@@ -1,6 +1,7 @@
-package com.example.oauthjwt.service;
+package com.example.oauthjwt.service.impl;
 
 import com.example.oauthjwt.dto.response.PaymentResponse;
+import com.example.oauthjwt.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;

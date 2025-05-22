@@ -1,12 +1,10 @@
-package com.example.oauthjwt.service;
+package com.example.oauthjwt.service.impl;
 
 import com.google.cloud.dialogflow.v2.*;
 import com.google.auth.oauth2.GoogleCredentials;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 

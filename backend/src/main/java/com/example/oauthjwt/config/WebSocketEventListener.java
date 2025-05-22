@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final UserRepository userRepository;
     private final ChatService chatService;
 
     /** 클라이언트가 WebSocket 연결을 종료(disconnect)할 때 실행 */

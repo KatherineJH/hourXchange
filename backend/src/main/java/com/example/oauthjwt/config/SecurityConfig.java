@@ -3,8 +3,7 @@ package com.example.oauthjwt.config;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.oauthjwt.service.CustomUserDetailsService;
-import com.example.oauthjwt.service.UserService;
+import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +22,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.oauthjwt.jwt.JWTFilter;
 import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.oauth2.CustomSuccessHandler;
-import com.example.oauthjwt.service.CustomOAuth2UserService;
-//import com.example.oauthjwt.service.CustomUserDetailsService;
+import com.example.oauthjwt.handler.CustomAuthenticationSuccessHandler;
+import com.example.oauthjwt.service.impl.CustomOAuth2UserService;
+//import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
@@ -39,14 +38,14 @@ public class SecurityConfig {
     private String[] allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
                           JWTUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.customOAuth2UserService = customOAuth2UserService;
-        this.customSuccessHandler = customSuccessHandler;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
     }
@@ -57,13 +56,18 @@ public class SecurityConfig {
         http.cors(customizer -> customizer.configurationSource(corsConfigurationSource()));
 
         // CSRF, 폼 로그인, HTTP Basic 비활성화
-        http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable());
+        http.csrf(csrf ->
+                csrf.disable())
+                .formLogin(form ->
+                        form.disable())
+                .httpBasic(basic ->
+                        basic.disable());
 
         // OAuth2 로그인 설정
         http.oauth2Login(oauth2 ->
                 oauth2.userInfoEndpoint(userInfo ->
                                 userInfo.userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler));
+                        .successHandler(customAuthenticationSuccessHandler));
 
         // JWT 필터 추가
         http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);

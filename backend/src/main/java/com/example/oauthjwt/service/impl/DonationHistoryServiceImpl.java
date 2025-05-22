@@ -1,9 +1,7 @@
 package com.example.oauthjwt.service.impl;
 
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
-import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
-import com.example.oauthjwt.dto.response.DonationResponse;
 import com.example.oauthjwt.dto.response.TopDonatorResponse;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationHistory;
@@ -11,7 +9,6 @@ import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.DonationHistoryRepository;
 import com.example.oauthjwt.repository.DonationRepository;
 import com.example.oauthjwt.repository.UserRepository;
-import com.example.oauthjwt.service.CustomUserDetails;
 import com.example.oauthjwt.service.DonationHistoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +49,7 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
 
         DonationHistory result = donationHistoryRepository.save(DonationHistory.of(donationHistoryRequest, donation, donator));
 
-        donator.addTime(-result.getAmount());
+        donator.addCredit(-result.getAmount());
         donation.addTime(result.getAmount());
 
         userRepository.save(donator);

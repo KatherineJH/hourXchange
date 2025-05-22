@@ -11,7 +11,7 @@ import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.Comment;
 import com.example.oauthjwt.service.CommentService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

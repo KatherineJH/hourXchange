@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserRequest {
-    private Long id;
-    @NotBlank
+
     private String email;
-    @NotBlank
+
     private String password;
-    @NotBlank
+
     private String name;
-    @NotBlank
+
     private String username;
+
     private LocalDate birthdate;
 
     private AddressRequest address;
