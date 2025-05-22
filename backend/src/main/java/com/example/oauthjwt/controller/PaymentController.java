@@ -10,6 +10,7 @@ import com.example.oauthjwt.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,6 +26,7 @@ public class PaymentController {
 
     /** 클라이언트 콜백으로부터 imp_uid, merchant_uid 를 받아 검증 */
     @PostMapping("/iamport/transaction")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> iamportTransaction(@RequestBody Map<String, String> data) {
         // 결제 정보 검증
         PaymentResponse result = iamportService.transaction(data);
@@ -33,6 +35,7 @@ public class PaymentController {
     }
 
     @PostMapping("/order")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> order(@RequestBody PaymentOrderRequest paymentOrderRequest) {
         log.info("Order request: " + paymentOrderRequest);
         PaymentOrderResponse result = paymentService.order(paymentOrderRequest);
@@ -41,6 +44,7 @@ public class PaymentController {
     }
 
     @PostMapping("/verify")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> verify(@RequestBody PaymentVerifyRequest paymentVerifyRequest) {
         log.info("Verify request: " + paymentVerifyRequest);
 

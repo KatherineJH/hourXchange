@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest) {
         log.info(boardRequest);
         BoardResponse result = boardService.save(boardRequest);
@@ -42,6 +44,7 @@ public class BoardController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size) {
@@ -58,6 +61,7 @@ public class BoardController {
     }
 
     @GetMapping("/me/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoardById(@PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
@@ -66,6 +70,7 @@ public class BoardController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BoardRequest boardRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         boardRequest.setId(id);
@@ -75,6 +80,7 @@ public class BoardController {
     }
 
     @PutMapping("/{id}/thumbs-up")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
         return ResponseEntity.ok(resp);

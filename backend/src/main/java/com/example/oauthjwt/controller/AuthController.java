@@ -67,7 +67,7 @@ public class AuthController {
         // 반환
         return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
     }
-
+    // 리프레쉬 토큰을 사용해 새로운 액세스 토큰 발급
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         // 리프레쉬 쿠키 가져오기

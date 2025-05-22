@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
@@ -58,6 +60,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // url 주소로 받은 id 값 지정
@@ -80,6 +83,7 @@ public class ProductController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
@@ -96,6 +100,7 @@ public class ProductController {
     }
 
     @PostMapping("/favorite/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> toggleFavorite(@PathVariable Long productId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         FavoriteResponse result = productService.toggleFavorite(productId, userDetails.getUser().getId());
@@ -103,6 +108,7 @@ public class ProductController {
     }
 
     @GetMapping("/favorite/list")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findAllFavorite(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<FavoriteResponse> result = productService.findAllFavorite(userDetails.getUser().getId());
         return ResponseEntity.ok(result);

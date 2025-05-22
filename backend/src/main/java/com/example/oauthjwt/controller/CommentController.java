@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody CommentRequest commentRequest) {
         log.info(commentRequest);
         CommentResponse result = commentService.save(commentRequest);
@@ -44,6 +46,7 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Comment comment = commentService.getEntityById(id);

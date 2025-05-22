@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.example.oauthjwt.dto.response.*;
 import com.example.oauthjwt.dto.CustomOAuth2User;
+import com.example.oauthjwt.entity.Wallet;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -92,6 +93,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (existData.isEmpty()) { // 테이블에 유저가 없으면
             User user = User.of(oAuth2Response);
+
+            Wallet wallet = Wallet.of(user);
+            user.setWallet(wallet);
 
             User result = userRepository.save(user); // 저장 결과
 

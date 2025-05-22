@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 인증한 유저의 id 값으로 할당
@@ -35,6 +37,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {
         // 조회
         TransactionResponse result = transactionService.findById(id);
@@ -43,12 +46,14 @@ public class TransactionController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findAll() {
         List<TransactionResponse> transactionResponseList = transactionService.findAll();
         return ResponseEntity.ok(transactionResponseList);
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         List<TransactionResponse> myTransactions = transactionService.findByUserId(userId);
@@ -57,6 +62,7 @@ public class TransactionController {
 
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         transactionRequest.setId(id);
@@ -66,6 +72,7 @@ public class TransactionController {
     }
 
     @PatchMapping("/complete/{transactionId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> complete(@PathVariable Long transactionId) {
         transactionService.completeTransaction(transactionId);
         return ResponseEntity.ok("거래가 완료되었습니다.");

@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class DonationHistoryController {
     private final DonationHistoryService donationHistoryService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createDonationHistory(@RequestBody DonationHistoryRequest donationHistoryRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("Create DonationHistory");
         log.info(donationHistoryRequest);
@@ -50,6 +52,7 @@ public class DonationHistoryController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getMyDonationHistory(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {

@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class DonationController {
     private final DonationService donationService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createDonation(@RequestBody DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
@@ -58,6 +60,7 @@ public class DonationController {
     }
 
     @PutMapping("/modify/{donationId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
@@ -67,6 +70,7 @@ public class DonationController {
     }
 
     @PutMapping("/delete/{donationId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> deleteDonation(@PathVariable Long donationId) {
         List<DonationHistoryResponse> result = donationService.delete(donationId);
         return ResponseEntity.ok(result);
