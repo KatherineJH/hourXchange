@@ -80,13 +80,24 @@ export default function KakaoListMap({ serverData, position, setPosition }) {
                 boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
                 pointerEvents: 'auto'
             });
+
+            const typeEl = document.createElement('strong');
+            typeEl.textContent = item.providerType === 'BUYER' ? '삽니다': '팝니다';
+            Object.assign(typeEl.style, {
+                display: 'block',
+                margin: '6px 0 2px',
+                fontSize: '18px',
+                textAlign: 'center'
+            });
+            wrap.appendChild(typeEl);
+
             const img = document.createElement('img');
             Object.assign(img.style, {
                 width: '100%',
                 height: 'auto',
                 borderRadius: '4px'
             });
-            img.src = item.images[0] || '';
+            img.src = item.images[0] || '/default.png';
             img.alt = item.title;
             wrap.appendChild(img);
 

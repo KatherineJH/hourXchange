@@ -6,13 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.service.BoardService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +28,24 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("/")
-    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest) {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(boardRequest);
-        BoardResponse result = boardService.save(boardRequest);
+        BoardResponse result = boardService.save(boardRequest, userDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/all")
     public ResponseEntity<?> findAllBoards(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                           @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<BoardResponse> responses = boardService.findAllBoards(pageable);
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size) {
@@ -58,6 +62,7 @@ public class BoardController {
     }
 
     @GetMapping("/me/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoardById(@PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
@@ -65,16 +70,16 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BoardRequest boardRequest,
+    @PutMapping("/{boardId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> update(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        boardRequest.setId(id);
-        boardRequest.setAuthorId(userDetails.getUser().getId());
-        BoardResponse result = boardService.update(boardRequest);
+        BoardResponse result = boardService.update(boardRequest, boardId, userDetails);
         return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}/thumbs-up")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
         return ResponseEntity.ok(resp);

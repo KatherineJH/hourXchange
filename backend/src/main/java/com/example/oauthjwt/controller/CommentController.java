@@ -2,7 +2,9 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +13,7 @@ import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.CommentResponse;
 import com.example.oauthjwt.entity.Comment;
 import com.example.oauthjwt.service.CommentService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,7 +27,8 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/")
-    public ResponseEntity<?> save(@RequestBody CommentRequest commentRequest) {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> save(@RequestBody @Valid CommentRequest commentRequest) {
         log.info(commentRequest);
         CommentResponse result = commentService.save(commentRequest);
         return ResponseEntity.ok(result);
@@ -44,7 +47,8 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CommentRequest commentRequest,
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid CommentRequest commentRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Comment comment = commentService.getEntityById(id);
         // 자신이 작성한 댓글인지 검증

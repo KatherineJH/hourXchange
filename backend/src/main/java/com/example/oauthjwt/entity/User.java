@@ -4,9 +4,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
+import com.example.oauthjwt.dto.response.OAuth2Response;
 import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -45,26 +47,23 @@ public class User {
     private UserRole role;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Wallet wallet;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.ACTIVE; // nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
+    private LocalDateTime createdAt;
 
-    // single user can have multiple reviews, but each review belongs to a single
-    // user
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Wallet wallet;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address address; // 서비스 카테고리
+
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private Address address; // 서비스 카테고리
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Donation> donationHistory = new ArrayList<>();
@@ -73,7 +72,8 @@ public class User {
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 
     public static User of(UserRequest userRequest) {
-        User user = User.builder().email(userRequest.getEmail()).password(userRequest.getPassword())
+        return User.builder()
+                .email(userRequest.getEmail())
                 .name(userRequest.getName())
                 .username(userRequest.getUsername())
                 .birthdate(userRequest.getBirthdate())
@@ -81,51 +81,25 @@ public class User {
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
                 .build();
-        Wallet wallet = Wallet.builder()
-                .credit(0)
-                .user(user)
+    }
+
+    public static User of(OAuth2Response oAuth2Response){
+        return User.builder()
+                .email(oAuth2Response.getEmail()) // 이메일
+                .name(oAuth2Response.getProvider() + UUID.randomUUID())
+                .username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
+                .name(oAuth2Response.getName()).createdAt(LocalDateTime.now())
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
                 .build();
-
-        user.setWallet(wallet);
-        return user;
     }
 
-    public static User of(Item item, Address address) {
-        User user = User.builder().email(item.getCentCode()) // 센터코드
-                .name(item.getCentMaster()).username(item.getCentCode() + item.getCentName()).address(address)
-                .role(UserRole.ROLE_CENTER) // 센터유저
-                .status(UserStatus.ACTIVE) // 활성화
-                .createdAt(LocalDateTime.now()) // 현재시간
-                .build();
-        Wallet wallet = Wallet.builder()
-                .credit(0)
-                .user(user)
-                .build();
-
-        user.setWallet(wallet);
-        return user;
+    public void addCredit(int credit){
+        this.wallet.addCredit(credit);
     }
 
-    public void addTime(int time){
-        if (this.wallet != null) {
-            this.wallet.addCredit(time);
-        } else {
-            throw new IllegalStateException("Wallet이 존재하지 않습니다.");
-        }
+    public void subtractCredit(int credit){
+        this.wallet.subtractCredit(credit);
     }
-
-    public void subtractTime(int time){
-        if (this.wallet != null) {
-            this.wallet.subtractCredit(time);
-        } else {
-            throw new IllegalStateException("Wallet이 존재하지 않습니다.");
-        }
-    }
-
-    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
-    // true)
-    // private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
-    // public List<ChatRoom> getChatRooms() {
-    // return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
-    // }
 }

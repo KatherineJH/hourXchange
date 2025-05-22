@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.service.UserGradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ public class UserGradeController {
     private final UserGradeService userGradeService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> predictUserGrade(@RequestBody Map<String, Object> userInput) {
         Map<String, Object> result = userGradeService.predictUserGrade(userInput);
         return ResponseEntity.ok(result);

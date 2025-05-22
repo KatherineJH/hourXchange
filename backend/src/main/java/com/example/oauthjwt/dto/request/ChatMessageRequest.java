@@ -12,6 +12,7 @@ import lombok.*;
 @Builder
 public class ChatMessageRequest {
 
+
     private Long chatRoomId;
     private String senderUsername;
     private String content;

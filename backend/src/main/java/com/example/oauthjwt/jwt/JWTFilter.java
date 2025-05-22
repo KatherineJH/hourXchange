@@ -2,18 +2,15 @@ package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 
-import com.example.oauthjwt.service.UserService;
 import io.jsonwebtoken.Claims;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.oauthjwt.service.CustomUserDetailsService;
+import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -40,7 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
 //        // 프론트 테스트 시 없으면 에러 발생해서 추가했는데, 다른 방식이 있다면 바꿔주셔도 됩니다.
         String path = request.getRequestURI();
-        if(path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/api/auth/login") || path.startsWith("/login/oauth2/code/")){
+        if(path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/login/oauth2/code/")){
             return true;
         };
 
@@ -51,13 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 2. 쿠키 사용 함 - 프론트 채팅 테스트 시 주석 풀고 사용
-        Cookie[] cookies = request.getCookies();
-        String token = null;
-        if(cookies != null) {
-            token = Arrays.stream(cookies).filter(cookie -> "Authorization".equals(cookie.getName()))
-                    .map(Cookie::getValue).findFirst().orElse(null);
-        }
+        String token = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
 
         if (token != null) { // 쿠키가 있으면
             try {
@@ -70,7 +61,6 @@ public class JWTFilter extends OncePerRequestFilter {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                         userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("JWT authentication successful for user: {}", email);
                 log.info("JWT authentication successful for user: {}", email);
             } catch (ResponseStatusException e){
                 // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)

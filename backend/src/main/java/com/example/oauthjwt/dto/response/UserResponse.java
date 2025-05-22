@@ -17,30 +17,38 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Long id;
 
-    private String name;
+    private String email;
 
-    private String role;
+//    private String password; 보안상 주석처리
+
+    private String name;
 
     private String username;
 
-    private String email;
-
     private LocalDate birthdate;
+
+    private String role;
+
+    private String status;
 
     private LocalDateTime createdAt;
 
-    private int credit;
-
-    private String status;
+    private WalletResponse wallet;
 
     private AddressResponse address;
 
     public static UserResponse toDto(User user) {
-        return UserResponse.builder().id(user.getId()).name(user.getName()).role(user.getRole().toString())
-                .username(user.getUsername()).email(user.getEmail()).birthdate(user.getBirthdate())
-                .createdAt(user.getCreatedAt())
-                .credit(user.getWallet() != null ? user.getWallet().getCredit() : 0)
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .username(user.getUsername())
+                .birthdate(user.getBirthdate())
+                .role(user.getRole().toString())
                 .status(user.getStatus().toString())
-                .address(AddressResponse.toDto(user.getAddress())).build();
+                .createdAt(user.getCreatedAt())
+                .wallet(WalletResponse.toDto(user.getWallet()))
+                .address(AddressResponse.toDto(user.getAddress()))
+                .build();
     }
 }

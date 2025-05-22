@@ -3,14 +3,16 @@ package com.example.oauthjwt.advice;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.oauthjwt.exception.ValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,26 +40,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    // 1) ValidationException 처리 (e.g. 400 BAD_REQUEST)
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException ex) {
+    // 3) 인증되지 않은(unauthenticated) 경우 401 처리
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
         Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-        body.put("message", ex.getMessage());
-        return ResponseEntity.badRequest().body(body);
+        body.put("status", HttpStatus.UNAUTHORIZED.value());
+        body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        body.put("message", "인증이 필요합니다.");  // 원하는 메시지로 변경 가능
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
-    // 3) 기타 예외 (500 INTERNAL_SERVER_ERROR)
-    // @ExceptionHandler(Exception.class)
-    // public ResponseEntity<Map<String,Object>> handleAll(Exception ex) {
-    // Map<String,Object> body = new HashMap<>();
-    // body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-    // body.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-    // body.put("message", "알 수 없는 서버 오류가 발생했습니다.");
-    // // 필요한 경우 ex.getMessage() 또는 스택트레이스 로깅
-    // return ResponseEntity
-    // .status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(body);
-    // }
+    // 4) 인가(권한) 오류인 경우 403 처리
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
+        body.put("message", "권한이 없습니다.");  // 원하는 메시지로 변경 가능
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    // 5) jwt 오류인 경우 401 처리
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(JwtException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.UNAUTHORIZED.value());
+        body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        body.put("message", ex.getMessage());  // 원하는 메시지로 변경 가능
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
 }

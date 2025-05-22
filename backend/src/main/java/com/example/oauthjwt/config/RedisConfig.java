@@ -1,6 +1,6 @@
 package com.example.oauthjwt.config;
 
-import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

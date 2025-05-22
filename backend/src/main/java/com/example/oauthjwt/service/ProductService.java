@@ -2,6 +2,7 @@ package com.example.oauthjwt.service;
 
 import java.util.List;
 
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

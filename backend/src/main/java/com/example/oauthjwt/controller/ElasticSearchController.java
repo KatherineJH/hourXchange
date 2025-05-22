@@ -2,14 +2,14 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
-import com.example.oauthjwt.dto.DonationDocument;
+import com.example.oauthjwt.dto.document.DonationDocument;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.oauthjwt.dto.BoardDocument;
+import com.example.oauthjwt.dto.document.BoardDocument;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.elastic.Indexer;
@@ -29,17 +29,9 @@ public class ElasticSearchController {
     @GetMapping("/products")
     public ResponseEntity<?> searchProducts(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
         return ResponseEntity.ok(searchService.searchProducts(keyword, pageable));
     }
-
-    // @GetMapping("/products")
-    // public ResponseEntity<PageResult<ProductDocument>> searchProducts(
-    // @RequestParam String keyword,
-    // @RequestParam(defaultValue = "0") int page,
-    // @RequestParam(defaultValue = "10") int size) {
-    // return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
-    // }
 
     @GetMapping("/boards")
     public ResponseEntity<PageResult<BoardDocument>> searchBoards(@RequestParam String keyword,

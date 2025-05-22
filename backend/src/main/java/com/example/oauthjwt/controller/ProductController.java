@@ -2,16 +2,16 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.FavoriteResponse;
@@ -30,6 +30,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
@@ -59,6 +60,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // url 주소로 받은 id 값 지정
@@ -72,7 +74,7 @@ public class ProductController {
     @GetMapping("/list")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // ✅ 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
 
         // 로직 실행
         Page<ProductResponse> result = productService.findAll(pageable);
@@ -81,6 +83,7 @@ public class ProductController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
@@ -97,6 +100,7 @@ public class ProductController {
     }
 
     @PostMapping("/favorite/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> toggleFavorite(@PathVariable Long productId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         FavoriteResponse result = productService.toggleFavorite(productId, userDetails.getUser().getId());
@@ -104,6 +108,7 @@ public class ProductController {
     }
 
     @GetMapping("/favorite/list")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findAllFavorite(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<FavoriteResponse> result = productService.findAllFavorite(userDetails.getUser().getId());
         return ResponseEntity.ok(result);

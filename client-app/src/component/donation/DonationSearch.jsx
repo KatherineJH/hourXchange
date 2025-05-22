@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Button, List, ListItem, ListItemButton, ListItemText, Paper, TextField} from "@mui/material";
-import {useDebounce} from "../../assets/useDebounce.js";
+import {useCustomDebounce} from "../../assets/useCustomDebounce.js";
 import {getAutocompleteSuggestions} from "../../api/donationApi.js";
 
 function DonationSearch({setPage, keyword, setKeyword}) {
@@ -8,7 +8,7 @@ function DonationSearch({setPage, keyword, setKeyword}) {
     const [suggestions, setSuggestions] = useState([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-    const debouncedInput = useDebounce(searchInput, 300);
+    const debouncedInput = useCustomDebounce(searchInput, 300);
 
     useEffect(() => {
         if (searchInput.trim() === "" || searchInput === keyword) {

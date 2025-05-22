@@ -10,18 +10,16 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
-import com.example.oauthjwt.dto.ChatRoomDTO;
+import com.example.oauthjwt.dto.response.ChatRoomResponse;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.service.ChatService;
-import com.example.oauthjwt.service.CustomUserDetails;
-import com.example.oauthjwt.service.ProductService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatController {
 
     private final ChatService chatService;
-    private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
     private final TransactionService transactionService;
 
@@ -54,17 +51,8 @@ public class ChatController {
 
         messagingTemplate.convertAndSend("/topic/room/" + result.getChatRoom().getId(), result);
 
-        log.info("🚪 {} 입장 메시지 브로드캐스트 완료", result.getSender().getName());
+        log.info("{} 입장 메시지 브로드캐스트 완료", result.getSender().getName());
     }
-
-    // @PostMapping("/initiate/{postId}")
-    // public ResponseEntity<ChatRoomDTO> initiateChat(
-    // @PathVariable Long postId, @RequestParam Long requesterId) {
-    // ChatRoom chatRoom = chatService.initiateChatFromPost(postId, requesterId);
-    // ChatRoomDTO chatRoomDTO =
-    // ChatRoomDTO.builder().id(chatRoom.getId()).name(chatRoom.getName()).build();
-    // return ResponseEntity.ok(chatRoomDTO);
-    // }
 
     @PostMapping("/initiate/{productId}")
     public ResponseEntity<?> initiateChat(@PathVariable Long productId, @RequestParam Long requesterId) {
@@ -77,43 +65,12 @@ public class ChatController {
     public ResponseEntity<List<ChatMessageResponse>> getMessages(@PathVariable Long chatRoomId) {
         List<ChatMessage> messages = chatService.getMessages(chatRoomId);
         List<ChatMessageResponse> messageDTOs = messages.stream().map(ChatMessageResponse::toDto).collect(Collectors.toList());
-//                        ChatMessageRequest.builder()
-//                        .id(msg.getId())
-//                        .chatRoomId(msg.getChatRoom().getId())
-//                        .senderUsername(msg.getSender().getUsername())
-//                        .content(msg.getContent())
-//                        .status(msg.getChatRoomUserStatus())
-//                        .sentAt(msg.getSentAt().toString())
-//                        .build())
-//                .collect(Collectors.toList());
         return ResponseEntity.ok(messageDTOs);
     }
 
-//     @GetMapping("/rooms")
-//     public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(@RequestParam Long
-//     userId) {
-//     List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
-//     List<ChatRoomDTO> result = chatRooms.stream()
-//     .map(room -> ChatRoomDTO.builder()
-//     .id(room.getId())
-//     .name(room.getName())
-//     .serviceProductId(room.getServiceProduct().getId())
-//     .createdAt(room.getCreatedAt())
-//     .build())
-//     .collect(Collectors.toList());
-//     return ResponseEntity.ok(result);
-//     }
-
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomDTO>> getUserChatRooms(Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
-
-        List<ChatRoom> chatRooms = chatService.findChatRoomsByUserId(userId);
-        List<ChatRoomDTO> result = chatRooms.stream()
-                .map(room -> ChatRoomDTO.builder().id(room.getId()).name(room.getName())
-                        .productId(room.getProduct().getId()).createdAt(room.getCreatedAt()).build())
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<ChatRoomResponse> result = chatService.findChatRoomsByUserId(userDetails);
 
         return ResponseEntity.ok(result);
     }

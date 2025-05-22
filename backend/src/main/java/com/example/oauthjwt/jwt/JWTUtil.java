@@ -39,6 +39,8 @@ public class JWTUtil {
             throw new JwtException("Invalid JWT token");
         } catch (IllegalArgumentException  e) { // 토큰이 비어 있거나 잘못 전달된 경우
             throw new JwtException("Invalid token: " + e.getMessage());
+        } catch (Exception e){
+            throw new JwtException("Exception: " + e.getMessage());
         }
     }
 
