@@ -58,3 +58,11 @@ export const getPaymentCountByRange = async (from, to) => {
   // console.log("특정 기간 내 결제 건수 조회:", response.data);
   return response;
 };
+// 특정 기간 내 결제 금액 조회
+export const getPaymentAmountByRange = async (from, to) => {
+  const response = await api.get(apiServerUrl + "range/amount", {
+    params: { from, to },
+  });
+  console.log("💰 기간 내 결제 금액 조회:", response.data);
+  return response;
+};

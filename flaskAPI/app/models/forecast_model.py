@@ -196,7 +196,9 @@ def predict_sales(history, periods=7):
 
         y_pred = model.predict(X_pred)[0]
         y_pred = max(y_pred, 0)  # Ensure non-negative predictions
-        y_pred = min(y_pred, 15)  # Cap extreme spikes (based on historical max)
+        # y_pred = min(y_pred, 15)  
+        y_pred = min(y_pred, df['y'].max() * 1.2)
+
 
         forecast.append({
             'ds': date.strftime('%Y-%m-%d'),

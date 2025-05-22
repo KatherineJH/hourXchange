@@ -82,4 +82,10 @@ public class PaymentLogController {
             @RequestParam("to") String toDateStr) {
         return paymentService.getPaymentsBetween(fromDateStr, toDateStr);
     }
+    @GetMapping("/range/amount")
+    public List<PaymentLogResponse> getAmountSumByRange(
+            @RequestParam("from") String from,
+            @RequestParam("to") String to) {
+        return paymentService.getAmountSumBetween(from, to);
+    }
 }

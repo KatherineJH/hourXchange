@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { getForecast } from "../../api/analysisApi.js";
-import { getPaymentAmountByRange } from "../../api/paymentLogApi.js";
+import { getPaymentCountByRange } from "../../api/paymentLogApi.js";
 import { getRowFromTable } from "../../api/commonApi.js";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 
-const PaymentForecast = () => {
+const SalesForecast = () => {
   const [combined, setCombined] = useState([]);
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
@@ -82,11 +82,10 @@ const PaymentForecast = () => {
 
     const fetchAndForecast = async () => {
       try {
-        const response = await getPaymentAmountByRange(
+        const response = await getPaymentCountByRange(
           from.format("YYYY-MM-DD"),
           to.format("YYYY-MM-DD")
         );
-
         const historyData = response.data.map((item) => ({
           ds: item.period,
           actual: item.count,
@@ -119,6 +118,7 @@ const PaymentForecast = () => {
 
   return (
     <Box>
+      {/* Date Pickers & Period Selector */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Box display="flex" gap={2} mb={2}>
           <DatePicker
@@ -152,6 +152,7 @@ const PaymentForecast = () => {
         </Box>
       </LocalizationProvider>
 
+      {/* Chart */}
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
           data={combined}
@@ -167,7 +168,7 @@ const PaymentForecast = () => {
             dataKey="actual"
             stroke="#82ca9d"
             dot={false}
-            name="Actual Amount"
+            name="Actual"
             isAnimationActive={false}
           />
           <Line
@@ -176,7 +177,7 @@ const PaymentForecast = () => {
             stroke="#ff7300"
             strokeDasharray="5 5"
             dot={false}
-            name="Forecast Amount"
+            name="Forecast"
             isAnimationActive={false}
           />
         </LineChart>
@@ -185,4 +186,4 @@ const PaymentForecast = () => {
   );
 };
 
-export default PaymentForecast;
+export default SalesForecast;

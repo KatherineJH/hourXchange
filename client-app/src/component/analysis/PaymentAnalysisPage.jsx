@@ -1,8 +1,8 @@
 import { Box, Typography, CardContent } from "@mui/material";
+import SalesForecast from "./SalesForecast";
 import PaymentForecast from "./PaymentForecast";
 
 const PaymentAnalysisPage = () => {
-
   return (
     <Box sx={{ mt: 4 }}>
       <CardContent>
@@ -12,6 +12,10 @@ const PaymentAnalysisPage = () => {
         </Typography>
         <Typography variant="h6" gutterBottom>
           📈 결제 건수 예측
+        </Typography>
+        <SalesForecast />
+        <Typography variant="h6" gutterBottom>
+          📈 결제 금액 예측
         </Typography>
         <PaymentForecast />
       </CardContent>

@@ -155,7 +155,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.userId = :userId AND p.status = 'paid'")
     Integer sumPaymentsByUserId(@Param("userId") Long userId);
 
-    // 기간 별 데이터 로드
+    // 기간 별 판매 개수 로드
     @Query("SELECT new com.example.oauthjwt.dto.response.PaymentLogResponse(" +
             "FUNCTION('DATE_FORMAT', p.paidAt, '%Y-%m-%d'), COUNT(p)) " +
             "FROM Payment p " +
@@ -164,4 +164,15 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "ORDER BY FUNCTION('DATE_FORMAT', p.paidAt, '%Y-%m-%d')")
     List<PaymentLogResponse> countByRange(@Param("from") LocalDateTime from,
                                           @Param("to") LocalDateTime to);
+    // 기간 별 판매 금액 로드
+    @Query("SELECT new com.example.oauthjwt.dto.response.PaymentLogResponse(" +
+            "FUNCTION('DATE_FORMAT', p.paidAt, '%Y-%m-%d'), SUM(p.amount)) " +
+            "FROM Payment p " +
+            "WHERE p.paidAt BETWEEN :from AND :to " +
+            "AND p.status = 'paid' " +
+            "GROUP BY FUNCTION('DATE_FORMAT', p.paidAt, '%Y-%m-%d') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', p.paidAt, '%Y-%m-%d')")
+    List<PaymentLogResponse> sumAmountByRange(@Param("from") LocalDateTime from,
+                                              @Param("to") LocalDateTime to);
+
 }

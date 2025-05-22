@@ -178,4 +178,14 @@ public class PaymentServiceImpl implements PaymentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. yyyy-MM-dd 형식이어야 합니다.");
         }
     }
+    @Override
+    public List<PaymentLogResponse> getAmountSumBetween(String from, String to) {
+        try {
+            LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+            LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay();
+            return paymentRepository.sumAmountByRange(fromDate, toDate);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "날짜 형식이 잘못되었습니다.");
+        }
+    }
 }
