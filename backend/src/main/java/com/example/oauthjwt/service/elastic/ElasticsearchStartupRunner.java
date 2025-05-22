@@ -17,9 +17,9 @@ public class ElasticsearchStartupRunner {
         try {
             indexCreator.createIndices();
             indexer.indexAll();
-            System.out.println("✅ Elasticsearch 자동 색인 완료");
+            System.out.println("Elasticsearch 자동 색인 완료");
         } catch (Exception e) {
-            System.out.println("⚠️ Elasticsearch 연결 실패 (무시됨): " + e.getMessage());
+            System.out.println("Elasticsearch 연결 실패 (무시됨): " + e.getMessage());
         }
     }
 }

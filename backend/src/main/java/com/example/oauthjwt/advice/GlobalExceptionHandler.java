@@ -3,8 +3,11 @@ package com.example.oauthjwt.advice;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,8 +41,8 @@ public class GlobalExceptionHandler {
     }
 
     // 3) 인증되지 않은(unauthenticated) 경우 401 처리
-    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.UNAUTHORIZED.value());
         body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
@@ -48,13 +51,23 @@ public class GlobalExceptionHandler {
     }
 
     // 4) 인가(권한) 오류인 경우 403 처리
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
         body.put("message", "권한이 없습니다.");  // 원하는 메시지로 변경 가능
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    // 5) jwt 오류인 경우 401 처리
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(JwtException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.UNAUTHORIZED.value());
+        body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        body.put("message", ex.getMessage());  // 원하는 메시지로 변경 가능
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
 }

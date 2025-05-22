@@ -117,6 +117,7 @@ public class AuthController {
         }
 
         UserResponse result = userService.getUserByEmail(email);
+        log.info(result);
 
         return ResponseEntity.ok(result);
     }

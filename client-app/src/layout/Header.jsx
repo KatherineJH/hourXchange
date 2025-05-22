@@ -24,7 +24,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
-import { useLocation, useNavigate } from "react-router-dom";
+import {replace, useLocation, useNavigate} from "react-router-dom";
 import bgImage from "/background.jpg";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
 
@@ -32,7 +32,6 @@ function Header() {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -42,30 +41,31 @@ function Header() {
   const [suggestions, setSuggestions] = useState([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
 
-  const { user, isLoading, error } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
   console.log(user);
 
   useEffect(() => {
-    if (user.email) dispatch(fetchUserAsync());
+    if (!user.email) dispatch(fetchUserAsync());
   }, []);
 
   const handleLogout = () => {
     dispatch(logoutUserAsync())
       .then(() => {
         alert("로그아웃 되었습니다.");
-        window.location.href = "/login";
+        navigate('/login', {replace: true});
       })
       .catch((err) => alert("로그아웃 실패: " + err));
     setAnchorEl(null);
   };
 
   const handleLogin = () => {
-    window.location.href = "/login";
+    navigate("/login");
     setAnchorEl(null);
   };
   const handleSave = () => {
-    window.location.href = "/save";
+    navigate("/save");
     setAnchorEl(null);
   };
 
@@ -110,16 +110,6 @@ function Header() {
 
   return (
     <>
-      {/* <Box
-        sx={{
-          width: "100%",
-          height: 250,
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      /> */}
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" elevation={0}>
           <Toolbar>
@@ -131,7 +121,7 @@ function Header() {
             >
               H@urXchange
             </Typography>
-            {/* 🔍 Search bar */}
+            {/* Search bar */}
             <Box
               sx={{
                 position: "relative",
@@ -267,7 +257,7 @@ function Header() {
           open={isMenuOpen}
           onClose={() => setAnchorEl(null)}
         >
-          {user.username ? (
+          {user.email ? (
             <>
               <MenuItem disabled>
                 {user.name + user.role}님, 환영합니다

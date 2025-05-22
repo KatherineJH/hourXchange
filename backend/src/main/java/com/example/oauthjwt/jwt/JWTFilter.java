@@ -48,13 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 2. 쿠키 사용 함 - 프론트 채팅 테스트 시 주석 풀고 사용
-        Cookie[] cookies = request.getCookies();
-        String token = null;
-        if(cookies != null) {
-            token = Arrays.stream(cookies).filter(cookie -> "Authorization".equals(cookie.getName()))
-                    .map(Cookie::getValue).findFirst().orElse(null);
-        }
+        String token = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
 
         if (token != null) { // 쿠키가 있으면
             try {
