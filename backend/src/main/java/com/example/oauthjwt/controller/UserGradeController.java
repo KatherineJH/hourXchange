@@ -19,4 +19,14 @@ public class UserGradeController {
         Map<String, Object> result = userGradeService.predictUserGrade(userInput);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUserGrades() {
+        return ResponseEntity.ok(userGradeService.predictAllUserGrades());
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserGrade(@PathVariable Long userId) {
+        return ResponseEntity.ok(userGradeService.predictUserGradeById(userId));
+    }
 }

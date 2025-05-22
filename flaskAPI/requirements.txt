@@ -15,3 +15,6 @@ fugashi
 # for the time series model
 prophet
 pandas
+numpy
+statsmodels
+xgboost

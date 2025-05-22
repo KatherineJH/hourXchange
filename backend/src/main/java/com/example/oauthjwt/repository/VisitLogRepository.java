@@ -130,4 +130,8 @@ public interface VisitLogRepository extends JpaRepository<VisitLog, Long> {
       ORDER BY FUNCTION('DATE_FORMAT', v.visitTime, '%Y')
     """)
     List<VisitLogResponse> countUniqueUsersByYear(@Param("from") LocalDateTime from);
+
+    // 고객 등급 분류
+    @Query("SELECT MAX(v.visitTime) FROM VisitLog v WHERE v.userId = :userId")
+    LocalDateTime findLastVisitTime(@Param("userId") Long userId);
 }

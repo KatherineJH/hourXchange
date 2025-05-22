@@ -4,5 +4,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface TimeSeriesServiece {
-    List<Map<String, Object>> getForecast(List<Map<String, Object>> history);
+    List<Map<String, Object>> getForecast(List<Map<String, Object>> history, int periods);
 }
