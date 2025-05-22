@@ -5,6 +5,7 @@ import java.util.Map;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -42,7 +43,7 @@ public class AuthController {
 
     // 이메일 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute UserRequest userRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@ModelAttribute @Valid UserRequest userRequest, HttpServletResponse response) {
         // 서비스 호출
         UserResponse result = userService.login(userRequest);
         // 토큰 생성
@@ -102,6 +103,7 @@ public class AuthController {
 
     // 로그인된 사용자 정보 반환
     @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
         String email = "";

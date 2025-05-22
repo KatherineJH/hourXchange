@@ -7,6 +7,7 @@ import com.example.oauthjwt.dto.response.PaymentResponse;
 import com.example.oauthjwt.dto.response.PaymentVerifyResponse;
 import com.example.oauthjwt.service.impl.IamportService;
 import com.example.oauthjwt.service.PaymentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class PaymentController {
 
     @PostMapping("/order")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> order(@RequestBody PaymentOrderRequest paymentOrderRequest) {
+    public ResponseEntity<?> order(@RequestBody @Valid PaymentOrderRequest paymentOrderRequest) {
         log.info("Order request: " + paymentOrderRequest);
         PaymentOrderResponse result = paymentService.order(paymentOrderRequest);
 
@@ -45,7 +46,7 @@ public class PaymentController {
 
     @PostMapping("/verify")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> verify(@RequestBody PaymentVerifyRequest paymentVerifyRequest) {
+    public ResponseEntity<?> verify(@RequestBody @Valid PaymentVerifyRequest paymentVerifyRequest) {
         log.info("Verify request: " + paymentVerifyRequest);
 
         PaymentVerifyResponse result = paymentService.verify(paymentVerifyRequest);

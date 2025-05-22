@@ -11,7 +11,7 @@ const api = axios.create({
  * 토큰 리프레시 요청을 위한 인터셉터 설정
  * - Access Token 만료 시 Refresh Token을 사용하여 새로운 Access Token을 발급받음
  */
-// ✅ 응답 인터셉터 설정
+// 응답 인터셉터 설정
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -36,7 +36,7 @@ api.interceptors.response.use(
         // 재요청
         return api(originalRequest);
       } catch (refreshError) {
-        console.error("❌ Refresh 토큰도 실패:", refreshError);
+        console.error("Refresh 토큰도 실패:", refreshError);
         // 필요 시 로그아웃 처리도 가능
         return Promise.reject(refreshError);
       }

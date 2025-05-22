@@ -7,6 +7,7 @@ import Slider from "react-slick";
 import ProductGrid from "../common/ProductGrid";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import ListTable from "./ListTable";
+import {useSelector} from "react-redux";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -24,7 +25,7 @@ const carouselImages = [
   "https://images.unsplash.com/photo-1557660559-42497f78035b?q=80&w=1200&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1557734864-c78b6dfef1b1?q=80&w=1200&auto=format&fit=crop",
 ];
-// ✅ 커스텀 화살표 버튼 컴포넌트
+// 커스텀 화살표 버튼 컴포넌트
 const ArrowButton = ({ className, onClick, direction }) => (
   <Box
     onClick={onClick}
@@ -63,8 +64,10 @@ export default function BuyPost() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const selectedCategory = params.get("category");
+  const user = useSelector((state) => state.auth);
 
   useEffect(() => {
+      if(!user.email) return
     getFavoriteList()
       .then((response) => setFavorite(response.data || []))
       .catch(console.error);
@@ -113,7 +116,7 @@ export default function BuyPost() {
       <Box
         sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
       >
-        {/* 🔥 캐러셀 */}
+        {/* 캐러셀 */}
         <Box
           sx={{
             width: "100%",

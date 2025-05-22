@@ -6,6 +6,7 @@ import com.example.oauthjwt.dto.response.DonationResponse;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class DonationController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createDonation(@RequestBody DonationRequest donationRequest,
+    public ResponseEntity<?> createDonation(@RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
 
@@ -61,7 +62,7 @@ public class DonationController {
 
     @PutMapping("/modify/{donationId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest,
+    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
         DonationResponse result = donationService.update(donationId, donationRequest, userDetails);

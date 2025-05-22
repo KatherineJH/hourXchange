@@ -63,7 +63,7 @@ public class TransactionController {
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody TransactionRequest transactionRequest,
+    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         transactionRequest.setId(id);
 

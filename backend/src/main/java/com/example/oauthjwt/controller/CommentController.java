@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +28,7 @@ public class CommentController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> save(@RequestBody CommentRequest commentRequest) {
+    public ResponseEntity<?> save(@RequestBody @Valid CommentRequest commentRequest) {
         log.info(commentRequest);
         CommentResponse result = commentService.save(commentRequest);
         return ResponseEntity.ok(result);
@@ -47,7 +48,7 @@ public class CommentController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CommentRequest commentRequest,
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid CommentRequest commentRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Comment comment = commentService.getEntityById(id);
         // 자신이 작성한 댓글인지 검증
