@@ -47,7 +47,7 @@ function Header() {
   console.log(user);
 
   useEffect(() => {
-    if (!user.email) dispatch(fetchUserAsync());
+    if (user.email) dispatch(fetchUserAsync());
   }, []);
 
   const handleLogout = () => {

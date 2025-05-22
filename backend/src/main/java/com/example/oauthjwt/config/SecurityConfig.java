@@ -76,6 +76,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // Preflight OPTIONS 요청 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                // 조회용 get 요청은 허용
+                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 // Actuator 공개 엔드포인트
                 .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // 인증 없이 허용할 API

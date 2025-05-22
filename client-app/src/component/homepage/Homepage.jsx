@@ -11,6 +11,7 @@ import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 import CustomHeader from "../common/CustomHeader.jsx";
 import DonationCardList from "../donation/DonationCardList.jsx";
 import {getRecentDonations, getTopByProgress, getTopByViews} from "../../api/donationApi.js";
+import {useSelector} from "react-redux";
 
 export default function Homepage() {
   const [products, setProducts] = useState([]);
@@ -27,6 +28,7 @@ export default function Homepage() {
     (p) => !selectedCategory || p.category?.categoryName === selectedCategory
   );
     const { pathname } = useLocation();              // 현재 경로
+    const user = useSelector((state) => state.auth);
 
   useEffect(() => {
     getList()
@@ -39,6 +41,8 @@ export default function Homepage() {
   }, []);
 
   useEffect(() => {
+      if(!user.email) return
+
     getFavoriteList()
       .then((response) => {
         setFavorite(response.data || []);
