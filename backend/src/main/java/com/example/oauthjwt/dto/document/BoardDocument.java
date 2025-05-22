@@ -1,4 +1,4 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.document;
 
 import java.time.LocalDateTime;
 import java.util.List;

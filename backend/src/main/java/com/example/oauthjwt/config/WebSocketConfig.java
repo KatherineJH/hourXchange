@@ -30,9 +30,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").setAllowedOrigins(urlFrontend) // 프론트엔드 URL로 제한 권장
-                .addInterceptors(jwtHandshakeInterceptor); // ✅ DI 주입된 Bean 사용
-        // .withSockJS();
-        log.info("🧩 WebSocket EndPoint Enrolled");
+                .addInterceptors(jwtHandshakeInterceptor); // DI 주입된 Bean 사용
+        log.info("WebSocket EndPoint Enrolled");
     }
 
     @Override
@@ -62,7 +61,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         Object userId = sessionAttributes.get("userId");
                         if (userId != null) {
                             accessor.setUser(() -> userId.toString());
-                            log.info("🔗 WebSocket 세션 사용자 설정: {}", userId);
+                            log.info("WebSocket 세션 사용자 설정: {}", userId);
                         }
                     }
                 }

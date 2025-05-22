@@ -2,20 +2,19 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +24,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 인증한 유저의 id 값으로 할당
@@ -37,6 +37,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {
         // 조회
         TransactionResponse result = transactionService.findById(id);
@@ -45,12 +46,14 @@ public class TransactionController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findAll() {
         List<TransactionResponse> transactionResponseList = transactionService.findAll();
         return ResponseEntity.ok(transactionResponseList);
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         List<TransactionResponse> myTransactions = transactionService.findByUserId(userId);
@@ -59,7 +62,8 @@ public class TransactionController {
 
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody TransactionRequest transactionRequest,
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         transactionRequest.setId(id);
 
@@ -68,6 +72,7 @@ public class TransactionController {
     }
 
     @PatchMapping("/complete/{transactionId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> complete(@PathVariable Long transactionId) {
         transactionService.completeTransaction(transactionId);
         return ResponseEntity.ok("거래가 완료되었습니다.");

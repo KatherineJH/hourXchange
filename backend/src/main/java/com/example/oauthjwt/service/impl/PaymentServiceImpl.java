@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -55,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보와 상품 정보가 일치하지 않습니다.");
         }
 
-        user.addTime(paymentItem.getTime()); // 사용자의 시간 추가
+        user.addCredit(paymentItem.getTime()); // 사용자의 시간 추가
 
         Payment payment = paymentRepository.save(Payment.of(data, user.getId(), paymentItem.getId()));
         return PaymentResponse.toDto(payment, user, paymentItem);
@@ -98,13 +97,13 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         User user = userRepository.findByEmail(orders.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         PaymentItem paymentItem = paymentItemRepository.findByName(orders.getPaymentItemName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
 
-        user.addTime(paymentItem.getTime()); // 시간 추가
+        user.addCredit(paymentItem.getTime()); // 시간 추가
 
         Payment payment = paymentRepository.save(Payment.of(orders, user, paymentItem));
 
@@ -168,5 +167,25 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.ratioByItem();
     }
 
+    @Override
+    public List<PaymentLogResponse> getPaymentsBetween(String from, String to) {
+        try {
+            LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+            LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay(); // 포함 처리
 
+            return paymentRepository.countByRange(fromDate, toDate);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. yyyy-MM-dd 형식이어야 합니다.");
+        }
+    }
+    @Override
+    public List<PaymentLogResponse> getAmountSumBetween(String from, String to) {
+        try {
+            LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+            LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay();
+            return paymentRepository.sumAmountByRange(fromDate, toDate);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "날짜 형식이 잘못되었습니다.");
+        }
+    }
 }

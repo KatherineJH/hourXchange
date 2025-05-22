@@ -88,7 +88,7 @@ function ListTable({
           onVisibleItemsChange(paged);
         }
 
-        // 🔥 Notify parent about currently visible page
+        // Notify parent about currently visible page
         if (onVisibleItemsChange) {
           onVisibleItemsChange(data);
         }

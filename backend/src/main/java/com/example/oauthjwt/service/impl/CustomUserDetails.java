@@ -1,4 +1,4 @@
-package com.example.oauthjwt.service;
+package com.example.oauthjwt.service.impl;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,11 +1,10 @@
-package com.example.oauthjwt.dto;
+package com.example.oauthjwt.dto.document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.example.oauthjwt.entity.type.DonationStatus;
-import jakarta.persistence.Column;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -46,4 +45,6 @@ public class DonationDocument {
     private LocalDateTime createdAt;
 
     private List<String> suggest;
+
+    private List<String> images  = new ArrayList<>(); // 이미지 리스트;
 }

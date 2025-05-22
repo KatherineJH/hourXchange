@@ -1,26 +1,22 @@
 package com.example.oauthjwt.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
-import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.entity.Advertisement;
 import com.example.oauthjwt.service.AdvertisementService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @Log4j2
@@ -31,6 +27,7 @@ public class AdvertisementController {
     private final AdvertisementService advertisementService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createAdvertisement(@AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid AdvertisementRequest advertisementRequest) {
         log.info(advertisementRequest);
@@ -40,10 +37,9 @@ public class AdvertisementController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
-        advertisementRequest.setOwnerId(userDetails.getUser().getId());
 
         log.info(advertisementRequest.toString());
-        Advertisement ad = advertisementService.createAdvertisement(advertisementRequest);
+        Advertisement ad = advertisementService.createAdvertisement(advertisementRequest, userDetails);
         AdvertisementResponse response = AdvertisementResponse.toDto(ad);
         return ResponseEntity.ok(response);
     }
@@ -62,16 +58,12 @@ public class AdvertisementController {
     }
 
     @PutMapping("/{advertisementId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateAdvertisement(@PathVariable Long advertisementId,
                                                  @RequestBody @Valid AdvertisementRequest advertisementRequest,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
-        advertisementRequest.setId(advertisementId);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-        }
-        advertisementRequest.setOwnerId(userDetails.getUser().getId());
-        AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementRequest);
-        return ResponseEntity.ok("광고 수정 성공");
+        AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementId, advertisementRequest, userDetails);
+        return ResponseEntity.ok(response);
     }
 }

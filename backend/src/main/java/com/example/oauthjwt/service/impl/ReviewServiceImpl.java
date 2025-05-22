@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +23,7 @@ import com.example.oauthjwt.repository.TransactionRepository;
 import com.example.oauthjwt.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse saveReview(ReviewRequest request, User reviewer) {
         Product product = ProductRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
 
         // Flask 서버에 감성 분석 요청
         HttpHeaders headers = new HttpHeaders();
@@ -63,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setStars(request.getStars());
         if (request.getTransactionId() != null) {
             Transaction transaction = transactionRepository.findById(request.getTransactionId())
-                    .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션 정보가 존재하지 않습니다."));
             review.setTransaction(transaction);
             transaction.setReview(review); // 양방향 연관 설정
         }
@@ -84,7 +86,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse getReviewById(Long id) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));
 
         List<String> tags = review.getTags().stream().map(ReviewTag::getTag).toList();
 
@@ -94,10 +96,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));
 
         if (!review.getReviewer().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("자신이 작성한 리뷰만 수정할 수 있습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 작성한 리뷰만 수정이 가능합니다.");
         }
 
         // Flask 서버에 새 텍스트로 감정 분석

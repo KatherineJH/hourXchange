@@ -24,4 +24,8 @@ public interface PaymentService {
     PaymentOrderResponse order(PaymentOrderRequest paymentOrderRequest);
 
     PaymentVerifyResponse verify(PaymentVerifyRequest paymentVerifyRequest);
+
+    List<PaymentLogResponse> getPaymentsBetween(String from, String to);
+
+    List<PaymentLogResponse> getAmountSumBetween(String from, String to);
 }

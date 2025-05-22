@@ -56,8 +56,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // 4. 채팅방 조회
-//        ChatRoom chatRoom = chatService.findByProductAndUsers(product.getId(), buyer.getId(), buyer.getId())
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
         ChatRoom chatRoom = chatService.findByProductAndUsers(product.getId(), buyer.getId(), seller.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
 
@@ -138,13 +136,6 @@ public class TransactionServiceImpl implements TransactionService {
         ChatRoomUser chatRoomUser = chatRoomUserRepository.findByChatRoomAndUser(chatRoom, user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
 
-//        User requester = chatRoom.getParticipants().stream()
-//                .filter(user -> user.getId().equals(requesterId))
-//                .findFirst()
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청자를 찾을 수 없습니다."));
-
-
-
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
         for (Transaction transaction : transactions) {
             if (transaction.getStatus() == TransactionStatus.PENDING) {
@@ -164,10 +155,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         User owner = product.getOwner();
         User opponent = product.getOwner();
-//        User opponent = chatRoom.getParticipants().stream()
-//                .filter(user -> !user.getId().equals(owner.getId()))
-//                .findFirst()
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상대방 유저가 없습니다."));
 
         // 트랜잭션 상태 변경
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
@@ -181,7 +168,7 @@ public class TransactionServiceImpl implements TransactionService {
         // 크레딧 차감 로직 ONLY
         try {
             if (type == ProviderType.SELLER) {
-                opponent.subtractTime(hours);
+                opponent.subtractCredit(hours);
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(opponent.getWallet())
                         .product(product)
@@ -192,7 +179,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .build());
 
             } else if (type == ProviderType.BUYER) {
-                owner.subtractTime(hours);
+                owner.subtractCredit(hours);
                 walletHistoryRepository.save(WalletHistory.builder()
                         .wallet(owner.getWallet())
                         .product(product)
@@ -233,7 +220,7 @@ public class TransactionServiceImpl implements TransactionService {
         User receiver = (type == ProviderType.SELLER) ? product.getOwner() : transaction.getUser();
 
         // 크레딧 지급
-        receiver.addTime(hours);
+        receiver.addCredit(hours);
         walletHistoryRepository.save(WalletHistory.builder()
                 .wallet(receiver.getWallet())
                 .product(product)

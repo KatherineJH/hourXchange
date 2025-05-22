@@ -43,7 +43,7 @@ public class DonationResponse {
 
     private String status; // 상태
 
-    private List<String> images= new ArrayList<>(); // 이미지 리스트
+    private List<String> images = new ArrayList<>(); // 이미지 리스트
 
     public static DonationResponse toDto(Donation donation) {
         return DonationResponse.builder()

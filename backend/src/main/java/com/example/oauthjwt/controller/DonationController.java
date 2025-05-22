@@ -3,9 +3,10 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
-import com.example.oauthjwt.entity.Donation;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,8 @@ public class DonationController {
     private final DonationService donationService;
 
     @PostMapping("/")
-    public ResponseEntity<?> createDonation(@RequestBody DonationRequest donationRequest,
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> createDonation(@RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
 
@@ -35,8 +38,14 @@ public class DonationController {
     }
 
     @GetMapping("/{donationId}")
-    public ResponseEntity<?> getDonation(@PathVariable Long donationId) {
-        DonationResponse result = donationService.getDonation(donationId);
+    public ResponseEntity<?> getDonation(@PathVariable Long donationId, HttpServletRequest request,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // 인증된 유저면 userId, 아니면 클라이언트 IP
+        String userKey = (userDetails != null)
+                ? "user:" + userDetails.getUser().getId()
+                : "ip:"   + request.getRemoteAddr();
+
+        DonationResponse result = donationService.getDonation(donationId, userKey);
         return ResponseEntity.ok(result);
     }
 
@@ -52,7 +61,8 @@ public class DonationController {
     }
 
     @PutMapping("/modify/{donationId}")
-    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody DonationRequest donationRequest,
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
         DonationResponse result = donationService.update(donationId, donationRequest, userDetails);
@@ -61,8 +71,10 @@ public class DonationController {
     }
 
     @PutMapping("/delete/{donationId}")
-    public ResponseEntity<?> deleteDonation(@PathVariable Long donationId) {
-        List<DonationHistoryResponse> result = donationService.delete(donationId);
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> deleteDonation(@PathVariable Long donationId,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<DonationHistoryResponse> result = donationService.delete(donationId, userDetails);
         return ResponseEntity.ok(result);
     }
 

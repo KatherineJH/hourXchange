@@ -28,9 +28,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public Advertisement createAdvertisement(AdvertisementRequest advertisementRequest) {
-        User owner = userRepository.findById(advertisementRequest.getOwnerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다"));
+    public Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
+        User owner = userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
         Advertisement advertisement = Advertisement.of(advertisementRequest, owner);
 
@@ -49,13 +49,16 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public AdvertisementResponse updateAdvertisement(AdvertisementRequest advertisementRequest) {
-        Advertisement advertisement = advertisementRepository.findById(advertisementRequest.getId())
+    public AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
+        User owner = userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
+        Advertisement advertisement = advertisementRepository.findById(advertisementId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "수정할 광고가 존재하지 않습니다."));
-        if (!advertisement.getOwner().getId().equals(advertisementRequest.getOwnerId())) {
+
+        if (!advertisement.getOwner().getId().equals(owner.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다.");
         }
-//
 
         advertisement.setUpdateValue(advertisementRequest);
         Advertisement updated = advertisementRepository.save(advertisement);

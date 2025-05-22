@@ -6,6 +6,7 @@ const defaultCenter = { lat: 37.496486063, lng: 127.028361548 };
 
 function KakaoSaveMap({ saveData, setSaveData }) {
     const mapRef = useRef(null);
+    const mapInstance = useRef(null);
     const markerRef = useRef(null);
     const geocoderRef = useRef(null);
 
@@ -28,6 +29,7 @@ function KakaoSaveMap({ saveData, setSaveData }) {
                 center: new maps.LatLng(defaultCenter.lat, defaultCenter.lng),
                 level: 4,
             });
+            mapInstance.current = map;
 
             // 2) 마커·지오코더 생성
             const marker = new maps.Marker({ map });
@@ -104,6 +106,17 @@ function KakaoSaveMap({ saveData, setSaveData }) {
             }
         });
     }, []);
+
+    // 2) saveData.lat, saveData.lng 변경 시 마커/센터 동기화
+    useEffect(() => {
+           const map = mapInstance.current;
+           const marker = markerRef.current;
+           if (map && marker && typeof saveData.lat === 'number' && typeof saveData.lng === 'number') {
+                   const newPos = new window.kakao.maps.LatLng(saveData.lat, saveData.lng);
+                   marker.setPosition(newPos);
+                   map.setCenter(newPos);
+               }
+       }, [saveData.lat, saveData.lng]);
 
     return <div ref={mapRef} style={containerStyle} />;
 }

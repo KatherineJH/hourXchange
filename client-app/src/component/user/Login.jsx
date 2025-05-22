@@ -230,6 +230,7 @@ import { useEffect } from "react";
 const providers = [
   { id: "naver", name: "Naver" },
   { id: "google", name: "Google" },
+  { id: "github", name: "GitHub" },
   { id: "credentials", name: "Email and Password" },
 ];
 
@@ -262,6 +263,11 @@ export default function EmailLoginForm() {
       case "google":
         console.log("Google 로그인 리디렉션 시작");
         window.location.href = `${backendUrl}/oauth2/authorization/google`;
+        return {};
+
+      case "github":
+        console.log("GitHub 로그인 리디렉션 시작");
+        window.location.href = `${backendUrl}/oauth2/authorization/github`;
         return {};
 
       case "credentials":

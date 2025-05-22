@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.impl;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 import com.example.oauthjwt.entity.type.ProviderType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
     private final ChatRoomRepository chatRoomRepository;
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public ProductResponse save(ProductRequest productRequest) {
         // 검증
@@ -71,11 +74,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse findById(Long id) {
-        Product product = productRepository.findById(id)
+    public ProductResponse findById(Long productId, String userKey) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
-        product = product.addViewCount();
-        productRepository.save(product);
+
+        String key = "view productId: " + productId + ", by: " + userKey;
+
+        Boolean alreadyExists = stringRedisTemplate.hasKey(key);
+        if(!alreadyExists) { // 존재하지 않으면
+            log.info("캐싱");
+            // 뷰 카운트 증가
+            productRepository.save(product.addViewCount());
+            // 24시간 TTL로 기록
+            stringRedisTemplate.opsForValue().set(key, "1", Duration.ofHours(24));
+        }
+        log.info("무시");
+
         return ProductResponse.toDto(product);
     }
 
@@ -84,13 +98,13 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 검증
         Product product = productRepository.findById(productRequest.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "제품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
         if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신이 등록한 제품만 수정이 가능합니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 수정이 가능합니다.");
         }
         Address address = product.getAddress();
         Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "카테고리 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
 
         ProviderType providerType = ProviderType.parseProviderType(productRequest.getProviderType().toUpperCase());
         if (providerType == null) {

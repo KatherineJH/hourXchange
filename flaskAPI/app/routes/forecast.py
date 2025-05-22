@@ -10,7 +10,9 @@ def predict():
         return jsonify({"error": "history (list of {'ds': date, 'y': value}) 가 필요합니다."}), 400
 
     try:
-        forecast = predict_sales(data["history"])
+        # Get optional 'periods' from request, default to 7
+        periods = int(data.get("periods", 7))
+        forecast = predict_sales(data["history"], periods)
         return jsonify(forecast)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

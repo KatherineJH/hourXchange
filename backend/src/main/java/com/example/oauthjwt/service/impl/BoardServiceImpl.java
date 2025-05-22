@@ -28,8 +28,8 @@ public class BoardServiceImpl implements BoardService {
     private final ThumbsUpRepository thumbsUpRepository;
 
     @Override
-    public BoardResponse save(BoardRequest boardRequest) {
-        User author = userRepository.findById(boardRequest.getAuthorId())
+    public BoardResponse save(BoardRequest boardRequest, CustomUserDetails userDetails) {
+        User author = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "작성자 정보가 존재하지 않습니다."));
         Category category = categoryRepository.findById(boardRequest.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리가 존재하지 않습니다."));
@@ -43,12 +43,12 @@ public class BoardServiceImpl implements BoardService {
             }
         }
         // Board 생성
-        Board board = Board.builder().author(author).id(boardRequest.getId()).title(boardRequest.getTitle())
-                .description(boardRequest.getDescription()).category(category).images(new ArrayList<>()).build();
+        Board board = Board.of(boardRequest, author, category);
+
         // 이미지 추가
         if (boardRequest.getImages() != null) {
             for (String url : boardRequest.getImages()) {
-                BoardImage boardImage = BoardImage.builder().imgUrl(url).board(board).build();
+                BoardImage boardImage = BoardImage.of(url, board);
                 board.getImages().add(boardImage);
             }
         }
@@ -89,17 +89,18 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardResponse update(BoardRequest boardRequest) {
-        Board board = boardRepository.findById(boardRequest.getId())
+    public BoardResponse update(BoardRequest boardRequest, Long boardId, CustomUserDetails userDetails) {
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "수정할 게시글이 존재하지 않습니다."));
-        if (!board.getAuthor().getId().equals(boardRequest.getAuthorId())) {
+
+        if (!board.getAuthor().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다.");
         }
+
         Category category = categoryRepository.findById(boardRequest.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리가 존재하지 않습니다."));
-        boardRequest.setCategory(category);
 
-        Board updated = boardRepository.save(board.setUpdateValue(boardRequest));
+        Board updated = boardRepository.save(board.setUpdateValue(boardRequest, category));
         return BoardResponse.toDto(updated);
     }
 
