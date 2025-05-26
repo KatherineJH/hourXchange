@@ -24,7 +24,9 @@ services:
 
   elasticsearch:
     container_name: hourxchange_elasticsearch
-    image: elasticsearch:8.17.2
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
     ports:
       - "9200:9200"
     environment:
@@ -49,15 +51,15 @@ services:
     ports:
       - "6379:6379"
 
-  flask:
-    build:
-      context: ./flaskAPI
-      dockerfile: Dockerfile
-    container_name: hourxchange_flask
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./flaskAPI:/app
+#  flask:
+#    container_name: hourxchange_flask
+#    build:
+#      context: ./flaskAPI
+#      dockerfile: Dockerfile
+#    ports:
+#      - "5000:5000"
+#    volumes:
+#      - ./flaskAPI:/app
 
 networks:
   default:
