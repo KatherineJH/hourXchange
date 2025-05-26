@@ -3,6 +3,7 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ public interface DonationService {
 
     DonationResponse getDonation(Long donationId, String userKey);
 
-    Page<DonationResponse> findAll(Pageable pageable);
+    PageResult<DonationResponse> findAll(int page, int size);
 
     DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails);
 

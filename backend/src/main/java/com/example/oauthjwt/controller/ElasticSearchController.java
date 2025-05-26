@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import com.example.oauthjwt.dto.document.DonationDocument;
+import com.example.oauthjwt.dto.response.DonationResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,7 +41,7 @@ public class ElasticSearchController {
     }
 
     @GetMapping("/donations")
-    public ResponseEntity<PageResult<DonationDocument>> searchDonations(@RequestParam String keyword,
+    public ResponseEntity<PageResult<DonationResponse>> searchDonations(@RequestParam String keyword,
                                                                         @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(searchService.searchDonations(keyword, page, size));
     }

@@ -1,5 +1,6 @@
 package com.example.oauthjwt.dto.response;
 
+import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationImage;
 import lombok.AllArgsConstructor;
@@ -63,6 +64,24 @@ public class DonationResponse {
                 .images(donation.getImages().stream()
                         .map(DonationImage::getImgUrl)
                         .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static DonationResponse toDto(DonationDocument donationDocument) {
+        return DonationResponse.builder()
+                .id(donationDocument.getId())
+                .purpose(donationDocument.getPurpose())
+                .currentAmount(donationDocument.getCurrentAmount())
+                .targetAmount(donationDocument.getTargetAmount())
+                .title(donationDocument.getTitle())
+                .description(donationDocument.getDescription())
+                .startDate(donationDocument.getStartDate())
+                .endDate(donationDocument.getEndDate())
+                .createdAt(donationDocument.getCreatedAt())
+                .viewCount(donationDocument.getViewCount())
+                .author(donationDocument.getAuthor())
+                .status(donationDocument.getStatus())
+                .images(donationDocument.getImages())
                 .build();
     }
 }

@@ -195,23 +195,7 @@ public class Indexer {
                 finalKeywords.add(authorName.toLowerCase());
             }
 
-            DonationDocument doc = DonationDocument.builder()
-                    .id(donation.getId())
-                    .title(donation.getTitle())
-                    .description(donation.getDescription())
-                    .authorName(authorName)
-                    .currentAmount(donation.getCurrentAmount())
-                    .targetAmount(donation.getTargetAmount())
-                    .startDate(donation.getStartDate())
-                    .endDate(donation.getEndDate())
-                    .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
-                            donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
-                    .createdAt(donation.getCreatedAt())
-                    .suggest(finalKeywords)
-                    .images(donation.getImages().stream()
-                            .map(DonationImage::getImgUrl)
-                            .collect(Collectors.toList()))
-                    .build();
+            DonationDocument doc = DonationDocument.toDocument(donation, authorName, finalKeywords);
 
             try {
                 elasticsearchClient.index(i -> i.index("donation_index").id(String.valueOf(doc.getId())).document(doc));
