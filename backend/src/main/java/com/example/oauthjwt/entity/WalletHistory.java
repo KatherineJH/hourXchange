@@ -37,4 +37,15 @@ public class WalletHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public static WalletHistory of(User opponent, Product product, WalletATM walletATM, int hours) {
+        return WalletHistory.builder()
+                .wallet(opponent.getWallet())
+                .product(product)
+                .type(walletATM)
+                .amount(hours)
+                .balance(opponent.getWallet().getCredit())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }

@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PaymentOrderRequest {
-    private String id;
-
     private String email;
 
     private String paymentItemName;

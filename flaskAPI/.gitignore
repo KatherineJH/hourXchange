@@ -4,7 +4,7 @@ __pycache__/
 *.so
 *.egg
 *.egg-info/
-*.pkl
+# *.pkl
 *.log
 
 # 🐍 가상환경
@@ -13,7 +13,7 @@ venv/
 .env.*
 
 # 🧠 모델 체크포인트
-*.pt
+# *.pt
 *.ckpt
 *.safetensors
 

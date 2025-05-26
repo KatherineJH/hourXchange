@@ -124,9 +124,7 @@ public class BoardServiceImpl implements BoardService {
         if (existing.isPresent()) {
             thumbsUpRepository.delete(existing.get());
         } else {
-            ThumbsUp tu = new ThumbsUp();
-            tu.setBoard(board);
-            tu.setUser(user);
+            ThumbsUp tu = ThumbsUp.of(board, user);
             thumbsUpRepository.save(tu);
         }
 

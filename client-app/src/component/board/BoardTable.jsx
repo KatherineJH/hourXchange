@@ -49,7 +49,7 @@ function BoardTable({ boards, navigate }) {
                   <TableCell>
                     <CardMedia
                       component="img"
-                      image={board.images[0]}
+                      image={board.images?.[0] || "/default.png"}
                       alt={`board-${board.id}-img`}
                       sx={{
                         width: 100,

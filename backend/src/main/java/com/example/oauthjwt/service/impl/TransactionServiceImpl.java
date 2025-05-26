@@ -60,16 +60,11 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."));
 
         // 5. 요청자 트랜잭션 생성 및 저장
-        Transaction buyerTransaction = Transaction.of(transactionRequest, buyer, product, transactionStatus, chatRoom);
+        Transaction buyerTransaction = Transaction.of(buyer, product, transactionStatus, chatRoom);
         transactionRepository.save(buyerTransaction);
 
         // 6. 판매자 트랜잭션 요청 생성
-        TransactionRequest sellerRequest = new TransactionRequest();
-        sellerRequest.setUserId(seller.getId());
-        sellerRequest.setProductId(product.getId());
-        sellerRequest.setStatus(transactionRequest.getStatus());
-
-        Transaction sellerTransaction = Transaction.of(sellerRequest, seller, product, transactionStatus, chatRoom);
+        Transaction sellerTransaction = Transaction.of(seller, product, transactionStatus, chatRoom);
         transactionRepository.save(sellerTransaction);
 
         // 7. 요청자 기준으로만 응답 반환
@@ -169,25 +164,11 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             if (type == ProviderType.SELLER) {
                 opponent.subtractCredit(hours);
-                walletHistoryRepository.save(WalletHistory.builder()
-                        .wallet(opponent.getWallet())
-                        .product(product)
-                        .type(WalletATM.SPEND)
-                        .amount(hours)
-                        .balance(opponent.getWallet().getCredit())
-                        .createdAt(LocalDateTime.now())
-                        .build());
+                walletHistoryRepository.save(WalletHistory.of(opponent, product, WalletATM.SPEND, hours));
 
             } else if (type == ProviderType.BUYER) {
                 owner.subtractCredit(hours);
-                walletHistoryRepository.save(WalletHistory.builder()
-                        .wallet(owner.getWallet())
-                        .product(product)
-                        .type(WalletATM.SPEND)
-                        .amount(hours)
-                        .balance(opponent.getWallet().getCredit())
-                        .createdAt(LocalDateTime.now())
-                        .build());
+                walletHistoryRepository.save(WalletHistory.of(owner, product, WalletATM.SPEND, hours));
             }
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");

@@ -34,6 +34,7 @@ public class ChatRoomUser {
         return ChatRoomUser.builder()
                 .chatRoom(chatRoom)
                 .user(user)
+                .chatRoomUserStatus(ChatRoomUserStatus.JOIN)
                 .build();
     }
 }

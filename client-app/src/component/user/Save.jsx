@@ -99,7 +99,7 @@ export default function Save() {
 
     try {
       await postSave(saveData);
-      navigate("/email-login", { replace: true });
+      navigate("/login", { replace: true });
     } catch (error) {
       console.error(error);
       alert("회원가입에 실패했습니다. 다시 확인해주세요.");

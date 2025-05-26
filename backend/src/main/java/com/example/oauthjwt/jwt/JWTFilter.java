@@ -61,7 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                         userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("JWT authentication successful for user: {}", email);
+//                log.info("JWT authentication successful for user: {}", email);
             } catch (ResponseStatusException e){
                 // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)
                 log.warn("User not found during JWT auth, proceeding anonymously: {}", e.getMessage());

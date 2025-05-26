@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.DonationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,10 +53,8 @@ public class DonationController {
     @GetMapping("/list")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
-
         // 로직 실행
-        Page<DonationResponse> result = donationService.findAll(pageable);
+        PageResult<DonationResponse> result = donationService.findAll(page, size);
         // 반환
         return ResponseEntity.ok(result);
     }
