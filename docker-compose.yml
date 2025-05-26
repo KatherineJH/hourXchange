@@ -26,7 +26,7 @@ services:
     container_name: hourxchange_elasticsearch
     image: elasticsearch:8.17.2
     ports:
-      - "9202:9200"
+      - "9200:9200"
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -49,66 +49,15 @@ services:
     ports:
       - "6379:6379"
 
-#  spring:
-#    build: ./backend
-#    ports:
-#      - "8282:8282"
-#    volumes:
-#      - ./backend:/app
-#    depends_on:
-#      elasticsearch:
-#        condition: service_healthy
-#      mysql:
-#        condition: service_started
-#    environment:
-#      - SERVER_PORT=${PORT}
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/db_hourxchange
-#      - SPRING_DATASOURCE_USERNAME=root
-#      - SPRING_DATASOURCE_PASSWORD=root
-#      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
-#      - JWT_SECRET=${JWT_KEY}
-#      - NAVER_CLIENT_ID=${NAVER_ID}
-#      - NAVER_CLIENT_SECRET=${NAVER_KEY}
-#      - GOOGLE_CLIENT_ID=${GOOGLE_ID}
-#      - GOOGLE_CLIENT_SECRET=${GOOGLE_KEY}
-#      - VITE_GOOGLE_MAPS_KEY=${GOOGLE_MAPS_KEY}
-#      - OPENAPI_KEY=${OPENAPI}
-#
-#    entrypoint:
-#      - sh
-#      - -c
-#      - "sleep 20 && java -jar /app/build/libs/hourXchangeApi-0.0.1-SNAPSHOT.jar"
-#    networks:
-#      - default
-
-#   elasticsearch2:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: elasticsearch2
-#     ports:
-#       - "9202:9200"
-#     environment:
-#       - discovery.type=single-node
-#       - xpack.security.enabled=false
-#       - xpack.security.transport.ssl.enabled=false
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - esdata:/usr/share/elasticsearch/data
-#       - ./elastic/dict:/usr/share/elasticsearch/config/dict:ro
-
-#  flask:
-#    build: ./flaskAPI
-#    ports:
-#      - "5000:5000"
-#    volumes:
-#      - ./flaskAPI:/app
-#    networks:
-#      - default
-
+  flask:
+    build:
+      context: ./flaskAPI
+      dockerfile: Dockerfile
+    container_name: hourxchange_flask
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./flaskAPI:/app
 
 networks:
   default:

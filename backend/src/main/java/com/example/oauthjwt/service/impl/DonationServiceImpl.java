@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Log4j2
 @CacheConfig(cacheNames = { "findAll" })
-@org.springframework.transaction.annotation.Transactional(readOnly = true)
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository donationRepository;
     private final DonationHistoryRepository donationHistoryRepository;
@@ -43,7 +42,7 @@ public class DonationServiceImpl implements DonationService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
-    @CacheEvict(cacheNames = { "findAll", "donationSearch" }, allEntries = true)
+    @CacheEvict(cacheNames = { "findAll", "searchDonations" }, allEntries = true)
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)

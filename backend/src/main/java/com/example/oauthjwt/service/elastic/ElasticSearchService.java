@@ -97,7 +97,7 @@ public class ElasticSearchService {
         }
     }
 
-    @Cacheable(cacheNames = "donationSearch", key = "#keyword + ':' + #page + ':' + #size")
+    @Cacheable(cacheNames = "searchDonations", key = "#keyword + ':' + #page + ':' + #size")
     public PageResult<DonationResponse> searchDonations(String keyword, int page, int size) {
         try {
             int from = Math.max(0, page * size);
