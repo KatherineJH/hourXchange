@@ -8,7 +8,7 @@
 - [hourxchange.kr](http://hourxchange.kr)  
   서비스의 도메인 주소입니다.  
 - [hourxchange.vercel.app](https://hourxchange.vercel.app/)
-  프론트엔드 애플리케이션이 임시 배포된 메인 도메인입니다.
+  프론트엔드 애플리케이션이 임시 배포된 도메인입니다.
 
 ## 2. 개발환경 및 도구
 
