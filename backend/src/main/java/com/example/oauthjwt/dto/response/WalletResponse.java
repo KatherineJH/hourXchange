@@ -16,6 +16,8 @@ public class WalletResponse {
     private int credit;
 
     public static WalletResponse toDto(Wallet wallet) {
+        if (wallet == null) return null;
+
         return WalletResponse.builder()
                 .id(wallet.getId())
                 .credit(wallet.getCredit())
