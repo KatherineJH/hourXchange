@@ -17,5 +17,5 @@ HourXchange는 시간 기반 크레딧 거래 플랫폼으로, 사용자가 서�
   프론트엔드 애플리케이션이 임시 배포된 메인 도메인입니다. 
 
 
-## 설치 방법
+## 구글 공유 드라이브
 https://drive.google.com/drive/u/0/folders/11gI0NbzLTuVygEr2RX6w0GkclGCzjogE
