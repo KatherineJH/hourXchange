@@ -20,21 +20,22 @@ public class TimeSeriesServieceImpl implements TimeSeriesServiece {
     private String flaskUrl;
 
     @Override
-    public List<Map<String, Object>> getForecast(List<Map<String, Object>> history) {
-        // 요청 구성
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> request = Map.of("history", history);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-
-        // 응답 파싱
-        ResponseEntity<List> response = restTemplate.postForEntity(
-                flaskUrl,
-                entity,
-                List.class
-        );
-
-        return response.getBody();
+    public List<Map<String, Object>> getForecast(List<Map<String, Object>> history, int periods) {
+        try {
+            if (history == null || history.size() < 30) {
+                return fail("⚠ 최소 30일 이상 데이터가 필요합니다.");
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            Map<String, Object> request = Map.of("history", history, "periods", periods);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<List> response = restTemplate.postForEntity(flaskUrl, entity, List.class);
+            return response.getBody();
+        } catch (Exception e) {
+            return fail("⚠ 예측 실패: 서버 또는 데이터 오류");
+        }
+    }
+    private List<Map<String, Object>> fail(String message) {
+        return List.of(Map.of("error", message));
     }
 }

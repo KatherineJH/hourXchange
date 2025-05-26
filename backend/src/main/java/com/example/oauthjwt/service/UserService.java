@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service;
 
+import java.util.List;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,4 +19,8 @@ public interface UserService {
 
     @Transactional
     void deductCredits(Long userId, int hours);
+
+    List<UserResponse> getAllUsers();
+
+    UserResponse getUserById(Long userId);
 }
