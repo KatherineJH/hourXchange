@@ -51,22 +51,54 @@ public class ElasticSearchService {
     private final ElasticsearchClient client;
     private final ProductRepository productRepository;
 
+//    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+//        try {
+//            SearchResponse<ProductDocument> response = client.search(
+//                    s -> s.index(PRODUCT_INDEX)
+//                            .query(q -> q.multiMatch(m -> m.query(keyword)
+//                                    .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
+//                                            "ownerName^0.2")
+//                                    .fuzziness("1").prefixLength(1).minimumShouldMatch("75%"))),
+//                    ProductDocument.class);
+//
+//            List<Hit<ProductDocument>> hits = response.hits().hits();
+//            if (hits.isEmpty()) {
+//                return null;
+//            }
+//
+//            List<Long> ids = hits.stream().map(hit -> hit.source().getId()).collect(Collectors.toList());
+//            Page<Product> productList = productRepository.findByIdIn(ids, pageable);
+//            return productList.map(ProductResponse::toDto);
+//
+//        } catch (IOException e) {
+//            log.error("Product search error: {}", e.getMessage(), e);
+//            throw new RuntimeException("Product 검색 중 오류가 발생했습니다.", e);
+//        }
+//    }
+
     public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
         try {
             SearchResponse<ProductDocument> response = client.search(
                     s -> s.index(PRODUCT_INDEX)
+                            .from((int) pageable.getOffset())
+                            .size(pageable.getPageSize())
                             .query(q -> q.multiMatch(m -> m.query(keyword)
                                     .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
                                             "ownerName^0.2")
-                                    .fuzziness("1").prefixLength(1).minimumShouldMatch("75%"))),
+                                    .fuzziness("1").prefixLength(1).minimumShouldMatch("75%")))
+                            .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
                     ProductDocument.class);
 
             List<Hit<ProductDocument>> hits = response.hits().hits();
             if (hits.isEmpty()) {
-                return null;
+                return Page.empty(pageable);
             }
 
-            List<Long> ids = hits.stream().map(hit -> hit.source().getId()).collect(Collectors.toList());
+            List<Long> ids = hits.stream()
+                    .map(hit -> hit.source().getId())
+                    .collect(Collectors.toList());
+
+            // Fetch products from repository using the sorted IDs
             Page<Product> productList = productRepository.findByIdIn(ids, pageable);
             return productList.map(ProductResponse::toDto);
 

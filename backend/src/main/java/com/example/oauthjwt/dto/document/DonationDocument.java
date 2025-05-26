@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto.document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class DonationDocument {
     private LocalDate endDate; // 모집끝일
 
     @Field(type = FieldType.Date)
-    private LocalDateTime createdAt; // 생성일자
+    private String createdAt; // 생성일자
 
     private int viewCount; // 조회수
 
@@ -61,6 +62,8 @@ public class DonationDocument {
     private List<String> suggest;
 
     public static DonationDocument toDocument(Donation donation, String authorName, List<String> finalKeywords) {
+        String formattedCreatedAt = donation.getCreatedAt()
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         return DonationDocument.builder()
                 .id(donation.getId())
                 .purpose(donation.getPurpose())
@@ -71,7 +74,7 @@ public class DonationDocument {
                 .authorName(authorName)
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
-                .createdAt(donation.getCreatedAt())
+                .createdAt(formattedCreatedAt)
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
