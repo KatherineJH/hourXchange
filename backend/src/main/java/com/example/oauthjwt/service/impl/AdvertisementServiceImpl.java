@@ -43,9 +43,11 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Advertisement findById(Long advertisementId) {
-        return advertisementRepository.findById(advertisementId)
+    @Transactional(readOnly = true)
+    public AdvertisementResponse findAdvertisementDetail(Long advertisementId) {
+        Advertisement advertisement =  advertisementRepository.findById(advertisementId)
                 .orElseThrow(() -> new IllegalArgumentException("광고가 존재하지 않습니다."));
+        return AdvertisementResponse.toDto(advertisement);
     }
 
     @Override
@@ -65,8 +67,42 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         return AdvertisementResponse.toDto(updated);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<AdvertisementResponse> findAllAdvertisements() {
         List<Advertisement> advertisementList = advertisementRepository.findAll();
+        advertisementList.forEach(ad -> ad.getImages().size());
+        return advertisementList.stream().map(AdvertisementResponse::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AdvertisementResponse deleteAdvertisement(Long advertisementId, CustomUserDetails userDetails) {
+        User owner = userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다.")
+                );
+
+        Advertisement advertisement = advertisementRepository.findById(advertisementId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 광고가 존재하지 않습니다.")
+                );
+        if (!advertisement.getOwner().getId().equals(owner.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
+        }
+        AdvertisementResponse responseToReturn = AdvertisementResponse.toDto(advertisement);
+
+        advertisementRepository.delete(advertisement);
+
+        return responseToReturn;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        List<Advertisement> advertisementList = advertisementRepository.findAllByOwnerId(userId);
+        advertisementList.forEach(ad -> ad.getImages().size());
         return advertisementList.stream().map(AdvertisementResponse::toDto).collect(Collectors.toList());
     }
 }

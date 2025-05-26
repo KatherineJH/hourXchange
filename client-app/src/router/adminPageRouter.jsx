@@ -1,67 +1,88 @@
 import React from "react";
-import { lazy } from 'react'
+import { lazy } from "react";
 import PaymentAnalysisPage from "../component/analysis/PaymentAnalysisPage.jsx";
+import AdminAdvertisementList from "../component/advertisement/AdminAdvertisement.jsx";
 
-const PaymentDashboard        = lazy(() => import("../component/admin/PaymentDashboard.jsx"))
-const PaymentAmountDashboard  = lazy(() => import("../component/admin/PaymentAmountDashboard.jsx"))
-const UserDashboard           = lazy(() => import("../component/admin/UserDashboard.jsx"))
-const DonationHistoryList     = lazy(() => import("../component/admin/DonationHistoryList.jsx"))
-const ListTable               = lazy(() => import("../component/donation/ListTable.jsx"))
-const ReadDonation            = lazy(() => import("../component/donation/Read.jsx"))
-const RegisterDonation        = lazy(() => import("../component/donation/DonationForm.jsx"))
-const ModifyDonation          = lazy(() => import("../component/donation/Modify.jsx"))
-const UserAnalysisPage        = lazy(() => import("../component/analysis/UserAnalysisPage.jsx"));
-const UserDetailPage          = lazy(() => import("../component/analysis/UserDetailPage.jsx"));
-
+const PaymentDashboard = lazy(
+  () => import("../component/admin/PaymentDashboard.jsx")
+);
+const PaymentAmountDashboard = lazy(
+  () => import("../component/admin/PaymentAmountDashboard.jsx")
+);
+const UserDashboard = lazy(
+  () => import("../component/admin/UserDashboard.jsx")
+);
+const DonationHistoryList = lazy(
+  () => import("../component/admin/DonationHistoryList.jsx")
+);
+const ListTable = lazy(() => import("../component/donation/ListTable.jsx"));
+const ReadDonation = lazy(() => import("../component/donation/Read.jsx"));
+const RegisterDonation = lazy(
+  () => import("../component/donation/DonationForm.jsx")
+);
+const ModifyDonation = lazy(() => import("../component/donation/Modify.jsx"));
+const UserAnalysisPage = lazy(
+  () => import("../component/analysis/UserAnalysisPage.jsx")
+);
+const UserDetailPage = lazy(
+  () => import("../component/analysis/UserDetailPage.jsx")
+);
+const getAdvertisement = lazy(
+  () => import("../component/advertisement/AdminAdvertisement.jsx")
+);
 const adminPageRouter = () => [
-    {
-        path: "",
-        element: <PaymentDashboard />,
-    },
-    {
-        path: "user",
-        element: <UserDashboard />,
-    },
-    {
-        path: "payment",
-        element: <PaymentDashboard />,
-    },
-    {
-        path: "paymentAmount",
-        element: <PaymentAmountDashboard />,
-    },
-    {
-        path: "donation/list",
-        element: <ListTable />,
-    },
-    {
-        path: "donationHistoryList",
-        element: <DonationHistoryList />,
-    },
-    {
-        path: "donation/read/:id",
-        element: <ReadDonation />,
-    },
-    {
-        path: "donation/register",
-        element: <RegisterDonation />,
-    },
-    {
-        path: "donation/modify/:id",
-        element: <ModifyDonation />,
-    },
-    { 
-        path: "userAnalysis", 
-        element: <UserAnalysisPage /> 
-    },
-    {
-        path: "user/:id",
-        element: <UserDetailPage />,
-    },
-    { 
-        path: "salesAnalysis", 
-        element: <PaymentAnalysisPage /> 
-    },
+  {
+    path: "",
+    element: <PaymentDashboard />,
+  },
+  {
+    path: "user",
+    element: <UserDashboard />,
+  },
+  {
+    path: "payment",
+    element: <PaymentDashboard />,
+  },
+  {
+    path: "paymentAmount",
+    element: <PaymentAmountDashboard />,
+  },
+  {
+    path: "donation/list",
+    element: <ListTable />,
+  },
+  {
+    path: "donationHistoryList",
+    element: <DonationHistoryList />,
+  },
+  {
+    path: "donation/read/:id",
+    element: <ReadDonation />,
+  },
+  {
+    path: "donation/register",
+    element: <RegisterDonation />,
+  },
+  {
+    path: "donation/modify/:id",
+    element: <ModifyDonation />,
+  },
+  {
+    path: "userAnalysis",
+    element: <UserAnalysisPage />,
+  },
+  {
+    path: "user/:id",
+    element: <UserDetailPage />,
+  },
+  {
+    path: "advertisement/list",
+    element: <AdminAdvertisementList />,
+  },
+  {
+    path: "salesAnalysis",
+    element: <PaymentAnalysisPage />,
+  },
 ];
 
 export default adminPageRouter;
