@@ -1,63 +1,27 @@
-# # [시작 할 때]
-# # docker-compose build
-# # docker-compose up -d // 백그라운드에서 실행
-# # [끄고자 할 때]
-# # docker-compose down -v
-# version: "3.8"
-# services:
-#   elasticsearch2:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: elasticsearch2
-#     ports:
-#       - "9202:9200"
-#     environment:
-#       - discovery.type=single-node
-#       - xpack.security.enabled=false
-#       - xpack.security.transport.ssl.enabled=false
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - esdata:/usr/share/elasticsearch/data
-#       - ./elastic/dict:/usr/share/elasticsearch/config/dict:ro
-
-# volumes:
-#   esdata:
-
 version: "3.8"
 
 services:
-  flask:
-    build: ./flaskAPI
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./flaskAPI:/app
-    networks:
-      - default
-
   mysql:
-    container_name: MysqlHourXchange
+    container_name: hourxchange_mysql
     image: mysql:8.0
     ports:
       - "3307:3306"
     environment:
-      MYSQL_DATABASE: db_hourxchange
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
-      - default
+      - hourxchange_net
 
   elasticsearch:
-    image: elasticsearch:8.17.2
-    container_name: elasticsearch_hourXchange
+    build: .
+    container_name: hourxchange_elasticsearch
     ports:
-      - "9202:9200"
+      - "9200:9200"
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -74,43 +38,33 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     networks:
-      - default
+      - hourxchange_net
 
-  spring:
-    build: ./backend
+  redis:
+    container_name: hourxchange_redis
+    image: redis:7
     ports:
-      - "8282:8282"
-    volumes:
-      - ./backend:/app
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-      mysql:
-        condition: service_started
-    environment:
-      - SERVER_PORT=${PORT}
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/db_hourxchange
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
-      - JWT_SECRET=${JWT_KEY}
-      - NAVER_CLIENT_ID=${NAVER_ID}
-      - NAVER_CLIENT_SECRET=${NAVER_KEY}
-      - GOOGLE_CLIENT_ID=${GOOGLE_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_KEY}
-      - VITE_GOOGLE_MAPS_KEY=${GOOGLE_MAPS_KEY}
-      - OPENAPI_KEY=${OPENAPI}
-
-    entrypoint:
-      - sh
-      - -c
-      - "sleep 20 && java -jar /app/build/libs/hourXchangeApi-0.0.1-SNAPSHOT.jar"
+      - "6379:6379"
     networks:
-      - default
+      - hourxchange_net
+
+  flask:
+    container_name: hourxchange_flask
+    build:
+      context: ./flaskAPI
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./flaskAPI:/app
+    depends_on:
+      - redis
+      - elasticsearch
+    networks:
+      - hourxchange_net
 
 networks:
-  default:
-    name: hour_X_change_default
+  hourxchange_net:
 
 volumes:
   mysql_data:
