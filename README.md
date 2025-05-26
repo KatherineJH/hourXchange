@@ -45,5 +45,5 @@
 - **CI/CD 자동 배포**: GitHub Actions → EC2
 - **컨테이너화**: Docker (Flask, Elasticsearch 용)  
 
-## 3. 구글 공유 드라이브
+## 3. 구글 공유 드라이브(팀원 전용)
 https://drive.google.com/drive/u/0/folders/11gI0NbzLTuVygEr2RX6w0GkclGCzjogE
