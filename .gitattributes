@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# kc_electra_sentiment_model.pt 등 .pt 확장자를 LFS로 관리
+*.pt filter=lfs diff=lfs merge=lfs -text

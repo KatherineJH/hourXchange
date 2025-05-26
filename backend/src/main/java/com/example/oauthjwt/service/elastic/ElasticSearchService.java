@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.dto.document.DonationDocument;
+import com.example.oauthjwt.dto.response.DonationResponse;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.BoundValueOperations;
@@ -29,23 +32,29 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.data.elasticsearch.annotations.IndexOptions.docs;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@CacheConfig(cacheNames = { "donationSearch", "boardSearch", "productSearch" })
+@Transactional(readOnly = true)
 public class ElasticSearchService {
-    private static final String CACHE_PREFIX = "donation:search:";
-    private static final Duration CACHE_TTL = Duration.ofMinutes(10);
+
+    private static final String DONATION_INDEX = "donation_index";
+    private static final String PRODUCT_INDEX = "product_index";
+    private static final String BOARD_INDEX = "board_index";
 
     private final ElasticsearchClient client;
     private final ProductRepository productRepository;
-    private final RedisTemplate<String, PageResult<DonationDocument>> redisTemplate;
 
     public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
         try {
             SearchResponse<ProductDocument> response = client.search(
-                    s -> s.index("product_index")
+                    s -> s.index(PRODUCT_INDEX)
                             .query(q -> q.multiMatch(m -> m.query(keyword)
                                     .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
                                             "ownerName^0.2")
@@ -70,7 +79,7 @@ public class ElasticSearchService {
     public PageResult<BoardDocument> searchBoards(String keyword, int page, int size) {
         try {
             int from = Math.max(0, page * size);
-            SearchResponse<BoardDocument> response = client.search(s -> s.index("board_index").from(from).size(size)
+            SearchResponse<BoardDocument> response = client.search(s -> s.index(BOARD_INDEX).from(from).size(size)
                     .query(q -> q.multiMatch(m -> m.query(keyword)
                             .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
                                     "authorName^0.2")
@@ -88,59 +97,48 @@ public class ElasticSearchService {
         }
     }
 
-    public PageResult<DonationDocument> searchDonations(String keyword, int page, int size) {
-
-        // 1) 캐시 키 생성
-        String cacheKey = CACHE_PREFIX + keyword + ":" + page + ":" + size;
-        BoundValueOperations<String, PageResult<DonationDocument>> ops = redisTemplate.boundValueOps(cacheKey);
-
-        // 2) 캐시 조회
+    @Cacheable(cacheNames = "searchDonations", key = "#keyword + ':' + #page + ':' + #size")
+    public PageResult<DonationResponse> searchDonations(String keyword, int page, int size) {
         try {
-            PageResult<DonationDocument> cached = ops.get();
-            if (cached != null) {
-                log.info("CACHE HIT — key={}", cacheKey);
-                return cached;
-            }
-        } catch (Exception e) {
-            log.warn("Redis read 실패 — key={}, error={}", cacheKey, e.getMessage());
-        }
+            int from = Math.max(0, page * size);
+            SearchResponse<DonationDocument> response = client.search(
+                    s -> s.index(DONATION_INDEX)
+                            .from(from)
+                            .size(size)
+                            .query(q -> q.multiMatch(m -> m
+                                    .query(keyword)
+                                    .fields("title^1.5", "title.ngram^0.5",
+                                            "description^1.0", "description.ngram^0.3",
+                                            "authorName^0.2")
+                                    .fuzziness("1")
+                                    .prefixLength(1)
+                                    .minimumShouldMatch("75%")))
+                            .sort(o -> o.field(f -> f.field("createdAt").order(SortOrder.Desc))),
+                    DonationDocument.class
+            );
 
-        // 3) 엘라스틱 서치 조회
-        int from = Math.max(0, page * size);
-        SearchResponse<DonationDocument> response;
-        try {
-            response = client.search(s -> s.index("donation_index").from(from).size(size)
-                    .query(q -> q.multiMatch(m -> m.query(keyword)
-                            .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
-                                    "authorName^0.2")
-                            .fuzziness("1").prefixLength(1).minimumShouldMatch("75%")))
-                    .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))), DonationDocument.class);
+            List<DonationDocument> docs = response.hits().hits().stream()
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            long total = Optional.ofNullable(response.hits().total())
+                    .map(t -> t.value())
+                    .orElse(0L);
+
+            int totalPages = (int) Math.ceil((double) total / size);
+
+            // Document → Response DTO 매핑
+            List<DonationResponse> content = docs.stream()
+                    .map(DonationResponse::toDto)
+                    .collect(Collectors.toList());
+
+            return new PageResult<>(content, page, size, total, totalPages);
+
         } catch (IOException e) {
-            log.error("Donation search error: {}", e.getMessage());
+            log.error("Donation search error: {}", e.getMessage(), e);
             throw new RuntimeException("Donation 검색 중 오류", e);
         }
-
-        // 4) 결과 가공
-        List<DonationDocument> hits = response.hits().hits().stream()
-                .map(Hit::source)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        long total = Optional.ofNullable(response.hits().total())
-                .map(t -> t.value())
-                .orElse(0L);
-        int totalPages = (int) Math.ceil((double) total / size);
-        PageResult<DonationDocument> result =
-                new PageResult<>(hits, page, size, total, totalPages);
-
-        // 5) 캐시에 저장
-        try {
-            ops.set(result, CACHE_TTL);
-            log.info("CACHE PUT — key={}", cacheKey);
-        } catch (Exception e) {
-            log.warn("Redis write 실패 — key={}, error={}", cacheKey, e.getMessage());
-        }
-
-        return result;
     }
 
     public List<String> autocomplete(String prefix, String index) {
@@ -180,7 +178,7 @@ public class ElasticSearchService {
 
             // Step 2: Generate phrase suggestions (at least two) using title only
             if (!nounSuggestions.isEmpty()) {
-                if (index.equals("board_index")) {
+                if (index.equals(BOARD_INDEX)) {
                     SearchResponse<BoardDocument> phraseResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
                                     .fields("title^1.5")))
@@ -192,7 +190,7 @@ public class ElasticSearchService {
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList());
-                } else if (index.equals("product_index")) {
+                } else if (index.equals(PRODUCT_INDEX)) {
                     SearchResponse<ProductDocument> phraseResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
                                     .fields("title^1.5")))
@@ -204,7 +202,7 @@ public class ElasticSearchService {
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList());
-                } else if (index.equals("donation_index")) {
+                } else if (index.equals(DONATION_INDEX)) {
                     SearchResponse<DonationDocument> phraseResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(nounSuggestions.get(0))
                                     .fields("title^1.5")))
@@ -221,7 +219,7 @@ public class ElasticSearchService {
 
             // Step 3: Fallback if insufficient suggestions
             if (nounSuggestions.isEmpty() && phraseSuggestions.isEmpty()) {
-                if (index.equals("board_index")) {
+                if (index.equals(BOARD_INDEX)) {
                     // Search title field directly for boards
                     SearchResponse<BoardDocument> fallbackResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(prefix)
@@ -243,7 +241,7 @@ public class ElasticSearchService {
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList()));
-                } else if (index.equals("product_index")) {
+                } else if (index.equals(PRODUCT_INDEX)) {
                     // Search title field directly for products
                     SearchResponse<ProductDocument> fallbackResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(prefix)
@@ -265,7 +263,7 @@ public class ElasticSearchService {
                             .distinct()
                             .limit(3)
                             .collect(Collectors.toList()));
-                } else if (index.equals("donation_index")) {
+                } else if (index.equals(DONATION_INDEX)) {
                     // Search title field directly for products
                     SearchResponse<DonationDocument> fallbackResponse = client.search(s -> s.index(index)
                             .query(q -> q.multiMatch(m -> m.query(prefix)
