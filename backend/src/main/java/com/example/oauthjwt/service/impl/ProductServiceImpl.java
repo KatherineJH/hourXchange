@@ -33,16 +33,16 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final SPImageRepository spImageRepository;
+    private final ProductImageRepository productImageRepository;
     private final FavoriteRepository favoriteRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
     private final StringRedisTemplate stringRedisTemplate;
 
-    public ProductResponse save(ProductRequest productRequest) {
+    public ProductResponse save(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 검증
-        User owner = userRepository.findById(productRequest.getOwnerId())
+        User owner = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         Category category = categoryRepository.findById(productRequest.getCategoryId())
@@ -53,16 +53,16 @@ public class ProductServiceImpl implements ProductService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 타입입니다.");
         }
         // 이미지 리스트 생성
-        List<SPImage> images = new ArrayList<>();
+        List<ProductImage> images = new ArrayList<>();
         if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
             for (String url : productRequest.getImages()) { // 이미지 url list 등록
-                if (spImageRepository.existsByImgUrl(url)) {
+                if (productImageRepository.existsByImgUrl(url)) {
                     log.info("이미지 주소 중복");
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
                 }
-                SPImage spImage = SPImage.builder().imgUrl(url).build();
+                ProductImage productImage = ProductImage.builder().imgUrl(url).build();
 
-                images.add(spImage);
+                images.add(productImage);
             }
         }
         Address address = addressRepository.save(Address.of(productRequest.getAddress()));
@@ -95,9 +95,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails) {
+    public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId) {
         // 검증
-        Product product = productRepository.findById(productRequest.getId())
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
         if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 수정이 가능합니다.");
@@ -112,19 +112,19 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // 이미지 리스트 생성
-        List<SPImage> images = new ArrayList<>();
+        List<ProductImage> images = new ArrayList<>();
         if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) { // 이미지가 있는 경우에만 등록
 
-            spImageRepository.deleteAllByProductId(product.getId()); // 원래 이미지 삭제
+            productImageRepository.deleteAllByProductId(product.getId()); // 원래 이미지 삭제
 
             for (String url : productRequest.getImages()) { // 이미지 url list 등록
 
-                if (spImageRepository.existsByImgUrl(url)) { // 이미 존재하는 주소면
+                if (productImageRepository.existsByImgUrl(url)) { // 이미 존재하는 주소면
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
                 }
                 if (url != null && !url.isEmpty()) { // 이미지 주소가 있으면
-                    SPImage spImage = SPImage.builder().imgUrl(url).product(product).build();
-                    images.add(spImage);
+                    ProductImage productImage = ProductImage.builder().imgUrl(url).product(product).build();
+                    images.add(productImage);
                 }
             }
         }

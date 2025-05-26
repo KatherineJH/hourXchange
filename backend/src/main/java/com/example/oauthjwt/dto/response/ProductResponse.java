@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.Review;
-import com.example.oauthjwt.entity.SPImage;
+import com.example.oauthjwt.entity.ProductImage;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -67,7 +66,7 @@ public class ProductResponse {
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null
                         ? null
-                        : product.getImages().stream().map(SPImage::getImgUrl).collect(Collectors.toList())) // 이미지
+                        : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
                 .build();
     }
 
@@ -84,7 +83,7 @@ public class ProductResponse {
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null
                         ? null
-                        : product.getImages().stream().map(SPImage::getImgUrl).collect(Collectors.toList())) // 이미지
+                        : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
                 .favoriteCount(favoriteCount)
                 .chatCount(chatCount)
                 .starsAverage(starsAverage)

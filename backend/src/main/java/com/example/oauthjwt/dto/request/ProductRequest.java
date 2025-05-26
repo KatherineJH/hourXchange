@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProductRequest {
-    private Long id; // id
-
     @NotBlank(message = "제목은 필수입니다.")
     private String title; // 제목
 
@@ -35,9 +33,6 @@ public class ProductRequest {
     @NotNull(message = "끝시간은 필수입니다.")
     @FutureOrPresent(message = "과거의 시간으로는 입력할 수 없습니다.")
     private LocalDateTime endAt; // 끝시간
-
-    // @NotNull(message = "작성자는 필수입니다.") 저장 시 인증된 토큰에서 가져오기
-    private Long ownerId; // 작성자 id
 
     @NotNull(message = "카테고리는 필수입니다.")
     private Long categoryId; // 서비스 카테고리 id

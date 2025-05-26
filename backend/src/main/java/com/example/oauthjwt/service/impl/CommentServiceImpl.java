@@ -46,7 +46,8 @@ public class CommentServiceImpl implements CommentService {
         Board board = boardRepository.findById(commentRequest.getBoardId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다."));
         // 댓글 생성
-        Comment comment = Comment.builder().content(commentRequest.getContent()).author(owner).board(board).build();
+        Comment comment = Comment.of(commentRequest, owner, board);
+
         Comment result = commentRepository.save(comment);
         return CommentResponse.toDto(result);
     }

@@ -2,6 +2,7 @@ package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ReviewTag {
 
     @Id
@@ -21,4 +23,11 @@ public class ReviewTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
+
+    public static ReviewTag of(String tag, Review review) {
+        return ReviewTag.builder()
+                .tag(tag)
+                .review(review)
+                .build();
+    }
 }

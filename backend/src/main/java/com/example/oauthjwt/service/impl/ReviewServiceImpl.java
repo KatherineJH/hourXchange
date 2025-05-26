@@ -56,13 +56,8 @@ public class ReviewServiceImpl implements ReviewService {
         int rating = ((String) sentiment.get("result")).contains("긍정") ? 1 : 0;
 
         // 리뷰 저장
-        Review review = new Review();
-        review.setContent(request.getText());
-        review.setCreatedAt(LocalDateTime.now());
-        review.setRates(rating);
-        review.setReviewer(reviewer);
-        review.setProduct(product);
-        review.setStars(request.getStars());
+        Review review = Review.of(request, rating, reviewer, product);
+
         if (request.getTransactionId() != null) {
             Transaction transaction = transactionRepository.findById(request.getTransactionId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션 정보가 존재하지 않습니다."));
@@ -74,9 +69,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 태그 저장 (긍정인 경우만)
         if (rating == 1) {
             for (String tag : tags) {
-                ReviewTag reviewTag = new ReviewTag();
-                reviewTag.setTag(tag);
-                reviewTag.setReview(review);
+                ReviewTag reviewTag = ReviewTag.of(tag, review);
                 reviewTagRepository.save(reviewTag);
             }
         }

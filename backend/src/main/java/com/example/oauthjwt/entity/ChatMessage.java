@@ -38,17 +38,13 @@ public class ChatMessage {
     @Column(name = "sent_at", nullable = false, updatable = false)
     private LocalDateTime sentAt;
 
-    @PrePersist
-    protected void onCreate() {
-        sentAt = LocalDateTime.now();
-    }
-
     public static ChatMessage of(ChatRoom chatRoom, User sender, String content, ChatMessageType chatMessageType) {
         return ChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
                 .content(content)
                 .chatMessageType(chatMessageType)
+                .sentAt(LocalDateTime.now())
                 .build();
     }
 }

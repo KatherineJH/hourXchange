@@ -75,7 +75,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<SPImage> images = new ArrayList<>();
+    private List<ProductImage> images = new ArrayList<>();
 
     // single transaction can have multiple service products
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -106,7 +106,7 @@ public class Product {
     }
 
     public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address,
-            List<SPImage> images) {
+            List<ProductImage> images) {
         Product product = of(productRequest, owner, category, providerType, address);
         images.forEach(image -> image.setProduct(product));
         product.getImages().addAll(images);
@@ -131,7 +131,7 @@ public class Product {
     }
 
     public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType,
-            List<SPImage> images) {
+            List<ProductImage> images) {
         this.title = productRequest.getTitle();
         this.description = productRequest.getDescription();
         this.hours = productRequest.getHours();
