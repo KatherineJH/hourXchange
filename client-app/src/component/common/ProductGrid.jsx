@@ -270,13 +270,13 @@ export default function ProductGrid({
 
   return (
     <Grid container spacing={2} sx={{ p: 2, justifyContent: "center" }}>
-      {products.map((item) => (
-        <Grid key={item.id} xs={12} sm={6} md={4} lg={3}>
-          {item.type === "ad" ? (
-            // 광고 카드 렌더링
-            <AdvertisementCard ad={item} />
+      {products.map((product) => (
+        <Grid key={product.id} xs={12} sm={6} md={4} lg={3}>
+          {product.type === "ad" ? (
+            // 광고 카드
+            <AdvertisementCard ad={product} />
           ) : (
-            // 일반 상품 카드 렌더링
+            // 일반 상품 카드
             <Card
               sx={{
                 maxWidth: 345,
@@ -288,7 +288,7 @@ export default function ProductGrid({
               <CardHeader
                 avatar={
                   <Avatar sx={{ bgcolor: "primary.main" }}>
-                    {item.owner?.name?.[0] || "?"}
+                    {product.owner?.name?.[0] || "?"}
                   </Avatar>
                 }
                 action={
@@ -296,105 +296,61 @@ export default function ProductGrid({
                     <MoreVertIcon />
                   </IconButton>
                 }
-                title={item.title}
-                subheader={new Date(item.startedAt).toLocaleDateString()}
+                title={product.title}
+                subheader={new Date(product.startedAt).toLocaleDateString()}
               />
               <CardMedia
                 component="img"
                 height="194"
-                image={
-                  item.images?.[0] ||
-                  "https://via.placeholder.com/345x194?text=No+Image"
-                }
-                alt={item.title}
-                onClick={() => navigate(`/product/read/${item.id}`)}
-                sx={{ cursor: "pointer" }}
+                image={product.images?.[0] || "/default.png"}
+                alt={product.title}
+                onClick={() => navigate(`/product/read/${product.id}`)}
+                sx={{ cursor: "pointer", objectFit: "cover" }}
               />
               <CardContent sx={{ minHeight: 64 }}>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  {item.description}
+                <Typography variant="body2" color="text.secondary">
+                  {product.description}
                 </Typography>
               </CardContent>
               <CardActions
                 disableSpacing
                 sx={{
-                  flexDirection: "column",
-                  alignItems: "stretch",
+                  display: "flex",
+                  justifyContent: "space-between",
                   px: 2,
-                  pt: 1,
-                  minHeight: 92,
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <IconButton onClick={() => onToggleFavorite(item.id)}>
-                    {favorite.some((f) => f.product.id === item.id) ? (
-                      <FavoriteIcon />
-                    ) : (
-                      <FavoriteBorderIcon />
-                    )}
-                  </IconButton>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => onToggleExpand(item.id)}
-                  >
-                    <ExpandMoreIcon />
-                    <Typography variant="body2" sx={{ ml: 0.5, color: "grey" }}>
-                      더보기
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 1,
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  {(tagsMap[item.owner?.id] || []).map((tag, idx) => (
-                    <Box
-                      key={idx}
-                      sx={{
-                        backgroundColor: "secondary.main",
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: 16,
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      {tag}
-                    </Box>
-                  ))}
-                </Box>
+                {/* 예: 즐겨찾기 버튼 */}
+                <IconButton onClick={() => onToggleFavorite(product.id)}>
+                  {favorite.some((f) => f.product.id === product.id) ? (
+                    <FavoriteIcon />
+                  ) : (
+                    <FavoriteBorderIcon />
+                  )}
+                </IconButton>
+                {/* 예: 상세 보기 토글 */}
+                <IconButton onClick={() => onToggleExpand(product.id)}>
+                  <ExpandMoreIcon />
+                </IconButton>
               </CardActions>
 
               <Collapse
-                in={expandedId === item.id}
+                in={expandedId === product.id}
                 timeout="auto"
                 unmountOnExit
               >
                 <CardContent>
                   <Typography>
-                    카테고리: {item.category?.categoryName}
+                    카테고리: {product.category?.categoryName}
                   </Typography>
                   <Typography>
-                    시작 시간: {new Date(item.startedAt).toLocaleString()}
+                    시작: {new Date(product.startedAt).toLocaleString()}
                   </Typography>
                   <Typography>
-                    종료 시간: {new Date(item.endAt).toLocaleString()}
+                    종료: {new Date(product.endAt).toLocaleString()}
                   </Typography>
                   <Typography>
-                    제공자: {item.owner?.name || "알 수 없음"}
+                    제공자: {product.owner?.name || "알 수 없음"}
                   </Typography>
                 </CardContent>
               </Collapse>
