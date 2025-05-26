@@ -5,7 +5,7 @@ services:
     container_name: hourxchange_mysql
     image: mysql:8.0
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT}:3306"
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -14,11 +14,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
-    networks:
-      - hourxchange_net
 
   elasticsearch:
-    build: .
+    build:
+      context: ./elasticsearch
+      dockerfile: Dockerfile
     container_name: hourxchange_elasticsearch
     ports:
       - "9200:9200"
@@ -37,16 +37,12 @@ services:
         hard: -1
     volumes:
       - esdata:/usr/share/elasticsearch/data
-    networks:
-      - hourxchange_net
 
   redis:
     container_name: hourxchange_redis
     image: redis:7
     ports:
       - "6379:6379"
-    networks:
-      - hourxchange_net
 
   flask:
     container_name: hourxchange_flask
@@ -60,11 +56,10 @@ services:
     depends_on:
       - redis
       - elasticsearch
-    networks:
-      - hourxchange_net
 
 networks:
-  hourxchange_net:
+  default:
+    name: hourXchange_default
 
 volumes:
   mysql_data:
