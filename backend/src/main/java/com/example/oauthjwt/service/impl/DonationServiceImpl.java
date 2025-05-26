@@ -3,6 +3,7 @@ package com.example.oauthjwt.service.impl;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.entity.type.DonationStatus;
 import com.example.oauthjwt.repository.*;
@@ -10,9 +11,13 @@ import com.example.oauthjwt.service.DonationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@CacheConfig(cacheNames = { "findAll" })
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository donationRepository;
     private final DonationHistoryRepository donationHistoryRepository;
@@ -36,6 +42,7 @@ public class DonationServiceImpl implements DonationService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
+    @CacheEvict(cacheNames = { "findAll", "searchDonations" }, allEntries = true)
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -63,6 +70,7 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = { "findAll", "donationSearch" }, allEntries = true)
     public DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -117,13 +125,24 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public Page<DonationResponse> findAll(Pageable pageable) {
+    @Cacheable(cacheNames = "findAll", key = "#page + ':' + #size")
+    public PageResult<DonationResponse> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
         Page<Donation> donationPage = donationRepository.findAll(pageable);
 
-        return donationPage.map(DonationResponse::toDto);
+        List<DonationResponse> content = donationPage.getContent().stream()
+                .map(DonationResponse::toDto)
+                .collect(Collectors.toList());
+
+        return new PageResult<>(
+                content,
+                donationPage.getNumber(),
+                donationPage.getSize(),
+                donationPage.getTotalElements(),
+                donationPage.getTotalPages()
+        );
     }
-
-
 
     @Override
     @Transactional
