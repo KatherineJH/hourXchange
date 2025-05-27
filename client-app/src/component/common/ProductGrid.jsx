@@ -65,7 +65,7 @@ export default function ProductGrid({
   return (
     <Grid container spacing={2} sx={{ p: 2, justifyContent: "center" }}>
       {products.map((product) => (
-        <Grid key={product.id} xs={12} sm={6} md={4} lg={3}>
+        <Grid key={product.id} item xs={12} sm={6} md={4} lg={3}>
           {product.type === "ad" ? (
             // 광고 카드
             <AdvertisementCard ad={product} />
