@@ -34,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@CacheConfig(cacheNames = { "findAll" })
+@CacheConfig(cacheNames = { "productFindAll" })
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     private final AddressRepository addressRepository;
     private final StringRedisTemplate stringRedisTemplate;
 
-    @CacheEvict(cacheNames = { "findAll", "searchProducts" }, allEntries = true)
+    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
     public ProductResponse save(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 검증
         User owner = userRepository.findById(userDetails.getUser().getId())
@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = { "findAll", "searchProducts" }, allEntries = true)
+    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
     public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId) {
         // 검증
         Product product = productRepository.findById(productId)
@@ -144,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(cacheNames = "findAll", key = "#page + ':' + #size")
+    @Cacheable(cacheNames = "productFindAll", key = "#page + ':' + #size")
     public PageResult<ProductResponse> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
         Page<Product> productPage = productRepository.findAll(pageable);

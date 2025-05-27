@@ -48,8 +48,6 @@ public class DonationResponse {
     private List<String> images = new ArrayList<>(); // 이미지 리스트
 
     public static DonationResponse toDto(Donation donation) {
-        String formattedCreatedAt = donation.getCreatedAt()
-                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         return DonationResponse.builder()
                 .id(donation.getId())
                 .purpose(donation.getPurpose())
@@ -59,7 +57,7 @@ public class DonationResponse {
                 .description(donation.getDescription())
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
-                .createdAt(formattedCreatedAt)
+                .createdAt(donation.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
