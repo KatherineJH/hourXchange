@@ -7,8 +7,7 @@
 // import ProductGrid from "../common/ProductGrid";
 // import { getFavoriteList, postFavorite } from "../../api/productApi";
 // import ListTable from "./ListTable";
-// import { useSelector } from "react-redux";
-// import AdvertisementCard from "../advertisement/AdvertisementCard";
+// import {useSelector} from "react-redux";
 
 // const ExpandMore = styled((props) => {
 //   const { expand, ...other } = props;
@@ -68,7 +67,7 @@
 //   const user = useSelector((state) => state.auth);
 
 //   useEffect(() => {
-//     if (!user.email) return;
+//       if(!user.email) return
 //     getFavoriteList()
 //       .then((response) => setFavorite(response.data || []))
 //       .catch(console.error);
@@ -111,19 +110,6 @@
 //     nextArrow: <ArrowButton direction="right" />,
 //     adaptiveHeight: true,
 //   };
-
-//   const singleAd = {
-//     id: "single-test-ad", // 고유 ID
-//     imgUrl: "/donationAd.png", // 이미지 경로. 이미지가 웹에 호스팅되어 있지 않고 로컬에 있다면, `/`로 시작하는 경로 사용
-//     title: "테스트 광고 (하나만 보임)", // 광고 제목
-//     description: "이 광고가 잘 나오는지 확인해봅시다!", // 광고 설명
-//     linkUrl: "/product/donation", // 광고 클릭 시 이동할 URL
-//   };
-
-//   const intertionIndex = 2;
-
-//   const items = [...shownCards];
-//   i;
 
 //   return (
 //     <>
@@ -178,7 +164,6 @@
 
 //         {/* Cards */}
 //         <Box>
-
 //           <ProductGrid
 //             products={shownCards}
 //             favorite={favorite}
@@ -211,22 +196,23 @@
 //   );
 // }
 
-// src/component/product/BuyPost.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { IconButton, Box, Button, styled } from "@mui/material";
+import { IconButton, Box, Button, styled, Grid } from "@mui/material";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
 
 import ProductGrid from "../common/ProductGrid";
+import AdsGrid from "../common/AdsGrid";
 import ListTable from "./ListTable";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
+import AdvertisementCard from "../advertisement/AdvertisementCard";
 
 const PAGE_SIZE = 4;
+const AD_INTERVAL = 3;
 
 // 슬릭 커스텀 화살표
 const ArrowButton = ({ className, onClick, direction }) => (
@@ -263,7 +249,6 @@ export default function BuyPost() {
   const [cardRowCount, setCardRowCount] = useState(1);
   const [advertisements, setAdvertisements] = useState([]);
   const [shuffledAds, setShuffledAds] = useState([]);
-  const [carouselDisplayImages, setCarouselDisplayImages] = useState([]);
 
   const carouselImages = [
     "https://images.unsplash.com/photo-1582826310241-0cd9cc92dbb1?w=1200",
@@ -300,10 +285,8 @@ export default function BuyPost() {
   useEffect(() => {
     getAdvertisement()
       .then((data) => {
-        // 광고 데이터를 ProductGrid에서 구분하기 위한 'type: "ad"' 추가
         const formattedAds = data.map((ad) => ({ ...ad, type: "ad" }));
         setAdvertisements(formattedAds);
-        // 광고가 로드될 때마다 순서를 섞어줍니다.
         setShuffledAds([...formattedAds].sort(() => Math.random() - 0.5));
       })
       .catch((err) => {
@@ -311,10 +294,9 @@ export default function BuyPost() {
       });
   }, []);
 
-  // 상품 리스트 변경 시 페이지 초기화
+  // 상품 리스트 변경 시 페이지 초기화 및 광고 셔플
   useEffect(() => {
     if (advertisements.length > 0) {
-      // 광고 데이터가 있을 때만 셔플 시도
       setShuffledAds([...advertisements].sort(() => Math.random() - 0.5));
     }
   }, [advertisements, visibleProducts]);
@@ -338,20 +320,29 @@ export default function BuyPost() {
   };
 
   // 페이징된 상품 목록
-  const shownCards = visibleProducts.slice(0, cardRowCount * PAGE_SIZE);
-  const hasMore = shownCards.length < visibleProducts.length;
-
-  //광고 삽입
+  const shownProducts = visibleProducts.slice(0, cardRowCount * PAGE_SIZE);
   const itemsWithAds = [];
   let adIndex = 0;
-  const adInterval = 4; //상품 4개마다 광고 1개 삽입
-  for (let i = 0; i < shownCards.length; i++) {
-    itemsWithAds.push(shownCards[i]);
-    if ((i + 1) % adInterval === 0 && adIndex < shuffledAds.length) {
+
+  // 상품과 광고를 번갈아 배치
+  for (let i = 0; i < shownProducts.length; i++) {
+    itemsWithAds.push(shownProducts[i]);
+    if ((i + 1) % AD_INTERVAL === 0 && adIndex < shuffledAds.length) {
       itemsWithAds.push(shuffledAds[adIndex]);
       adIndex++;
     }
   }
+  // 남은 광고를 고르게 분배
+  while (adIndex < shuffledAds.length && itemsWithAds.length > 0) {
+    itemsWithAds.splice(
+      (adIndex + 1) * (AD_INTERVAL + 1),
+      0,
+      shuffledAds[adIndex]
+    );
+    adIndex++;
+  }
+
+  const hasMore = shownProducts.length < visibleProducts.length;
 
   return (
     <Box
@@ -402,35 +393,52 @@ export default function BuyPost() {
           ))}
         </Slider>
       </Box>
-
-      {/* 상품 + 광고 그리드 */}
-      <ProductGrid
-        products={itemsWithAds}
-        favorite={favorite}
-        onToggleFavorite={handleClickFavorite}
-        expandedId={expandedProductId}
-        onToggleExpand={handleExpandClick}
-      />
-
-      {/* 더 보기 버튼 */}
-      {hasMore && (
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Button
-            variant="outlined"
-            onClick={() => setCardRowCount((c) => c + 1)}
-            sx={{ borderRadius: 2 }}
-          >
-            더 보기
-          </Button>
-        </Box>
-      )}
-
-      {/* 리스트 테이블 */}
-      <ListTable
-        filterProviderType="BUYER"
-        category={selectedCategory}
-        onVisibleItemsChange={setVisibleProducts}
-      />
+      <Box>
+        {/* 통합된 그리드 렌더링 */}
+        <Grid
+          container
+          spacing={2}
+          sx={{ padding: 2, justifyContent: "center" }}
+        >
+          {itemsWithAds.map((item) =>
+            item.type === "ad" ? (
+              <Grid key={`ad-${item.id}`} xs={12} sm={6} md={4} lg={3}>
+                <AdvertisementCard ad={item} />
+              </Grid>
+            ) : (
+              <Grid key={`product-${item.id}`} xs={12} sm={6} md={4} lg={3}>
+                <ProductGrid
+                  products={[item]}
+                  favorite={favorite}
+                  onToggleFavorite={handleClickFavorite}
+                  expandedId={expandedProductId}
+                  onToggleExpand={handleExpandClick}
+                />
+              </Grid>
+            )
+          )}
+        </Grid>
+        {/* 더 보기 버튼 */}
+        {hasMore && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="outlined"
+              onClick={() => setCardRowCount((c) => c + 1)}
+              sx={{ borderRadius: 2 }}
+            >
+              더 보기
+            </Button>
+          </Box>
+        )}
+      </Box>
+      <Box>
+        {/* 리스트 테이블 */}
+        <ListTable
+          filterProviderType="BUYER"
+          category={selectedCategory}
+          onVisibleItemsChange={setVisibleProducts}
+        />
+      </Box>
     </Box>
   );
 }
