@@ -38,7 +38,7 @@ public class ProductResponse {
 
     private int viewCount;
 
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     private int favoriteCount;      // 찜한 유저 수
     private int chatCount;          // 이 상품과 연결된 채팅방 수
@@ -64,7 +64,7 @@ public class ProductResponse {
                 .lat(Double.valueOf(product.getLat()))
                 .lng(Double.valueOf(product.getLng()))
                 .viewCount(product.getViewCount())
-                .createdAt(product.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .createdAt(product.getCreatedAt())
                 .owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
@@ -85,7 +85,7 @@ public class ProductResponse {
                 .lat(Double.valueOf(product.getLat()))
                 .lng(Double.valueOf(product.getLng()))
                 .viewCount(product.getViewCount())
-                .createdAt(product.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .createdAt(product.getCreatedAt())
                 .owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())

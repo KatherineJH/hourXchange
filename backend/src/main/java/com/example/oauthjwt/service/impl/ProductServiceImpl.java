@@ -42,7 +42,6 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
     private final FavoriteRepository favoriteRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
     private final StringRedisTemplate stringRedisTemplate;
@@ -146,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Cacheable(cacheNames = "productFindAll", key = "#page + ':' + #size")
     public PageResult<ProductResponse> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
         Page<Product> productPage = productRepository.findAll(pageable);
 
 

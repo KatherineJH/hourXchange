@@ -37,7 +37,7 @@ public class DonationResponse {
 
     private LocalDate endDate; // 모집끝일
 
-    private String createdAt; // 생성일자
+    private LocalDateTime createdAt; // 생성일자
 
     private int viewCount; // 조회수
 
@@ -57,7 +57,7 @@ public class DonationResponse {
                 .description(donation.getDescription())
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
-                .createdAt(donation.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .createdAt(donation.getCreatedAt())
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
