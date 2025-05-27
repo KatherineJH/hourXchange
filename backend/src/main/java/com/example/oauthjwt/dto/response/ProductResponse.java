@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.ProductImage;
 
@@ -71,10 +72,18 @@ public class ProductResponse {
     }
 
     public static ProductResponse toDto(Product product, double starsAverage) {
-        return ProductResponse.builder().id(product.getId()).title(product.getTitle())
-                .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
-                .endAt(product.getEndAt()).lat(Double.valueOf(product.getLat())).lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
-                .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
+        return ProductResponse.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .hours(product.getHours())
+                .startedAt(product.getStartedAt())
+                .endAt(product.getEndAt())
+                .lat(Double.valueOf(product.getLat()))
+                .lng(Double.valueOf(product.getLng()))
+                .viewCount(product.getViewCount())
+                .createAt(product.getCreateAt())
+                .owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null
@@ -84,6 +93,29 @@ public class ProductResponse {
                 .chatCount(product.getChatRooms().size())
                 .starsAverage(starsAverage)
                 .reviewCount(product.getReviews().size())
+                .build();
+    }
+
+    public static ProductResponse toDto(ProductDocument productDocument){
+        return ProductResponse.builder()
+                .id(productDocument.getId())
+                .title(productDocument.getTitle())
+                .description(productDocument.getDescription())
+                .hours(productDocument.getHours())
+                .startedAt(productDocument.getStartedAt())
+                .endAt(productDocument.getEndAt())
+                .lat(productDocument.getLat())
+                .lng(productDocument.getLng())
+                .viewCount(productDocument.getViewCount())
+                .createAt(productDocument.getCreatedAt())
+                .owner(productDocument.getOwner())
+                .category(productDocument.getCategory())
+                .providerType(productDocument.getProviderType())
+                .images(productDocument.getImages())
+                .favoriteCount(productDocument.getFavoriteCount())
+                .chatCount(productDocument.getChatCount())
+                .starsAverage(productDocument.getStarsAverage())
+                .reviewCount(productDocument.getReviewCount())
                 .build();
     }
 }

@@ -12,6 +12,7 @@ import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationImage;
 import com.example.oauthjwt.repository.DonationRepository;
+import com.example.oauthjwt.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class Indexer {
     private final ProductRepository productRepository;
     private final BoardRepository boardRepository;
     private final DonationRepository donationRepository;
+    private final ReviewRepository reviewRepository;
     private final ElasticsearchClient elasticsearchClient;
 
     @Transactional(readOnly = true)
@@ -79,13 +81,9 @@ public class Indexer {
                 finalKeywords.add(ownerName.toLowerCase());
             }
 
-            ProductDocument doc = ProductDocument.builder()
-                    .id(product.getId())
-                    .title(product.getTitle())
-                    .description(product.getDescription())
-                    .ownerName(ownerName)
-                    .suggest(finalKeywords)
-                    .build();
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner());
+
+            ProductDocument doc = ProductDocument.toDocument(product, ownerName, finalKeywords, starsAverage);
 
             try {
                 elasticsearchClient.index(i -> i.index("product_index").id(String.valueOf(doc.getId())).document(doc));
