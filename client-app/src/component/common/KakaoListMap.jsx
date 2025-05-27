@@ -4,10 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const containerStyle = { width: '100%', height: '600px' };
 
-export default function KakaoListMap({
-                                         serverData,
-                                         setPosition // 이제 { swLat, swLng, neLat, neLng, level } 형태로 받습니다
-                                     }) {
+export default function KakaoListMap({ serverData, center, onViewportChange }) {
     const mapRef      = useRef(null);
     const mapInstance = useRef(null);
     const markers     = useRef([]);
@@ -15,49 +12,52 @@ export default function KakaoListMap({
     const clusterer   = useRef(null);
     const navigate    = useNavigate();
 
-    // 맵 초기화 + 클러스터러, 이벤트 리스너 한 번 등록
+    // 1) 맵 초기화: 컴포넌트 마운트 시 한 번만 실행
     useEffect(() => {
         if (!window.kakao || !mapRef.current) return;
         window.kakao.maps.load(() => {
             const kakao = window.kakao;
-            const map   = new kakao.maps.Map(mapRef.current, {
-                center: new kakao.maps.LatLng(37.5663, 126.9778),
+            const map = new kakao.maps.Map(mapRef.current, {
+                center: new kakao.maps.LatLng(center.lat, center.lng),
                 level: 3,
             });
             mapInstance.current = map;
 
-            // 클러스터러 설정 (level >= 4 일 때 클러스터링)
+            // 클러스터러 설정
             clusterer.current = new kakao.maps.MarkerClusterer({
                 map,
-                gridSize: 100,
+                gridSize: 60,
                 minLevel: 4,
                 disableClickZoom: false
             });
 
-            // 뷰포트 정보 전달 함수
+            // 뷰포트 정보 부모로 전달
             const emitViewport = () => {
                 const bounds = map.getBounds();
                 const sw = bounds.getSouthWest();
                 const ne = bounds.getNorthEast();
-                setPosition({
+                onViewportChange({
                     swLat: sw.getLat(),
                     swLng: sw.getLng(),
                     neLat: ne.getLat(),
-                    neLng: ne.getLng(),
-                    level: map.getLevel()
+                    neLng: ne.getLng()
                 });
             };
-
-            // 초기 한 번
             emitViewport();
-
-            // 드래그, 줌 변경 시 뷰포트 재전달
             kakao.maps.event.addListener(map, 'dragend', emitViewport);
             kakao.maps.event.addListener(map, 'zoom_changed', emitViewport);
         });
-    }, [setPosition]);
+    }, []);  // ← 빈 배열: 마운트 시 딱 한 번만
 
-    // serverData 또는 레벨 변경 시 마커/클러스터 갱신
+    // 2) center 변경 시: 기존 맵 인스턴스에만 center 이동
+    useEffect(() => {
+        const map = mapInstance.current;
+        if (map && center) {
+            map.setCenter(new window.kakao.maps.LatLng(center.lat, center.lng));
+        }
+    }, [center]);
+
+    // 3) serverData 변경 시 마커·오버레이·클러스터 갱신
     useEffect(() => {
         const map = mapInstance.current;
         if (!map || !window.kakao) return;
@@ -76,14 +76,14 @@ export default function KakaoListMap({
             if (!item.lat || !item.lng) return;
             const pos = new kakao.maps.LatLng(Number(item.lat), Number(item.lng));
 
-            // ▶ 마커 생성 (지도에 직접 올리지는 않고 클러스터러로 관리)
+            // ▶ 마커 생성
             const marker = new kakao.maps.Marker({ position: pos });
             kakao.maps.event.addListener(marker, 'click', () => {
                 navigate(`/product/read/${item.id}`);
             });
             markers.current.push(marker);
 
-            // ▶ 오버레이 컨텐츠 (hover 시 표시)
+            // ▶ 오버레이 콘텐츠
             const wrap = document.createElement('div');
             Object.assign(wrap.style, {
                 cursor: 'pointer',
@@ -96,22 +96,47 @@ export default function KakaoListMap({
                 pointerEvents: 'auto'
             });
 
-            wrap.innerHTML = `
-        <strong style="display:block;margin:6px 0 2px;font-size:18px">
-          ${item.providerType==='BUYER'?'삽니다':'팝니다'}
-        </strong>
-        <img src="${item.images[0]||'/default.png'}" 
-             alt="${item.title}" 
-             style="width:100%;height:auto;border-radius:4px" />
-        <strong style="display:block;margin:6px 0;font-size:14px">
-          ${item.title}
-        </strong>
-        <p style="margin:0;font-size:12px;color:#555">
-          ${item.description}
-        </p>
-      `;
+            const typeEl = document.createElement('strong');
+            typeEl.textContent = item.providerType === 'BUYER' ? '삽니다' : '팝니다';
+            Object.assign(typeEl.style, {
+                display: 'block',
+                margin: '6px 0 2px',
+                fontSize: '18px',
+                textAlign: 'center'
+            });
+            wrap.appendChild(typeEl);
+
+            const img = document.createElement('img');
+            Object.assign(img.style, {
+                width: '100%',
+                height: 'auto',
+                borderRadius: '4px'
+            });
+            img.src = item.images[0] || '/default.png';
+            img.alt = item.title;
+            wrap.appendChild(img);
+
+            const titleEl = document.createElement('strong');
+            titleEl.textContent = item.title;
+            Object.assign(titleEl.style, {
+                display: 'block',
+                margin: '6px 0 2px',
+                fontSize: '14px'
+            });
+            wrap.appendChild(titleEl);
+
+            const descEl = document.createElement('p');
+            descEl.textContent = item.description;
+            Object.assign(descEl.style, {
+                margin: 0,
+                fontSize: '12px',
+                color: '#555'
+            });
+            wrap.appendChild(descEl);
+
             wrap.addEventListener('click', () => navigate(`/product/read/${item.id}`));
 
+            // ▶ 오버레이 객체 생성
             const overlay = new kakao.maps.CustomOverlay({
                 content: wrap,
                 position: pos,
@@ -145,7 +170,7 @@ export default function KakaoListMap({
         } else {
             markers.current.forEach(m => m.setMap(map));
         }
-    }, [serverData, setPosition]);
+    }, [serverData]);
 
     return <div ref={mapRef} style={containerStyle} />;
 }

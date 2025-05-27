@@ -14,7 +14,7 @@ export const getList = async (page, size) => {
   return response;
 };
 
-export const getListWithPosition = async (position) => {
+export const getListWithBounds = async (position) => {
   console.log(position);
   const response = await api.get(apiServerUrl + "listMap", {
     params: {
