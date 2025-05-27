@@ -12,8 +12,8 @@ const menu = [
   { text: "기부모집내역", to: "/admin/donationHistoryList" },
   { text: "== 분석 마케팅 ==" },
   { text: "회원 관리 페이지 ", to: "/admin/userAnalysis" },
-  { text: "매출 관리 페이지 ", to: "/admin/salesAnalysis" },
-  { text: "기부 관리 페이지 ", to: "/admin/donationAnalysis" },
+  { text: "매출 분석 페이지 ", to: "/admin/salesAnalysis" },
+  { text: "기부 분석 페이지 ", to: "/admin/donationAnalysis" },
 ];
 
 const Sidebar = () => {

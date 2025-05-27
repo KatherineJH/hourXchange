@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
+import com.example.oauthjwt.dto.response.PaymentLogResponse;
 import com.example.oauthjwt.dto.response.TopDonatorResponse;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.DonationHistoryService;
@@ -18,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/donationHistory")
@@ -80,4 +82,18 @@ public class DonationHistoryController {
         return ResponseEntity.ok(topList);
     }
 
+    /** 기간을 선택하여 데이터를 로드 */
+    @GetMapping("/range")
+    public List<DonationHistoryResponse> getDonationPaymentByRange(
+            @RequestParam("from") String fromDateStr,
+            @RequestParam("to") String toDateStr) {
+        return donationHistoryService.getPaymentsBetween(fromDateStr, toDateStr);
+    }
+
+    @GetMapping("/range/amount")
+    public List<DonationHistoryResponse> getDonationAmountByRange(
+            @RequestParam("from") String from,
+            @RequestParam("to") String to) {
+        return donationHistoryService.getAmountSumBetween(from, to);
+    }
 }
