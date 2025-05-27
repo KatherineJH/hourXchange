@@ -73,14 +73,13 @@ public class BoardDocument {
     private List<String> suggest;
 
     public static BoardDocument toDocument(Board board, String authorName, List<String> finalKeywords) {
-        String formattedCreatedAt = board.getCreatedAt()
-                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         return BoardDocument.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .description(board.getDescription())
                 .authorName(authorName)
-                .createdAt(formattedCreatedAt)
+                .createdAt(board.getCreatedAt()
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .suggest(finalKeywords)
                 .build();
     }
