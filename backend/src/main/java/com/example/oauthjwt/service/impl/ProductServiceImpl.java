@@ -165,8 +165,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> findAllWithPosition(double lat, double lng) {
-        List<Product> productList = productRepository.findNearby1Km(lat, lng);
+    public List<ProductResponse> findAllWithPosition(double swLat, double swLng, double neLat, double neLng) {
+        List<Product> productList = productRepository.findAllWithPosition(swLat, swLng, neLat, neLng);
         return productList.stream().map(ProductResponse::toDto).collect(Collectors.toList());
     }
 

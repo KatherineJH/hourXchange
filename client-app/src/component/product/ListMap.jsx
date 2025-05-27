@@ -17,8 +17,13 @@ import KakaoListMap from '../common/KakaoListMap.jsx';
 import KoreaMap from '../common/KoreaMap.jsx';
 import CustomHeader from "../common/CustomHeader.jsx";
 
-const initPosition = { lat: 37.496486063, lng: 127.028361548 };
-
+const initPosition = {
+    swLat: '',
+    swLng: '',
+    neLat: '',
+    neLng: '',
+    level: ''
+};
 // KoreaMap.jsx 에 정의한 시·도청 좌표와 이름 매핑
 const regions = [
     { name: '서울특별시',     coords: { lat: 37.5663214, lng: 126.9778293 } },
@@ -28,7 +33,7 @@ const regions = [
     { name: '광주광역시',     coords: { lat: 35.159545,  lng: 126.852601  } },
     { name: '대전광역시',     coords: { lat: 36.350417,  lng: 127.384517  } },
     { name: '울산광역시',     coords: { lat: 35.538377,  lng: 129.311397  } },
-    { name: '세종특별자치시', coords: { lat: 36.480036,  lng: 127.289001  } },
+    { name: '세종특별자치시',  coords: { lat: 36.480036,  lng: 127.289001  } },
     { name: '경기도',         coords: { lat: 37.275058,  lng: 127.009385  } },
     { name: '강원도',         coords: { lat: 37.881315,  lng: 127.730029  } },
     { name: '충청북도',       coords: { lat: 36.638011,  lng: 127.489377  } },
@@ -48,8 +53,10 @@ export default function ListMap() {
     // position 변경될 때마다 API 호출
     useEffect(() => {
         getListWithPosition(position)
-            .then(res => setServerDataList(res.data))
-            .catch(console.error);
+            .then(res => {
+                    console.log(res)
+                    setServerDataList(res.data)
+            }).catch(console.error);
     }, [position]);
 
     const handlePostcodeComplete = data => {

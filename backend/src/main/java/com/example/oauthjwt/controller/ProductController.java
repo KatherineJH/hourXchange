@@ -86,9 +86,12 @@ public class ProductController {
     }
 
     @GetMapping("/listMap")
-    public ResponseEntity<?> findAllWithPosition(@RequestParam(defaultValue = "37.496486063") double lat,
-            @RequestParam(defaultValue = "127.028361548") double lng) {
-        List<ProductResponse> productResponseList = productService.findAllWithPosition(lat, lng);
+    public ResponseEntity<?> findAllWithPosition(@RequestParam(defaultValue = "37.563588758399376") double swLat,
+                                                 @RequestParam(defaultValue = "126.97429553373962") double swLng,
+                                                 @RequestParam(defaultValue = "37.56899604971747") double neLat,
+                                                 @RequestParam(defaultValue = "126.9812890557788") double neLng) {
+        log.info("prams swLat:{} swLng:{} neLat:{} neLng:{}", swLat, swLng, neLat, neLng);
+        List<ProductResponse> productResponseList = productService.findAllWithPosition(swLat, swLng, neLat, neLng);
         return ResponseEntity.ok(productResponseList);
     }
 

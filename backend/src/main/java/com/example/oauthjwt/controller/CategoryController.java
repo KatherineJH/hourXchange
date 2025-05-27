@@ -25,7 +25,6 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
 
     @GetMapping("/list")
