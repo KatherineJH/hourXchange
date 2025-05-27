@@ -71,7 +71,7 @@ const DonationPayForecast = () => {
         estimatedTo,
         minDate
       );
-      // console.log("▶️ 기간 자동 설정됨:", {
+      // console.log("기간 자동 설정됨:", {
       //   from: estimatedFrom.format("YYYY-MM-DD"),
       //   to: estimatedTo.format("YYYY-MM-DD"),
       // });
