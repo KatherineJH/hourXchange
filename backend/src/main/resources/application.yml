@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   # redis 설정
   data:
     redis:
@@ -9,9 +11,6 @@ spring:
 #      password: ${REDIS_PASSWORD:}   # 인증이 필요한 경우 비밀번호
 #      ssl:
 #        enabled: ${REDIS_SSL_ENABLED:false} # SSL 사용 여부 (기본값 false)
-
-  config:
-    import: optional:file:.env[.properties]
 
   elasticsearch:
     uris: http://${BACKEND_SERVER}:${ELASTIC_PORT}
