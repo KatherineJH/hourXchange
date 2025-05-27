@@ -134,14 +134,7 @@ public class Indexer {
                 finalKeywords.add(authorName.toLowerCase());
             }
 
-            BoardDocument doc = BoardDocument.builder()
-                    .id(board.getId())
-                    .title(board.getTitle())
-                    .description(board.getDescription())
-                    .authorName(authorName)
-                    .createdAt(board.getCreatedAt())
-                    .suggest(finalKeywords)
-                    .build();
+            BoardDocument doc = BoardDocument.toDocument(board, authorName, finalKeywords);
 
             try {
                 elasticsearchClient.index(i -> i.index("board_index").id(String.valueOf(doc.getId())).document(doc));
