@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import lombok.extern.log4j.Log4j2;
 public class BoardController {
 
     private final BoardService boardService;
+    private final ElasticSearchService elasticSearchService;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -42,6 +44,15 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<BoardResponse> responses = boardService.findAllBoards(pageable);
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBoards(@RequestParam String keyword,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(
+                elasticSearchService.searchBoards(keyword, page, size)
+        );
     }
 
     @GetMapping("/my")

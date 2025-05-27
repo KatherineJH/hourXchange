@@ -1,6 +1,7 @@
 package com.example.oauthjwt.service.elastic;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,13 +80,7 @@ public class Indexer {
                 finalKeywords.add(ownerName.toLowerCase());
             }
 
-            ProductDocument doc = ProductDocument.builder()
-                    .id(product.getId())
-                    .title(product.getTitle())
-                    .description(product.getDescription())
-                    .ownerName(ownerName)
-                    .suggest(finalKeywords)
-                    .build();
+            ProductDocument doc = ProductDocument.toDocument(product, ownerName, finalKeywords);
 
             try {
                 elasticsearchClient.index(i -> i.index("product_index").id(String.valueOf(doc.getId())).document(doc));
@@ -136,14 +131,7 @@ public class Indexer {
                 finalKeywords.add(authorName.toLowerCase());
             }
 
-            BoardDocument doc = BoardDocument.builder()
-                    .id(board.getId())
-                    .title(board.getTitle())
-                    .description(board.getDescription())
-                    .authorName(authorName)
-                    .createdAt(board.getCreatedAt())
-                    .suggest(finalKeywords)
-                    .build();
+            BoardDocument doc = BoardDocument.toDocument(board, authorName, finalKeywords);
 
             try {
                 elasticsearchClient.index(i -> i.index("board_index").id(String.valueOf(doc.getId())).document(doc));
