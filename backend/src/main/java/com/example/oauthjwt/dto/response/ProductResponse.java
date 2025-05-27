@@ -70,11 +70,7 @@ public class ProductResponse {
                 .build();
     }
 
-    public static ProductResponse toDto(Product product,
-                                        int favoriteCount,
-                                        int chatCount,
-                                        double starsAverage,
-                                        int reviewCount) {
+    public static ProductResponse toDto(Product product, double starsAverage) {
         return ProductResponse.builder().id(product.getId()).title(product.getTitle())
                 .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
                 .endAt(product.getEndAt()).lat(Double.valueOf(product.getLat())).lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
@@ -84,10 +80,10 @@ public class ProductResponse {
                 .images(product.getImages() == null
                         ? null
                         : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
-                .favoriteCount(favoriteCount)
-                .chatCount(chatCount)
+                .favoriteCount(product.getFavoriteList().size())
+                .chatCount(product.getChatRooms().size())
                 .starsAverage(starsAverage)
-                .reviewCount(reviewCount)
+                .reviewCount(product.getReviews().size())
                 .build();
     }
 }

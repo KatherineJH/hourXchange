@@ -137,16 +137,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> findAll(Pageable pageable) {
         Page<Product> productList = productRepository.findAll(pageable);
-//        return productList.map(ProductResponse::toDto);
         return productList.map(product -> {
-            User owner = product.getOwner();
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner()); // 판매자 기준 // 매번 조회 시 점점 느려질 것 같습니다.
 
-            int favoriteCount = favoriteRepository.countByProduct(product);
-            int chatCount = chatRoomRepository.countByProduct(product);
-            double starsAverage = reviewRepository.getAverageStarsByOwner(owner); // 판매자 기준
-            int reviewCount = reviewRepository.countByOwner(owner);               // 판매자 기준
-
-            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
+            return ProductResponse.toDto(product, starsAverage);
         });
     }
 
@@ -191,12 +185,8 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponse> findByOwnerId(Long ownerId, Pageable pageable) {
         Page<Product> products = productRepository.findByOwnerId(ownerId, pageable);
         return products.map(product -> {
-            User owner = product.getOwner();
-            int favoriteCount = favoriteRepository.countByProduct(product);
-            int chatCount = chatRoomRepository.countByProduct(product);
-            double starsAverage = reviewRepository.getAverageStarsByOwner(owner);
-            int reviewCount = reviewRepository.countByOwner(owner);
-            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner());
+            return ProductResponse.toDto(product, starsAverage);
         });
     }
 }
