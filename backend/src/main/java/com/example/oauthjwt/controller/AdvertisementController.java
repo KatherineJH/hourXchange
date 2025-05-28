@@ -50,10 +50,15 @@ public class AdvertisementController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<?> findMyAds(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<AdvertisementResponse> responses = advertisementService.findMyAdvertisements(userDetails);
+        return ResponseEntity.ok(responses);
+    }
     @GetMapping("/{advertisementId}")
     public ResponseEntity<?> findById(@PathVariable Long advertisementId) {
-        Advertisement ad = advertisementService.findById(advertisementId);
-        AdvertisementResponse response = AdvertisementResponse.toDto(ad);
+
+        AdvertisementResponse response = advertisementService.findAdvertisementDetail(advertisementId);
         return ResponseEntity.ok(response);
     }
 
@@ -66,4 +71,13 @@ public class AdvertisementController {
         AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementId, advertisementRequest, userDetails);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{advertisementId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public void deleteAdvertisement(
+            @PathVariable Long advertisementId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        advertisementService.deleteAdvertisement(advertisementId, userDetails);
+    }
+
 }

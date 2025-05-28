@@ -14,8 +14,10 @@ function MainLayout({ children }) {
         <Box sx={{ width: 240 }}>
           <Sidebar />
         </Box>
-        <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
-          <AiChat/>
+        <Box sx={{ flex: 1, p: 3 }}>
+          {children}
+        </Box>
+        <AiChat/>
       </Box>
       <Footer />
     </Box>

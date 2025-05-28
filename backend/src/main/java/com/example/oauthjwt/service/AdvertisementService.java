@@ -11,9 +11,13 @@ public interface AdvertisementService {
 
     Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
-    Advertisement findById(Long advertisementId);
+    AdvertisementResponse findAdvertisementDetail(Long advertisementId);
 
     AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
     List<AdvertisementResponse> findAllAdvertisements();
+
+    AdvertisementResponse deleteAdvertisement(Long advertisementId,CustomUserDetails userDetails);
+
+    List<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails);
 }

@@ -14,7 +14,7 @@ export default function HighRanked({
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const filtered = [...products].filter((p) => {
-    const createdAt = new Date(p.createAt);
+    const createdAt = new Date(p.createdAt);
     return (
       createdAt >= thirtyDaysAgo &&
       (p.reviewCount ?? 0) > 0 &&
