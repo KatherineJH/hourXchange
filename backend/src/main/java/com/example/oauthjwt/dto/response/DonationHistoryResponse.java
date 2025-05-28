@@ -31,6 +31,10 @@ public class DonationHistoryResponse {
 
     private UserResponse donator;
 
+    private String period;
+    private Integer count;
+    private Double sum;
+
     public static DonationHistoryResponse toDto(DonationHistory donationHistory) {
         return DonationHistoryResponse.builder()
                 .id(donationHistory.getId())
@@ -39,6 +43,15 @@ public class DonationHistoryResponse {
                 .createdAt(donationHistory.getCreatedAt())
                 .donation(DonationResponse.toDto(donationHistory.getDonation()))
                 .donator(UserResponse.toDto(donationHistory.getDonator()))
+                .build();
+    }
+
+    // 집계 데이터용
+    public static DonationHistoryResponse toDto(String period, Integer count, Double sum) {
+        return DonationHistoryResponse.builder()
+                .period(period)
+                .count(count)
+                .sum(sum)
                 .build();
     }
 }

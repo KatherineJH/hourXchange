@@ -1,7 +1,5 @@
 import React from "react";
 import { lazy } from "react";
-import PaymentAnalysisPage from "../component/analysis/PaymentAnalysisPage.jsx";
-import AdminAdvertisementList from "../component/advertisement/AdminAdvertisement.jsx";
 
 const PaymentDashboard = lazy(
   () => import("../component/admin/PaymentDashboard.jsx")
@@ -30,6 +28,16 @@ const UserDetailPage = lazy(
 const getAdvertisement = lazy(
   () => import("../component/advertisement/AdminAdvertisement.jsx")
 );
+const PaymentAnalysisPage = lazy(
+  () => import("../component/analysis/PaymentAnalysisPage.jsx")
+);
+const DonationAnalysisPage = lazy(
+  () => import("../component/analysis/DonationAnalysisPage.jsx")
+);
+const AdminAdvertisementList = lazy(
+  () => import("../component/advertisement/AdminAdvertisement.jsx")
+);
+
 const adminPageRouter = () => [
   {
     path: "",
@@ -68,6 +76,10 @@ const adminPageRouter = () => [
     element: <ModifyDonation />,
   },
   {
+    path: "advertisement/list",
+    element: <AdminAdvertisementList />,
+  },
+  {
     path: "userAnalysis",
     element: <UserAnalysisPage />,
   },
@@ -75,13 +87,13 @@ const adminPageRouter = () => [
     path: "user/:id",
     element: <UserDetailPage />,
   },
-  {
-    path: "advertisement/list",
-    element: <AdminAdvertisementList />,
+  { 
+    path: "salesAnalysis", 
+    element: <PaymentAnalysisPage /> 
   },
-  {
-    path: "salesAnalysis",
-    element: <PaymentAnalysisPage />,
+    { 
+    path: "donationAnalysis", 
+    element: <DonationAnalysisPage /> 
   },
 ];
 

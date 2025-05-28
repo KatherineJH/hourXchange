@@ -1,5 +1,6 @@
 package com.example.oauthjwt.repository;
 
+import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.entity.DonationHistory;
 import com.example.oauthjwt.entity.User;
 import org.springframework.data.domain.Page;
@@ -40,4 +41,26 @@ public interface DonationHistoryRepository extends JpaRepository<DonationHistory
             @Param("since") LocalDateTime since,
             Pageable pageable
     );
+
+    /** 특정 기간의 기부 내역 전체 조회 */
+    @Query("""
+    SELECT FUNCTION('DATE', dh.createdAt) as period, COUNT(dh) as count
+    FROM DonationHistory dh
+    WHERE dh.createdAt BETWEEN :from AND :to
+    GROUP BY FUNCTION('DATE', dh.createdAt)
+    ORDER BY FUNCTION('DATE', dh.createdAt)
+""")
+    List<Object[]> countByRange(@Param("from") LocalDateTime from,
+                                @Param("to") LocalDateTime to);
+
+    /** 특정 기간의 기부 내역 전체 조회 (금액 합계용도 포함) */
+    @Query("""
+    SELECT FUNCTION('DATE', dh.createdAt) as period, SUM(dh.amount) as sum
+    FROM DonationHistory dh
+    WHERE dh.createdAt BETWEEN :from AND :to
+    GROUP BY FUNCTION('DATE', dh.createdAt)
+    ORDER BY FUNCTION('DATE', dh.createdAt)
+""")
+    List<Object[]> sumAmountByRange(@Param("from") LocalDateTime from,
+                                    @Param("to") LocalDateTime to);
 }

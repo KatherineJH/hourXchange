@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -114,4 +115,33 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<DonationHistoryResponse> getPaymentsBetween(String from, String to) {
+        LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+        LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay();
+
+        return donationHistoryRepository.countByRange(fromDate, toDate).stream()
+                .map(row -> DonationHistoryResponse.toDto(
+                        row[0].toString(), // java.sql.Date → String
+                        ((Number) row[1]).intValue(),
+                        null
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<DonationHistoryResponse> getAmountSumBetween(String from, String to) {
+        LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+        LocalDateTime toDate = LocalDate.parse(to).plusDays(1).atStartOfDay();
+
+        return donationHistoryRepository.sumAmountByRange(fromDate, toDate).stream()
+                .map(row -> DonationHistoryResponse.toDto(
+                        row[0].toString(), // java.sql.Date → String
+                        null,
+                        ((Number) row[1]).doubleValue()
+                ))
+                .toList();
+    }
+
 }

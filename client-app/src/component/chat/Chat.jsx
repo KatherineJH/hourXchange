@@ -1,4 +1,4 @@
-// // src/component/chat/Chat.jsx
+// src/component/chat/Chat.jsx
 import React from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -79,7 +79,7 @@ function Chat({ chatRooms, chatError, navigate }) {
           ) : (
             <List disablePadding>
               {chatRooms.map((room, idx) => (
-                <Box key={room.id}>
+                <React.Fragment key={room.id}>
                   <ListItem
                     button
                     onClick={() =>
@@ -110,7 +110,7 @@ function Chat({ chatRooms, chatError, navigate }) {
                     />
                   </ListItem>
                   {idx < chatRooms.length - 1 && <Divider component="li" />}
-                </Box>
+                </React.Fragment>
               ))}
             </List>
           )}

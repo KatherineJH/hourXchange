@@ -23,4 +23,8 @@ public interface DonationHistoryService {
     List<TopDonatorResponse> getMonthlyTop3();
 
     List<TopDonatorResponse> getYearlyTop3();
+
+    List<DonationHistoryResponse> getPaymentsBetween(String from, String to);
+
+    List<DonationHistoryResponse> getAmountSumBetween(String from, String to);
 }
