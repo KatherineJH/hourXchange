@@ -84,8 +84,8 @@ public class Indexer {
 
             try {
                 elasticsearchClient.index(i -> i.index("product_index").id(String.valueOf(doc.getId())).document(doc));
-                log.info("Indexed Product: id={}, title={}, description={}, ownerName={}, suggest={}", doc.getId(),
-                        doc.getTitle(), doc.getDescription(), doc.getOwnerName(), doc.getSuggest());
+//                log.info("Indexed Product: id={}, title={}, description={}, ownerName={}, suggest={}", doc.getId(),
+//                        doc.getTitle(), doc.getDescription(), doc.getOwnerName(), doc.getSuggest());
             } catch (IOException e) {
                 log.error("Product indexing error for id={}: {}", product.getId(), e.getMessage());
                 throw new RuntimeException("Product 인덱싱 중 오류", e);
@@ -135,8 +135,8 @@ public class Indexer {
 
             try {
                 elasticsearchClient.index(i -> i.index("board_index").id(String.valueOf(doc.getId())).document(doc));
-                log.info("Indexed Board: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
-                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
+//                log.info("Indexed Board: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
+//                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
             } catch (IOException e) {
                 log.error("Board indexing error for id={}: {}", board.getId(), e.getMessage());
                 throw new RuntimeException("Board 인덱싱 중 오류", e);
@@ -187,8 +187,8 @@ public class Indexer {
 
             try {
                 elasticsearchClient.index(i -> i.index("donation_index").id(String.valueOf(doc.getId())).document(doc));
-                log.info("Indexed Donation: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
-                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
+//                log.info("Indexed Donation: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
+//                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
             } catch (IOException e) {
                 log.error("Donation indexing error for id={}: {}", donation.getId(), e.getMessage());
                 throw new RuntimeException("Donation 인덱싱 중 오류", e);
