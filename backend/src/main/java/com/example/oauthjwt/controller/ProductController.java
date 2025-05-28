@@ -80,7 +80,7 @@ public class ProductController {
     public ResponseEntity<?> findMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ProductResponse> result = productService.findByOwnerId(userDetails.getUser().getId(), pageable);
         return ResponseEntity.ok(result);
     }
