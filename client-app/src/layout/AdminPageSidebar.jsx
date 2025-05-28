@@ -18,7 +18,11 @@ const menu = [
 
 const Sidebar = (onClickAny) => {
   return (
-    <Box component="nav" sx={{ p: 2 }} onClick={onClickAny}>
+    <Box
+      component="nav"
+      sx={{ p: 2 }}
+      onClick={typeof onClickAny === "function" ? onClickAny : undefined}
+    >
       <List>
         {menu.map((item) => (
           <ListItemButton key={item.text} component={RouterLink} to={item.to}>
