@@ -14,38 +14,49 @@ import { useNavigate } from "react-router-dom";
 export default function AdvertisementCard({ ad }) {
   const navigate = useNavigate();
 
-  const CARD_MEDIA_FIXED_HEIGHT = 194;
-  const CARD_CONTENT_MIN_HEIGHT = 64;
-  const CARD_ACTIONS_MIN_HEIGHT = 92;
+  const CARD_HEIGHT = 460;
+  const MEDIA_HEIGHT = 290;
+  const CONTENT_HEIGHT = 100;
 
   return (
     <Card
       sx={{
-        // maxWidth: 345,
-        width: "100%",
-        height: "100%",
+        maxWidth: 345,
+        height: CARD_HEIGHT,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         boxShadow: 1,
-        borderRadius: 2,
+        borderRadius: 1,
+        overflow: "hidden",
+        cursor: "pointer",
+        p: 2,
       }}
       onClick={() => {
         navigate(`/advertisement/${ad.id}`);
       }}
     >
-      <CardActionArea sx={{ flex: 1 }}>
+      <CardActionArea
+        sx={{ flex: 1, display: "flex", flexDirection: "column" }}
+      >
         <CardMedia
           component="img"
-          height={CARD_MEDIA_FIXED_HEIGHT}
-          image={
-            ad.images?.[0] ||
-            "https://via.placeholder.com/345x194?text=No+Image"
-          }
+          image={ad.images?.[0] || "/defaut.png"}
           alt={ad.title}
+          sx={{
+            height: MEDIA_HEIGHT,
+            objectFit: "cover",
+            width: "100%",
+          }}
         />
-        <CardContent sx={{ minHeight: CARD_CONTENT_MIN_HEIGHT }}>
-          <Typography gutterBottom variant="h6">
+        <CardContent
+          sx={{
+            height: CONTENT_HEIGHT,
+            overflow: "hidden",
+            px: 2,
+          }}
+        >
+          <Typography gutterBottom variant="h6" sx={{ overflow: "hidden" }}>
             {ad.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -53,7 +64,7 @@ export default function AdvertisementCard({ ad }) {
           </Typography>
         </CardContent>
       </CardActionArea>
-      <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
+      <CardActions sx={{ justifyContent: "flex-end", px: 2 }}>
         <Typography variant="caption" sx={{ color: "grey", cursor: "pointer" }}>
           자세히 보기 &gt;
         </Typography>
