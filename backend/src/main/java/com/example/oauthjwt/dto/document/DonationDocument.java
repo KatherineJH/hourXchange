@@ -2,6 +2,7 @@ package com.example.oauthjwt.dto.document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +62,7 @@ public class DonationDocument {
     private List<String> suggest;
 
     public static DonationDocument toDocument(Donation donation, String authorName, List<String> finalKeywords) {
+//        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         return DonationDocument.builder()
                 .id(donation.getId())
                 .purpose(donation.getPurpose())

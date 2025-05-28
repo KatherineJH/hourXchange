@@ -2,6 +2,7 @@ package com.example.oauthjwt.service;
 
 import java.util.List;
 
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +19,7 @@ public interface ProductService {
 
     ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId);
 
-    Page<ProductResponse> findAll(Pageable pageable);
+    PageResult<ProductResponse> findAll(int page, int size);
 
     List<ProductResponse> findAllWithPosition(double lat, double lng);
 

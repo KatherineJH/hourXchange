@@ -65,8 +65,8 @@ function ListTable({
       try {
         const response =
           keyword.trim() === ""
-            ? await getList(0, 100) // fetch ALL (first 100)
-            : await getListWithKeyword(keyword, 0, 100);
+            ? await getList(0, 10) // fetch ALL (first 10)
+            : await getListWithKeyword(keyword, 0, 10);
 
         let full = response.data.content;
 

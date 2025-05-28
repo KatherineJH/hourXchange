@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.dto.response.ProductResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,26 +29,29 @@ public class ElasticSearchController {
     private final Indexer indexer;
 
     @GetMapping("/products")
-    public ResponseEntity<?> searchProducts(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
-        return ResponseEntity.ok(searchService.searchProducts(keyword, pageable));
+    public ResponseEntity<PageResult<ProductResponse>> searchProducts(@RequestParam String keyword,
+                                                                      @RequestParam(defaultValue = "0") int page,
+                                                                      @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(searchService.searchProducts(keyword, page, size));
     }
 
     @GetMapping("/boards")
     public ResponseEntity<PageResult<BoardDocument>> searchBoards(@RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(searchService.searchBoards(keyword, page, size));
     }
 
     @GetMapping("/donations")
     public ResponseEntity<PageResult<DonationResponse>> searchDonations(@RequestParam String keyword,
-                                                                        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(searchService.searchDonations(keyword, page, size));
     }
 
     @GetMapping("/autocomplete")
-    public ResponseEntity<List<String>> autocomplete(@RequestParam String prefix, @RequestParam String index) {
+    public ResponseEntity<List<String>> autocomplete(@RequestParam String prefix,
+                                                     @RequestParam String index) {
         return ResponseEntity.ok(searchService.autocomplete(prefix, index));
     }
 
