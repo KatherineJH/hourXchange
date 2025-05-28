@@ -44,7 +44,7 @@ function Header() {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
@@ -119,7 +119,7 @@ function Header() {
               sx={{ fontWeight: "bold" }}
               onClick={() => navigate("/")}
             >
-              H@urXchange
+              HourXChange
             </Typography>
             {/* Search bar */}
             <Box

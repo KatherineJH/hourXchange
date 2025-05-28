@@ -87,11 +87,10 @@ function ListTable({
         if (onVisibleItemsChange) {
           onVisibleItemsChange(paged);
         }
-
-        // Notify parent about currently visible page
-        if (onVisibleItemsChange) {
-          onVisibleItemsChange(data);
-        }
+        // // Notify parent about currently visible page
+        // if (onVisibleItemsChange) {
+        //   onVisibleItemsChange(data);
+        // }
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }

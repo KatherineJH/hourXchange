@@ -1,6 +1,5 @@
 // src/layout/Sidebar.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Box, List, ListItemButton, ListItemText } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
