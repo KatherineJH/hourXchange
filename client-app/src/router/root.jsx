@@ -20,6 +20,9 @@ import paymentRouter from "./paymentRouter.jsx";
 import donationRouter from "./donationRouter.jsx";
 import UserAnalysisPage from "../component/analysis/UserAnalysisPage.jsx";
 import HourXChangeMain from "../component/homepage/HourXChangeMain.jsx";
+import Save from "../component/user/Save.jsx";
+import EmailLoginForm from "../component/user/Login.jsx";
+import MainLayout from "../layout/MainLayout.jsx";
 
 const root = createBrowserRouter([
   {
@@ -29,6 +32,22 @@ const root = createBrowserRouter([
   {
     path: "",
     element: <HourXChangeMain />,
+  },
+  {
+    path: "/login",
+    element: (
+      <MainLayout>
+        <EmailLoginForm />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/save",
+    element: (
+      <MainLayout>
+        <Save />
+      </MainLayout>
+    ),
   },
   {
     path: "/main",
