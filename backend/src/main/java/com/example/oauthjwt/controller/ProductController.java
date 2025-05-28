@@ -68,7 +68,7 @@ public class ProductController {
     @GetMapping("/list")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         // 로직 실행
         Page<ProductResponse> result = productService.findAll(pageable);
@@ -81,7 +81,7 @@ public class ProductController {
     public ResponseEntity<?> findMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ProductResponse> result = productService.findByOwnerId(userDetails.getUser().getId(), pageable);
         return ResponseEntity.ok(result);
     }

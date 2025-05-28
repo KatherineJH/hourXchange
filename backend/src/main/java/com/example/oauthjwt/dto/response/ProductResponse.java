@@ -36,7 +36,7 @@ public class ProductResponse {
 
     private int viewCount;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     private int favoriteCount;      // 찜한 유저 수
     private int chatCount;          // 이 상품과 연결된 채팅방 수
@@ -61,7 +61,7 @@ public class ProductResponse {
                 .endAt(product.getEndAt())
                 .lat(Double.valueOf(product.getLat()))
                 .lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
-                .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
+                .createdAt(product.getCreatedAt()).owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null
@@ -78,7 +78,7 @@ public class ProductResponse {
         return ProductResponse.builder().id(product.getId()).title(product.getTitle())
                 .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
                 .endAt(product.getEndAt()).lat(Double.valueOf(product.getLat())).lng(Double.valueOf(product.getLng())).viewCount(product.getViewCount())
-                .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
+                .createdAt(product.getCreatedAt()).owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null

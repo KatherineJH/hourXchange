@@ -30,7 +30,7 @@ public class ElasticSearchController {
     @GetMapping("/products")
     public ResponseEntity<?> searchProducts(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending()); // 최신순 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
         return ResponseEntity.ok(searchService.searchProducts(keyword, pageable));
     }
 
