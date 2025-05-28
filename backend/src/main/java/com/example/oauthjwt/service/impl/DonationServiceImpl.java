@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@CacheConfig(cacheNames = { "findAll" })
+@CacheConfig(cacheNames = { "donationFindAll" })
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository donationRepository;
     private final DonationHistoryRepository donationHistoryRepository;
@@ -42,7 +42,7 @@ public class DonationServiceImpl implements DonationService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
-    @CacheEvict(cacheNames = { "findAll", "searchDonations" }, allEntries = true)
+    @CacheEvict(cacheNames = { "donationFindAll", "searchDonations" }, allEntries = true)
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -70,7 +70,7 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = { "findAll", "donationSearch" }, allEntries = true)
+    @CacheEvict(cacheNames = { "donationFindAll", "donationSearch" }, allEntries = true)
     public DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -125,7 +125,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    @Cacheable(cacheNames = "findAll", key = "#page + ':' + #size")
+    @Cacheable(cacheNames = "donationFindAll", key = "#page + ':' + #size")
     public PageResult<DonationResponse> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 

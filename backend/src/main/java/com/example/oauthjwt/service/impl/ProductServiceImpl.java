@@ -6,9 +6,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.entity.type.ProviderType;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,6 +34,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@CacheConfig(cacheNames = { "productFindAll" })
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -35,11 +42,11 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
     private final FavoriteRepository favoriteRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
     private final StringRedisTemplate stringRedisTemplate;
 
+    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
     public ProductResponse save(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 검증
         User owner = userRepository.findById(userDetails.getUser().getId())
@@ -95,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
     public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId) {
         // 검증
         Product product = productRepository.findById(productId)
@@ -135,19 +143,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> findAll(Pageable pageable) {
-        Page<Product> productList = productRepository.findAll(pageable);
-//        return productList.map(ProductResponse::toDto);
-        return productList.map(product -> {
-            User owner = product.getOwner();
+    @Cacheable(cacheNames = "productFindAll", key = "#page + ':' + #size")
+    public PageResult<ProductResponse> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-            int favoriteCount = favoriteRepository.countByProduct(product);
-            int chatCount = chatRoomRepository.countByProduct(product);
-            double starsAverage = reviewRepository.getAverageStarsByOwner(owner); // 판매자 기준
-            int reviewCount = reviewRepository.countByOwner(owner);               // 판매자 기준
 
-            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
-        });
+        List<ProductResponse> content = productPage.getContent().stream().map(product -> {
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner()); // 판매자 기준 // 매번 조회 시 점점 느려질 것 같습니다.
+
+            return ProductResponse.toDto(product, starsAverage);
+        }).collect(Collectors.toList());
+
+        return new PageResult<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
 
     @Override
@@ -191,12 +205,8 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponse> findByOwnerId(Long ownerId, Pageable pageable) {
         Page<Product> products = productRepository.findByOwnerId(ownerId, pageable);
         return products.map(product -> {
-            User owner = product.getOwner();
-            int favoriteCount = favoriteRepository.countByProduct(product);
-            int chatCount = chatRoomRepository.countByProduct(product);
-            double starsAverage = reviewRepository.getAverageStarsByOwner(owner);
-            int reviewCount = reviewRepository.countByOwner(owner);
-            return ProductResponse.toDto(product, favoriteCount, chatCount, starsAverage, reviewCount);
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner());
+            return ProductResponse.toDto(product, starsAverage);
         });
     }
 }
