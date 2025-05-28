@@ -21,11 +21,11 @@ import {
   Notifications as NotificationsIcon,
   FavoriteBorder,
 } from "@mui/icons-material";
+import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
-import {replace, useLocation, useNavigate} from "react-router-dom";
-import bgImage from "/background.jpg";
+import { replace, useLocation, useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
 
 function Header() {
@@ -54,7 +54,7 @@ function Header() {
     dispatch(logoutUserAsync())
       .then(() => {
         alert("로그아웃 되었습니다.");
-        navigate('/login', {replace: true});
+        navigate("/login", { replace: true });
       })
       .catch((err) => alert("로그아웃 실패: " + err));
     setAnchorEl(null);
@@ -94,7 +94,7 @@ function Header() {
 
   const handleSearch = () => {
     setKeyword(searchInput);
-    navigate(`/search?keyword=${encodeURIComponent(searchInput.trim())}`);
+    navigate(`/main/search?keyword=${encodeURIComponent(searchInput.trim())}`);
     setSuggestions([]);
   };
 
@@ -164,7 +164,7 @@ function Header() {
                         const selected = suggestions[highlightedIndex];
                         setSearchInput(selected);
                         navigate(
-                          `/search?keyword=${encodeURIComponent(selected)}`
+                          `/main/search?keyword=${encodeURIComponent(selected)}`
                         );
                         setSuggestions([]);
                       } else {
@@ -201,7 +201,7 @@ function Header() {
                           onClick={() => {
                             setSearchInput(s);
                             navigate(
-                              `/search?keyword=${encodeURIComponent(s)}`
+                              `/main/search?keyword=${encodeURIComponent(s)}`
                             );
                             setSuggestions([]);
                           }}
@@ -220,9 +220,9 @@ function Header() {
                 size="large"
                 aria-label="wishlist"
                 color="inherit"
-                onClick={() => alert("위시리스트로 이동합니다")}
+                onClick={() => navigate("/main")}
               >
-                <FavoriteBorder />
+                <HomeIcon />
               </IconButton>
               <IconButton
                 size="large"
