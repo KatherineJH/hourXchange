@@ -41,8 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     public Category updateCategory(Long id, String categoryName) {
         Optional<Category> category = categoryRepository.findById(id);
-        Category existingCategory = category.orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않음"));
-        existingCategory.setCategoryName(categoryName);
+        Category existingCategory = category.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."));
         return categoryRepository.save(existingCategory);
     }
 
