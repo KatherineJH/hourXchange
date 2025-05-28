@@ -37,7 +37,7 @@ public class DonationResponse {
 
     private LocalDate endDate; // 모집끝일
 
-    private String createdAt; // 생성일자
+    private LocalDateTime createdAt; // 생성일자
 
     private int viewCount; // 조회수
 
@@ -48,8 +48,6 @@ public class DonationResponse {
     private List<String> images = new ArrayList<>(); // 이미지 리스트
 
     public static DonationResponse toDto(Donation donation) {
-        String formattedCreatedAt = donation.getCreatedAt()
-                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         return DonationResponse.builder()
                 .id(donation.getId())
                 .purpose(donation.getPurpose())
@@ -59,7 +57,7 @@ public class DonationResponse {
                 .description(donation.getDescription())
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
-                .createdAt(formattedCreatedAt)
+                .createdAt(donation.getCreatedAt())
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :

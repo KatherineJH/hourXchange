@@ -49,7 +49,7 @@ public class DonationDocument {
     private LocalDate endDate; // 모집끝일
 
     @Field(type = FieldType.Date)
-    private String createdAt; // 생성일자
+    private LocalDateTime createdAt; // 생성일자
 
     private int viewCount; // 조회수
 
@@ -62,6 +62,7 @@ public class DonationDocument {
     private List<String> suggest;
 
     public static DonationDocument toDocument(Donation donation, String authorName, List<String> finalKeywords) {
+//        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         return DonationDocument.builder()
                 .id(donation.getId())
                 .purpose(donation.getPurpose())
@@ -72,8 +73,7 @@ public class DonationDocument {
                 .authorName(authorName)
                 .startDate(donation.getStartDate())
                 .endDate(donation.getEndDate())
-                .createdAt(donation.getCreatedAt()
-                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .createdAt(donation.getCreatedAt())
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
                 .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :

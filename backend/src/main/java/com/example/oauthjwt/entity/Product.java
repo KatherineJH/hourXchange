@@ -50,7 +50,7 @@ public class Product {
     private int viewCount;
 
     @Column(nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -97,7 +97,7 @@ public class Product {
                 .startedAt(productRequest.getStartedAt())
                 .endAt(productRequest.getEndAt())
                 .lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
-                .createAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .owner(owner)
                 .category(category)
                 .providerType(providerType)
@@ -123,7 +123,7 @@ public class Product {
                 .lat(position[0])
                 .lng(position[1])
                 .viewCount(0)
-                .createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+                .createdAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
                 .owner(user)
                 .category(category)
                 .providerType(providerType)

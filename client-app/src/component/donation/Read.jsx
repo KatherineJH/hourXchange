@@ -18,6 +18,7 @@ import { getDonation, putDeleteDonation } from '../../api/donationApi.js';
 import { postDonationHistory } from '../../api/donationHistoryApi.js';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
+import ShareQrButton from "../common/ShareQrButton.jsx";
 
 export default function DonationDetail() {
     const { id } = useParams();
@@ -171,7 +172,9 @@ export default function DonationDetail() {
                             </Typography>
                         </Box>
                     </Box>
-
+                    <Box>
+                        <ShareQrButton/>
+                    </Box>
                     {/* 기부하기 버튼 */}
                     <Box sx={{ display:'flex', justifyContent:'flex-end', mt:3 }}>
                         <Button variant="contained" onClick={() => setOpenModal(true)}>

@@ -40,7 +40,7 @@ import static org.springframework.data.elasticsearch.annotations.IndexOptions.do
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@CacheConfig(cacheNames = { "donationSearch", "boardSearch", "productSearch" })
+@CacheConfig(cacheNames = { "donationSearch", "boardSearch", "searchProducts" })
 @Transactional(readOnly = true)
 public class ElasticSearchService {
 
@@ -49,42 +49,51 @@ public class ElasticSearchService {
     private static final String BOARD_INDEX = "board_index";
 
     private final ElasticsearchClient client;
-    private final ProductRepository productRepository;
 
     @Cacheable(cacheNames = "searchProducts", key = "#keyword + ':' + #page + ':' + #size")
-    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+    public PageResult<ProductResponse> searchProducts(String keyword, int page, int size) {
         try {
+            int from = Math.max(0, page * size);
             SearchResponse<ProductDocument> response = client.search(
                     s -> s.index(PRODUCT_INDEX)
-                            .from((int) pageable.getOffset())
-                            .size(pageable.getPageSize())
-                            .query(q -> q.multiMatch(m -> m.query(keyword)
-                                    .fields("title^1.5", "title.ngram^0.5", "description^1.0", "description.ngram^0.3",
+                            .from(from)
+                            .size(size)
+                            .query(q -> q.multiMatch(m -> m
+                                    .query(keyword)
+                                    .fields("title^1.5", "title.ngram^0.5",
+                                            "description^1.0", "description.ngram^0.3",
                                             "ownerName^0.2")
-                                    .fuzziness("1").prefixLength(1).minimumShouldMatch("75%")))
-                            .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
-                    ProductDocument.class);
-
-            List<Hit<ProductDocument>> hits = response.hits().hits();
-            if (hits.isEmpty()) {
-                return Page.empty(pageable);
-            }
-
-            List<Long> ids = hits.stream()
-                    .map(hit -> hit.source().getId())
+                                    .fuzziness("1")
+                                    .prefixLength(1)
+                                    .minimumShouldMatch("75%")))
+                            .sort(o -> o.field(f -> f.field("createdAt").order(SortOrder.Desc))),
+                    ProductDocument.class
+            );
+            log.info("search end");
+            List<ProductDocument> docs = response.hits().hits().stream()
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            // Fetch products from repository using the sorted IDs
-            Page<Product> productList = productRepository.findByIdIn(ids, pageable);
-            return productList.map(ProductResponse::toDto);
+            long total = Optional.ofNullable(response.hits().total())
+                    .map(t -> t.value())
+                    .orElse(0L);
+
+            int totalPages = (int) Math.ceil((double) total / size);
+
+            // Document → Response DTO 매핑
+            List<ProductResponse> content = docs.stream()
+                    .map(ProductResponse::toDto)
+                    .collect(Collectors.toList());
+
+            return new PageResult<>(content, page, size, total, totalPages);
 
         } catch (IOException e) {
             log.error("Product search error: {}", e.getMessage(), e);
-            throw new RuntimeException("Product 검색 중 오류가 발생했습니다.", e);
+            throw new RuntimeException("Product 검색 중 오류", e);
         }
     }
 
-    @Cacheable(cacheNames = "searchBoards", key = "#keyword + ':' + #page + ':' + #size")
     public PageResult<BoardDocument> searchBoards(String keyword, int page, int size) {
         try {
             int from = Math.max(0, page * size);
