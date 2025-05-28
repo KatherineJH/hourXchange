@@ -22,7 +22,7 @@ import UserAnalysisPage from "../component/analysis/UserAnalysisPage.jsx";
 import HourXChangeMain from "../component/homepage/HourXChangeMain.jsx";
 import Save from "../component/user/Save.jsx";
 import EmailLoginForm from "../component/user/Login.jsx";
-import MainLayout from "../layout/MainLayout.jsx";
+import Header from "../layout/Header.jsx";
 
 const root = createBrowserRouter([
   {
@@ -36,17 +36,19 @@ const root = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <MainLayout>
+      <>
+        <Header />
         <EmailLoginForm />
-      </MainLayout>
+      </>
     ),
   },
   {
     path: "/save",
     element: (
-      <MainLayout>
+      <>
+        <Header />
         <Save />
-      </MainLayout>
+      </>
     ),
   },
   {
