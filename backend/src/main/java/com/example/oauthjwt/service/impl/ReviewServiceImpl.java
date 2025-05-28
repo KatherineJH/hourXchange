@@ -35,7 +35,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final TransactionRepository transactionRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${url.flask}/predict")
+    @Value("${url.flask}/sentiment/predict")
     private String flaskUrl;
 
     @Override
