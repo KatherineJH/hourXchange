@@ -5,7 +5,16 @@ import MyWallet from "../component/payment/Wallet.jsx";
 
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
-const MyDonationList = lazy(() => import("../component/donation/MyDonationHistoryList.jsx"));
+const MyDonationList = lazy(
+  () => import("../component/donation/MyDonationHistoryList.jsx")
+);
+const AdvertisementForm = lazy(
+  () => import("../component/advertisement/AdvertisementForm.jsx")
+);
+
+const AdvertisementList = lazy(
+  () => import("../component/advertisement/AdvertisementList.jsx")
+);
 
 const myPageRouter = () => [
   {
@@ -31,6 +40,18 @@ const myPageRouter = () => [
   {
     path: "donation",
     element: <MyDonationList />,
+  },
+  {
+    path: "advertisement/register",
+    element: <AdvertisementForm mode="create" />,
+  },
+  {
+    path: "advertisement/list",
+    element: <AdvertisementList />,
+  },
+  {
+    path: "advertisement/modify/:id",
+    element: <AdvertisementForm mode="edit" />,
   },
 ];
 

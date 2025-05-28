@@ -23,6 +23,7 @@ const menu = [
   { text: "찜 리스트", to: "/myPage/favorites" },
   { text: "나의 채팅 목록", to: "/myPage/chat" },
   { text: "내 지갑", to: "/myPage/wallet" },
+  { text: "내 광고리스트", to: "/myPage/advertisement/list" },
 ];
 
 const MyPageSidebar = (onClickAny) => {

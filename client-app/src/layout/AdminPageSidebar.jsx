@@ -10,6 +10,7 @@ const menu = [
   { text: "유저접속현황", to: "/admin/user" },
   { text: "기부모집리스트", to: "/admin/donation/list" },
   { text: "기부모집내역", to: "/admin/donationHistoryList" },
+  { text: "광고리스트,", to: "/admin/advertisement/list" },
   { text: "== 분석 마케팅 ==" },
   { text: "회원 관리 페이지 ", to: "/admin/userAnalysis" },
   { text: "매출 분석 페이지 ", to: "/admin/salesAnalysis" },
