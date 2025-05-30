@@ -57,11 +57,6 @@ export default function DonationList() {
     }, [page]);
 
     const handleSearch = () => {
-        const formattedParams = {
-            ...params,
-            startDate: params.startDate?.format('YYYY-MM-DD') ?? null,
-            endDate:   params.endDate?.format('YYYY-MM-DD')   ?? null,
-        };
         setPage(0);
         getSearchFuntion();
     }
