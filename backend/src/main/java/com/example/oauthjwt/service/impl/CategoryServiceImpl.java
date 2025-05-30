@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,8 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public List<CategoryResponse> findAll() {
-        List<Category> categoryList = categoryRepository.findAll();
-
-        return categoryList.stream().map(CategoryResponse::toDto).collect(Collectors.toList());
+    public Page<CategoryResponse> findAll(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(CategoryResponse::toDto);
     }
 
     @Override
@@ -51,7 +51,4 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."));
     }
 
-    // public List<Category> findAll(){
-    // return categoryRepository.findAll();
-    // }
 }

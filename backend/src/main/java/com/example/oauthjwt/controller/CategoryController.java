@@ -2,6 +2,10 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,12 +29,14 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
 
     @GetMapping("/list")
-    public ResponseEntity<?> findAll() {
-        List<CategoryResponse> result = categoryService.findAll();
+    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<CategoryResponse> result = categoryService.findAll(pageable);
         return ResponseEntity.ok(result);
     }
 

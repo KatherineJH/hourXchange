@@ -36,7 +36,7 @@ const Sidebar = (onClickAny) => {
 
   useEffect(() => {
     getList()
-      .then((res) => setCategoryList(res.data))
+      .then((res) => setCategoryList(res.data.content))
       .catch((err) => console.error("카테고리 목록 조회 실패:", err));
   }, []);
 

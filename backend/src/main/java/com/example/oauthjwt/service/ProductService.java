@@ -21,7 +21,7 @@ public interface ProductService {
 
     PageResult<ProductResponse> findAll(int page, int size);
 
-    List<ProductResponse> findAllWithPosition(double lat, double lng);
+    List<ProductResponse> findAllWithPosition(double swLat, double swLng, double neLat, double neLng);
 
     FavoriteResponse toggleFavorite(Long productId, Long userId);
 

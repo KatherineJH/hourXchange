@@ -92,7 +92,7 @@ export default function PaymentAmountDashboard() {
     return (
         <Box p={2}>
             <Typography variant="h4" gutterBottom>
-                결제 금액 통계
+                결제금액현황
             </Typography>
             <Box display="flex" flexWrap="wrap" margin={-1}>
                 {barConfigs.map(({ title, data }, idx) => (

@@ -2,6 +2,8 @@ package com.example.oauthjwt.service.impl;
 
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.entity.Wallet;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -79,24 +81,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public void addCredits(Long userId, int hours) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-        user.addCredit(hours); // 내부적으로 wallet.addCredit 호출
-        userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
-    public void deductCredits(Long userId, int hours) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-        user.subtractCredit(hours); // 내부적으로 wallet.subtractCredit 호출
-        userRepository.save(user);
-    }
-
-    @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserResponse::toDto)
@@ -108,5 +92,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return UserResponse.toDto(user);
+    }
+
+    @Override
+    public Page<UserResponse> getUserList(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserResponse::toDto);
     }
 }

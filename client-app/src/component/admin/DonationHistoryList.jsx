@@ -9,52 +9,31 @@ import {
     TableHead,
     TableRow,
     Typography,
-    CircularProgress,
-    Stack,
-    Pagination
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import { getDonationHistory } from '../../api/donationHistoryApi.js';
+import CustomPagination from "../common/CustomPagination.jsx";
 
-export default function MyDonationHistoryList() {
+export default function DonationHistoryList() {
     const navigate = useNavigate();
     const [donationHistoryList, setDonationHistoryList] = useState([]);
     const [page, setPage] = useState(0);
     const size = 10;
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchList = async () => {
-            setLoading(true);
-            try {
-                const res = await getDonationHistory(page, size);
-                console.log(res)
-                const { content, totalPages: tp } = res.data;
-                setDonationHistoryList(content);
-                setTotalPages(tp);
-            } catch (err) {
-                console.error('기부 리스트 조회 실패:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchList();
-    }, [page]);
+        getDonationHistory(page, size).then(response => {
+            setDonationHistoryList(response.data.content);
+            setTotalPages(response.data.totalPages);
+        }).catch(error => console.log(error));
 
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
+    }, [page]);
 
     return (
         <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
-                기부 모금 목록
+                기부내역조회
             </Typography>
             <TableContainer component={Paper} elevation={3}>
                 <Table stickyHeader>
@@ -96,24 +75,14 @@ export default function MyDonationHistoryList() {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={7} align="center">
-                                    등록된 모금이 없습니다.
+                                    등록된 정보가 없습니다.
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Stack spacing={2}>
-                    <Pagination
-                        count={totalPages}
-                        page={page + 1}
-                        onChange={(_, value) => setPage(value - 1)}
-                        color="primary"
-                    />
-                </Stack>
-            </Box>
+            <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />
         </Box>
     );
 }
