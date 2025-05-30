@@ -1,6 +1,8 @@
 package com.example.oauthjwt.config;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +45,7 @@ public class CacheConfig {
                 new GenericJackson2JsonRedisSerializer(mapper);
 
         // 4) 캐시 설정: TTL 10분, null 제외, JSON 직렬화 적용
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeValuesWith(
@@ -51,9 +53,16 @@ public class CacheConfig {
                                 .fromSerializer(serializer)
                 );
 
-        // 5) RedisCacheManager 빌드
+        // 3) 캐시 이름별 구성 맵핑
+        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+        cacheConfigs.put("productFindAll", defaultConfig.entryTtl(Duration.ofMinutes(1)));
+
+        // 필요하다면 다른 캐시들도 여기에 추가 가능
+
+        // 4) RedisCacheManager 빌드
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(cacheConfig)
+                .cacheDefaults(defaultConfig)                         // 나머지 캐시는 기본 설정 사용
+                .withInitialCacheConfigurations(cacheConfigs)         // 지정한 캐시만 별도 설정
                 .build();
     }
 }

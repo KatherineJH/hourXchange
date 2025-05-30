@@ -19,22 +19,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 """)
 List<ChatRoom> findChatRoomsByUserId(@Param("userId") Long userId);
 
-@Query("""
-    SELECT cr FROM ChatRoom cr
-    JOIN cr.chatRoomUsers cru1
-    JOIN cr.chatRoomUsers cru2
-    WHERE cr.product.id = :productId
-      AND cru1.user.id = :user1Id
-      AND cru2.user.id = :user2Id
-""")
-Optional<ChatRoom> findByProductAndUsers(@Param("productId") Long productId,
-                                         @Param("user1Id") Long user1Id,
-                                         @Param("user2Id") Long user2Id);
-
-    int countByProduct(Product product);
-
-//    List<ChatRoom> findByProduct(Product product);
-
     /**
      * productId에 연결된 ChatRoom 중에
      * ownerId 와 requesterId 가 모두 참가자로 등록된 방이 있는지 조회

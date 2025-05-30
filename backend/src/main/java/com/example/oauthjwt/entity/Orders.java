@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -32,6 +34,8 @@ public class Orders {
     @Column(nullable = false)
     private String paymentItemPrice;
 
+    private LocalDateTime createdAt;
+
     public static Orders of(PaymentOrderRequest paymentOrderRequest, String impUid, String merchantUid) {
         return Orders.builder()
                 .impUid(impUid)
@@ -39,6 +43,7 @@ public class Orders {
                 .email(paymentOrderRequest.getEmail())
                 .paymentItemName(paymentOrderRequest.getPaymentItemName())
                 .paymentItemPrice(paymentOrderRequest.getPaymentItemPrice())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }

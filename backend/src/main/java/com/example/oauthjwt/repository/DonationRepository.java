@@ -2,6 +2,7 @@ package com.example.oauthjwt.repository;
 
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.type.DonationStatus;
+import com.example.oauthjwt.repository.custom.DonationRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface DonationRepository extends JpaRepository<Donation, Long> {
+public interface DonationRepository extends JpaRepository<Donation, Long>, DonationRepositoryCustom {
     /**
      * 1) 목표 대비 모집 진행률이 높은 순으로 limit 개수를 반환
      */

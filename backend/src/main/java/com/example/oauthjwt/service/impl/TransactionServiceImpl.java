@@ -8,6 +8,8 @@ import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.entity.type.TransactionStatus;
 import com.example.oauthjwt.entity.type.WalletATM;
 import com.example.oauthjwt.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,8 +81,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponse> findAll() {
-        return transactionRepository.findAll().stream().map(TransactionResponse::toDto).collect(Collectors.toList());
+    public Page<TransactionResponse> findAll(Pageable pageable) {
+
+        return transactionRepository.findAll(pageable).map(TransactionResponse::toDto);
     }
 
     @Override

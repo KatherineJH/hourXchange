@@ -56,7 +56,7 @@ export default function ProductForm() {
   const [openPostcode, setOpenPostcode] = useState(false);
 
   useEffect(() => {
-    getList().then(res => setCategories(res.data));
+    getList().then(res => setCategories(res.data.content));
   }, []);
 
   // 주소 검색 완료 핸들러

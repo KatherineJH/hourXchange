@@ -14,9 +14,15 @@ export const getList = async (page, size) => {
   return response;
 };
 
-export const getListWithPosition = async (position) => {
+export const getListWithBounds = async (position) => {
+  console.log(position);
   const response = await api.get(apiServerUrl + "listMap", {
-    params: { lat: position.lat, lng: position.lng },
+    params: {
+      swLat: position.swLat,
+      swLng: position.swLng,
+      neLat: position.neLat,
+      neLng: position.neLng,
+    }
   });
   return response;
 };

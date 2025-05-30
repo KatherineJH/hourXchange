@@ -61,7 +61,7 @@ export default function PaymentDashboard() {
     return (
         <Box p={2}>
             <Typography variant="h4" gutterBottom>
-                결제 현황
+                결제현황
             </Typography>
             <Box display="flex" flexWrap="wrap" margin={-1}>
                 {configs.map(({ title, data }, idx) => (
