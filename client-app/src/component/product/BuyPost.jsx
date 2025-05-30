@@ -132,10 +132,12 @@ export default function BuyPost() {
           acc.push({ ...product, key: `product-${product.id}` });
 
           const adIndex = Math.floor(i / AD_INTERVAL);
-          const ad = shuffledAds[adIndex];
-          if ((i + 1) % AD_INTERVAL === 0 && i) {
+          const ad = shuffledAds[adIndex]; // ad는 조건문 전에 선언되어야 함
+
+          if ((i + 1) % AD_INTERVAL === 0 && i && ad) {
             acc.push({ ...ad, key: `ad-${ad.id}`, type: "ad" });
-          }
+          } // shuffledAds[adIndex]가 undefined일 수 있기 때문에 .id 접근 시 오류 방지
+
           return acc;
         }, [])
     : shownProducts

@@ -73,6 +73,7 @@ export default function ProductGrid({
         }
         return (
           <Card
+            key={`product-${product.id}`}
             sx={{
               maxWidth: 345,
               display: "flex",
