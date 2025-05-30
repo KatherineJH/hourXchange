@@ -36,6 +36,17 @@ export const getList = async (page, size) => {
     return response;
 };
 
+export const getSearch = async (page, size, params) => {
+    const response = await api.get(apiServerUrl + "search/list", {
+        params: {
+            ...params,
+            page,
+            size
+        }
+    });
+    return response;
+};
+
 /**
  * 목표 대비 진행률 상위 n개 기부 리스트
  * @param {number} limit 반환할 개수 (default 5)

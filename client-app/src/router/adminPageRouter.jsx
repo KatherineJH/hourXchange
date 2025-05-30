@@ -6,12 +6,20 @@ const PaymentDashboard        = lazy(() => import("../component/admin/PaymentDas
 const PaymentAmountDashboard  = lazy(() => import("../component/admin/PaymentAmountDashboard.jsx"))
 const UserDashboard           = lazy(() => import("../component/admin/UserDashboard.jsx"))
 const DonationHistoryList     = lazy(() => import("../component/admin/DonationHistoryList.jsx"))
-const ListTable               = lazy(() => import("../component/donation/ListTable.jsx"))
+const UserList = lazy(() => import("../component/admin/UserList.jsx"))
+const CategoryList = lazy(() => import("../component/admin/CategoryList.jsx"))
+const TransactionList = lazy(() => import("../component/admin/TransactionList.jsx"))
+const OrderList = lazy(() => import("../component/admin/OrderList.jsx"))
+const PaymentList = lazy(() => import("../component/admin/PaymentList.jsx"))
+const DonationList = lazy(() => import("../component/admin/DonationList.jsx"))
+
 const ReadDonation            = lazy(() => import("../component/donation/Read.jsx"))
 const RegisterDonation        = lazy(() => import("../component/donation/DonationForm.jsx"))
 const ModifyDonation          = lazy(() => import("../component/donation/Modify.jsx"))
 const UserAnalysisPage        = lazy(() => import("../component/analysis/UserAnalysisPage.jsx"));
 const UserDetailPage          = lazy(() => import("../component/analysis/UserDetailPage.jsx"));
+
+
 
 const adminPageRouter = () => [
     {
@@ -23,6 +31,26 @@ const adminPageRouter = () => [
         element: <UserDashboard />,
     },
     {
+        path: "userList",
+        element: <UserList />,
+    },
+    {
+        path: "categoryList",
+        element: <CategoryList />,
+    },
+    {
+        path: "transactionList",
+        element: <TransactionList />,
+    },
+    {
+        path: "orderList",
+        element: <OrderList />,
+    },
+    {
+        path: "paymentList",
+        element: <PaymentList />,
+    },
+    {
         path: "payment",
         element: <PaymentDashboard />,
     },
@@ -31,8 +59,8 @@ const adminPageRouter = () => [
         element: <PaymentAmountDashboard />,
     },
     {
-        path: "donation/list",
-        element: <ListTable />,
+        path: "donationList",
+        element: <DonationList />,
     },
     {
         path: "donationHistoryList",

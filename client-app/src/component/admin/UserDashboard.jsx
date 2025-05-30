@@ -74,16 +74,16 @@ export default function Dashboard() {
     );
 
     const configs = [
-        { title: '일별 방문(PV) & 고유(UV)', data: dailyData },
-        { title: '주별 방문(PV) & 고유(UV)', data: weeklyData },
-        { title: '월별 방문(PV) & 고유(UV)', data: monthlyData },
-        { title: '연별 방문(PV) & 고유(UV)', data: yearlyData },
+        { title: '일별 서버 요청 추이 (PV/UV)', data: dailyData },
+        { title: '주별 서버 요청 추이 (PV/UV)', data: weeklyData },
+        { title: '월별 서버 요청 추이 (PV/UV)', data: monthlyData },
+        { title: '연별 서버 요청 추이 (PV/UV)', data: yearlyData },
     ];
 
     return (
         <Box p={2}>
             <Typography variant="h4" gutterBottom>
-                유저 접속 현황
+                서버요청현황
             </Typography>
             <Box display="flex" flexWrap="wrap" margin={-1}>
                 {configs.map(({ title, data }, idx) => (

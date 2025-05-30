@@ -14,8 +14,8 @@ export const getMyDonationHistory = async () => {
     return response
 }
 
-export const getDonationHistory = async () => {
-    const response  = await api.get(apiServerUrl);
+export const getDonationHistory = async (page, size) => {
+    const response  = await api.get(apiServerUrl + 'list', {params: {page, size}});
 
     return response
 }

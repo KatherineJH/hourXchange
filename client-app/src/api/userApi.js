@@ -13,3 +13,8 @@ export const getUserById = async (id) => {
   const response = await api.get(apiServerUrl + id);
   return response.data;
 };
+
+export const getUserList = async (page, size) => {
+  const response = await api.get(apiServerUrl + 'list', {params: {page, size}});
+  return response;
+}

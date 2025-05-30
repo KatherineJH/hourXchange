@@ -3,6 +3,7 @@ package com.example.oauthjwt.dto.response;
 import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationImage;
+import com.example.oauthjwt.entity.type.DonationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,8 +61,8 @@ public class DonationResponse {
                 .createdAt(donation.getCreatedAt())
                 .viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
-                .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
-                        donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
+                .status(donation.getStatus().toString().equals(DonationStatus.ONGOING.toString()) ? "진행중" :
+                        donation.getStatus().toString().equals(DonationStatus.COMPLETED.toString()) ? "완료" : "취소")
                 .images(donation.getImages().stream()
                         .map(DonationImage::getImgUrl)
                         .collect(Collectors.toList()))

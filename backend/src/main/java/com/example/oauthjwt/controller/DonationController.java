@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.dto.condition.DonationSearchCondition;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
@@ -10,10 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -55,6 +52,17 @@ public class DonationController {
                                      @RequestParam(defaultValue = "10") int size) {
         // 로직 실행
         PageResult<DonationResponse> result = donationService.findAll(page, size);
+        // 반환
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/search/list")
+    public ResponseEntity<?> search(@RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    @ModelAttribute DonationSearchCondition searchRequest) {
+        log.info(searchRequest);
+        // 로직 실행
+        PageResult<DonationResponse> result = donationService.search(page, size, searchRequest);
         // 반환
         return ResponseEntity.ok(result);
     }

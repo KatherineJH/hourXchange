@@ -10,6 +10,10 @@ import com.example.oauthjwt.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +54,26 @@ public class PaymentController {
         log.info("Verify request: " + paymentVerifyRequest);
 
         PaymentVerifyResponse result = paymentService.verify(paymentVerifyRequest);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/order/list")
+    public ResponseEntity<?> orderList(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<PaymentOrderResponse> result = paymentService.orderList(pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/payment/list")
+    public ResponseEntity<?> paymentList(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("paidAt").descending()); // 최신순 정렬
+
+        Page<PaymentResponse> result = paymentService.paymentList(pageable);
 
         return ResponseEntity.ok(result);
     }

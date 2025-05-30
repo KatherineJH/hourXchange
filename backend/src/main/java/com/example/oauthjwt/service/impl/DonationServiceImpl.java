@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.condition.DonationSearchCondition;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
@@ -211,5 +212,24 @@ public class DonationServiceImpl implements DonationService {
                 ).stream()
                 .map(DonationResponse::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResult<DonationResponse> search(int page, int size, DonationSearchCondition searchRequest) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<Donation> donationPage = donationRepository.search(searchRequest, pageable);
+
+        List<DonationResponse> content = donationPage.getContent().stream()
+                .map(DonationResponse::toDto)
+                .collect(Collectors.toList());
+
+        return new PageResult<>(
+                content,
+                donationPage.getNumber(),
+                donationPage.getSize(),
+                donationPage.getTotalElements(),
+                donationPage.getTotalPages()
+        );
     }
 }

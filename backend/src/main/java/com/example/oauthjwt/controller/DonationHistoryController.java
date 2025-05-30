@@ -38,7 +38,8 @@ public class DonationHistoryController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/")
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getDonationHistory(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "10") int size) {
 

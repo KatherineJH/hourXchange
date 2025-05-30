@@ -3,6 +3,8 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
 import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +30,8 @@ public interface PaymentService {
     List<PaymentLogResponse> getPaymentsBetween(String from, String to);
 
     List<PaymentLogResponse> getAmountSumBetween(String from, String to);
+
+    Page<PaymentOrderResponse> orderList(Pageable pageable);
+
+    Page<PaymentResponse> paymentList(Pageable pageable);
 }
