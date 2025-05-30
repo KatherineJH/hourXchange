@@ -12,7 +12,7 @@ public class ElasticsearchStartupRunner {
     private final ElasticIndexCreator indexCreator;
     private final Indexer indexer;
 
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         try {
             indexCreator.createIndices();

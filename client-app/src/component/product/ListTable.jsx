@@ -24,12 +24,13 @@ import {
   getAutocompleteSuggestions,
 } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
+import { useCustomDebounce } from "../../assets/useCustomDebounce.js";
 
 function ListTable({
   filterProviderType,
   category,
   keyword: keywordProp = "",
-  onVisibleItemsChange, 
+  onVisibleItemsChange,
 }) {
   const [serverDataList, setServerDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -40,16 +41,17 @@ function ListTable({
   const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const debouncedInput = useCustomDebounce(searchInput, 300);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (searchInput.trim() === "" || searchInput === keyword) {
+    if (debouncedInput.trim() === "" || debouncedInput === keyword) {
       setSuggestions([]);
       return;
     }
     const fetchSuggestions = async () => {
       try {
-        const result = await getAutocompleteSuggestions(searchInput);
+        const result = await getAutocompleteSuggestions(debouncedInput);
         setSuggestions(result.data);
       } catch (e) {
         console.error("추천 검색어 실패", e);
@@ -58,7 +60,7 @@ function ListTable({
     };
     fetchSuggestions();
     setHighlightedIndex(-1);
-  }, [searchInput, keyword]);
+  }, [debouncedInput, keyword]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -87,11 +89,10 @@ function ListTable({
         if (onVisibleItemsChange) {
           onVisibleItemsChange(paged);
         }
-
-        // Notify parent about currently visible page
-        if (onVisibleItemsChange) {
-          onVisibleItemsChange(data);
-        }
+        // // Notify parent about currently visible page
+        // if (onVisibleItemsChange) {
+        //   onVisibleItemsChange(data);
+        // }
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
