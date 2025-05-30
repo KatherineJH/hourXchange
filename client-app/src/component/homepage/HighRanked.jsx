@@ -29,11 +29,11 @@ export default function HighRanked({
 
   const deduplicated = deduplicateByUser(sorted);
 
-  // console.log("⭐ HighRanked 전체:", products.length);
-  // console.log("⭐ 카테고리 필터링 후:", filtered.length);
-  // console.log("⭐ 정렬 전:", filtered.map((p) => p.title));
-  // console.log("⭐ 정렬 후:", sorted.map((p) => p.title));
-  // console.log("⭐ 중복 제거 후:", deduplicated.map((p) => p.title));
+  // console.log("HighRanked 전체:", products.length);
+  // console.log("카테고리 필터링 후:", filtered.length);
+  // console.log("정렬 전:", filtered.map((p) => p.title));
+  // console.log("정렬 후:", sorted.map((p) => p.title));
+  // console.log("중복 제거 후:", deduplicated.map((p) => p.title));
 
   return (
     <div style={{ padding: "1rem" }}>

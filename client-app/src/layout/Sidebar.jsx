@@ -95,7 +95,7 @@ const Sidebar = (onClickAny) => {
           onChange={handleCategoryChange}
         >
           <FormControlLabel value="전체" control={<Radio />} label="전체" />
-          {categoryList.map((c) => (
+          {(categoryList || []).map((c) => (
             <FormControlLabel
               key={c.id}
               value={c.categoryName}
