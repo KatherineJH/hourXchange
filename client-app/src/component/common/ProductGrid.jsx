@@ -12,6 +12,7 @@ import {
   IconButton,
   Typography,
   Box,
+  ListItem,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -20,6 +21,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { getReviewTagsByReceiverId } from "../../api/transactionApi";
+import AdvertisementCard from "../advertisement/AdvertisementCard";
 
 export default function ProductGrid({
   products,
@@ -57,9 +59,19 @@ export default function ProductGrid({
   }, [products]);
 
   return (
-    <Grid container spacing={2} sx={{ padding: 2, justifyContent: "center" }}>
-      {products.map((product) => (
-        <Grid key={product.id} xs={12} sm={6} md={4} lg={3}>
+    <Box
+      sx={{
+        display: "grid",
+        gap: 2,
+        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        mt: 2,
+      }}
+    >
+      {products.map((product) => {
+        if (product.type === "ad") {
+          return <AdvertisementCard key={`ad-{product.id}`} ad={product} />;
+        }
+        return (
           <Card
             sx={{
               maxWidth: 345,
@@ -102,7 +114,7 @@ export default function ProductGrid({
                 alignItems: "stretch",
                 px: 2,
                 pt: 1,
-                minHeight: 92, // 🔒 reserve space even when no tags
+                minHeight: 92, //reserve space even when no tags
               }}
             >
               <Box
@@ -126,6 +138,7 @@ export default function ProductGrid({
                     }
                     onToggleFavorite(product.id);
                   }}
+                  sx={{ color: "primary.main" }}
                 >
                   {favorite.some((f) => f.product.id === product.id) ? (
                     <FavoriteIcon />
@@ -194,8 +207,8 @@ export default function ProductGrid({
               </CardContent>
             </Collapse>
           </Card>
-        </Grid>
-      ))}
-    </Grid>
+        );
+      })}
+    </Box>
   );
 }

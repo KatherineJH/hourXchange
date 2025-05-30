@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,10 +20,12 @@ public class AdvertisementResponse {
 
     private String description;
 
-    private int hours;
+    private Double hours;
 
     private Long ownerId;
     private String ownerName;
+
+    private List<String> images;
 
     public static AdvertisementResponse toDto(Advertisement ad) {
         return AdvertisementResponse.builder()
@@ -31,6 +35,7 @@ public class AdvertisementResponse {
                 .hours(ad.getHours())
                 .ownerId(ad.getOwner().getId())
                 .ownerName(ad.getOwner().getName())
+                .images(ad.getImages())
                 .build();
     }
 }

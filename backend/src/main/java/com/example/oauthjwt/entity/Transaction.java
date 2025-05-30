@@ -59,7 +59,7 @@ public class Transaction {
         this.user = user;
         this.product = product;
         this.status = status;
-        this.createdAt = transactionRequest.getCreateAt();
+        this.createdAt = transactionRequest.getCreatedAt();
         return this;
     }
 }

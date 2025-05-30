@@ -16,22 +16,23 @@ const menu = [
   { text: "거래기록조회", to: "/admin/transactionList" },
   { text: "주문내역조회", to: "/admin/orderList" },
   { text: "결제기록", to: "/admin/paymentList" },
+  { text: "광고리스트,", to: "/admin/advertisement/list" },
   { text: "== 분석 마케팅 ==" },
   { text: "회원 관리 페이지 ", to: "/admin/userAnalysis" },
-  { text: "매출 관리 페이지 ", to: "/admin/salesAnalysis" },
-  { text: "기부 관리 페이지 ", to: "/admin/donationAnalysis" },
+  { text: "매출 분석 페이지 ", to: "/admin/salesAnalysis" },
+  { text: "기부 분석 페이지 ", to: "/admin/donationAnalysis" },
 ];
 
-const Sidebar = () => {
+const Sidebar = (onClickAny) => {
   return (
-    <Box component="nav" sx={{ p: 2 }}>
+    <Box
+      component="nav"
+      sx={{ p: 2 }}
+      onClick={typeof onClickAny === "function" ? onClickAny : undefined}
+    >
       <List>
         {menu.map((item) => (
-          <ListItemButton
-            key={item.text}
-            component={RouterLink} // React Router <Link> 로 동작
-            to={item.to} // 이동할 경로
-          >
+          <ListItemButton key={item.text} component={RouterLink} to={item.to}>
             <ListItemText primary={item.text} />
           </ListItemButton>
         ))}

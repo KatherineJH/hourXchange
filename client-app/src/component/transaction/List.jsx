@@ -20,7 +20,7 @@ const initState = {
   user: "",
   product: "",
   status: "",
-  createAt: "",
+  createdAt: "",
 };
 
 function List(props) {

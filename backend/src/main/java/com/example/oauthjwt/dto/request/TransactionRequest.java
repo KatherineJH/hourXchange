@@ -24,5 +24,5 @@ public class TransactionRequest {
     @NotBlank(message = "상태 정보는 필수입니다.")
     private String status; // 상태
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 }

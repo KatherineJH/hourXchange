@@ -23,18 +23,19 @@ const menu = [
   { text: "찜 리스트", to: "/myPage/favorites" },
   { text: "나의 채팅 목록", to: "/myPage/chat" },
   { text: "내 지갑", to: "/myPage/wallet" },
+  { text: "내 광고리스트", to: "/myPage/advertisement/list" },
 ];
 
-const MyPageSidebar = () => {
+const MyPageSidebar = (onClickAny) => {
   return (
-    <Box component="nav" sx={{ p: 2 }}>
+    <Box
+      component="nav"
+      sx={{ p: 2 }}
+      onClick={typeof onClickAny === "function" ? onClickAny : undefined}
+    >
       <List>
         {menu.map((item) => (
-          <ListItemButton
-            key={item.text}
-            component={RouterLink} // React Router <Link> 로 동작
-            to={item.to} // 이동할 경로
-          >
+          <ListItemButton key={item.text} component={RouterLink} to={item.to}>
             <ListItemText primary={item.text} />
           </ListItemButton>
         ))}
