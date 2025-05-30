@@ -19,6 +19,7 @@ import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
 import { height } from "@mui/system";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
+import CategoryNav from "../../layout/CategoryNav.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -202,6 +203,7 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
+      <CategoryNav/>
       <ListTable category={selectedCategory} />
     </div>
   );

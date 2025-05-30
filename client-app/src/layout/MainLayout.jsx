@@ -1,7 +1,8 @@
-// scr/layout/MainLayout.jsx
+// src/layout/MainLayout.jsx
 import React, { useState } from "react";
 import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Navbar from "./Navbar.jsx";
+import CategoryNav from "./CategoryNav.jsx";
 import Footer from "./Footer";
 import { Box, Drawer, useMediaQuery, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -10,57 +11,58 @@ import AiChat from "../component/common/AiChatbotWidget.jsx";
 
 function MainLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [forceCloseMenu, setForceCloseMenu] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // md = 960px 이하
 
   const handleDrawerToggle = () => {
+    if (mobileOpen) {
+      setForceCloseMenu(true);
+      setTimeout(() => setForceCloseMenu(false), 300);
+    }
     setMobileOpen(!mobileOpen);
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
-      {isMobile && !mobileOpen && (
-        <IconButton
-          onClick={handleDrawerToggle}
-          sx={{
-            position: "fixed",
-            top: 80,
-            left: 12,
-            zIndex: 1300,
-            bgcolor: "white",
-            border: "1px solid #ccc",
-            boxShadow: 1,
-            "&:hover": { bgcolor: "#f1f1f1" },
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
-
-      <Box sx={{ display: "flex", flex: 1 }}>
-        {isMobile ? (
+      {isMobile ? (
+        <>
+          <IconButton
+            onClick={handleDrawerToggle}
+            sx={{
+              position: "fixed",
+              top: 80,
+              left: 12,
+              zIndex: 1300,
+              bgcolor: "white",
+              border: "1px solid grey",
+              boxShadow: 1,
+              "&:hover": { bgcolor: "secondary.main" },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
           <Drawer
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{ keepMounted: true }}
             sx={{
-              "& .MuiDrawer-paper": { width: 240 },
+              "& .MuiDrawer-paper": { width: "50%", maxWidth: 280 },
             }}
           >
-            <Sidebar onClickAny={handleDrawerToggle} />
+            <Navbar
+              onClickAny={handleDrawerToggle}
+              forceCloseMenu={forceCloseMenu}
+            />
           </Drawer>
-        ) : (
-          <Box sx={{ width: 240, flexShrink: 0 }}>
-            <Sidebar />
-          </Box>
-        )}
-
-        <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
-        <AiChat />
-      </Box>
-
+        </>
+      ) : (
+        <Navbar />
+      )}
+      <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
+      <AiChat />
       <Footer />
     </Box>
   );

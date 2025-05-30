@@ -12,6 +12,7 @@ import ListTable from "./ListTable";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
 import AdvertisementCard from "../advertisement/AdvertisementCard";
+import CategoryNav from "../../layout/CategoryNav";
 
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
@@ -156,6 +157,7 @@ export default function BuyPost() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
+      <CategoryNav/>
       {/* 슬라이더 */}
       <Box
         sx={{

@@ -7,6 +7,7 @@ import Slider from "react-slick";
 import ProductGrid from "../common/ProductGrid";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import ListTable from "./ListTable";
+import CategoryNav from "../../layout/CategoryNav";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -113,6 +114,7 @@ export default function SellPost() {
       <Box
         sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
       >
+        <CategoryNav/>
         <Box
           sx={{
             width: "100%",
