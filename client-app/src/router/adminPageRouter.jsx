@@ -17,42 +17,11 @@ const RegisterDonation        = lazy(() => import("../component/donation/Donatio
 const ModifyDonation          = lazy(() => import("../component/donation/Modify.jsx"))
 const UserAnalysisPage        = lazy(() => import("../component/analysis/UserAnalysisPage.jsx"));
 const UserDetailPage          = lazy(() => import("../component/analysis/UserDetailPage.jsx"));
-const PaymentDashboard = lazy(
-  () => import("../component/admin/PaymentDashboard.jsx")
-);
-const PaymentAmountDashboard = lazy(
-  () => import("../component/admin/PaymentAmountDashboard.jsx")
-);
-const UserDashboard = lazy(
-  () => import("../component/admin/UserDashboard.jsx")
-);
-const DonationHistoryList = lazy(
-  () => import("../component/admin/DonationHistoryList.jsx")
-);
 const ListTable = lazy(() => import("../component/donation/ListTable.jsx"));
-const ReadDonation = lazy(() => import("../component/donation/Read.jsx"));
-const RegisterDonation = lazy(
-  () => import("../component/donation/DonationForm.jsx")
-);
-const ModifyDonation = lazy(() => import("../component/donation/Modify.jsx"));
-const UserAnalysisPage = lazy(
-  () => import("../component/analysis/UserAnalysisPage.jsx")
-);
-const UserDetailPage = lazy(
-  () => import("../component/analysis/UserDetailPage.jsx")
-);
-const getAdvertisement = lazy(
-  () => import("../component/advertisement/AdminAdvertisement.jsx")
-);
-const PaymentAnalysisPage = lazy(
-  () => import("../component/analysis/PaymentAnalysisPage.jsx")
-);
-const DonationAnalysisPage = lazy(
-  () => import("../component/analysis/DonationAnalysisPage.jsx")
-);
-const AdminAdvertisementList = lazy(
-  () => import("../component/advertisement/AdminAdvertisement.jsx")
-);
+const getAdvertisement = lazy(() => import("../component/advertisement/AdminAdvertisement.jsx"));
+const PaymentAnalysisPage = lazy(() => import("../component/analysis/PaymentAnalysisPage.jsx"));
+const DonationAnalysisPage = lazy(() => import("../component/analysis/DonationAnalysisPage.jsx"));
+const AdminAdvertisementList = lazy(() => import("../component/advertisement/AdminAdvertisement.jsx"));
 
 
 
@@ -65,26 +34,30 @@ const adminPageRouter = () => [
     path: "user",
     element: <UserDashboard />,
   },
-    {
-        path: "userList",
-        element: <UserList />,
-    },
-    {
-        path: "categoryList",
-        element: <CategoryList />,
-    },
-    {
-        path: "transactionList",
-        element: <TransactionList />,
-    },
-    {
-        path: "orderList",
-        element: <OrderList />,
-    },
-    {
-        path: "paymentList",
-        element: <PaymentList />,
-    },
+  {
+      path: "userList",
+      element: <UserList />,
+  },
+  {
+      path: "categoryList",
+      element: <CategoryList />,
+  },
+  {
+    path: "donationList",
+    element: <DonationList />,
+  },
+  {
+      path: "transactionList",
+      element: <TransactionList />,
+  },
+  {
+      path: "orderList",
+      element: <OrderList />,
+  },
+  {
+      path: "paymentList",
+      element: <PaymentList />,
+  },
   {
     path: "payment",
     element: <PaymentDashboard />,
