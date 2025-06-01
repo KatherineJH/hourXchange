@@ -29,6 +29,7 @@ class ReviewServiceTest {
     private TransactionRepository transactionRepository;
     private RestTemplate restTemplate;
     private ReviewService reviewService;
+    private UserTagRepository userTagRepository;
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -36,13 +37,15 @@ class ReviewServiceTest {
         reviewTagRepository = mock(ReviewTagRepository.class);
         productRepository = mock(ProductRepository.class);
         transactionRepository = mock(TransactionRepository.class);
+        userTagRepository = mock(UserTagRepository.class);
         restTemplate = mock(RestTemplate.class); // 이걸 주입에도 사용해야 함
 
         reviewService = new ReviewServiceImpl(
                 reviewRepository,
                 reviewTagRepository,
                 productRepository,
-                transactionRepository
+                transactionRepository,
+                userTagRepository
         );
 
         Field rtField = ReviewServiceImpl.class.getDeclaredField("restTemplate");

@@ -31,7 +31,7 @@ const menuItems = [
     text: "재능나눔",
     icon: <StoreIcon color="primary" fontSize="large" />,
     subMenu: [
-      { text: "전체 보기", to: "/product/buy" },
+      { text: "전체 보기", to: "/product/all" },
       { text: "삽니다", to: "/product/buy" },
       { text: "팝니다", to: "/product/sell" },
     ],

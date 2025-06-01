@@ -3,6 +3,8 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import com.example.oauthjwt.dto.response.PageResult;
+import com.example.oauthjwt.dto.response.UserTagResponse;
+import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/api/product")
 public class ProductController {
     private final ProductService productService;
+    private final ReviewService reviewService;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -66,13 +69,29 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/list/all")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size) {
         // 로직 실행
         PageResult<ProductResponse> result = productService.findAll(page, size);
         // 반환
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getFilteredList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String providerType
+    ) {
+        try {
+            ProviderType type = providerType != null ? ProviderType.valueOf(providerType.toUpperCase()) : null;
+
+            Page<ProductResponse> response = productService.getFilteredList(page, size, type);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid providerType: " + providerType);
+        }
     }
 
     @GetMapping("/my")
@@ -108,5 +127,18 @@ public class ProductController {
     public ResponseEntity<?> findAllFavorite(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<FavoriteResponse> result = productService.findAllFavorite(userDetails.getUser().getId());
         return ResponseEntity.ok(result);
+    }
+
+    // 전체 태그 키워드 받아오기
+    @GetMapping("/user/{userId}/tags")
+    public ResponseEntity<List<UserTagResponse>> getUserTags(@PathVariable Long userId) {
+        return ResponseEntity.ok(reviewService.getUserTags(userId));
+    }
+    // 상품에 선택된 태그 키워드 받아오기
+    @GetMapping("/{productId}/tags")
+    public ResponseEntity<List<String>> getProductTags(@PathVariable Long productId) {
+        return ResponseEntity.ok(
+                productService.findById(productId, "internal").getTags()
+        );
     }
 }

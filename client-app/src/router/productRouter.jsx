@@ -1,6 +1,7 @@
 import React, { lazy } from "react";
 
 const Read = lazy(() => import("../component/product/Read.jsx"));
+const AllPost = lazy(() => import("../component/product/AllPost.jsx"));
 const SellPost = lazy(() => import("../component/product/SellPost.jsx"));
 const BuyPost = lazy(() => import("../component/product/BuyPost.jsx"));
 const ListMap = lazy(() => import("../component/product/ListMap.jsx"));
@@ -22,6 +23,10 @@ const productRouter = () => {
     {
       path: "read/:id",
       element: <Read />,
+    },
+        {
+      path: "all",
+      element: <AllPost />,
     },
     {
       path: "sell",

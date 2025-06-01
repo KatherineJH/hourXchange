@@ -19,6 +19,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class Product {
 
     @Id
@@ -88,6 +89,52 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Favorite> favoriteList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<ProductTag> productTags = new ArrayList<>();
+
+    public static Product of(ProductRequest productRequest,
+                             User owner,
+                             Category category,
+                             ProviderType providerType,
+                             Address address,
+                             List<ProductImage> images,
+                             List<String> tagStrings) {
+
+        Product product = Product.builder()
+                .title(productRequest.getTitle())
+                .description(productRequest.getDescription())
+                .hours(productRequest.getHours())
+                .startedAt(productRequest.getStartedAt())
+                .endAt(productRequest.getEndAt())
+                .lat(productRequest.getLat())
+                .lng(productRequest.getLng())
+                .viewCount(0)
+                .createdAt(LocalDateTime.now())
+                .owner(owner)
+                .category(category)
+                .providerType(providerType)
+                .address(address)
+                .build();
+
+        // 이미지 설정
+        images.forEach(img -> img.setProduct(product));
+        product.getImages().addAll(images);
+
+        // 태그 설정
+        if (tagStrings != null) {
+            tagStrings.stream().limit(5).forEach(tagStr -> {
+                ProductTag tag = ProductTag.builder()
+                        .productTag(tagStr)
+                        .product(product)
+                        .build();
+                product.getProductTags().add(tag);
+            });
+        }
+
+        return product;
+    }
 
     public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address) {
         return Product.builder()
