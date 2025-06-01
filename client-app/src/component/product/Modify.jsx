@@ -57,6 +57,7 @@ export default function ModifyProduct() {
   const [newFiles, setNewFiles] = useState([]);
   const [userTags, setUserTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const defaultTags = ["신규", "잘 부탁 드립니다"];
 
   const fileInputRef = useRef();
   const [openPostcode, setOpenPostcode] = useState(false);
@@ -88,6 +89,29 @@ export default function ModifyProduct() {
     getCategoryList().then((res) => setCategories(res.data));
     getUserTags(auth.user?.id).then(setUserTags);
   }, [id]);
+
+  const handleTagClick = (tag, source = "user") => {
+    const isSelected = selectedTags.includes(tag);
+
+    if (isSelected) {
+      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+    } else {
+      const defaultSelected = selectedTags.filter((t) =>
+        defaultTags.includes(t)
+      );
+      const userSelected = selectedTags.filter((t) => !defaultTags.includes(t));
+
+      if (source === "default" && defaultSelected.length >= 2) {
+        alert("기본 키워드는 최대 2개까지 선택할 수 있습니다.");
+        return;
+      }
+      if (selectedTags.length >= 5) {
+        alert("전체 태그는 최대 5개까지 선택할 수 있습니다.");
+        return;
+      }
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
@@ -197,35 +221,6 @@ export default function ModifyProduct() {
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
       <form onSubmit={handleSubmit}>
-        <Typography variant="subtitle1" sx={{ mt: 2 }}>
-          추천 태그 선택 (최대 5개)
-        </Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-          {userTags.map((tagObj, idx) => {
-            const isSelected = selectedTags.includes(tagObj.tag);
-            return (
-              <Button
-                key={idx}
-                variant={isSelected ? "contained" : "outlined"}
-                size="small"
-                onClick={() => {
-                  if (isSelected) {
-                    setSelectedTags((prev) =>
-                      prev.filter((t) => t !== tagObj.tag)
-                    );
-                  } else if (selectedTags.length < 5) {
-                    setSelectedTags((prev) => [...prev, tagObj.tag]);
-                  } else {
-                    alert("최대 5개까지만 선택 가능합니다.");
-                  }
-                }}
-              >
-                #{tagObj.tag}
-              </Button>
-            );
-          })}
-        </Box>
-
         {/* 타입 & 카테고리 */}
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
           <FormControl fullWidth size="small">
@@ -274,7 +269,43 @@ export default function ModifyProduct() {
           value={formData.description}
           onChange={handleFieldChange}
         />
-
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          좋은 리뷰를 많이 받으신 분들의 추천 태그(기본 키워드 포함 최대 5개
+          선택 가능)
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {userTags.map((tagObj, idx) => {
+            const isSelected = selectedTags.includes(tagObj.tag);
+            return (
+              <Button
+                key={idx}
+                variant={isSelected ? "contained" : "outlined"}
+                size="small"
+                onClick={() => handleTagClick(tagObj.tag, "user")}
+              >
+                #{tagObj.tag}
+              </Button>
+            );
+          })}
+        </Box>
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          아직 키워드가 없으신가요? 기본 키워드 중 0~2 개를 선택하세요.
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {defaultTags.map((tag, index) => {
+            const isSelected = selectedTags.includes(tag);
+            return (
+              <Button
+                key={`default-${index}`}
+                variant={isSelected ? "contained" : "outlined"}
+                onClick={() => handleTagClick(tag, "default")}
+                size="small"
+              >
+                {tag}
+              </Button>
+            );
+          })}
+        </Box>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
             <DateTimePicker

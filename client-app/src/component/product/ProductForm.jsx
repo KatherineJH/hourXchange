@@ -52,9 +52,11 @@ export default function ProductForm() {
   const fileInputRef = useRef();
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
+
   const [userTags, setUserTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
-  const user = useSelector((state) => state.auth.user);
+  const defaultTags = ["신규", "잘 부탁 드립니다"];
 
   // 유저 태그 요청 useEffect
   useEffect(() => {
@@ -68,6 +70,29 @@ export default function ProductForm() {
         console.error("사용자 태그 불러오기 실패:", err);
       });
   }, [user?.id]);
+
+  const handleTagClick = (tag, source = "user") => {
+    const isSelected = selectedTags.includes(tag);
+
+    if (isSelected) {
+      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+    } else {
+      const defaultSelected = selectedTags.filter((t) =>
+        defaultTags.includes(t)
+      );
+      const userSelected = selectedTags.filter((t) => !defaultTags.includes(t));
+
+      if (source === "default" && defaultSelected.length >= 2) {
+        alert("기본 키워드는 최대 2개까지 선택할 수 있습니다.");
+        return;
+      }
+      if (selectedTags.length >= 5) {
+        alert("전체 태그는 최대 5개까지 선택할 수 있습니다.");
+        return;
+      }
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
 
   // 주소 검색 모달
   const [openPostcode, setOpenPostcode] = useState(false);
@@ -183,35 +208,6 @@ export default function ProductForm() {
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
       <form onSubmit={handleSubmit}>
-        <Typography variant="subtitle1" sx={{ mt: 2 }}>
-          추천 태그 선택 (최대 5개)
-        </Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-          {userTags.map((tag, index) => {
-            const isSelected = selectedTags.includes(tag.tag);
-            return (
-              <Button
-                key={index}
-                variant={isSelected ? "contained" : "outlined"}
-                onClick={() => {
-                  if (isSelected) {
-                    setSelectedTags((prev) =>
-                      prev.filter((t) => t !== tag.tag)
-                    );
-                  } else if (selectedTags.length < 5) {
-                    setSelectedTags((prev) => [...prev, tag.tag]);
-                  } else {
-                    alert("최대 5개까지만 선택 가능합니다.");
-                  }
-                }}
-                size="small"
-              >
-                {tag.tag}
-              </Button>
-            );
-          })}
-        </Box>
-
         {/* 이미지 업로드 */}
         <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
           <input
@@ -295,7 +291,53 @@ export default function ProductForm() {
           value={saveData.description}
           onChange={handleChange}
         />
-
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          좋은 리뷰를 많이 받으신 분들의 추천 태그(기본 키워드 포함 최대 5개
+          선택 가능)
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {userTags.map((tag, index) => {
+            const isSelected = selectedTags.includes(tag.tag);
+            return (
+              <Button
+                key={index}
+                variant={isSelected ? "contained" : "outlined"}
+                onClick={() => {
+                  if (isSelected) {
+                    setSelectedTags((prev) =>
+                      prev.filter((t) => t !== tag.tag)
+                    );
+                  } else if (selectedTags.length < 5) {
+                    setSelectedTags((prev) => [...prev, tag.tag]);
+                  } else {
+                    alert("최대 5개까지만 선택 가능합니다.");
+                  }
+                }}
+                size="small"
+              >
+                {tag.tag}
+              </Button>
+            );
+          })}
+        </Box>
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          아직 키워드가 없으신가요? 기본 키워드 중 0~2 개를 선택하세요.
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+          {defaultTags.map((tag, index) => {
+            const isSelected = selectedTags.includes(tag);
+            return (
+              <Button
+                key={`default-${index}`}
+                variant={isSelected ? "contained" : "outlined"}
+                onClick={() => handleTagClick(tag, "default")}
+                size="small"
+              >
+                {tag}
+              </Button>
+            );
+          })}
+        </Box>
         {/* 시간픽커 */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Box sx={{ display: "flex", gap: 1, my: 2 }}>
