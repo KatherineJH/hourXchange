@@ -95,4 +95,12 @@ public class BoardController {
         BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
         return ResponseEntity.ok(resp);
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> delete(@PathVariable Long id,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boardService.delete(id, userDetails.getUser().getId());
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
 }

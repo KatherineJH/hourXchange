@@ -96,7 +96,7 @@ function SaveBoard() {
     const fetchInit = async () => {
       try {
         const categoryResponse = await getCategoryList();
-        setCategories(categoryResponse.data);
+        setCategories(categoryResponse.data.content); 
 
         if (id) {
           const boardResponse = await getBoardDetail(id);

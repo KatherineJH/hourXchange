@@ -15,6 +15,8 @@ public interface UserService {
 
     UserResponse login(UserRequest userRequest);
 
+    void changePasswordWithoutOld(Long userId, String newPassword, String confirmPassword);
+
     UserResponse getUserByEmail(String email);
 
     List<UserResponse> getAllUsers();

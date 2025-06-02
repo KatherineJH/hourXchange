@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -71,6 +70,23 @@ public class UserServiceImpl implements UserService {
         }
         // 반환
         return UserResponse.toDto(user);
+    }
+
+    @Override
+    public void changePasswordWithoutOld(Long userId, String newPassword, String confirmPassword) {
+        if (newPassword == null || confirmPassword == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 필수입니다.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+        }
+        if (newPassword.length() < 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 최소 5자 이상이어야 합니다.");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     @Override

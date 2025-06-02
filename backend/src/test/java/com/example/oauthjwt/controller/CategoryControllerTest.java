@@ -50,14 +50,21 @@ class CategoryControllerTest {
     @DisplayName("전체 카테고리 조회 성공")
     @WithMockUser
     void getAllCategories() throws Exception {
-        CategoryResponse res1 = new CategoryResponse(1L, "운동");
-        CategoryResponse res2 = new CategoryResponse(2L, "음악");
-        List<CategoryResponse> categories = Arrays.asList(res1, res2);
+        CategoryResponse res1 = CategoryResponse.builder()
+                .id(1L)
+                .categoryName("운동")
+                .status(true)
+                .build();
 
-        // Page 객체로 감싸기
+        CategoryResponse res2 = CategoryResponse.builder()
+                .id(2L)
+                .categoryName("음악")
+                .status(true)
+                .build();
+
+        List<CategoryResponse> categories = Arrays.asList(res1, res2);
         Page<CategoryResponse> page = new PageImpl<>(categories);
 
-        // Pageable 인자를 명시적으로 설정하거나 any(Pageable.class) 사용
         when(categoryService.findAll(any(Pageable.class))).thenReturn(page);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
@@ -67,8 +74,10 @@ class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1L))
                 .andExpect(jsonPath("$.content[0].categoryName").value("운동"))
+                .andExpect(jsonPath("$.content[0].status").value(true))
                 .andExpect(jsonPath("$.content[1].id").value(2L))
-                .andExpect(jsonPath("$.content[1].categoryName").value("음악"));
+                .andExpect(jsonPath("$.content[1].categoryName").value("음악"))
+                .andExpect(jsonPath("$.content[1].status").value(true));
     }
 
     @Test
@@ -78,8 +87,9 @@ class CategoryControllerTest {
         Category cat = new Category();
         cat.setId(1L);
         cat.setCategoryName("운동");
+        cat.setStatus(true); // 추가
 
-        when(categoryService.findById(1L)).thenReturn(cat);
+        when(categoryService.findById(1L)).thenReturn(CategoryResponse.toDto(cat));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         mockMvc.perform(get("/api/category/1")
@@ -87,7 +97,8 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("운동"));
+                .andExpect(jsonPath("$.categoryName").value("운동"))
+                .andExpect(jsonPath("$.status").value(true));
     }
 
     @Test
@@ -97,8 +108,9 @@ class CategoryControllerTest {
         Category cat = new Category();
         cat.setId(1L);
         cat.setCategoryName("운동");
+        cat.setStatus(true); // 추가
 
-        when(categoryService.addCategory("운동")).thenReturn(cat);
+        when(categoryService.addCategory("운동")).thenReturn(CategoryResponse.toDto(cat));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         mockMvc.perform(post("/api/category/")
@@ -108,7 +120,8 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("운동"));
+                .andExpect(jsonPath("$.categoryName").value("운동"))
+                .andExpect(jsonPath("$.status").value(true));
     }
 
     @Test
@@ -118,8 +131,9 @@ class CategoryControllerTest {
         Category updated = new Category();
         updated.setId(1L);
         updated.setCategoryName("헬스");
+        updated.setStatus(true); // 추가
 
-        when(categoryService.updateCategory(1L, "헬스")).thenReturn(updated);
+        when(categoryService.updateCategory(1L, "헬스")).thenReturn(CategoryResponse.toDto(updated));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         mockMvc.perform(put("/api/category/1")
@@ -129,6 +143,7 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("헬스"));
+                .andExpect(jsonPath("$.categoryName").value("헬스"))
+                .andExpect(jsonPath("$.status").value(true));
     }
 }

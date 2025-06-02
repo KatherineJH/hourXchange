@@ -1,5 +1,7 @@
 import React, { lazy } from "react";
 
+const Modify = lazy(() => import("../component/user/Modify.jsx"));
+const MyAccount = lazy(() => import("../component/user/MyAccount.jsx"));
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
 const Chat = lazy(() => import("../component/chat/ChatContainer.jsx"));
@@ -16,6 +18,14 @@ const AdvertisementList = lazy(
 );
 
 const myPageRouter = () => [
+  {
+    path: "",
+    element: <MyAccount />,
+  },
+  {
+    path: "edit",
+    element: <Modify />,
+  },
   {
     path: "chat",
     element: <Chat />,

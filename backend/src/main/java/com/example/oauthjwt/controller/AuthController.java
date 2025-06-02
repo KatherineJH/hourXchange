@@ -2,10 +2,12 @@ package com.example.oauthjwt.controller;
 
 import java.util.Map;
 
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -109,9 +111,26 @@ public class AuthController {
         String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
 
         Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
-
         UserResponse result = userService.getUserByEmail(claims.get("email", String.class));
 
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> changePassword(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+
+        String newPassword = request.get("newPassword");
+        String confirmPassword = request.get("confirmPassword");
+
+        String token = jwtUtil.getTokenFromCookiesByName(httpRequest, "Authorization");
+        Claims claims = jwtUtil.getClaims(token); // JWT에서 이메일 추출
+        String email = claims.get("email", String.class);
+        Long userId = userService.getUserByEmail(email).getId(); // userId 가져오기
+
+        userService.changePasswordWithoutOld(userId, newPassword, confirmPassword);
+        return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
     }
 }

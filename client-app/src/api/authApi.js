@@ -44,3 +44,17 @@ export const fetchUser = async () => {
   //   //     ? error.response.data : error.response?.data?.message || "사용자 정보 조회 실패";
   // }
 }
+
+// 사용자 정보 업데이트
+export const updateUser = async (userData) => {
+  const response = await api.put("/api/user/update", userData);
+  return response.data;
+};
+// 사용자 비밀번호 변경
+export const updatePassword = async ({ newPassword, confirmPassword }) => {
+  const response = await api.put("/api/auth/password", {
+    newPassword,
+    confirmPassword,
+  });
+  return response.data;
+};
