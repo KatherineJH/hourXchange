@@ -4,6 +4,8 @@ import { Box, List, ListItemButton, ListItemText } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
+
+
   { text: "== 현황 ==" },
   { text: "결제현황", to: "/admin/payment" },
   { text: "결제금액현황", to: "/admin/paymentAmount" },
@@ -16,6 +18,7 @@ const menu = [
   { text: "주문내역조회", to: "/admin/orderList" },
   { text: "결제내역조회", to: "/admin/paymentList" },
   { text: "카테고리조회", to: "/admin/categoryList" },
+
   { text: "광고리스트", to: "/admin/advertisement/list" },
   { text: "== 분석 마케팅 ==" },
   { text: "회원 관리 페이지 ", to: "/admin/userAnalysis" },

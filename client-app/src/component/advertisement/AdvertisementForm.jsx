@@ -149,6 +149,9 @@ export default function AdvertisementForm() {
       onSubmit={handleSubmit}
       sx={{ maxWidth: 600, mx: "auto", p: 2 }}
     >
+      <Box>
+        <h1 style={{ marginBottom: "24px" }}>🙋‍♀️광고 등록</h1>
+      </Box>
       {/* 이미지 업로드 버튼 + 미리보기 */}
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
         <input

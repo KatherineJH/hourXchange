@@ -1,8 +1,12 @@
 package com.example.oauthjwt.controller;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.example.oauthjwt.dto.response.AdvertisementResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,14 +49,14 @@ public class AdvertisementController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?>  findAllAdvertisement() {
-        List<AdvertisementResponse> responses = advertisementService.findAllAdvertisements();
+    public ResponseEntity<?>  findAllAdvertisement(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<AdvertisementResponse> responses = advertisementService.findAllAdvertisements(PageRequest.of(page, size));
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> findMyAds(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<AdvertisementResponse> responses = advertisementService.findMyAdvertisements(userDetails);
+    public ResponseEntity<?> findMyAds(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "10") int size) {
+        Page<AdvertisementResponse> responses = advertisementService.findMyAdvertisements(userDetails, PageRequest.of(page, size));
         return ResponseEntity.ok(responses);
     }
     @GetMapping("/{advertisementId}")

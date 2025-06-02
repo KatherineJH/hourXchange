@@ -110,8 +110,29 @@ function Header() {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static" elevation={0}>
-          <Toolbar>
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{
+            borderRadius: "30px",
+            mx: "auto",
+            my: 1.5,
+            px: 2,
+          }}
+        >
+          <Toolbar sx={{ height: 80 }}>
+            <Box
+              component="img"
+              src="/hourPanda.png"
+              alt="logo"
+              sx={{
+                height: 48,
+                width: "auto",
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/")}
+            />
+
             <Typography
               variant="h5"
               component="div"
@@ -133,7 +154,7 @@ function Header() {
                   display: "flex",
                   alignItems: "center",
                   px: 1,
-                  bgcolor: "#f1f3f4",
+                  bgcolor: "#edecec",
                   borderRadius: 1,
                   ml: 2,
                   width: 300,
@@ -176,6 +197,7 @@ function Header() {
                     px: 1,
                     borderRadius: 1,
                     width: "100%",
+                    height: 50,
                   }}
                 />
               </Box>
