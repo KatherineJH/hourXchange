@@ -29,7 +29,7 @@ function ListTable({
   filterProviderType,
   category,
   keyword: keywordProp = "",
-  onVisibleItemsChange, 
+  onVisibleItemsChange,
 }) {
   const [serverDataList, setServerDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -88,10 +88,10 @@ function ListTable({
           onVisibleItemsChange(paged);
         }
 
-        // Notify parent about currently visible page
-        if (onVisibleItemsChange) {
-          onVisibleItemsChange(data);
-        }
+        // // Notify parent about currently visible page
+        // if (onVisibleItemsChange) {
+        //   onVisibleItemsChange(data);
+        // }
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }

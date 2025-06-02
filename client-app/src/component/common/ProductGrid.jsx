@@ -69,10 +69,11 @@ export default function ProductGrid({
     >
       {products.map((product) => {
         if (product.type === "ad") {
-          return <AdvertisementCard key={`ad-{product.id}`} ad={product} />;
+          return <AdvertisementCard key={`ad-${product.id}`} ad={product} />;
         }
         return (
           <Card
+            key={`product-${product.id}`}
             sx={{
               maxWidth: 345,
               display: "flex",

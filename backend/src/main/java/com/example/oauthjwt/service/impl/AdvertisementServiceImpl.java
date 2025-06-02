@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.dto.response.AdvertisementResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,10 +71,11 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdvertisementResponse> findAllAdvertisements() {
-        List<Advertisement> advertisementList = advertisementRepository.findAll();
-        advertisementList.forEach(ad -> ad.getImages().size());
-        return advertisementList.stream().map(AdvertisementResponse::toDto).collect(Collectors.toList());
+    public Page<AdvertisementResponse> findAllAdvertisements(Pageable pageable) {
+//        List<Advertisement> advertisementList = advertisementRepository.findAll();
+//        advertisementList.forEach(ad -> ad.getImages().size());
+        return advertisementRepository.findAll(pageable)
+                .map(AdvertisementResponse::toDto);
     }
 
     @Override
@@ -99,10 +102,13 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
-        List<Advertisement> advertisementList = advertisementRepository.findAllByOwnerId(userId);
-        advertisementList.forEach(ad -> ad.getImages().size());
-        return advertisementList.stream().map(AdvertisementResponse::toDto).collect(Collectors.toList());
+    public Page<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails, Pageable pageable) {
+//        Long userId = userDetails.getUser().getId();
+//        List<Advertisement> advertisementList = advertisementRepository.findAllByOwnerId(userId);
+//        advertisementList.forEach(ad -> ad.getImages().size());
+        User user = userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+        return advertisementRepository.findByOwner(user, pageable)
+                .map(AdvertisementResponse::toDto);
     }
 }

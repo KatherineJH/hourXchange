@@ -11,7 +11,6 @@ import AdsGrid from "../common/AdsGrid";
 import ListTable from "./ListTable";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
-import AdvertisementCard from "../advertisement/AdvertisementCard";
 
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
@@ -87,7 +86,7 @@ export default function BuyPost() {
   useEffect(() => {
     getAdvertisement()
       .then((data) => {
-        const formattedAds = data.map((ad) => ({ ...ad, type: "ad" }));
+        const formattedAds = data.content.map((ad) => ({ ...ad, type: "ad" }));
         setAdvertisements(formattedAds);
         setShuffledAds([...formattedAds].sort(() => Math.random() - 0.5));
       })
@@ -127,19 +126,19 @@ export default function BuyPost() {
 
   const itemsWithAds = shouldInjectAds
     ? shownProducts
-        .filter((product) => product && product.id)
+        .filter((product) => !!product && !!product.id)
         .reduce((acc, product, i) => {
           acc.push({ ...product, key: `product-${product.id}` });
 
           const adIndex = Math.floor(i / AD_INTERVAL);
           const ad = shuffledAds[adIndex];
-          if ((i + 1) % AD_INTERVAL === 0 && i) {
+          if ((i + 1) % AD_INTERVAL === 0 && i && ad) {
             acc.push({ ...ad, key: `ad-${ad.id}`, type: "ad" });
           }
           return acc;
         }, [])
     : shownProducts
-        .filter((product) => product && product.id)
+        .filter((product) => !!product && !!product.id)
         .map((product) => ({
           ...product,
           key: `product-${product.id}`,
@@ -188,6 +187,7 @@ export default function BuyPost() {
                 alt={`carousel-${idx}`}
                 style={{
                   width: "100%",
+                  maxWidth: "100%",
                   height: "100%",
                   objectFit: "cover",
                   display: "block",
