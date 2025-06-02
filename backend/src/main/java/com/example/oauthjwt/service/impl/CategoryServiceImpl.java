@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,38 +23,46 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public List<CategoryResponse> findAll() {
-        List<Category> categoryList = categoryRepository.findAll();
-
-        return categoryList.stream().map(CategoryResponse::toDto).collect(Collectors.toList());
+    public Page<CategoryResponse> findAll(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(CategoryResponse::toDto);
     }
 
     @Override
-    public Category addCategory(String categoryName) {
+    public CategoryResponse addCategory(String categoryName) {
         if (categoryRepository.existsByCategoryName(categoryName)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 카테고리입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다.");
         }
-        Category category = Category.builder()
-                .categoryName(categoryName)
-                .build();
-        return categoryRepository.save(category);
-    }
+        Category category = Category.of(categoryName);
 
-
-    public Category updateCategory(Long id, String categoryName) {
-        Optional<Category> category = categoryRepository.findById(id);
-        Category existingCategory = category.orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않음"));
-        existingCategory.setCategoryName(categoryName);
-        return categoryRepository.save(existingCategory);
+        return CategoryResponse.toDto(categoryRepository.save(category));
     }
 
     @Override
-    public Category findById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."));
+    public CategoryResponse updateCategory(Long id, String categoryName) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
+
+        if (categoryRepository.existsByCategoryName(categoryName)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다.");
+        }
+
+        category.updateCategory(categoryName);
+        return CategoryResponse.toDto(categoryRepository.save(category));
     }
 
-    // public List<Category> findAll(){
-    // return categoryRepository.findAll();
-    // }
+    @Override
+    public CategoryResponse findById(Long id) {
+        Category result = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."));
+        return CategoryResponse.toDto(result);
+    }
+
+    @Override
+    public CategoryResponse deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."));
+        category.deleteCategory();
+        return CategoryResponse.toDto(categoryRepository.save(category));
+    }
+
 }

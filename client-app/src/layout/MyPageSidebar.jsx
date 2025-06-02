@@ -1,17 +1,10 @@
 // src/layout/MyPageSidebar.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Box,
   List,
   ListItemButton,
   ListItemText,
-  Divider,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-  Typography,
-  Collapse,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 

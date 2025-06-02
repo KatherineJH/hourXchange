@@ -36,6 +36,7 @@ public class DonationHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     private User donator;
 
+    // 취소
     public static DonationHistory of(Donation donation, User user, Integer hours) {
         return DonationHistory.builder()
                 .amount(-hours)
@@ -46,6 +47,7 @@ public class DonationHistory {
                 .build();
     }
 
+    // 기부
     public static DonationHistory of(DonationHistoryRequest donationHistoryRequest, Donation donation, User donator) {
         return DonationHistory.builder()
                 .amount(donationHistoryRequest.getAmount())

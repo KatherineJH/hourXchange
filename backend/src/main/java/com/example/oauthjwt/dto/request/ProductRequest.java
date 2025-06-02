@@ -49,4 +49,6 @@ public class ProductRequest {
     private String lng; // 경도 세로
 
     private AddressRequest address;
+
+    private List<String> tags;
 }

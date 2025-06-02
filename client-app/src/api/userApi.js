@@ -13,3 +13,19 @@ export const getUserById = async (id) => {
   const response = await api.get(apiServerUrl + id);
   return response.data;
 };
+
+export const getUserList = async (page, size) => {
+  const response = await api.get(apiServerUrl + 'list', {params: {page, size}});
+  return response;
+}
+
+export const getSearch = async (page, size, params) => {
+  const response = await api.get(apiServerUrl + "search/list", {
+    params: {
+      ...params,
+      page,
+      size
+    }
+  });
+  return response;
+};

@@ -1,21 +1,32 @@
 import React, { lazy } from "react";
-import SearchProduct from "../component/homepage/SearchProduct.jsx";
 
 const Read = lazy(() => import("../component/product/Read.jsx"));
+const AllPost = lazy(() => import("../component/product/AllPost.jsx"));
 const SellPost = lazy(() => import("../component/product/SellPost.jsx"));
 const BuyPost = lazy(() => import("../component/product/BuyPost.jsx"));
 const ListMap = lazy(() => import("../component/product/ListMap.jsx"));
 const ListTable = lazy(() => import("../component/product/ListTable.jsx"));
 const Modify = lazy(() => import("../component/product/Modify.jsx"));
 const ProductForm = lazy(() => import("../component/product/ProductForm.jsx"));
-const VolunteerList = lazy(() => import("../component/product/VolunteerList.jsx"));
-const DonationList = lazy(() => import("../component/donation/DonationList.jsx"));
+const VolunteerList = lazy(
+  () => import("../component/product/VolunteerList.jsx")
+);
+const DonationList = lazy(
+  () => import("../component/donation/DonationList.jsx")
+);
+const SearchProduct = lazy(
+  () => import("../component/homepage/SearchProduct.jsx")
+);
 
 const productRouter = () => {
   return [
     {
       path: "read/:id",
       element: <Read />,
+    },
+        {
+      path: "all",
+      element: <AllPost />,
     },
     {
       path: "sell",

@@ -10,14 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    @Query("SELECT COALESCE(AVG(r.stars), 0) FROM Review r WHERE r.product = :product")
-    double getAverageStarsByProduct(@Param("product") Product product);
-
-    // 판매자 기준 리뷰 수
-    @Query("SELECT COUNT(r) FROM Review r WHERE r.product.owner = :owner")
-    int countByOwner(@Param("owner") User owner);
 
     // 판매자 기준 별점 평균
     @Query("SELECT COALESCE(AVG(r.stars), 0) FROM Review r WHERE r.product.owner = :owner")
@@ -25,4 +20,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // ReviewTag by product owner id
     List<Review> findByProductOwnerId(Long ownerId);
+
+    Optional<Review> findByTransactionId(Long transactionId);
 }

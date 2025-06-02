@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.oauthjwt.repository.custom.UserRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.oauthjwt.entity.User;
@@ -11,21 +12,11 @@ import com.example.oauthjwt.entity.type.UserStatus;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByUsername(String username);
-
-    Optional<User> findByName(String UserName);
+public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
     Optional<User> findByEmail(String email);
 
-    List<User> findByStatus(UserStatus status);
-
     boolean existsByEmail(String email);
-
-    Optional<User> findByEmailAndStatus(String email, UserStatus status);
-
-    Optional<User> findByEmailAndUsername(String email, String username);
 
     boolean existsByUsername(String username);
 

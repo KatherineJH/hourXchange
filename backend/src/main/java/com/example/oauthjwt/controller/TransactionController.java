@@ -1,7 +1,13 @@
 package com.example.oauthjwt.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +31,7 @@ public class TransactionController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> save(@RequestBody @Valid TransactionRequest transactionRequest,
+    public ResponseEntity<TransactionResponse> save(@RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 인증한 유저의 id 값으로 할당
         transactionRequest.setUserId(userDetails.getUser().getId());
@@ -36,36 +42,51 @@ public class TransactionController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{transactionId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+    public ResponseEntity<TransactionResponse> findById(@PathVariable("transactionId") Long transactionId) {
         // 조회
-        TransactionResponse result = transactionService.findById(id);
+        TransactionResponse result = transactionService.findById(transactionId);
         // 반환
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/list")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> findAll() {
-        List<TransactionResponse> transactionResponseList = transactionService.findAll();
+    public ResponseEntity<Page<TransactionResponse>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<TransactionResponse> transactionResponseList = transactionService.findAll(pageable);
+        return ResponseEntity.ok(transactionResponseList);
+    }
+
+    @GetMapping("/search/list")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Page<TransactionResponse>> search(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size,
+                                                            @ModelAttribute TransactionSearchCondition transactionSearchCondition) {
+        log.info(transactionSearchCondition);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<TransactionResponse> transactionResponseList = transactionService.search(pageable, transactionSearchCondition);
         return ResponseEntity.ok(transactionResponseList);
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<TransactionResponse>> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         List<TransactionResponse> myTransactions = transactionService.findByUserId(userId);
         return ResponseEntity.ok(myTransactions);
     }
 
-    // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody @Valid TransactionRequest transactionRequest,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        transactionRequest.setId(id);
+
+    @PutMapping("/{transactionId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<TransactionResponse> update(@PathVariable("transactionId") Long transactionId,
+                                    @RequestBody @Valid TransactionRequest transactionRequest) {
+        transactionRequest.setId(transactionId);
 
         TransactionResponse result = transactionService.update(transactionRequest);
         return ResponseEntity.ok(result);
@@ -73,8 +94,8 @@ public class TransactionController {
 
     @PatchMapping("/complete/{transactionId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> complete(@PathVariable Long transactionId) {
+    public ResponseEntity<Map<String, String>> complete(@PathVariable Long transactionId) {
         transactionService.completeTransaction(transactionId);
-        return ResponseEntity.ok("거래가 완료되었습니다.");
+        return ResponseEntity.ok(Map.of("message", "거래가 완료되었습니다."));
     }
 }

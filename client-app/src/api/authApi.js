@@ -35,11 +35,12 @@ export const logoutUser = async () => {
 
 // 사용자 정보 조회 액션
 export const fetchUser = async () => {
-  try {
+  // try {
     const response = await api.get("/api/auth/me");
     return response.data;
-  } catch (error) {
-    return typeof error.response?.data === "string"
-        ? error.response.data : error.response?.data?.message || "사용자 정보 조회 실패";
-  }
+  // } catch (error) {
+  //   throw error.response?.data
+  //   // return typeof error.response?.data === "string"
+  //   //     ? error.response.data : error.response?.data?.message || "사용자 정보 조회 실패";
+  // }
 }

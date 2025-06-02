@@ -1,6 +1,8 @@
 // src/main/java/com/example/oauthjwt/service/impl/PaymentServiceImpl.java
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
+import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
 import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.*;
@@ -9,14 +11,13 @@ import com.example.oauthjwt.entity.Payment;
 import com.example.oauthjwt.entity.PaymentItem;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.repository.OrdersRepository;
-import com.example.oauthjwt.repository.PaymentItemRepository;
-import com.example.oauthjwt.repository.PaymentRepository;
-import com.example.oauthjwt.repository.UserRepository;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.PaymentService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -187,5 +188,41 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "날짜 형식이 잘못되었습니다.");
         }
+    }
+
+    @Override
+    public Page<PaymentOrderResponse> orderList(Pageable pageable) {
+        return ordersRepository.findAll(pageable).map(PaymentOrderResponse::toDto);
+    }
+
+    @Override
+    public Page<PaymentResponse> paymentList(Pageable pageable) {
+        return paymentRepository.findAll(pageable).map(payment -> {
+            User user = userRepository.findById(payment.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+            PaymentItem paymentItem = paymentItemRepository.findById(payment.getPaymentItemId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
+            return PaymentResponse.toDto(payment, user, paymentItem);
+        });
+    }
+
+    @Override
+    public Page<PaymentOrderResponse> orderSearch(Pageable pageable, OrdersSearchCondition ordersSearchCondition) {
+        Page<Orders> ordersPage = ordersRepository.search(ordersSearchCondition, pageable);
+        return ordersPage.map(PaymentOrderResponse::toDto);
+    }
+
+    @Override
+    public Page<PaymentResponse> paymentSearch(Pageable pageable, PaymentSearchCondition paymentSearchCondition) {
+        Page<Payment> paymentPage = paymentRepository.search(paymentSearchCondition, pageable);
+        return paymentPage.map(payment -> {
+            User user = userRepository.findById(payment.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+            PaymentItem paymentItem = paymentItemRepository.findById(payment.getPaymentItemId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
+            return PaymentResponse.toDto(payment, user, paymentItem);
+        });
     }
 }

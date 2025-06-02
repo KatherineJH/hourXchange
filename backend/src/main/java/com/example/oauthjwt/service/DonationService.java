@@ -1,12 +1,11 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.dto.condition.DonationSearchCondition;
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.DonationResponse;
 import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,4 +23,6 @@ public interface DonationService {
     List<DonationResponse> getTopByProgress(int limit);
     List<DonationResponse> getTopByViewCount(int limit);
     List<DonationResponse> getTopByRecent(int limit);
+
+    PageResult<DonationResponse> search(int page, int size, DonationSearchCondition condition);
 }

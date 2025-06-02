@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.condition.DonationHistorySearchCondition;
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.TopDonatorResponse;
@@ -142,6 +143,12 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
                         ((Number) row[1]).doubleValue()
                 ))
                 .toList();
+    }
+
+    @Override
+    public Page<DonationHistoryResponse> search(Pageable pageable, DonationHistorySearchCondition condition) {
+        Page<DonationHistory> donationHistoryPage = donationHistoryRepository.search(condition, pageable);
+        return donationHistoryPage.map(DonationHistoryResponse::toDto);
     }
 
 }

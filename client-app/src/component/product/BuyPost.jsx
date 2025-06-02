@@ -12,6 +12,10 @@ import ListTable from "./ListTable";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
 
+import AdvertisementCard from "../advertisement/AdvertisementCard";
+import CategoryNav from "../../layout/CategoryNav";
+
+
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
 
@@ -131,10 +135,14 @@ export default function BuyPost() {
           acc.push({ ...product, key: `product-${product.id}` });
 
           const adIndex = Math.floor(i / AD_INTERVAL);
-          const ad = shuffledAds[adIndex];
+
+
+          const ad = shuffledAds[adIndex]; // ad는 조건문 전에 선언되어야 함
+
           if ((i + 1) % AD_INTERVAL === 0 && i && ad) {
             acc.push({ ...ad, key: `ad-${ad.id}`, type: "ad" });
-          }
+          } // shuffledAds[adIndex]가 undefined일 수 있기 때문에 .id 접근 시 오류 방지
+
           return acc;
         }, [])
     : shownProducts
@@ -153,6 +161,7 @@ export default function BuyPost() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
+      <CategoryNav/>
       {/* 슬라이더 */}
       <Box
         sx={{

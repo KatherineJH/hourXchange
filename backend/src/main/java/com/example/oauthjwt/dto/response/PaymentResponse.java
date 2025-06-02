@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentResponse {
     private Long   id;
-    private String impUid;        // imp_uid
-    private String merchantUid;   // merchant_uid
+    private String merchantUid;   // 주문번호
+    private String impUid;        // 결제번호
     private Integer amount;       // 결제 금액
     private String status;        // paid, failed 등
     private LocalDateTime paidAt; // 결제 완료 시각

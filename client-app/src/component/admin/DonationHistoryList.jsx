@@ -1,61 +1,144 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box,
-    Paper,
+    Box, Button, FormControl, InputLabel, MenuItem,
+    Paper, Select,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
+    TableRow, TextField,
     Typography,
-    CircularProgress,
-    Stack,
-    Pagination
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import CustomPagination from "../common/CustomPagination.jsx";
+import {getSearch} from "../../api/donationHistoryApi.js";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DateField} from "@mui/x-date-pickers";
 
-import { getDonationHistory } from '../../api/donationHistoryApi.js';
+const initParams = {
+    donationHistoryId: '',
+    donationId: '',
+    donatorId: '',
+    startDate: null,
+    endDate: null
 
-export default function MyDonationHistoryList() {
+}
+
+export default function DonationHistoryList() {
     const navigate = useNavigate();
-    const [donationHistoryList, setDonationHistoryList] = useState([]);
+    const [serverData, setServerData] = useState([]);
     const [page, setPage] = useState(0);
     const size = 10;
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [params, setParams] = useState(initParams);
+
+    const getSearchFuntion = async () => {
+        try{
+            const formattedParams = {
+                ...params,
+                startDate: params.startDate?.format('YYYY-MM-DD') ?? null,
+                endDate:   params.endDate?.format('YYYY-MM-DD')   ?? null,
+            };
+            console.log(formattedParams);
+            const response = await getSearch(page, size, formattedParams);
+            console.log(response.data.content)
+            setServerData(response.data.content);
+            setTotalPages(response.data.totalPages);
+        }catch(error){
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
-        const fetchList = async () => {
-            setLoading(true);
-            try {
-                const res = await getDonationHistory(page, size);
-                console.log(res)
-                const { content, totalPages: tp } = res.data;
-                setDonationHistoryList(content);
-                setTotalPages(tp);
-            } catch (err) {
-                console.error('기부 리스트 조회 실패:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchList();
+        getSearchFuntion();
+
     }, [page]);
 
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
+    const handleSearch = () => {
+        setPage(0);
+        getSearchFuntion();
     }
+
+    // 입력 핸들러
+    const handleChange = e => {
+        const { name, value } = e.target;
+        setParams(prev => ({ ...prev, [name]: value }));
+    };
 
     return (
         <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
-                기부 모금 목록
+                기부내역조회
             </Typography>
+            <Box>
+                {/* 1st row: 제목, 설명 */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+                    <TextField
+                        fullWidth
+                        name="donationHistoryId"
+                        label="기부내역ID"
+                        value={params.donationHistoryId}
+                        onChange={handleChange}
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                    />
+                    <TextField
+                        fullWidth
+                        name="donationId"
+                        label="기부모집ID"
+                        value={params.donationId}
+                        onChange={handleChange}
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                    />
+                    <TextField
+                        fullWidth
+                        name="donatorId"
+                        label="유저ID"
+                        value={params.donatorId}
+                        onChange={handleChange}
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                    />
+
+                {/* 2nd row: 시작일, 종료일, 상태, 검색 버튼 */}
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateField
+                            fullWidth
+                            name="startDate"
+                            label="시작일"
+                            value={params.startDate}
+                            onChange={value => handleChange({ target: { name: 'startDate', value } })}
+                            format="YYYY-MM-DD"
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ flexGrow: 1 }}
+                        />
+                    </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateField
+                            fullWidth
+                            name="endDate"
+                            label="종료일"
+                            value={params.endDate}
+                            onChange={value => handleChange({ target: { name: 'endDate', value } })}
+                            format="YYYY-MM-DD"
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ flexGrow: 1 }}
+                        />
+                    </LocalizationProvider>
+                    <Button
+                        variant="contained"
+                        onClick={handleSearch}
+                        sx={{ flexGrow: 1, minWidth: 120 }}
+                    >
+                        검색
+                    </Button>
+                </Box>
+            </Box>
             <TableContainer component={Paper} elevation={3}>
                 <Table stickyHeader>
                     <TableHead>
@@ -76,13 +159,13 @@ export default function MyDonationHistoryList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {donationHistoryList.length > 0 ? (
-                            donationHistoryList.map((item) => (
+                        {serverData.length > 0 ? (
+                            serverData.map((item) => (
                                 <TableRow
                                     key={item.id}
                                     hover
                                     sx={{ cursor: 'pointer' }}
-                                    onClick={() => navigate(`/donation/read/${item.id}`)}
+                                    // onClick={() => navigate(`/donation/read/${item.id}`)}
                                 >
                                     <TableCell>{item.id}</TableCell>
                                     <TableCell>{item.balance}</TableCell>
@@ -96,24 +179,14 @@ export default function MyDonationHistoryList() {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={7} align="center">
-                                    등록된 모금이 없습니다.
+                                    등록된 정보가 없습니다.
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Stack spacing={2}>
-                    <Pagination
-                        count={totalPages}
-                        page={page + 1}
-                        onChange={(_, value) => setPage(value - 1)}
-                        color="primary"
-                    />
-                </Stack>
-            </Box>
+            <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />
         </Box>
     );
 }

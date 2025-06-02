@@ -3,124 +3,141 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.response.CategoryResponse;
 import com.example.oauthjwt.entity.Category;
 import com.example.oauthjwt.repository.CategoryRepository;
-import com.example.oauthjwt.service.impl.CategoryServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
+    @Mock
     private CategoryRepository categoryRepository;
+
+    @InjectMocks
     private CategoryService categoryService;
 
-    @BeforeEach
-    void setUp() {
-        categoryRepository = mock(CategoryRepository.class);
-        categoryService = new CategoryServiceImpl(categoryRepository);
-    }
-
     @Test
-    @DisplayName("모든 카테고리 조회")
-    void findAll_success() {
+    @DisplayName("findAll: repository에서 가져온 엔티티를 DTO 리스트로 변환")
+    void findAll_ReturnsDtoList() {
         // given
-        Category c1 = Category.builder().id(1L).categoryName("운동").build();
-        Category c2 = Category.builder().id(2L).categoryName("청소").build();
-        when(categoryRepository.findAll()).thenReturn(Arrays.asList(c1, c2));
+        Category c1 = Category.builder().id(1L).categoryName("A").build();
+        Category c2 = Category.builder().id(2L).categoryName("B").build();
+        given(categoryRepository.findAll()).willReturn(List.of(c1, c2));
 
         // when
         List<CategoryResponse> result = categoryService.findAll();
 
         // then
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).getCategoryName()).isEqualTo("운동");
+        assertThat(result).hasSize(2)
+                .extracting(CategoryResponse::getCategoryName)
+                .containsExactly("A", "B");
     }
 
     @Test
-    @DisplayName("카테고리 등록 성공")
-    void addCategory_success() {
+    @DisplayName("addCategory: 새로운 카테고리 저장 성공")
+    void addCategory_Success() {
         // given
-        String categoryName = "봉사";
-        when(categoryRepository.existsByCategoryName(categoryName)).thenReturn(false);
-        when(categoryRepository.save(any())).thenAnswer(i -> {
-            Category c = i.getArgument(0);
-            c.setId(1L);
-            return c;
-        });
+        String name = "NewCat";
+        given(categoryRepository.existsByCategoryName(name)).willReturn(false);
+        Category saved = Category.builder().id(3L).categoryName(name).build();
+        given(categoryRepository.save(any(Category.class))).willReturn(saved);
 
         // when
-        Category result = categoryService.addCategory(categoryName);
+        Category result = categoryService.addCategory(name);
 
         // then
-        assertThat(result.getCategoryName()).isEqualTo("봉사");
-        verify(categoryRepository).save(any(Category.class));
+        assertThat(result.getId()).isEqualTo(3L);
+        assertThat(result.getCategoryName()).isEqualTo(name);
+        then(categoryRepository).should().save(argThat(c -> c.getCategoryName().equals(name)));
     }
 
     @Test
-    @DisplayName("중복된 카테고리 등록 실패")
-    void addCategory_fail_duplicate() {
+    @DisplayName("addCategory: 중복 카테고리 이름일 때 예외")
+    void addCategory_DuplicateName_Throws() {
         // given
-        when(categoryRepository.existsByCategoryName("음악")).thenReturn(true);
+        String name = "DupCat";
+        given(categoryRepository.existsByCategoryName(name)).willReturn(true);
 
-        // expect
-        assertThatThrownBy(() -> categoryService.addCategory("음악"))
+        // when & then
+        assertThatThrownBy(() -> categoryService.addCategory(name))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("이미 존재하는 카테고리입니다.");
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).contains("이미 존재하는 카테고리입니다");
+                });
     }
 
     @Test
-    @DisplayName("카테고리 ID로 조회 성공")
-    void findById_success() {
+    @DisplayName("updateCategory: 존재하는 카테고리 이름 수정 성공")
+    void updateCategory_Success() {
         // given
-        Category category = Category.builder().id(1L).categoryName("청소").build();
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        Long id = 4L;
+        String newName = "Updated";
+        Category existing = Category.builder().id(id).categoryName("Old").build();
+        given(categoryRepository.findById(id)).willReturn(Optional.of(existing));
+        Category saved = Category.builder().id(id).categoryName(newName).build();
+        given(categoryRepository.save(any(Category.class))).willReturn(saved);
 
         // when
-        Category result = categoryService.findById(1L);
+        Category result = categoryService.updateCategory(id, newName);
 
         // then
-        assertThat(result.getCategoryName()).isEqualTo("청소");
+        assertThat(result.getCategoryName()).isEqualTo(newName);
+        then(categoryRepository).should().save(argThat(c -> c.getId().equals(id)
+                && c.getCategoryName().equals(newName)));
     }
 
     @Test
-    @DisplayName("카테고리 ID로 조회 실패")
-    void findById_fail_notFound() {
-        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> categoryService.findById(99L))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("해당 카테고리가 존재하지 않습니다.");
-    }
-
-    @Test
-    @DisplayName("카테고리 이름 수정 성공")
-    void updateCategory_success() {
+    @DisplayName("updateCategory: 존재하지 않는 카테고리일 때 예외")
+    void updateCategory_NotFound_Throws() {
         // given
-        Category old = Category.builder().id(1L).categoryName("운").build();
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(old));
-        when(categoryRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        given(categoryRepository.findById(99L)).willReturn(Optional.empty());
 
-        // when
-        Category updated = categoryService.updateCategory(1L, "운동");
-
-        // then
-        assertThat(updated.getCategoryName()).isEqualTo("운동");
-    }
-
-    @Test
-    @DisplayName("카테고리 수정 실패 - ID 존재하지 않음")
-    void updateCategory_fail_notFound() {
-        when(categoryRepository.findById(123L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> categoryService.updateCategory(123L, "기타"))
+        // when & then
+        assertThatThrownBy(() -> categoryService.updateCategory(99L, "X"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("해당 카테고리가 존재하지 않음");
+    }
+
+    @Test
+    @DisplayName("findById: 존재하는 ID 조회 성공")
+    void findById_Success() {
+        // given
+        Long id = 5L;
+        Category c = Category.builder().id(id).categoryName("C").build();
+        given(categoryRepository.findById(id)).willReturn(Optional.of(c));
+
+        // when
+        Category result = categoryService.findById(id);
+
+        // then
+        assertThat(result).isSameAs(c);
+    }
+
+    @Test
+    @DisplayName("findById: 없는 ID 조회 시 예외")
+    void findById_NotFound_Throws() {
+        // given
+        given(categoryRepository.findById(100L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> categoryService.findById(100L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(rse.getReason()).contains("해당 카테고리가 존재하지 않습니다");
+                });
     }
 }

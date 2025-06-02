@@ -10,6 +10,7 @@ import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.ProductImage;
 
+import com.example.oauthjwt.entity.ProductTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,6 +54,8 @@ public class ProductResponse {
 
     private List<String> images = new ArrayList<>(); // 이미지 url
 
+    private List<String> tags = new ArrayList<>();
+
     public static ProductResponse toDto(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())
@@ -71,6 +74,10 @@ public class ProductResponse {
                 .images(product.getImages() == null
                         ? null
                         : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
+                .tags(product.getProductTags()
+                        .stream()
+                        .map(ProductTag::getProductTag)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -96,6 +103,10 @@ public class ProductResponse {
                 .chatCount(product.getChatRooms().size())
                 .starsAverage(starsAverage)
                 .reviewCount(product.getReviews().size())
+                .tags(product.getProductTags()
+                        .stream()
+                        .map(ProductTag::getProductTag)
+                        .collect(Collectors.toList()))
                 .build();
     }
 

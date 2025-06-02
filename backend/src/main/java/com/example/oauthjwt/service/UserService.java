@@ -1,8 +1,12 @@
 package com.example.oauthjwt.service;
 
 import java.util.List;
+
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserService {
@@ -13,14 +17,11 @@ public interface UserService {
 
     UserResponse getUserByEmail(String email);
 
-
-    @Transactional
-    void addCredits(Long userId, int hours);
-
-    @Transactional
-    void deductCredits(Long userId, int hours);
-
     List<UserResponse> getAllUsers();
 
     UserResponse getUserById(Long userId);
+
+    Page<UserResponse> getUserList(Pageable pageable);
+
+    Page<UserResponse> search(Pageable pageable, UserSearchCondition condition);
 }

@@ -3,8 +3,24 @@ import api from "./Api.js";
 const apiServerUrl = "/api/transaction/";
 const reviewApiUrl = "/api/reviews";
 
-export const getList = async () => {
-  const response = await api.get(apiServerUrl + "list");
+export const getList = async (page, size) => {
+  const response = await api.get(apiServerUrl + "list", {
+    params: {
+      page,
+      size,
+    }
+  });
+  return response;
+};
+
+export const getSearch = async (page, size, params) => {
+  const response = await api.get(apiServerUrl + "search/list", {
+    params: {
+      ...params,
+      page,
+      size
+    }
+  });
   return response;
 };
 

@@ -48,7 +48,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Transactional(readOnly = true)
     public AdvertisementResponse findAdvertisementDetail(Long advertisementId) {
         Advertisement advertisement =  advertisementRepository.findById(advertisementId)
-                .orElseThrow(() -> new IllegalArgumentException("광고가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "광고가 존재하지 않습니다."));
         return AdvertisementResponse.toDto(advertisement);
     }
 

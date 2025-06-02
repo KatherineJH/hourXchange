@@ -14,17 +14,17 @@ public class PaymentOrderResponse {
 
     private Long id;
 
-    private String merchantUid;
+    private String merchantUid; // 주문번호
 
-    private String impUid;
+    private String impUid; // 결제번호
 
-    private String email;
+    private String email; // 이메일
 
-    private String paymentItemName;
+    private String paymentItemName; // 제품이름
 
-    private String paymentItemPrice;
+    private String paymentItemPrice; // 제품가격
 
-    private String orderToken;
+    private String orderToken; // 주문시 발급 된 토큰
 
     public static PaymentOrderResponse toDto(Orders orders) {
         return PaymentOrderResponse.builder()

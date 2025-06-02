@@ -12,12 +12,5 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Long> {
 
-  List<ChatRoomUser> findByChatRoom(ChatRoom chatRoom);
-
-  List<ChatRoomUser> findByUser(User user);
-
-  @Query("SELECT cru FROM ChatRoomUser cru WHERE cru.chatRoom.id = :chatRoomId AND cru.user.id = :userId")
-  Optional<ChatRoomUser> findByChatRoomIdAndUserId(@Param("chatRoomId") Long chatRoomId, @Param("userId") Long userId);
-
   Optional<ChatRoomUser> findByChatRoomAndUser(ChatRoom chatRoom, User user);
 }

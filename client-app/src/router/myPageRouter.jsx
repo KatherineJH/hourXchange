@@ -1,17 +1,16 @@
 import React, { lazy } from "react";
-import Chat from "../component/chat/ChatContainer.jsx";
-import Favorites from "../component/product/Favorites.jsx";
-import MyWallet from "../component/payment/Wallet.jsx";
 
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
+const Chat = lazy(() => import("../component/chat/ChatContainer.jsx"));
+const Favorites = lazy(() => import("../component/product/Favorites.jsx"));
+const MyWallet = lazy(() => import("../component/payment/Wallet.jsx"));
 const MyDonationList = lazy(
   () => import("../component/donation/MyDonationHistoryList.jsx")
 );
 const AdvertisementForm = lazy(
   () => import("../component/advertisement/AdvertisementForm.jsx")
 );
-
 const AdvertisementList = lazy(
   () => import("../component/advertisement/AdvertisementList.jsx")
 );

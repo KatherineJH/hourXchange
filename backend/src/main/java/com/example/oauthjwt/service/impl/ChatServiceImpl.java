@@ -98,12 +98,6 @@ public class ChatServiceImpl implements ChatService {
         return chatMessageRepository.findByChatRoomId(chatRoomId);
     }
 
-//    @Override
-//    public Long getUserIdByUsername(String username) {
-//        return userRepository.findByEmail(username).map(User::getId)
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//    }
-
     @Override
     public List<ChatRoomResponse> findChatRoomsByUserId(CustomUserDetails userDetails) {
         List<ChatRoom> chatRoomList = chatRoomRepository.findChatRoomsByUserId(userDetails.getUser().getId());
@@ -127,15 +121,11 @@ public class ChatServiceImpl implements ChatService {
         transaction.setStatus(TransactionStatus.COMPLETED);
     }
 
-    @Override
-    public ChatRoom findChatRoomById(Long id) {
-        return chatRoomRepository.findById(id).orElseThrow(() -> new RuntimeException("ChatRoom not found"));
-    }
 
     @Override
     public ChatRoom findById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
     }
 
     @Override
@@ -143,7 +133,7 @@ public class ChatServiceImpl implements ChatService {
         List<Transaction> txList = transactionRepository.findByChatRoomId(chatRoomId);
 
         if (txList.isEmpty()) {
-            throw new IllegalStateException("해당 채팅방에 연결된 거래가 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 채팅방에 연결된 거래가 존재하지 않습니다.");
         }
 
         // 가장 최신 거래 기준으로 처리
