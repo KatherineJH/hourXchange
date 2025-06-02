@@ -33,11 +33,9 @@ public class TransactionController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<TransactionResponse> save(@RequestBody @Valid TransactionRequest transactionRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 인증한 유저의 id 값으로 할당
-        transactionRequest.setUserId(userDetails.getUser().getId());
         log.info(transactionRequest);
         // 저장
-        TransactionResponse result = transactionService.save(transactionRequest);
+        TransactionResponse result = transactionService.save(transactionRequest, userDetails);
         // 반환
         return ResponseEntity.ok(result);
     }
@@ -86,9 +84,8 @@ public class TransactionController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<TransactionResponse> update(@PathVariable("transactionId") Long transactionId,
                                     @RequestBody @Valid TransactionRequest transactionRequest) {
-        transactionRequest.setId(transactionId);
 
-        TransactionResponse result = transactionService.update(transactionRequest);
+        TransactionResponse result = transactionService.update(transactionRequest, transactionId);
         return ResponseEntity.ok(result);
     }
 

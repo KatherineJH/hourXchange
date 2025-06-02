@@ -12,6 +12,7 @@ import com.example.oauthjwt.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,9 +39,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public TransactionResponse save(TransactionRequest transactionRequest) {
+    public TransactionResponse save(TransactionRequest transactionRequest, CustomUserDetails userDetails) {
         // 1. 요청자(buyer), 상품(product), 판매자(seller) 조회
-        User buyer = userRepository.findById(transactionRequest.getUserId())
+        User buyer = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         Product product = productRepository.findById(transactionRequest.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
@@ -106,11 +107,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponse update(TransactionRequest transactionRequest) {
+    public TransactionResponse update(TransactionRequest transactionRequest, Long transactionId) {
         // 검증
-        Transaction transaction = transactionRepository.findById(transactionRequest.getId())
+        Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션 정보가 존재하지 않습니다."));
-        User user = userRepository.findById(transactionRequest.getUserId())
+        User user = userRepository.findById(transaction.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         Product product = productRepository.findById(transactionRequest.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));

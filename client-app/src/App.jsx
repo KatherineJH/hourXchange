@@ -11,7 +11,7 @@ function App() {
     <>
       <ThemeProvider theme={Theme}>
           <CssBaseline />
-            <RouterProvider router={root}/>
+            <RouterProvider router={root} />
       </ThemeProvider>
     </>
   );
