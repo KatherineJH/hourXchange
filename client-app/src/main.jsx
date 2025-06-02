@@ -8,6 +8,6 @@ import store from "./slice/Store.js";
 
 createRoot(document.getElementById("root")).render(
       <Provider store={store}>
-        <App />
+          <App />
       </Provider>
 );

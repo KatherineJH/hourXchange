@@ -48,10 +48,6 @@ function Header() {
   const isMenuOpen = Boolean(anchorEl);
   // console.log(user);
 
-  useEffect(() => {
-    if (!user.email) dispatch(fetchUserAsync());
-  }, []);
-
   const handleLogout = () => {
     dispatch(logoutUserAsync())
       .then(() => {

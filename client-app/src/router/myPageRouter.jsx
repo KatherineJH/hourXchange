@@ -1,4 +1,10 @@
 import React, { lazy } from "react";
+import ChatRoom from "../component/chat/ChatRoom.jsx";
+import board from "./boardRouter.jsx";
+import Read from "../component/product/Read.jsx";
+import ProductForm from "../component/product/ProductForm.jsx";
+import Modify from "../component/product/Modify.jsx";
+import transactionRouter from "./transactionRouter.jsx";
 
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
@@ -16,6 +22,10 @@ const AdvertisementList = lazy(
 );
 
 const myPageRouter = () => [
+  {
+    path: "",
+    element: <MyPostList />
+  },
   {
     path: "chat",
     element: <Chat />,
@@ -52,6 +62,23 @@ const myPageRouter = () => [
     path: "advertisement/modify/:id",
     element: <AdvertisementForm mode="edit" />,
   },
+  {
+    path: "chat-room/:chatRoomId",
+    element: <ChatRoom />,
+  },
+  {
+    path: "board",
+    children: board(),
+  },
+  {
+    path: "product",
+    children: [
+      { path: "read/:id", element: <Read /> },
+      { path: "register", element: <ProductForm /> },
+      { path: "modify/:id", element: <Modify /> },
+    ],
+  },
+  ...transactionRouter(),
 ];
 
 export default myPageRouter;
