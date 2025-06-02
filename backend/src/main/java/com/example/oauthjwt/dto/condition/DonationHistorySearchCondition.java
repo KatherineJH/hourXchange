@@ -11,11 +11,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DonationSearchCondition {
+public class DonationHistorySearchCondition {
+    private Long donationHistoryId;
     private Long donationId;
-    private String title; // 제목
-    private String description; // 설명
-    private String status; // 상태
+    private Long donatorId;
     private LocalDate startDate; // 시작일
     private LocalDate endDate; // 끝일
 }

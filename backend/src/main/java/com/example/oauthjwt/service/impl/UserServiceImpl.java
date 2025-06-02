@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.entity.Wallet;
 import org.springframework.data.domain.Page;
@@ -97,5 +98,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> getUserList(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserResponse::toDto);
+    }
+
+    @Override
+    public Page<UserResponse> search(Pageable pageable, UserSearchCondition condition) {
+
+        Page<User> userPage = userRepository.search(condition, pageable);
+        return userPage.map(UserResponse::toDto);
     }
 }

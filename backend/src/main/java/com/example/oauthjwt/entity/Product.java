@@ -52,6 +52,9 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private boolean status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
@@ -96,8 +99,11 @@ public class Product {
                 .hours(productRequest.getHours())
                 .startedAt(productRequest.getStartedAt())
                 .endAt(productRequest.getEndAt())
-                .lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
+                .lat(productRequest.getLat())
+                .lng(productRequest.getLng())
+                .viewCount(0)
                 .createdAt(LocalDateTime.now())
+                .status(true)
                 .owner(owner)
                 .category(category)
                 .providerType(providerType)
@@ -124,6 +130,7 @@ public class Product {
                 .lng(position[1])
                 .viewCount(0)
                 .createdAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+                .status(true)
                 .owner(user)
                 .category(category)
                 .providerType(providerType)
@@ -148,5 +155,9 @@ public class Product {
     public Product addViewCount() {
         this.viewCount++;
         return this;
+    }
+
+    public void setDelete(){
+        this.status = false;
     }
 }

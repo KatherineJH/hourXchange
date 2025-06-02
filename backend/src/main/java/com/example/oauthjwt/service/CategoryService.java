@@ -11,9 +11,11 @@ public interface CategoryService {
 
     Page<CategoryResponse> findAll(Pageable pageable);
 
-    Category addCategory(String categoryName);
+    CategoryResponse addCategory(String categoryName);
 
-    Category updateCategory(Long id, String categoryName);
+    CategoryResponse updateCategory(Long id, String categoryName);
 
-    Category findById(Long id);
+    CategoryResponse findById(Long id);
+
+    CategoryResponse deleteCategory(Long id);
 }

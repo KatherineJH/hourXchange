@@ -12,7 +12,7 @@ public class ElasticsearchStartupRunner {
     private final ElasticIndexCreator indexCreator;
     private final Indexer indexer;
 
-    @PostConstruct
+//    @PostConstruct // 실행 시 자동 인덱싱
     public void init() {
         try {
             indexCreator.createIndices();

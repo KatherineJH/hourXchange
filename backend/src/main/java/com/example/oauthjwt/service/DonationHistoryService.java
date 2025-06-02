@@ -1,5 +1,6 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.dto.condition.DonationHistorySearchCondition;
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
 
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
@@ -27,4 +28,6 @@ public interface DonationHistoryService {
     List<DonationHistoryResponse> getPaymentsBetween(String from, String to);
 
     List<DonationHistoryResponse> getAmountSumBetween(String from, String to);
+
+    Page<DonationHistoryResponse> search(Pageable pageable, DonationHistorySearchCondition condition);
 }

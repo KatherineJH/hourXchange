@@ -1,5 +1,7 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
+import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
 import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.*;
@@ -34,4 +36,8 @@ public interface PaymentService {
     Page<PaymentOrderResponse> orderList(Pageable pageable);
 
     Page<PaymentResponse> paymentList(Pageable pageable);
+
+    Page<PaymentOrderResponse> orderSearch(Pageable pageable, OrdersSearchCondition ordersSearchCondition);
+
+    Page<PaymentResponse> paymentSearch(Pageable pageable, PaymentSearchCondition paymentSearchCondition);
 }

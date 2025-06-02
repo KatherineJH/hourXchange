@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.dto.condition.DonationHistorySearchCondition;
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.PaymentLogResponse;
@@ -30,11 +31,8 @@ public class DonationHistoryController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createDonationHistory(@RequestBody @Valid DonationHistoryRequest donationHistoryRequest,
+    public ResponseEntity<DonationHistoryResponse> createDonationHistory(@RequestBody @Valid DonationHistoryRequest donationHistoryRequest,
                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info("Create DonationHistory");
-        log.info(donationHistoryRequest);
-        log.info(userDetails.getUser().getId());
         DonationHistoryResponse result = donationHistoryService.createDonationHistory(donationHistoryRequest, userDetails.getUser().getId());
 
         return ResponseEntity.ok(result);
@@ -42,8 +40,8 @@ public class DonationHistoryController {
 
     @GetMapping("/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getDonationHistory(@RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<DonationHistoryResponse>> getDonationHistory(@RequestParam(defaultValue = "0") int page,
+                                                                            @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
@@ -52,9 +50,23 @@ public class DonationHistoryController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/search/list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<DonationHistoryResponse>> search(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size,
+                                                                @ModelAttribute DonationHistorySearchCondition condition) {
+        log.info(condition);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<DonationHistoryResponse> result = donationHistoryService.search(pageable, condition);
+
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/my")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getMyDonationHistory(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<DonationHistoryResponse>> getMyDonationHistory(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
@@ -65,7 +77,7 @@ public class DonationHistoryController {
     }
 
     @GetMapping("/topDonator")
-    public ResponseEntity<?> getTopDonator(@RequestParam("period") String period){
+    public ResponseEntity<List<TopDonatorResponse>> getTopDonator(@RequestParam("period") String period){
         List<TopDonatorResponse> topList;
         switch (period.toLowerCase()) {
             case "weekly":

@@ -13,12 +13,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import CustomPagination from "../common/CustomPagination.jsx";
-import {getList, getSearch} from "../../api/donationApi.js";
+import {getSearch} from "../../api/donationApi.js";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {DateField, DateTimeField} from "@mui/x-date-pickers";
+import {DateField} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
 const initParams = {
+    donationId: '',
     title: '',
     description: '',
     status: '',
@@ -80,6 +81,15 @@ export default function DonationList() {
             >
                 {/* 1st row: 제목, 설명 */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+                    <TextField
+                        fullWidth
+                        name="donationId"
+                        label="기부모집ID"
+                        value={params.donationId}
+                        onChange={handleChange}
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                    />
                     <TextField
                         fullWidth
                         name="title"
@@ -180,7 +190,7 @@ export default function DonationList() {
                                     <TableRow
                                         hover
                                         key={item.id}
-                                        onClick={() => navigate(`${readPath}${item.id}`)}
+                                        // onClick={() => navigate(`${readPath}${item.id}`)}
                                         sx={{ cursor: "pointer" }}
                                     >
                                         <TableCell>{item.id}</TableCell>

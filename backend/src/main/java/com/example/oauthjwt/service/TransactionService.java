@@ -2,6 +2,7 @@ package com.example.oauthjwt.service;
 
 import java.util.List;
 
+import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
 import org.springframework.data.domain.Page;
@@ -28,4 +29,6 @@ public interface TransactionService {
 
     @Transactional
     void completeTransaction(Long transactionId);
+
+    Page<TransactionResponse> search(Pageable pageable, TransactionSearchCondition transactionSearchCondition);
 }

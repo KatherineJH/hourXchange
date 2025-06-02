@@ -23,6 +23,9 @@ public class Category {
     @Column(nullable = false)
     private String categoryName;
 
+    @Column(nullable = false)
+    private boolean status;
+
     // single category can have multiple products
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
@@ -31,7 +34,18 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Board> boards = new ArrayList<>();
 
+    public static Category of(String categoryName) {
+        return Category.builder()
+                .categoryName(categoryName)
+                .status(true)
+                .build();
+    }
+
     public void updateCategory(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public void deleteCategory() {
+        this.status = false;
     }
 }

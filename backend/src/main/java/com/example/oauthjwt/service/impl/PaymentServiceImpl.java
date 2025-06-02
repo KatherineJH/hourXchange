@@ -1,6 +1,8 @@
 // src/main/java/com/example/oauthjwt/service/impl/PaymentServiceImpl.java
 package com.example.oauthjwt.service.impl;
 
+import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
+import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
 import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.*;
@@ -196,6 +198,25 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Page<PaymentResponse> paymentList(Pageable pageable) {
         return paymentRepository.findAll(pageable).map(payment -> {
+            User user = userRepository.findById(payment.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+            PaymentItem paymentItem = paymentItemRepository.findById(payment.getPaymentItemId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
+            return PaymentResponse.toDto(payment, user, paymentItem);
+        });
+    }
+
+    @Override
+    public Page<PaymentOrderResponse> orderSearch(Pageable pageable, OrdersSearchCondition ordersSearchCondition) {
+        Page<Orders> ordersPage = ordersRepository.search(ordersSearchCondition, pageable);
+        return ordersPage.map(PaymentOrderResponse::toDto);
+    }
+
+    @Override
+    public Page<PaymentResponse> paymentSearch(Pageable pageable, PaymentSearchCondition paymentSearchCondition) {
+        Page<Payment> paymentPage = paymentRepository.search(paymentSearchCondition, pageable);
+        return paymentPage.map(payment -> {
             User user = userRepository.findById(payment.getUserId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 

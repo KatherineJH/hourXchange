@@ -27,7 +27,7 @@ public class DonationController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createDonation(@RequestBody @Valid DonationRequest donationRequest,
+    public ResponseEntity<DonationResponse> createDonation(@RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
 
@@ -36,7 +36,8 @@ public class DonationController {
     }
 
     @GetMapping("/{donationId}")
-    public ResponseEntity<?> getDonation(@PathVariable Long donationId, HttpServletRequest request,
+    public ResponseEntity<DonationResponse> getDonation(@PathVariable Long donationId,
+                                         HttpServletRequest request,
                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 인증된 유저면 userId, 아니면 클라이언트 IP
         String userKey = (userDetails != null)
@@ -48,7 +49,7 @@ public class DonationController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<PageResult<DonationResponse>> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size) {
         // 로직 실행
         PageResult<DonationResponse> result = donationService.findAll(page, size);
@@ -57,19 +58,20 @@ public class DonationController {
     }
 
     @GetMapping("/search/list")
-    public ResponseEntity<?> search(@RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    @ModelAttribute DonationSearchCondition searchRequest) {
-        log.info(searchRequest);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<PageResult<DonationResponse>> search(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size,
+                                                               @ModelAttribute DonationSearchCondition condition) {
         // 로직 실행
-        PageResult<DonationResponse> result = donationService.search(page, size, searchRequest);
+        PageResult<DonationResponse> result = donationService.search(page, size, condition);
         // 반환
         return ResponseEntity.ok(result);
     }
 
     @PutMapping("/modify/{donationId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> updateDonation(@PathVariable Long donationId, @RequestBody @Valid DonationRequest donationRequest,
+    public ResponseEntity<DonationResponse> updateDonation(@PathVariable Long donationId,
+                                            @RequestBody @Valid DonationRequest donationRequest,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
         DonationResponse result = donationService.update(donationId, donationRequest, userDetails);
@@ -79,7 +81,7 @@ public class DonationController {
 
     @PutMapping("/delete/{donationId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> deleteDonation(@PathVariable Long donationId,
+    public ResponseEntity<List<DonationHistoryResponse>> deleteDonation(@PathVariable Long donationId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<DonationHistoryResponse> result = donationService.delete(donationId, userDetails);
         return ResponseEntity.ok(result);
@@ -87,21 +89,21 @@ public class DonationController {
 
     // 목표 대비 진행률 상위 n개
     @GetMapping("/top-progress")
-    public ResponseEntity<?> topByProgress(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+    public ResponseEntity<List<DonationResponse>> topByProgress(@RequestParam(name = "limit", defaultValue = "5") int limit) {
         List<DonationResponse> result = donationService.getTopByProgress(limit);
         return ResponseEntity.ok(result);
     }
 
     // 조회수 상위 n개
     @GetMapping("/top-views")
-    public ResponseEntity<?> topByViews(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+    public ResponseEntity<List<DonationResponse>> topByViews(@RequestParam(name = "limit", defaultValue = "5") int limit) {
         List<DonationResponse> result = donationService.getTopByViewCount(limit);
         return ResponseEntity.ok(result);
     }
 
     // 최신 생성 순 상위 n개
     @GetMapping("/recent")
-    public ResponseEntity<?> topByRecent(@RequestParam(name = "limit", defaultValue = "5") int limit) {
+    public ResponseEntity<List<DonationResponse>> topByRecent(@RequestParam(name = "limit", defaultValue = "5") int limit) {
         List<DonationResponse> result = donationService.getTopByRecent(limit);
         return ResponseEntity.ok(result);
     }

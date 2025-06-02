@@ -13,6 +13,17 @@ export const getList = async (page, size) => {
   return response;
 };
 
+export const getSearch = async (page, size, params) => {
+  const response = await api.get(apiServerUrl + "search/list", {
+    params: {
+      ...params,
+      page,
+      size
+    }
+  });
+  return response;
+};
+
 export const postSave = async (data) => {
   const response = await api.post(apiServerUrl, data, {
     headers: { "Content-Type": "application/json" },

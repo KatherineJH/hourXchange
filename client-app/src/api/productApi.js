@@ -35,9 +35,14 @@ export const postSave = async (saveData) => {
 };
 
 export const putUpdate = async (id, updateData) => {
-  const response = await api.put(apiServerUrl + id, updateData, {
+  const response = await api.put(apiServerUrl + "modify/" + id, updateData, {
     headers: { "Content-Type": "application/json" },
   });
+  return response;
+};
+
+export const putDelete = async (id) => {
+  const response = await api.put(apiServerUrl + "delete/" + id);
   return response;
 };
 

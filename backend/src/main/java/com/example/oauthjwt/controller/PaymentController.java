@@ -1,5 +1,7 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
+import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
 import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
 import com.example.oauthjwt.dto.response.PaymentOrderResponse;
@@ -32,7 +34,7 @@ public class PaymentController {
     /** 클라이언트 콜백으로부터 imp_uid, merchant_uid 를 받아 검증 */
     @PostMapping("/iamport/transaction")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> iamportTransaction(@RequestBody Map<String, String> data) {
+    public ResponseEntity<PaymentResponse> iamportTransaction(@RequestBody Map<String, String> data) {
         // 결제 정보 검증
         PaymentResponse result = iamportService.transaction(data);
 
@@ -41,7 +43,7 @@ public class PaymentController {
 
     @PostMapping("/order")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> order(@RequestBody @Valid PaymentOrderRequest paymentOrderRequest) {
+    public ResponseEntity<PaymentOrderResponse> order(@RequestBody @Valid PaymentOrderRequest paymentOrderRequest) {
         log.info("Order request: " + paymentOrderRequest);
         PaymentOrderResponse result = paymentService.order(paymentOrderRequest);
 
@@ -50,7 +52,7 @@ public class PaymentController {
 
     @PostMapping("/verify")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> verify(@RequestBody @Valid PaymentVerifyRequest paymentVerifyRequest) {
+    public ResponseEntity<PaymentVerifyResponse> verify(@RequestBody @Valid PaymentVerifyRequest paymentVerifyRequest) {
         log.info("Verify request: " + paymentVerifyRequest);
 
         PaymentVerifyResponse result = paymentService.verify(paymentVerifyRequest);
@@ -59,7 +61,8 @@ public class PaymentController {
     }
 
     @GetMapping("/order/list")
-    public ResponseEntity<?> orderList(@RequestParam(defaultValue = "0") int page,
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<PaymentOrderResponse>> orderList(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
@@ -68,12 +71,39 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/order/search/list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<PaymentOrderResponse>> orderSearch(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @ModelAttribute OrdersSearchCondition ordersSearchCondition) {
+        log.info(ordersSearchCondition);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+
+        Page<PaymentOrderResponse> result = paymentService.orderSearch(pageable, ordersSearchCondition);
+
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/payment/list")
-    public ResponseEntity<?> paymentList(@RequestParam(defaultValue = "0") int page,
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<PaymentResponse>> paymentList(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("paidAt").descending()); // 최신순 정렬
 
         Page<PaymentResponse> result = paymentService.paymentList(pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/payment/search/list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<PaymentResponse>> paymentSearch(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                               @ModelAttribute PaymentSearchCondition paymentSearchCondition) {
+        log.info(paymentSearchCondition);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("paidAt").descending()); // 최신순 정렬
+
+        Page<PaymentResponse> result = paymentService.paymentSearch(pageable, paymentSearchCondition);
 
         return ResponseEntity.ok(result);
     }
