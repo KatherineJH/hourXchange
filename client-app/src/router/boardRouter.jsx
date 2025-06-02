@@ -1,10 +1,10 @@
 // src/router/boardRouter.jsx
 import React, { lazy } from "react";
-import SaveBoard from "../component/board/SaveBoard.jsx";
 
 // 지금 있는 컴포넌트만 lazy import
 const BoardPage = lazy(() => import("../component/board/BoardPage.jsx"));
 const BoardDetail = lazy(() => import("../component/board/BoardDetail.jsx"));
+const SaveBoard = lazy(() => import("../component/board/SaveBoard.jsx"));
 
 const board = () => {
   return [

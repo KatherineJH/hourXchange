@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { IconButton, Box, Button, styled, Grid } from "@mui/material";
+import { useLocation } from "react-router-dom";
+import { Box, Button } from "@mui/material";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useSelector } from "react-redux";
 
 import ProductGrid from "../common/ProductGrid";
-import AdsGrid from "../common/AdsGrid";
 import ListTable from "./ListTable";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
@@ -45,7 +44,7 @@ const ArrowButton = ({ className, onClick, direction }) => (
   </Box>
 );
 
-export default function BuyPost() {
+export default function AllPost() {
   const [favorite, setFavorite] = useState([]);
   const [expandedProductId, setExpandedProductId] = useState(null);
   const [visibleProducts, setVisibleProducts] = useState([]);
@@ -157,7 +156,7 @@ export default function BuyPost() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
-      <CategoryNav/>
+      <CategoryNav />
       {/* 슬라이더 */}
       <Box
         sx={{
@@ -226,7 +225,6 @@ export default function BuyPost() {
       <Box>
         {/* 리스트 테이블 */}
         <ListTable
-          filterProviderType="BUYER"
           category={selectedCategory}
           onVisibleItemsChange={setVisibleProducts}
         />

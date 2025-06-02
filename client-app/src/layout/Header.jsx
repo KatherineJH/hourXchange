@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
 import { replace, useLocation, useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
+import { useCustomDebounce } from "../assets/useCustomDebounce.js";
 
 function Header() {
   const location = useLocation();
@@ -35,6 +36,7 @@ function Header() {
 
   const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const debouncedInput = useCustomDebounce(searchInput, 300);
   const params = new URLSearchParams(location.search);
   const selectedKeyword = params.get("keyword") || "";
 
@@ -44,7 +46,7 @@ function Header() {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
     if (!user.email) dispatch(fetchUserAsync());
@@ -74,13 +76,14 @@ function Header() {
   };
 
   useEffect(() => {
-    if (searchInput.trim() === "" || searchInput === keyword) {
+    if (debouncedInput.trim() === "" || debouncedInput === keyword) {
       setSuggestions([]);
       return;
     }
+
     const fetchSuggestions = async () => {
       try {
-        const result = await getAutocompleteSuggestions(searchInput);
+        const result = await getAutocompleteSuggestions(debouncedInput);
         setSuggestions(result.data);
       } catch (err) {
         console.error("추천 검색어 오류", err);
@@ -90,7 +93,7 @@ function Header() {
 
     fetchSuggestions();
     setHighlightedIndex(-1);
-  }, [searchInput, keyword]);
+  }, [debouncedInput, keyword]);
 
   const handleSearch = () => {
     setKeyword(searchInput);
@@ -119,7 +122,7 @@ function Header() {
               sx={{ fontWeight: "bold" }}
               onClick={() => navigate("/")}
             >
-              H@urXchange
+              HourXChange
             </Typography>
             {/* Search bar */}
             <Box

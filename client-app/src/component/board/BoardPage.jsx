@@ -16,12 +16,12 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-
 import {
   getAllBoards,
   searchBoards,
   getAutocompleteSuggestions,
 } from "../../api/boardApi";
+import { useCustomDebounce } from "../../assets/useCustomDebounce";
 
 function BoardPage() {
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ function BoardPage() {
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
   const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
+  const debouncedInput = useCustomDebounce(searchInput, 300);
 
   const fetchBoards = async () => {
     try {
@@ -57,14 +58,14 @@ function BoardPage() {
   }, [page, size, keyword]);
 
   useEffect(() => {
-    if (searchInput.trim() === "" || searchInput === keyword) {
+    if (debouncedInput.trim() === "" || debouncedInput === keyword) {
       setSuggestions([]);
       return;
     }
 
     const fetchSuggestions = async () => {
       try {
-        const result = await getAutocompleteSuggestions(searchInput);
+        const result = await getAutocompleteSuggestions(debouncedInput);
         setSuggestions(result);
       } catch (e) {
         console.error("추천 검색어 실패", e);
@@ -73,7 +74,7 @@ function BoardPage() {
     };
 
     fetchSuggestions();
-  }, [searchInput]);
+  }, [debouncedInput, keyword]);
 
   const handleSearch = () => {
     setKeyword(searchInput);

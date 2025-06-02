@@ -1,4 +1,3 @@
-// src/component/product/ProductGrid.jsx
 import React, { useEffect, useState } from "react";
 import {
   Grid,
@@ -20,8 +19,8 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
-import { getReviewTagsByReceiverId } from "../../api/transactionApi";
 import AdvertisementCard from "../advertisement/AdvertisementCard";
+import { getProductTags } from "../../api/productApi";
 
 export default function ProductGrid({
   products,
@@ -36,18 +35,16 @@ export default function ProductGrid({
   useEffect(() => {
     const fetchAllTags = async () => {
       const newMap = {};
-      const ownerIds = [
-        ...new Set(products.map((p) => p.owner?.id).filter(Boolean)),
-      ];
 
       await Promise.all(
-        ownerIds.map(async (ownerId) => {
+        products.map(async (product) => {
+          if (!product.id) return;
           try {
-            const tags = await getReviewTagsByReceiverId(ownerId);
-            newMap[ownerId] = tags;
+            const tags = await getProductTags(product.id);
+            newMap[product.id] = tags;
           } catch (err) {
-            console.error(`Failed to fetch tags for owner ${ownerId}`, err);
-            newMap[ownerId] = [];
+            console.error(`Failed to fetch tags for product ${product.id}`, err);
+            newMap[product.id] = [];
           }
         })
       );
@@ -73,6 +70,7 @@ export default function ProductGrid({
         }
         return (
           <Card
+            key={`product-${product.id}`}
             sx={{
               maxWidth: 345,
               display: "flex",
@@ -114,7 +112,7 @@ export default function ProductGrid({
                 alignItems: "stretch",
                 px: 2,
                 pt: 1,
-                minHeight: 92, //reserve space even when no tags
+                minHeight: 92,
               }}
             >
               <Box
@@ -132,8 +130,7 @@ export default function ProductGrid({
                       (f) => f.product.id === product.id
                     );
                     if (isFavorited) {
-                      const confirm =
-                        window.confirm("정말 찜을 취소하시겠습니까?");
+                      const confirm = window.confirm("정말 찜을 취소하시겠습니까?");
                       if (!confirm) return;
                     }
                     onToggleFavorite(product.id);
@@ -162,6 +159,7 @@ export default function ProductGrid({
                 </Box>
               </Box>
 
+              {/* product.id 기준 태그 렌더링 */}
               <Box
                 sx={{
                   display: "flex",
@@ -170,7 +168,7 @@ export default function ProductGrid({
                   justifyContent: "flex-end",
                 }}
               >
-                {tagsMap[product.owner?.id]?.map((tag, idx) => (
+                {tagsMap[product.id]?.map((tag, idx) => (
                   <Box
                     key={idx}
                     sx={{

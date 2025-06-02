@@ -17,6 +17,10 @@ const Theme = createTheme({
       main: "#f8b3a0",
       contrastText: "#333333", // 읽기 쉬운 텍스트 대비
     },
+    third: {
+      main: "#f0e6dd",
+      contrasted: "#333333",
+    },
   },
   components: {
     MuiTextField: {
