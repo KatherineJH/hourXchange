@@ -16,7 +16,13 @@ public class CategoryResponse {
 
     private String categoryName;
 
+    private boolean status;
+
     public static CategoryResponse toDto(Category category) {
-        return CategoryResponse.builder().id(category.getId()).categoryName(category.getCategoryName()).build();
+        return CategoryResponse.builder()
+                .id(category.getId())
+                .categoryName(category.getCategoryName())
+                .status(category.isStatus())
+                .build();
     }
 }

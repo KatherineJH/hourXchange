@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
 import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.entity.type.TransactionStatus;
 import com.example.oauthjwt.entity.type.WalletATM;
@@ -213,5 +214,12 @@ public class TransactionServiceImpl implements TransactionService {
                 .balance(receiver.getWallet().getCredit())
                 .createdAt(LocalDateTime.now())
                 .build());
+    }
+
+    @Override
+    public Page<TransactionResponse> search(Pageable pageable, TransactionSearchCondition transactionSearchCondition) {
+        Page<Transaction> transactionPage = transactionRepository.search(transactionSearchCondition, pageable);
+
+        return transactionPage.map(TransactionResponse::toDto);
     }
 }

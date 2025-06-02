@@ -1,6 +1,7 @@
 package com.example.oauthjwt.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.dto.response.DonationResponse;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.document.BoardDocument;
@@ -56,8 +58,9 @@ public class ElasticSearchController {
     }
 
     @PostMapping("/index")
-    public ResponseEntity<String> indexAll() {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Map<String, String>> indexAll() { // 수동 인덱싱
         indexer.indexAll();
-        return ResponseEntity.ok("Indexing complete!");
+        return ResponseEntity.ok(Map.of("message", "Indexing complete!"));
     }
 }

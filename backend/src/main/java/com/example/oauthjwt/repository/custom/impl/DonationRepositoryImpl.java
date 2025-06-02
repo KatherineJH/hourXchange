@@ -24,6 +24,9 @@ public class DonationRepositoryImpl implements DonationRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
         // 동적 조건 where 조건
+        if(condition.getDonationId() != null) {
+            builder.and(donation.id.eq(condition.getDonationId()));
+        }
         if(condition.getTitle() != null && !condition.getTitle().isBlank()) {
             builder.and(donation.title.containsIgnoreCase(condition.getTitle()));
         }

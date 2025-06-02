@@ -13,7 +13,7 @@ import java.util.*;
 public class AiChatbotController {
     private final AiChatbotService aiChatbotService;
 
-    // ai 챗봇
+    // ai 챗봇 질의
     @PostMapping("/query")
     public ResponseEntity<Map<String, String>> query(@RequestBody Map<String, String> req) {
         // 메세지와 세션 아이디 조회 및 생성

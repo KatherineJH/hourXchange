@@ -17,7 +17,7 @@ public class PaymentItemController {
     private final PaymentItemService paymentItemService;
 
     @GetMapping("/list")
-    public ResponseEntity<?> list() {
+    public ResponseEntity<List<PaymentItemResponse>> list() {
         List<PaymentItemResponse> result = paymentItemService.list();
         return ResponseEntity.ok(result);
     }

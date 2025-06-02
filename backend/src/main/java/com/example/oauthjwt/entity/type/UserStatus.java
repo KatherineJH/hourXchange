@@ -1,5 +1,7 @@
 package com.example.oauthjwt.entity.type;
 
 public enum UserStatus {
-    ACTIVE, INACTIVE, WITHDRAWN // 탈퇴
+    ACTIVE, // 활성
+    INACTIVE, // 비활성
+    WITHDRAWN // 탈퇴
 }

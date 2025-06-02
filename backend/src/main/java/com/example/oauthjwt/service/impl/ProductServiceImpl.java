@@ -232,4 +232,16 @@ public class ProductServiceImpl implements ProductService {
             return ProductResponse.toDto(product, starsAverage);
         });
     }
+
+    @Override
+    public ProductResponse delete(CustomUserDetails userDetails, Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
+        if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 수정이 가능합니다.");
+        }
+        product.setDelete();
+
+        return ProductResponse.toDto(productRepository.save(product));
+    }
 }

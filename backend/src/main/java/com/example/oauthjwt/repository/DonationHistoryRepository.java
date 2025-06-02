@@ -3,6 +3,7 @@ package com.example.oauthjwt.repository;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.entity.DonationHistory;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.repository.custom.DonationHistoryRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-public interface DonationHistoryRepository extends JpaRepository<DonationHistory, Long> {
+public interface DonationHistoryRepository extends JpaRepository<DonationHistory, Long>, DonationHistoryRepositoryCustom {
     Page<DonationHistory> findByDonator(Pageable pageable, User donator);
 
     // 하나의 기부모집에 유저별로 그룹한 총 기부한 시간을 가져오는 쿼리
