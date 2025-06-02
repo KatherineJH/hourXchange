@@ -24,5 +24,5 @@ public interface DonationService {
     List<DonationResponse> getTopByViewCount(int limit);
     List<DonationResponse> getTopByRecent(int limit);
 
-    PageResult<DonationResponse> search(int page, int size, DonationSearchCondition searchRequest);
+    PageResult<DonationResponse> search(int page, int size, DonationSearchCondition condition);
 }

@@ -20,6 +20,18 @@ export const getDonationHistory = async (page, size) => {
   return response;
 };
 
+export const getSearch = async (page, size, params) => {
+
+  const response = await api.get(apiServerUrl + "search/list", {
+    params: {
+      ...params,
+      page,
+      size
+    }
+  });
+  return response;
+};
+
 export const getTopDonators = async (period) => {
   const response = await api.get(apiServerUrl + `topDonator?period=${period}`);
   return response;

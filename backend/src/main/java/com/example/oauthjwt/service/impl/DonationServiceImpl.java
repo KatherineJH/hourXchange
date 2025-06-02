@@ -215,10 +215,10 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public PageResult<DonationResponse> search(int page, int size, DonationSearchCondition searchRequest) {
+    public PageResult<DonationResponse> search(int page, int size, DonationSearchCondition condition) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
-        Page<Donation> donationPage = donationRepository.search(searchRequest, pageable);
+        Page<Donation> donationPage = donationRepository.search(condition, pageable);
 
         List<DonationResponse> content = donationPage.getContent().stream()
                 .map(DonationResponse::toDto)

@@ -1,6 +1,8 @@
 package com.example.oauthjwt.service;
 
 import java.util.List;
+
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
@@ -20,4 +22,6 @@ public interface UserService {
     UserResponse getUserById(Long userId);
 
     Page<UserResponse> getUserList(Pageable pageable);
+
+    Page<UserResponse> search(Pageable pageable, UserSearchCondition condition);
 }

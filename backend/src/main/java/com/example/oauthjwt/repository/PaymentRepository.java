@@ -4,6 +4,7 @@ package com.example.oauthjwt.repository;
 import com.example.oauthjwt.dto.response.PaymentItemRatioResponse;
 import com.example.oauthjwt.dto.response.PaymentLogResponse;
 import com.example.oauthjwt.entity.Payment;
+import com.example.oauthjwt.repository.custom.PaymentRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentRepositoryCustom {
 
     /**
      * 일별 결제 건수 집계 (예: "2025-05-13")

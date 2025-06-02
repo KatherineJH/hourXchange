@@ -52,7 +52,7 @@ const root = createBrowserRouter([
     ),
   },
   {
-    path: "/main",
+    path: "main",
     element: <Main />,
     children: [
       { index: true, element: <Homepage /> },

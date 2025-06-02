@@ -31,4 +31,6 @@ public interface ProductService {
     List<FavoriteResponse> findAllFavorite(Long userId);
 
     Page<ProductResponse> findByOwnerId(Long ownerId, Pageable pageable);
+
+    ProductResponse delete(CustomUserDetails userDetails, Long productId);
 }

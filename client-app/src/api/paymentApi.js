@@ -31,6 +31,17 @@ export const getOrderList = async (page, size) => {
     return response;
 }
 
+export const getOrderSearch = async (page, size, params) => {
+    const response = await api.get(apiServerUrl + "order/search/list", {
+        params: {
+            ...params,
+            page,
+            size
+        }
+    });
+    return response;
+};
+
 export const getPaymentList = async (page, size) => {
     const response = await api.get(apiServerUrl + 'payment/list', {
         params: {
@@ -40,3 +51,14 @@ export const getPaymentList = async (page, size) => {
     })
     return response;
 }
+
+export const getPaymentSearch = async (page, size, params) => {
+    const response = await api.get(apiServerUrl + "payment/search/list", {
+        params: {
+            ...params,
+            page,
+            size
+        }
+    });
+    return response;
+};

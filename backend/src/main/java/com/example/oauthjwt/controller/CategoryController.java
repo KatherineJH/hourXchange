@@ -30,36 +30,43 @@ import lombok.extern.log4j.Log4j2;
 public class CategoryController {
 
     private final CategoryService categoryService;
-
+    // 전체 조회
     @GetMapping("/list")
-    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<CategoryResponse>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<CategoryResponse> result = categoryService.findAll(pageable);
         return ResponseEntity.ok(result);
     }
-
+    // 저장
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> create(@RequestParam String categoryName) {
-        Category category = categoryService.addCategory(categoryName);
-        CategoryResponse categoryResponse = CategoryResponse.toDto(category);
-        return new ResponseEntity<>(categoryResponse, HttpStatus.CREATED);
-    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CategoryResponse> create(@RequestParam String categoryName) {
+        CategoryResponse result = categoryService.addCategory(categoryName);
 
+        return ResponseEntity.ok(result);
+    }
+    // 조회
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
-        Category category = categoryService.findById(id);
-        CategoryResponse categoryResponse = CategoryResponse.toDto(category);
-        return ResponseEntity.ok(categoryResponse);
+    public ResponseEntity<CategoryResponse> findById(@PathVariable Long id) {
+        CategoryResponse result = categoryService.findById(id);
+        return ResponseEntity.ok(result);
     }
+    // 수정
+    @PutMapping("/modify/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CategoryResponse> update(@PathVariable Long id,
+                                                   @RequestParam String categoryName) {
+        CategoryResponse result = categoryService.updateCategory(id, categoryName);
+        return ResponseEntity.ok(result);
+    }
+    // 삭제
+    @PutMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CategoryResponse> delete(@PathVariable Long id) {
+        CategoryResponse result = categoryService.deleteCategory(id);
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestParam String categoryName) {
-        Category update = categoryService.updateCategory(id, categoryName);
-        CategoryResponse categoryResponse = CategoryResponse.toDto(update);
-        return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
+        return ResponseEntity.ok(result);
     }
 }
