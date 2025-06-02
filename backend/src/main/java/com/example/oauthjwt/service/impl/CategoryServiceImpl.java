@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryResponse.toDto(categoryRepository.save(category));
     }
 
-
+    @Override
     public CategoryResponse updateCategory(Long id, String categoryName) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
