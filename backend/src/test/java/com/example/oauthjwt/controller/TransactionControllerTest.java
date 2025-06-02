@@ -8,7 +8,7 @@ import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.interceptor.VisitLogInterceptor;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -49,13 +51,13 @@ class TransactionControllerTest {
 
     // Helper method to create mock CustomUserDetails
     private CustomUserDetails mockUserDetails(Long userId) {
-        User mockUser = User.builder()
+        User user = User.builder()
+                .id(userId)
                 .email("mock@user.com")
                 .password("password")
                 .role(UserRole.ROLE_USER)
                 .build();
-        mockUser.setId(userId);
-        return new CustomUserDetails(mockUser);
+        return new CustomUserDetails(user);
     }
 
     // Helper method to create mock TransactionResponse
@@ -137,8 +139,9 @@ class TransactionControllerTest {
         TransactionResponse transaction2 = mockTransactionResponse(2L, 101L, 2L, "ACCEPTED", 2L);
 
         List<TransactionResponse> mockList = Arrays.asList(transaction1, transaction2);
+        Page<TransactionResponse> mockPage = new PageImpl<>(mockList);
 
-        when(transactionService.findAll()).thenReturn(mockList);
+        when(transactionService.findAll(any(Pageable.class))).thenReturn(mockPage);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then

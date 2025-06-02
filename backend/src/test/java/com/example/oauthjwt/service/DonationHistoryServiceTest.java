@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -204,11 +206,12 @@ class DonationHistoryServiceTest {
     @DisplayName("getWeeklyTop3: 주간 Top3 반환")
     void getWeeklyTop3_Success() {
         User topUser = new User(); topUser.setId(10L);
-        Object[] row = new Object[]{ topUser, Integer.valueOf(15) };
+        List<Object[]> rows = new ArrayList<>();
+        rows.add(new Object[]{ topUser, 15 });
+
         given(donationHistoryRepository.findTopDonatorsSince(
-                any(LocalDateTime.class),
-                eq(PageRequest.of(0, 3))
-        )).willReturn((List<Object[]>) List.of(row));
+                any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
+                .willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getWeeklyTop3();
 
@@ -221,11 +224,12 @@ class DonationHistoryServiceTest {
     @DisplayName("getMonthlyTop3: 월간 Top3 반환")
     void getMonthlyTop3_Success() {
         User topUser = new User(); topUser.setId(20L);
-        Object[] row = new Object[]{ topUser, Integer.valueOf(25) };
+        List<Object[]> rows = new ArrayList<>();
+        rows.add(new Object[]{ topUser, 25 });
+
         given(donationHistoryRepository.findTopDonatorsSince(
-                any(LocalDateTime.class),
-                eq(PageRequest.of(0, 3))
-        )).willReturn((List<Object[]>) List.of(row));
+                any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
+                .willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getMonthlyTop3();
 
@@ -237,12 +241,16 @@ class DonationHistoryServiceTest {
     @Test
     @DisplayName("getYearlyTop3: 연간 Top3 반환")
     void getYearlyTop3_Success() {
-        User topUser = new User(); topUser.setId(30L);
-        Object[] row = new Object[]{ topUser, Integer.valueOf(35) };
+        User topUser = new User();
+        topUser.setId(30L);
+
+        List<Object[]> rows = new ArrayList<>();
+        rows.add(new Object[]{ topUser, 35 });
+
         given(donationHistoryRepository.findTopDonatorsSince(
                 any(LocalDateTime.class),
                 eq(PageRequest.of(0, 3))
-        )).willReturn((List<Object[]>) List.of(row));
+        )).willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getYearlyTop3();
 

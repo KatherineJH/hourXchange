@@ -3,14 +3,21 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.response.CategoryResponse;
 import com.example.oauthjwt.entity.Category;
 import com.example.oauthjwt.repository.CategoryRepository;
+import com.example.oauthjwt.service.impl.CategoryServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +31,7 @@ class CategoryServiceTest {
     private CategoryRepository categoryRepository;
 
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
 
     @Test
     @DisplayName("findAll: repository에서 가져온 엔티티를 DTO 리스트로 변환")
@@ -32,10 +39,12 @@ class CategoryServiceTest {
         // given
         Category c1 = Category.builder().id(1L).categoryName("A").build();
         Category c2 = Category.builder().id(2L).categoryName("B").build();
+        Pageable pageable = PageRequest.of(0, 10);
+
         given(categoryRepository.findAll()).willReturn(List.of(c1, c2));
 
         // when
-        List<CategoryResponse> result = categoryService.findAll();
+        Page<CategoryResponse> result = categoryService.findAll(pageable);
 
         // then
         assertThat(result).hasSize(2)

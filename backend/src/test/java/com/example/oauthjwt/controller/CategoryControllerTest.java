@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,29 +50,25 @@ class CategoryControllerTest {
     @DisplayName("전체 카테고리 조회 성공")
     @WithMockUser
     void getAllCategories() throws Exception {
-        Category cat1 = new Category();
-        cat1.setId(1L);
-        cat1.setCategoryName("운동");
-
-        Category cat2 = new Category();
-        cat2.setId(2L);
-        cat2.setCategoryName("음악");
-
-        CategoryResponse res1 = new CategoryResponse(cat1.getId(), cat1.getCategoryName());
-        CategoryResponse res2 = new CategoryResponse(cat2.getId(), cat2.getCategoryName());
+        CategoryResponse res1 = new CategoryResponse(1L, "운동");
+        CategoryResponse res2 = new CategoryResponse(2L, "음악");
         List<CategoryResponse> categories = Arrays.asList(res1, res2);
 
-        when(categoryService.findAll()).thenReturn(categories);
+        // Page 객체로 감싸기
+        Page<CategoryResponse> page = new PageImpl<>(categories);
+
+        // Pageable 인자를 명시적으로 설정하거나 any(Pageable.class) 사용
+        when(categoryService.findAll(any(Pageable.class))).thenReturn(page);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         mockMvc.perform(get("/api/category/list")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].categoryName").value("운동"))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[1].categoryName").value("음악"));
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].categoryName").value("운동"))
+                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[1].categoryName").value("음악"));
     }
 
     @Test

@@ -6,7 +6,8 @@ import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.interceptor.VisitLogInterceptor;
 import com.example.oauthjwt.service.BoardService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.elastic.ElasticSearchService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,6 +43,9 @@ class BoardControllerTest {
 
     @MockBean
     private VisitLogInterceptor visitLogInterceptor;
+
+    @MockBean
+    private ElasticSearchService elasticSearchService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -100,7 +103,7 @@ class BoardControllerTest {
         BoardRequest boardRequest = BoardRequest.builder()
                 .title("New Board")
                 .description("Board Description")
-                .authorId(userId) // Set authorId to match the authenticated user
+//                .authorId(userId) // Set authorId to match the authenticated user
                 .categoryId(1L)   // Set a valid categoryId
                 .build();
 
@@ -112,7 +115,7 @@ class BoardControllerTest {
                 .likedByMe(false)
                 .build();
 
-        when(boardService.save(any(BoardRequest.class))).thenReturn(mockResponse);
+        when(boardService.save(any(BoardRequest.class), any(CustomUserDetails.class))).thenReturn(mockResponse);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then
@@ -265,7 +268,7 @@ class BoardControllerTest {
                 .likedByMe(false)
                 .build();
 
-        when(boardService.update(any(BoardRequest.class))).thenReturn(mockResponse);
+        when(boardService.update(any(BoardRequest.class), eq(boardId), any(CustomUserDetails.class))).thenReturn(mockResponse);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then

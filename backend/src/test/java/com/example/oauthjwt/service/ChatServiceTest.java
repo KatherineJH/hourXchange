@@ -77,6 +77,9 @@ public class ChatServiceTest {
                 .owner(owner)
                 .category(category)
                 .providerType(ProviderType.SELLER)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구")
                 .build();
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
@@ -120,6 +123,9 @@ public class ChatServiceTest {
                 .owner(sender)
                 .category(category)
                 .providerType(ProviderType.SELLER)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구")
                 .build();
 
         ChatRoom chatRoom = ChatRoom.builder()

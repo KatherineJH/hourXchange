@@ -77,7 +77,12 @@ public class TransactionServiceTest {
                 .id(1L)
                 .categoryName("운동")
                 .build();
-        Product product = Product.builder().id(2L).owner(seller).category(category).providerType(ProviderType.SELLER).build();
+        Product product = Product.builder().id(2L)
+                .owner(seller).category(category)
+                .providerType(ProviderType.SELLER)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(10L).product(product).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(buyer));
@@ -104,7 +109,11 @@ public class TransactionServiceTest {
         request.setStatus("PENDING");
 
         User sameUser = User.builder().id(1L).build();
-        Product product = Product.builder().id(2L).owner(sameUser).build();
+        Product product = Product.builder().id(2L)
+                .owner(sameUser)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구 역삼동").build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(sameUser));
         when(productRepository.findById(2L)).thenReturn(Optional.of(product));
@@ -141,7 +150,11 @@ public class TransactionServiceTest {
 
         User owner = User.builder().id(2L).build();
         User requester = User.builder().id(1L).build();
-        Product product = Product.builder().id(3L).owner(owner).build();
+        Product product = Product.builder().id(3L)
+                .owner(owner)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(chatRoomId).product(product).build();
         ChatRoomUser chatRoomUser = ChatRoomUser.of(requester, chatRoom);
 
@@ -179,7 +192,12 @@ public class TransactionServiceTest {
         Wallet sellerWallet = Wallet.builder().credit(200).user(seller).build();
         seller.setWallet(sellerWallet);
 
-        Product product = Product.builder().id(10L).owner(seller).hours(5).providerType(ProviderType.SELLER).build();
+        Product product = Product.builder().id(10L)
+                .owner(seller).hours(5)
+                .providerType(ProviderType.SELLER)
+                .lat("37.1234")
+                .lng("127.5678")
+                .description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(5L).product(product).build();
 
         Transaction tx = Transaction.builder()

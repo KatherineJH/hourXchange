@@ -11,6 +11,7 @@ import com.example.oauthjwt.service.impl.WalletServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -88,9 +89,9 @@ class WalletServiceTest {
         Long userId = 2L;
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
-        // expect
+        // then
         assertThatThrownBy(() -> walletService.getWalletHistory(userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("지갑이 존재하지 않습니다.");
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("지갑 정보를 찾을 수 없습니다.");
     }
 }
