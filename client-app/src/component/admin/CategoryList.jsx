@@ -51,7 +51,7 @@ export default function CategoryList() {
                                     key={item.id}
                                     hover
                                     sx={{ cursor: 'pointer' }}
-                                    onClick={() => navigate(`/donation/read/${item.id}`)}
+                                    // onClick={() => navigate(`/donation/read/${item.id}`)}
                                 >
                                     <TableCell>{item.id}</TableCell>
                                     <TableCell>{item.categoryName}</TableCell>
