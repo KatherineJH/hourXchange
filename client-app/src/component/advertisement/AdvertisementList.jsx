@@ -29,7 +29,11 @@ export default function AdvertisementList() {
   const fetchMyAds = async () => {
     try {
       const data = await getMyAdvertisements();
-      setAds(data);
+      if (Array.isArray(data.content)) {
+        setAds(data.content);
+      } else {
+        setAds([]); // fallback
+      }
     } catch (err) {
       console.error("광고 목록 불러오기 실패:", err);
       alert("광고 목록을 불러오는데 실패했습니다.");

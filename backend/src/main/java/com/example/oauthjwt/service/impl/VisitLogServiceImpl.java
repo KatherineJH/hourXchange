@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +69,17 @@ public class VisitLogServiceImpl implements VisitLogService {
         LocalDate firstOfYear = LocalDate.now(SEOUL).minusYears(yearsBack).withDayOfYear(1);
         LocalDateTime from = firstOfYear.atStartOfDay();
         return visitLogRepository.countUniqueUsersByYear(from);
+    }
+
+    private static final List<String> DAY_ORDER = List.of(
+            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    );
+
+    @Override
+    public List<VisitLogResponse> getWeekdayStats(Long userId) {
+        List<Object[]> raw = visitLogRepository.countByWeekdayForUser(userId);
+        return raw.stream()
+                .map(row -> new VisitLogResponse((String) row[0], ((Number) row[1]).longValue()))
+                .collect(Collectors.toList());
     }
 }

@@ -15,26 +15,23 @@ import {
   Legend,
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { getWalletHistory } from "../../api/walletApi";
 import {
   getMyTransactionList,
   getReviewListByReceiverId,
+  getReviewTagsByReceiverId,
 } from "../../api/transactionApi";
-import { getDaily, getWeekly } from "../../api/visitLogApi";
 import { getFavoriteList } from "../../api/productApi";
 import { getMyInfo, getUserById } from "../../api/userApi";
-import { getReviewTagsByReceiverId } from "../../api/transactionApi";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { getDaily, getWeekly, getMyWeekdayVisits } from "../../api/visitLogApi";
 
-// 차트 색상 상수 정의
 const COLORS = [
   "#ff6384",
   "#36a2eb",
@@ -51,46 +48,36 @@ export default function MyAccount() {
   const [reviewCount, setReviewCount] = useState(null);
   const [reviewAvg, setReviewAvg] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const [weeklyVisits, setWeeklyVisits] = useState([]);
-  const [dailyVisits, setDailyVisits] = useState([]);
   const [transactionStatusData, setTransactionStatusData] = useState([]);
+  const [dailyVisits, setDailyVisits] = useState([]);
+  const [myWeekdayVisits, setMyWeekdayVisits] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    const fetchVisits = async () => {
-      try {
-        const [weeklyRes, dailyRes] = await Promise.all([
-          getWeekly(),
-          getDaily(),
-        ]);
-        setWeeklyVisits(weeklyRes.data);
-        setDailyVisits(dailyRes.data);
-      } catch (err) {
-        console.error("방문 데이터 로딩 실패", err);
-      }
-    };
-    fetchVisits();
-  }, []);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user?.id) {
-        console.warn("user.id is not ready yet");
-        return;
-      }
       try {
-        const [walletRes, transactionRes, favoriteRes, reviewTagRes, userRes] =
-          await Promise.all([
-            getWalletHistory(),
-            getMyTransactionList(),
-            getFavoriteList(),
-            getReviewTagsByReceiverId(user.id),
-            getUserById(user.id),
-          ]);
+        const [
+          walletRes,
+          transactionRes,
+          favoriteRes,
+          reviewTagRes,
+          userRes,
+          reviewRes,
+          dailyRes,
+          weekdayRes,
+        ] = await Promise.all([
+          getWalletHistory(),
+          getMyTransactionList(),
+          getFavoriteList(),
+          getReviewTagsByReceiverId(user.id),
+          getUserById(user.id),
+          getReviewListByReceiverId(user.id),
+          getDaily(),
+          getMyWeekdayVisits(),
+        ]);
 
-        const reviewRes = await getReviewListByReceiverId(user.id);
         setReviewCount(reviewRes.length);
         setReviewAvg(
           reviewRes.length === 0
@@ -98,7 +85,6 @@ export default function MyAccount() {
             : reviewRes.reduce((sum, r) => sum + r.stars, 0) / reviewRes.length
         );
 
-        // 거래 상태별 도넛 차트 데이터 계산
         const allStatuses = [
           "PENDING",
           "REQUESTED",
@@ -113,37 +99,25 @@ export default function MyAccount() {
           statusMap[t.status] = (statusMap[t.status] || 0) + 1;
         });
         const chartData = allStatuses
-          .map((s) => ({
-            status: s,
-            count: statusMap[s],
-          }))
-          .filter((d) => d.count > 0); // 0인 데이터 제외
+          .map((s) => ({ status: s, count: statusMap[s] }))
+          .filter((d) => d.count > 0);
         setTransactionStatusData(chartData);
 
         setTransactionCount(transactionRes.data.length);
         setCredit(walletRes.length > 0 ? walletRes[0].balance : 0);
         setFavoriteCount(favoriteRes.data.length);
         setUserInfo(userRes);
+        setDailyVisits(dailyRes);
+        setMyWeekdayVisits(weekdayRes);
       } catch (err) {
-        console.error("데이터 로딩 실패:", err);
+        console.error("데이터 로딩 실패", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [user?.id]);
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const info = await getMyInfo();
-        setUserInfo(info);
-      } catch (err) {
-        console.error("유저 정보 조회 실패:", err);
-      }
-    };
-    fetchUserInfo();
-  }, []);
 
   if (loading) {
     return (
@@ -158,171 +132,63 @@ export default function MyAccount() {
       <Typography variant="h4" gutterBottom>
         나의 대시보드 📊
       </Typography>
-
-      {/* 사용자 정보 카드 */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6">💰 현재 크레딧</Typography>
-              <Typography variant="h5">{credit} 시간</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6">📦 총 거래 내역</Typography>
-              <Typography variant="h5">{transactionCount} 건</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6">💖 찜한 상품 수</Typography>
-              <Typography variant="h5">{favoriteCount} 개</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6">🌟 나의 리뷰 평점</Typography>
-              <Typography variant="h5">
-                총 {reviewCount}개 / 평균 ⭐ {reviewAvg?.toFixed(1) || 0}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        {[
+          { title: "💰 현재 크레딧", value: `${credit} 시간` },
+          { title: "📦 총 거래 내역", value: `${transactionCount} 건` },
+          { title: "💖 찜한 상품 수", value: `${favoriteCount} 개` },
+          {
+            title: "🌟 나의 리뷰 평점",
+            value: `총 ${reviewCount}개 / 평균 ⭐ ${reviewAvg?.toFixed(1) || 0}`,
+          },
+        ].map((item, i) => (
+          <Grid item xs={12} md={3} key={i}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6">{item.title}</Typography>
+                <Typography variant="h5">{item.value}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
 
-      {/* 내 정보 및 주소 정보 카드 */}
-      <Card sx={{ my: 4, borderRadius: 3, boxShadow: 3 }}>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-between",
-              gap: 4,
-            }}
-          >
-            <Box sx={{ flex: 1, minWidth: 240 }}>
-              <Typography variant="h6" gutterBottom>
-                내 정보
-              </Typography>
-              <Typography>이메일: {userInfo?.email || user.email}</Typography>
-              <Typography>이름: {userInfo?.name || user.name}</Typography>
-              <Typography>
-                닉네임: {userInfo?.username || user.username}
-              </Typography>
-              <Typography>
-                생일:{" "}
-                {userInfo?.birthdate
-                  ? new Date(userInfo.birthdate).toLocaleDateString("ko-KR")
-                  : "-"}
-              </Typography>
-              <Typography>
-                가입일:{" "}
-                {userInfo?.createdAt
-                  ? new Date(userInfo.createdAt).toLocaleDateString("ko-KR")
-                  : "-"}
-              </Typography>
-            </Box>
-
-            <Box sx={{ flex: 1, minWidth: 240 }}>
-              <Typography variant="h6" gutterBottom>
-                주소 정보
-              </Typography>
-              {userInfo?.address ? (
-                <>
-                  <Typography>
-                    도로명 주소: {userInfo.address.roadAddress}
-                  </Typography>
-                  <Typography>
-                    지번 주소: {userInfo.address.jibunAddress}
-                  </Typography>
-                  {userInfo.address.detailAddress && (
-                    <Typography>
-                      상세 주소: {userInfo.address.detailAddress}
-                    </Typography>
-                  )}
-                  <Typography>우편번호: {userInfo.address.zonecode}</Typography>
-                </>
-              ) : (
-                <Typography color="text.secondary">
-                  주소 정보가 없습니다.
-                </Typography>
-              )}
-            </Box>
-          </Box>
-
-          <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate("/myPage/edit")}
-            >
-              내 정보 수정
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* 차트 섹션 */}
-      {/* 차트 상단 2개: 요일별 방문 현황 & 거래 상태 분포 */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "stretch",
-          gap: 3,
-          mb: 3,
-          flexWrap: "wrap",
-        }}
-      >
-        {/* 요일별 방문 현황 */}
+      {/* 요일별 방문 현황 & 거래 상태 분포 */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 4 }}>
         <Box sx={{ flex: 1, minWidth: 300 }}>
-          <Card sx={{ height: "100%", borderRadius: 2, boxShadow: 2 }}>
+          <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                📊 요일별 방문 현황
+                🙋 내 요일별 방문 기록
               </Typography>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart
-                  data={weeklyVisits}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                >
+                <BarChart data={myWeekdayVisits}>
                   <XAxis
-                    dataKey="period"
-                    tick={{ fontSize: 12 }}
+                    dataKey="weekday"
                     tickFormatter={(value) => {
-                      const dayMap = ["일", "월", "화", "수", "목", "금", "토"];
-                      try {
-                        const parsed = dayjs(value);
-                        const day = parsed.day();
-                        return dayMap[day];
-                      } catch {
-                        return value;
-                      }
+                      const map = {
+                        Monday: "월",
+                        Tuesday: "화",
+                        Wednesday: "수",
+                        Thursday: "목",
+                        Friday: "금",
+                        Saturday: "토",
+                        Sunday: "일",
+                      };
+                      return map[value] || value;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <YAxis />
                   <Tooltip formatter={(v) => `${v}회`} />
-                  <Bar dataKey="count" fill="#f57c00" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" fill="#1976d2" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </Box>
 
-        {/* 거래 상태 분포 */}
         <Box sx={{ flex: 1, minWidth: 300 }}>
-          <Card sx={{ height: "100%", borderRadius: 2, boxShadow: 2 }}>
+          <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 🧾 거래 상태 분포
@@ -340,7 +206,6 @@ export default function MyAccount() {
                     label={({ name, percent }) =>
                       `${name} (${(percent * 100).toFixed(0)}%)`
                     }
-                    labelLine={true}
                   >
                     {transactionStatusData.map((entry, index) => (
                       <Cell
@@ -349,12 +214,7 @@ export default function MyAccount() {
                       />
                     ))}
                   </Pie>
-                  <Legend
-                    layout="horizontal"
-                    align="center"
-                    verticalAlign="bottom"
-                    wrapperStyle={{ fontSize: 12, paddingTop: 10 }}
-                  />
+                  <Legend layout="horizontal" verticalAlign="bottom" />
                   <Tooltip formatter={(value) => `${value}건`} />
                 </PieChart>
               </ResponsiveContainer>
@@ -363,51 +223,56 @@ export default function MyAccount() {
         </Box>
       </Box>
 
-      {/* 하단 전체 가로 차트 */}
-      <Box sx={{ width: "100%" }}>
-        <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              📈 일자별 누적 방문수
-            </Typography>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart
-                data={dailyVisits}
-                margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-              >
-                <XAxis
-                  dataKey="period"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) =>
-                    new Date(value + "T00:00:00").toLocaleDateString("ko-KR", {
-                      month: "2-digit",
-                      day: "2-digit",
-                    })
-                  }
-                />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip
-                  formatter={(value) => `${value}회`}
-                  labelFormatter={(value) =>
-                    new Date(value + "T00:00:00").toLocaleDateString("ko-KR", {
-                      month: "2-digit",
-                      day: "2-digit",
-                    })
-                  }
-                />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#42a5f5"
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: "#42a5f5", strokeWidth: 0 }}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </Box>
+      {/* 내 정보 및 주소 */}
+      <Card sx={{ my: 4, borderRadius: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+            <Box sx={{ flex: 1, minWidth: 240 }}>
+              <Typography variant="h6">내 정보</Typography>
+              <Typography>이메일: {userInfo?.email}</Typography>
+              <Typography>이름: {userInfo?.name}</Typography>
+              <Typography>닉네임: {userInfo?.username}</Typography>
+              <Typography>
+                생일:{" "}
+                {new Date(userInfo?.birthdate).toLocaleDateString("ko-KR")}
+              </Typography>
+              <Typography>
+                가입일:{" "}
+                {new Date(userInfo?.createdAt).toLocaleDateString("ko-KR")}
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 240 }}>
+              <Typography variant="h6">주소 정보</Typography>
+              {userInfo?.address ? (
+                <>
+                  <Typography>
+                    도로명 주소: {userInfo.address.roadAddress}
+                  </Typography>
+                  <Typography>
+                    지번 주소: {userInfo.address.jibunAddress}
+                  </Typography>
+                  <Typography>
+                    상세 주소: {userInfo.address.detailAddress}
+                  </Typography>
+                  <Typography>우편번호: {userInfo.address.zonecode}</Typography>
+                </>
+              ) : (
+                <Typography color="text.secondary">
+                  주소 정보가 없습니다.
+                </Typography>
+              )}
+            </Box>
+          </Box>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/myPage/edit")}
+            >
+              내 정보 수정
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

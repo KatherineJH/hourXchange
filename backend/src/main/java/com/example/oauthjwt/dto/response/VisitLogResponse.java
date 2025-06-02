@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class VisitLogResponse {
-    private String period;  // ex) "2025-05-13", "Week 20", "2025-05"
+    private String period;
     private Long count;
+    private String weekday;
 
     public VisitLogResponse(Object periodObj, Long count) {
         this.period = periodObj == null ? null : periodObj.toString();
         this.count  = count;
+        this.weekday = this.period;
     }
 }
