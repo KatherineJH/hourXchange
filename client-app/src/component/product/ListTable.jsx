@@ -22,6 +22,7 @@ import {
   getList,
   getListWithKeyword,
   getAutocompleteSuggestions,
+  getFilteredList,
 } from "../../api/productApi.js";
 import { useNavigate } from "react-router-dom";
 import { useCustomDebounce } from "../../assets/useCustomDebounce.js";
@@ -65,34 +66,28 @@ function ListTable({
   useEffect(() => {
     const fetch = async () => {
       try {
-        const response =
-          keyword.trim() === ""
-            ? await getList(0, 10) // fetch ALL (first 10)
-            : await getListWithKeyword(keyword, 0, 10);
+        let response;
+
+        if (keyword.trim() !== "") {
+          response = await getListWithKeyword(keyword, page, size);
+        } else if (filterProviderType) {
+          response = await getFilteredList(page, size, filterProviderType);
+        } else {
+          response = await getList(page, size);
+        }
 
         let full = response.data.content;
 
-        if (filterProviderType) {
-          full = full.filter((p) => p.providerType === filterProviderType);
-        }
         if (category) {
           full = full.filter((p) => p.category?.categoryName === category);
         }
 
-        const start = page * size;
-        const end = start + size;
-        const paged = full.slice(start, end);
-
-        setServerDataList(paged);
-        setTotalPages(Math.ceil(full.length / size));
+        setServerDataList(full);
+        setTotalPages(response.data.totalPages);
 
         if (onVisibleItemsChange) {
-          onVisibleItemsChange(paged);
+          onVisibleItemsChange(full);
         }
-        // // Notify parent about currently visible page
-        // if (onVisibleItemsChange) {
-        //   onVisibleItemsChange(data);
-        // }
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
