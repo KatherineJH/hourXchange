@@ -167,4 +167,18 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(ut -> new UserTagResponse(ut.getTag(), ut.getCount()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ReviewResponse> getReviewsByReceiverId(Long userId) {
+        List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
+        return reviews.stream()
+                .map(review -> ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .content(review.getContent())
+                        .stars(review.getStars())   // 사용자 별점
+                        .tags(review.getTags().stream().map(ReviewTag::getTag).toList())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }
