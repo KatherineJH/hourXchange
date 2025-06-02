@@ -6,6 +6,8 @@ import com.example.oauthjwt.dto.request.AdvertisementRequest;
 import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.entity.Advertisement;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AdvertisementService {
 
@@ -15,9 +17,9 @@ public interface AdvertisementService {
 
     AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
-    List<AdvertisementResponse> findAllAdvertisements();
+    Page<AdvertisementResponse> findAllAdvertisements(Pageable pageable);
 
     AdvertisementResponse deleteAdvertisement(Long advertisementId,CustomUserDetails userDetails);
 
-    List<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails);
+    Page<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails, Pageable pageable);
 }

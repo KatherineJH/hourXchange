@@ -85,9 +85,11 @@ function ListTable({
         setServerDataList(full);
         setTotalPages(response.data.totalPages);
 
+
         if (onVisibleItemsChange) {
           onVisibleItemsChange(full);
         }
+
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }

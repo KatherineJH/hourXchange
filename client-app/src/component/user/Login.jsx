@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { getAdvertisement } from "../../api/advertisementApi.js";
 import { useEffect } from "react";
+import UserAdvertisement from "../advertisement/UserAdvertisement.jsx";
 
 const providers = [
   { id: "naver", name: "Naver" },
@@ -99,121 +100,68 @@ export default function EmailLoginForm() {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "flex-start",
-        mt: 7,
-        flexDirection: {
-          xs: "column",
-          md: "row",
-        },
+        flexDirection: { xs: "column", md: "row" },
+        minHeight: "100vh",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+        gap: 2,
       }}
     >
-      {/* 로그인 폼 */}
-      <Box
-        sx={{
-          flex: 4,
-        }}
-      >
-        <SignInPage
-          signIn={signIn}
-          providers={providers}
-          slots={{
-            signUpLink: () => (
-              <Typography sx={{ textAlign: "center", mt: 2 }}>
-                계정이 없으신가요?{" "}
-                <MuiLink component={RouterLink} to="/save" underline="hover">
-                  Sign up
-                </MuiLink>
-              </Typography>
-            ),
-          }}
-          slotProps={{
-            credentials: {
-              inputs: (
-                <>
-                  <TextField
-                    name="email"
-                    label="이메일"
-                    type="email"
-                    fullWidth
-                    margin="normal"
-                    required
-                    disabled={isLoading}
-                  />
-                  <TextField
-                    name="password"
-                    label="비밀번호"
-                    type="password"
-                    fullWidth
-                    margin="normal"
-                    required
-                    disabled={isLoading}
-                  />
-                </>
-              ),
-            },
-          }}
-          sx={{
-            "& .MuiStack-root": {
-              rowGap: "0.75rem",
-            },
-            height: "auto !important",
-            display: "flex !important",
-            flexDirection: "column !important",
-            justifyContent: "flex-start !important",
-          }}
-        />
+      {/* 왼쪽 광고 (1) */}
+      <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+        <UserAdvertisement ad={ad} />
       </Box>
 
-      {/* 광고 박스 */}
-      <Box sx={{ flex: 1 }}>
-        <Box
-          sx={{
-            minHeight: 700,
-            p: 2,
-            border: "1px solid #ccc",
-            borderRadius: 2,
-            backgroundColor: "#fafafa",
-            maxWidth: 300,
-            width: "100%",
-            flexDirection: "column",
-            boxShadow: 3,
-          }}
-        >
-          {ad ? (
-            <>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" gutterBottom>
-                  {ad.title}
+      {/* 로그인 폼 (3) */}
+      <Box sx={{ flex: 3, display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "100%", maxWidth: 500 }}>
+          <SignInPage
+            signIn={signIn}
+            providers={providers}
+            slots={{
+              signUpLink: () => (
+                <Typography sx={{ textAlign: "center", mt: 2 }}>
+                  계정이 없으신가요?{" "}
+                  <MuiLink component={RouterLink} to="/save" underline="hover">
+                    Sign up
+                  </MuiLink>
                 </Typography>
-                <Typography variant="body2" gutterBottom>
-                  {ad.description}
-                </Typography>
-              </CardContent>
-              <Box
-                component="img"
-                src={ad.imgUrl ?? "/donationAd.png"}
-                alt={ad.title}
-                sx={{
-                  width: "100%",
-                  borderRadius: 1,
-                  mb: 2,
-                }}
-              />
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mt: "auto" }}
-              >
-                작성자: {ad.ownerName}
-              </Typography>
-            </>
-          ) : (
-            <Typography sx={{ mt: 2 }} color="text.secondary">
-              광고를 불러오는 중입니다...
-            </Typography>
-          )}
+              ),
+            }}
+            slotProps={{
+              credentials: {
+                inputs: (
+                  <>
+                    <TextField
+                      name="email"
+                      label="이메일"
+                      type="email"
+                      fullWidth
+                      margin="normal"
+                      required
+                      disabled={isLoading}
+                    />
+                    <TextField
+                      name="password"
+                      label="비밀번호"
+                      type="password"
+                      fullWidth
+                      margin="normal"
+                      required
+                      disabled={isLoading}
+                    />
+                  </>
+                ),
+              },
+            }}
+          />
         </Box>
+      </Box>
+      {/* 오른쪽 광고 (1) */}
+      <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+        <UserAdvertisement ad={ad} />
       </Box>
     </Box>
   );
