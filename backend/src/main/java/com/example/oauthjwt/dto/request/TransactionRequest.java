@@ -14,10 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TransactionRequest {
-    private Long id; // 트랜잭션 id
-
-    private Long userId; // 대상 id 토큰에서 추출
-
     @NotNull(message = "제품 정보는 필수입니다.")
     private Long productId; // 대상 제품 id
 

@@ -1,6 +1,12 @@
 import React, { lazy } from "react";
 
-const Modify = lazy(() => import("../component/user/Modify.jsx"));
+import ChatRoom from "../component/chat/ChatRoom.jsx";
+import board from "./boardRouter.jsx";
+import Read from "../component/product/Read.jsx";
+import ProductForm from "../component/product/ProductForm.jsx";
+import transactionRouter from "./transactionRouter.jsx";
+import Modify from "../component/product/Modify.jsx";
+const ModifyUser = lazy(() => import("../component/user/Modify.jsx"));
 const MyAccount = lazy(() => import("../component/user/MyAccount.jsx"));
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
@@ -24,7 +30,7 @@ const myPageRouter = () => [
   },
   {
     path: "edit",
-    element: <Modify />,
+    element: <ModifyUser />,
   },
   {
     path: "chat",
@@ -62,6 +68,23 @@ const myPageRouter = () => [
     path: "advertisement/modify/:id",
     element: <AdvertisementForm mode="edit" />,
   },
+  {
+    path: "chat-room/:chatRoomId",
+    element: <ChatRoom />,
+  },
+  {
+    path: "board",
+    children: board(),
+  },
+  {
+    path: "product",
+    children: [
+      { path: "read/:id", element: <Read /> },
+      { path: "register", element: <ProductForm /> },
+      { path: "modify/:id", element: <Modify /> },
+    ],
+  },
+  ...transactionRouter(),
 ];
 
 export default myPageRouter;

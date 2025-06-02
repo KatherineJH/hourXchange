@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressRequest {
-    @NotBlank
+    @NotBlank(message = "우편번호는 필수 입력사항입니다.")
     private String zonecode; // 우편번호
-    @NotBlank
+    @NotBlank(message = "도로명주소는 필수 입력사항입니다.")
     private String roadAddress; // 도로명주소
 
     private String jibunAddress; // 지번주소
