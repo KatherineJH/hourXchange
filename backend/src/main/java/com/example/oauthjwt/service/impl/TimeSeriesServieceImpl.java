@@ -19,6 +19,9 @@ public class TimeSeriesServieceImpl implements TimeSeriesServiece {
     @Value("${url.flask}/forecast/predict")
     private String flaskUrl;
 
+    @Value("${url.flask}/donation/predict")
+    private String flaskUrl2;
+
     @Override
     public List<Map<String, Object>> getForecast(List<Map<String, Object>> history, int periods) {
         try {
@@ -37,5 +40,19 @@ public class TimeSeriesServieceImpl implements TimeSeriesServiece {
     }
     private List<Map<String, Object>> fail(String message) {
         return List.of(Map.of("error", message));
+    }
+
+    @Override
+    public Map<String, Object> predictDonation(Map<String, Object> features) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(features, headers);
+
+            ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl2, entity, Map.class);
+            return response.getBody();
+        } catch (Exception e) {
+            return Map.of("error", "기부 예측 실패: 서버 또는 데이터 오류");
+        }
     }
 }

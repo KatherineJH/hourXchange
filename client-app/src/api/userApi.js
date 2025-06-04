@@ -35,3 +35,9 @@ export const getSearch = async (page, size, params) => {
   });
   return response;
 };
+
+// 사용자 특성 정보 가져오기
+export const getUserFeatures = async (id) => {
+  const response = await api.get(`${apiServerUrl}${id}/features`);
+  return response.data;
+};

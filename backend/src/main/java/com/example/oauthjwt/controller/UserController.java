@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -68,5 +69,11 @@ public class UserController {
         Page<UserResponse> result = userService.search(pageable, condition);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{userId}/features")
+    public ResponseEntity<Map<String, Object>> getUserFeatures(@PathVariable Long userId) {
+        Map<String, Object> features = userService.getFeaturesByUserId(userId);
+        return ResponseEntity.ok(features);
     }
 }
