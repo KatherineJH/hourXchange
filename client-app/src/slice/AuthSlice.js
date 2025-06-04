@@ -10,6 +10,7 @@ const initialState = {
     name: '',
     role: '',
   },
+  loading: true,
 };
 
 // 이메일 로그인 액션
@@ -47,6 +48,9 @@ const authSlice = createSlice({
       })
     // // 사용자 정보 조회
     builder
+        .addCase(fetchUserAsync.pending, (state, action) => {
+          state.loading = true
+        })
       .addCase(fetchUserAsync.fulfilled, (state, action) => {
         state.user = {
           id: action.payload.id,
@@ -55,10 +59,12 @@ const authSlice = createSlice({
           name: action.payload.name,
           role: action.payload.role,
         };
+        state.loading = false
       })
       .addCase(fetchUserAsync.rejected, (state, action) => {
         console.log('실패')
-        return initialState // 초기화
+        state.loading = false
+        state.user = initialState.user
       });
   },
 });
