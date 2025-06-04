@@ -45,12 +45,6 @@ export default function ModifyProduct() {
     images: [],
     lat: 0,
     lng: 0,
-    address: {
-      zonecode: "",
-      roadAddress: "",
-      jibunAddress: "",
-      detailAddress: "",
-    },
   });
   const [categories, setCategories] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -80,13 +74,12 @@ export default function ModifyProduct() {
         images: data.images || [],
         lat: data.lat,
         lng: data.lng,
-        address: data.address || {},
       });
       setPreviews(data.images || []);
       setSelectedTags(data.tags || []);
     }
     fetch();
-    getCategoryList().then((res) => setCategories(res.data));
+    getCategoryList().then((res) => setCategories(res.data.content));
     getUserTags(auth.user?.id).then(setUserTags);
   }, [id]);
 
@@ -167,12 +160,6 @@ export default function ModifyProduct() {
           ...p,
           lat: parseFloat(y),
           lng: parseFloat(x),
-          address: {
-            zonecode: data.zonecode,
-            roadAddress: data.roadAddress,
-            jibunAddress: data.jibunAddress,
-            detailAddress: "",
-          },
         }));
       } else {
         alert("주소 검색에 실패했습니다.");
@@ -221,6 +208,51 @@ export default function ModifyProduct() {
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
       <form onSubmit={handleSubmit}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+          <input
+              type="file"
+              hidden
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+          />
+          <Button
+              variant="outlined"
+              onClick={handleAddClick}
+              sx={{
+                width: IMAGE_SIZE,
+                height: IMAGE_SIZE,
+                borderRadius: 2,
+                border: "1px dashed rgba(0,0,0,0.3)",
+              }}
+          >
+            <AddPhotoAlternateIcon />
+          </Button>
+          {previews.map((src, idx) => (
+              <Box
+                  key={idx}
+                  sx={{
+                    width: IMAGE_SIZE,
+                    height: IMAGE_SIZE,
+                    cursor: "pointer",
+                    position: "relative",
+                  }}
+                  onClick={() => handleRemoveImage(idx)}
+              >
+                <img
+                    src={src}
+                    alt={`img-${idx}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
+                />
+              </Box>
+          ))}
+        </Box>
+
         {/* 타입 & 카테고리 */}
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
           <FormControl fullWidth size="small">
@@ -362,51 +394,6 @@ export default function ModifyProduct() {
           <Typography variant="caption" color="text.secondary">
             선택된 좌표: {formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}
           </Typography>
-        </Box>
-
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
-          <input
-            type="file"
-            hidden
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
-          <Button
-            variant="outlined"
-            onClick={handleAddClick}
-            sx={{
-              width: IMAGE_SIZE,
-              height: IMAGE_SIZE,
-              borderRadius: 2,
-              border: "1px dashed rgba(0,0,0,0.3)",
-            }}
-          >
-            <AddPhotoAlternateIcon />
-          </Button>
-          {previews.map((src, idx) => (
-            <Box
-              key={idx}
-              sx={{
-                width: IMAGE_SIZE,
-                height: IMAGE_SIZE,
-                cursor: "pointer",
-                position: "relative",
-              }}
-              onClick={() => handleRemoveImage(idx)}
-            >
-              <img
-                src={src}
-                alt={`img-${idx}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: 4,
-                }}
-              />
-            </Box>
-          ))}
         </Box>
 
         <Box sx={{ textAlign: "right" }}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getRead } from "../../api/productApi.js";
+import {getRead, putDelete} from "../../api/productApi.js";
 import { postSave } from "../../api/transactionApi.js";
 import { initiateChat } from "../../api/chatApi";
 import {
@@ -62,6 +62,17 @@ function Read() {
       console.error("채팅방 생성 실패", error);
     }
   };
+
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await putDelete(id);
+      console.log(response)
+      alert("삭제가 완료 되었습니다.")
+      navigate('/')
+    }catch (error){
+      console.log(error)
+    }
+  }
 
   return (
     <Box sx={{ mt: 4, maxWidth: "700px", mx: "auto" }}>
@@ -248,15 +259,24 @@ function Read() {
           {/* 버튼 영역 */}
           <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
             {auth.user?.id === serverData.owner.id ? (
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() =>
-                  navigate(`${pathPrefix}/product/modify/${serverData.id}`)
-                }
-              >
-                수정하기
-              </Button>
+              <>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() =>
+                    navigate(`${pathPrefix}/product/modify/${serverData.id}`)
+                  }
+                >
+                  수정하기
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="large"
+                    onClick={() => handleDeleteClick(serverData.id)}
+                >
+                  삭제하기
+                </Button>
+              </>
             ) : (
               <Button
                 variant="contained"

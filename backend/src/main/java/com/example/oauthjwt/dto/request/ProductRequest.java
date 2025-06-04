@@ -48,7 +48,5 @@ public class ProductRequest {
     @NotNull(message = "위치는 필수입니다.")
     private String lng; // 경도 세로
 
-    private AddressRequest address;
-
     private List<String> tags;
 }

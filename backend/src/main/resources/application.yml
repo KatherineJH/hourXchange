@@ -119,6 +119,8 @@ logging:
   level:
     spring.security.web: TRACE
     spring.security.config: DEBUG
+    org.springframework.cache.interceptor: DEBUG
+    org.springframework.data.redis.cache: DEBUG
 
 # 서버 상태 체크
 management:

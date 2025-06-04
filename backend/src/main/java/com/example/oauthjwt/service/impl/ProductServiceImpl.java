@@ -70,10 +70,8 @@ public class ProductServiceImpl implements ProductService {
                 images.add(ProductImage.builder().imgUrl(url).build());
             }
         }
-        // 주소 저장
-        Address address = addressRepository.save(Address.of(productRequest.getAddress()));
         // Product 객체 생성 (tags 포함)
-        Product product = Product.of(productRequest, owner, category, providerType, address, images, productRequest.getTags());
+        Product product = Product.of(productRequest, owner, category, providerType, images, productRequest.getTags());
         // 저장 및 반환
         Product result = productRepository.save(product);
         return ProductResponse.toDto(result);
@@ -108,9 +106,6 @@ public class ProductServiceImpl implements ProductService {
         if (!product.getOwner().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 수정이 가능합니다.");
         }
-
-        Address address = product.getAddress();
-        address.setUpdateValue(productRequest);
 
         Category category = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
@@ -238,7 +233,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
         if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 수정이 가능합니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 삭제가 가능합니다.");
         }
         product.setDelete();
 
