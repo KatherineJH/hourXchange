@@ -26,7 +26,7 @@ export default function New7Days({
   // console.log("🔥 중복 제거 후:", deduplicated.map((p) => p.title));
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <div>
       <h2>🔥 최근 7일 내 올라온 상품</h2>
       <ProductGrid
         products={deduplicated}

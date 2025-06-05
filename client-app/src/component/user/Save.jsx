@@ -26,16 +26,6 @@ const Card = styled(Paper)(({ theme }) => ({
     "rgba(0, 0, 0, 0.05) 0px 5px 15px, rgba(0, 0, 0, 0.05) 0px 15px 35px -5px",
 }));
 
-const SignUpContainer = styled(Box)(({ theme }) => ({
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundRepeat: "no-repeat",
-  padding: theme.spacing(2),
-  gap: 2,
-}));
-
 const initState = {
   name: "",
   username: "",
@@ -56,23 +46,18 @@ export default function Save() {
   const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
   const [saveData, setSaveData] = useState(initState);
 
-  const [ad, setAd] = useState(null);
+  // 전체 광고 배열을 담을 상태
+  const [ads, setAds] = useState([]);
 
-  useEffect(() => {
-    getAdvertisement()
-      .then((ads) => {
-        if (ads.length > 0) {
-          setAd(ads[0]);
-        }
-      })
-      .catch((err) => console.error("광고 로딩 실패:", err));
-  }, []);
+  // 광고를 4개씩 분할해서 좌·우에 뿌리기 위함
+  const leftAds = ads.slice(0, 4);
+  const rightAds = ads.slice(4, 8);
 
+  // 회원가입 폼 핸들링
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSaveData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleDetailChange = (e) => {
     setSaveData((prev) => ({
       ...prev,
@@ -82,7 +67,6 @@ export default function Save() {
       },
     }));
   };
-
   const handleAddressComplete = (data) => {
     setSaveData((prev) => ({
       ...prev,
@@ -95,7 +79,6 @@ export default function Save() {
     }));
     setIsPostcodeOpen(false);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const birthDate = new Date(saveData.birthdate);
@@ -106,12 +89,10 @@ export default function Save() {
       alert("생일은 미래 날짜로 설정할 수 없습니다.");
       return;
     }
-
     if (saveData.password !== saveData.passwordCheck) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-
     try {
       await postSave(saveData);
       navigate("/login", { replace: true });
@@ -121,38 +102,70 @@ export default function Save() {
     }
   };
 
+  // 마운트 시 한 번만 광고 리스트를 불러와서 ads 상태에 저장
+  useEffect(() => {
+    getAdvertisement()
+      .then((res) => {
+        // API 응답이 { content: [...] } 형태라면 res.content 사용
+        // 만약 배열 그 자체를 반환하면 res 사용
+        const list = Array.isArray(res.content) ? res.content : [];
+        setAds(list);
+      })
+      .catch((err) => console.error("광고 로딩 실패:", err));
+  }, []);
+
   return (
     <>
       <CssBaseline />
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column", md: "row" },
           width: "100%",
-          minHeight: "100vh",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
-          gap: 2,
           px: 2,
+          gap: 2,
+          // 로그인 화면처럼 최상위에는 overflowY 설정을 주지 않습니다.
         }}
       >
-        {/* 왼쪽 광고 영역 (1) */}
-        <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <UserAdvertisement ad={ad} />
+        {/* 왼쪽 광고 (최대 4개) */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
+          {leftAds.map((ad, index) => (
+            <UserAdvertisement key={`left-${index}`} ad={ad} />
+          ))}
         </Box>
 
-        {/* 중앙 회원가입 폼 (3) */}
-        <Box sx={{ flex: 3, display: "flex", justifyContent: "center" }}>
+        {/* 중앙 회원가입 폼 */}
+        <Box
+          sx={{
+            flex: 3,
+            display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
+            mt: 28,
+          }}
+        >
           <Card
             component="form"
             noValidate
             onSubmit={handleSubmit}
             sx={{
-              maxWidth: 480,
+              maxWidth: 410,
               width: "100%",
               p: 4,
               borderRadius: 3,
+
               boxShadow:
-                "rgba(0, 0, 0, 0.05) 0px 5px 15px, rgba(0, 0, 0, 0.05) 0px 15px 35px -5px",
+                "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 1px 2px rgba(0, 0, 0, 0.3)",
             }}
           >
             <Stack spacing={1.5}>
@@ -163,6 +176,7 @@ export default function Save() {
               >
                 Sign Up
               </Typography>
+
               <TextField
                 label="이메일"
                 name="email"
@@ -214,6 +228,7 @@ export default function Save() {
                 InputLabelProps={{ shrink: true }}
                 inputProps={{ max: new Date().toISOString().split("T")[0] }}
               />
+
               <Button
                 variant="outlined"
                 fullWidth
@@ -226,6 +241,7 @@ export default function Save() {
                 {saveData.address.zonecode +
                   " " +
                   saveData.address.roadAddress +
+                  " " +
                   saveData.address.jibunAddress}
               </Typography>
               <TextField
@@ -236,6 +252,7 @@ export default function Save() {
                 fullWidth
                 required
               />
+
               <Button
                 type="submit"
                 variant="contained"
@@ -254,9 +271,19 @@ export default function Save() {
           </Card>
         </Box>
 
-        {/* 오른쪽 광고 영역 (1) */}
-        <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <UserAdvertisement ad={ad} />
+        {/* 오른쪽 광고 (최대 4개) */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
+          {rightAds.map((ad, index) => (
+            <UserAdvertisement key={`right-${index}`} ad={ad} />
+          ))}
         </Box>
       </Box>
 
