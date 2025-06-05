@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
 const List = lazy(() => import("../component/transaction/List.jsx"));
 const MyList = lazy(() => import("../component/transaction/MyList.jsx"));
@@ -11,11 +12,19 @@ const serviceProductRouter = () => {
     // },
     {
       path: "list",
-      element: <List />,
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <List />
+          </ProtectedRoute>
+      ),
     },
     {
       path: "my",
-      element: <MyList />,
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <MyList />
+          </ProtectedRoute>
+      ),
     },
     // {
     //     path: "save",

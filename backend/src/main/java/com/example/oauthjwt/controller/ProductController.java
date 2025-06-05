@@ -63,6 +63,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ProductResponse> update(@PathVariable Long productId, @RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info(productRequest);
         // 로직
         ProductResponse result = productService.update(productRequest, userDetails, productId);
         // 반환
@@ -121,6 +122,7 @@ public class ProductController {
                                                  @RequestParam(defaultValue = "126.9812890557788") double neLng) {
         log.info("prams swLat:{} swLng:{} neLat:{} neLng:{}", swLat, swLng, neLat, neLng);
         List<ProductResponse> productResponseList = productService.findAllWithPosition(swLat, swLng, neLat, neLng);
+        log.info("productResponseList:{}", productResponseList);
         return ResponseEntity.ok(productResponseList);
     }
 

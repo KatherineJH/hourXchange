@@ -54,6 +54,7 @@ public class UserServiceImpl implements UserService {
         if(!addressRequest.isEmpty()){
             Address address = Address.of(userRequest.getAddress());
             user.setAddress(address);
+            address.setUser(user);
         }
         // 저장 및 반환
         User result = userRepository.save(user);

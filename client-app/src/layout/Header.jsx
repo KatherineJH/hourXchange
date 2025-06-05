@@ -281,19 +281,14 @@ function Header() {
           {user.email ? (
             <>
               <MenuItem disabled>
-                {user.name + user.role}님, 환영합니다
+                {user.name}님, 환영합니다
               </MenuItem>
               {user.role === "ROLE_ADMIN" ? (
                 <MenuItem onClick={handleMoveToAdminPage}>
                   어드민페이지
                 </MenuItem>
               ) : (
-                <>
-                  <MenuItem onClick={handleMoveToAdminPage}>
-                    어드민페이지
-                  </MenuItem>
                   <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
-                </>
               )}
               <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
             </>

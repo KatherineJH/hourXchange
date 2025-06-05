@@ -19,6 +19,8 @@ import HourXChangeMain from "../component/homepage/HourXChangeMain.jsx";
 import Save from "../component/user/Save.jsx";
 import EmailLoginForm from "../component/user/Login.jsx";
 import mainRouter from "./mainRouter.jsx";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
+import Unauthorized from "../component/common/Unauthorized.jsx";
 
 const root = createBrowserRouter([
   {
@@ -65,12 +67,20 @@ const root = createBrowserRouter([
       },
       {
         path: "myPage",
-        element: <MyPage />,
+        element: (
+            <ProtectedRoute roles={['ROLE_USER']}>
+              <MyPage />
+            </ProtectedRoute>
+        ),
         children: myPageRouter(),
       },
       {
         path: "admin",
-        element: <AdminPageMain />,
+        element: (
+            <ProtectedRoute roles={['ROLE_ADMIN']}>
+              <AdminPageMain />
+            </ProtectedRoute>
+        ),
         children: adminPageRouter(),
       },
       {
@@ -85,6 +95,10 @@ const root = createBrowserRouter([
       {
         path: "*",
         element: <NotFound />,
+      },
+      {
+        path: "/unauthorized",
+        element: <Unauthorized />,
       },
     ],
   },

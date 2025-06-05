@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
 const Read = lazy(() => import("../component/product/Read.jsx"));
 const AllPost = lazy(() => import("../component/product/AllPost.jsx"));
@@ -46,11 +47,19 @@ const productRouter = () => {
     },
     {
       path: "register",
-      element: <ProductForm />,
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <ProductForm />
+          </ProtectedRoute>
+      ),
     },
     {
       path: "modify/:id",
-      element: <Modify />,
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <Modify />
+          </ProtectedRoute>
+      ),
     },
     {
       path: "volunteer",

@@ -17,8 +17,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
           FROM Product p
          WHERE p.lat  BETWEEN :swLat AND :neLat
            AND p.lng  BETWEEN :swLng AND :neLng
-           AND p.startedAt <= NOW()      -- (선택) 노출 기간 필터
-           AND p.endAt     >= NOW()
+           AND p.status = true
+           -- AND p.startedAt <= NOW()      -- (선택) 노출 기간 필터
+           -- AND p.endAt     >= NOW()
         """,
             nativeQuery = true
     )

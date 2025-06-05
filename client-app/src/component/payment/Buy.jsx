@@ -60,6 +60,7 @@ export default function PackagePaymentScreen() {
 
             const verifyResponse = await postVerify(orderResponse.data); // api 서버
             console.log(verifyResponse)
+            alert(verifyResponse.data.paymentItemName + '상품이 결제되었습니다.');
         }catch(error){
             console.log(error);
         }

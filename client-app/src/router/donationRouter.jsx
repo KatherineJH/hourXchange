@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
 const Register = lazy(() => import("../component/donation/DonationForm.jsx"));
 const Read = lazy(() => import("../component/donation/Read.jsx"));
@@ -9,7 +10,11 @@ const donationRouter = () => {
     return [
         {
             path: "register",
-            element: <Register />,
+            element: (
+                <ProtectedRoute roles={['ROLE_USER']}>
+                    <Register />
+                </ProtectedRoute>
+            ),
         },
         {
             path: "read/:id",
@@ -21,7 +26,11 @@ const donationRouter = () => {
         },
         {
             path: "modify/:id",
-            element: <Modify />,
+            element: (
+                <ProtectedRoute roles={['ROLE_USER']}>
+                    <Modify />
+                </ProtectedRoute>
+            ),
         },
     ];
 };

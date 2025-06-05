@@ -53,13 +53,13 @@ public class CacheConfig {
                                 .fromSerializer(serializer)
                 );
 
-        // 3) 캐시 이름별 구성 맵핑
+        // 5) 캐시 이름별 구성 맵핑
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        cacheConfigs.put("productFindAll", defaultConfig.entryTtl(Duration.ofMinutes(1)));
+//        cacheConfigs.put("productFindAll", defaultConfig.entryTtl(Duration.ofMinutes(1)));
 
         // 필요하다면 다른 캐시들도 여기에 추가 가능
 
-        // 4) RedisCacheManager 빌드
+        // 6) RedisCacheManager 빌드
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)                         // 나머지 캐시는 기본 설정 사용
                 .withInitialCacheConfigurations(cacheConfigs)         // 지정한 캐시만 별도 설정
