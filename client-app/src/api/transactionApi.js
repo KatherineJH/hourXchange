@@ -8,7 +8,7 @@ export const getList = async (page, size) => {
     params: {
       page,
       size,
-    }
+    },
   });
   return response;
 };
@@ -18,8 +18,8 @@ export const getSearch = async (page, size, params) => {
     params: {
       ...params,
       page,
-      size
-    }
+      size,
+    },
   });
   return response;
 };
@@ -36,7 +36,6 @@ export const getMyTransactionList = async () => {
   const response = await api.get(apiServerUrl + "my");
   return response;
 };
-
 
 export const getReviewById = async (reviewId) => {
   const response = await api.get(`${reviewApiUrl}/${reviewId}`);
@@ -66,5 +65,9 @@ export const postReview = async (reviewData) => {
 // 특정 유저가 받은 리뷰들의 태그 조회
 export const getReviewTagsByReceiverId = async (userId) => {
   const response = await api.get(`${reviewApiUrl}/receiver/${userId}/tags`);
+  return response.data;
+};
+export const getReviewListByReceiverId = async (userId) => {
+  const response = await api.get(`${reviewApiUrl}/receiver/${userId}`);
   return response.data;
 };

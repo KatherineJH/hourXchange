@@ -45,4 +45,10 @@ public class ReviewController {
     public ResponseEntity<List<String>> getTagsByReceiverId(@PathVariable Long userId) {
         return ResponseEntity.ok(reviewService.getReviewTagsByReceiverId(userId));
     }
+
+    @GetMapping("/receiver/{userId}")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByReceiver(@PathVariable Long userId) {
+        List<ReviewResponse> reviews = reviewService.getReviewsByReceiverId(userId);
+        return ResponseEntity.ok(reviews);
+    }
 }

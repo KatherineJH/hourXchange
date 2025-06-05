@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -165,24 +166,31 @@ class DonationServiceTest {
 
     @Test @DisplayName("delete: 정상 삭제 및 환불")
     void delete_Success() {
-        var cd=userDetails(7L);
-        Donation d = Donation.of(sampleRequest(), new User(){ { setId(7L);} });
+        var cd = userDetails(7L);
+        Donation d = Donation.of(sampleRequest(), new User() {{ setId(7L); }});
         d.setId(10L);
+
         when(donationRepository.findById(10L)).thenReturn(Optional.of(d));
+
         // not cancelled
         d.setStatus(DonationStatus.ONGOING);
-        List<Object[]> rows= (List<Object[]>) List.of(new Object[]{8L, 4});
-        when(donationHistoryRepository.findUserIdAndTotalHoursByDonation(10L)).thenReturn(rows);
-        User u=new User(); u.setId(8L);
-        when(userRepository.findById(8L)).thenReturn(Optional.of(u));
-        when(donationHistoryRepository.save(any(DonationHistory.class)))
-                .thenAnswer(inv->inv.getArgument(0));
 
-        List<DonationHistoryResponse> out=donationService.delete(10L, cd);
+        List<Object[]> rows = new ArrayList<>();
+        rows.add(new Object[]{8L, 4});
+        when(donationHistoryRepository.findUserIdAndTotalHoursByDonation(10L)).thenReturn(rows);
+
+        User u = new User(); u.setId(8L);
+        when(userRepository.findById(8L)).thenReturn(Optional.of(u));
+
+        when(donationHistoryRepository.save(any(DonationHistory.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        List<DonationHistoryResponse> out = donationService.delete(10L, cd);
 
         assertThat(out).hasSize(1);
-        verify(walletRepository).addCredit(8L,4);
+        verify(walletRepository).addCredit(8L, 4);
     }
+
 
     @Test @DisplayName("getTopByProgress/ViewCount/Recent")
     void getTops() {

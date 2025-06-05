@@ -23,8 +23,8 @@ public class PaymentVerifyRequest {
     private String orderToken;
 
     @NotBlank(message = "상품이름은 필수입니다.")
-    private String paymentName;
+    private String paymentItemName;
 
     @NotBlank(message = "상품가격은 필수입니다.")
-    private String paymentPrice;
+    private String paymentItemPrice;
 }

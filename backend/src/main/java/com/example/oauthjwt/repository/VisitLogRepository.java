@@ -134,4 +134,20 @@ public interface VisitLogRepository extends JpaRepository<VisitLog, Long> {
     // 고객 등급 분류
     @Query("SELECT MAX(v.visitTime) FROM VisitLog v WHERE v.userId = :userId")
     LocalDateTime findLastVisitTime(@Param("userId") Long userId);
+
+    // 요일별 집계
+    @Query(value = """
+      SELECT weekday, COUNT(*) AS count
+      FROM (
+        SELECT DAYNAME(v.visitTime) AS weekday
+        FROM visitlog v
+        WHERE v.userId = :userId
+          AND v.visitTime IS NOT NULL
+      ) AS derived
+      GROUP BY weekday
+      ORDER BY FIELD(weekday, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+      """, nativeQuery = true)
+    List<Object[]> countByWeekdayForUser(@Param("userId") Long userId);
+
+
 }

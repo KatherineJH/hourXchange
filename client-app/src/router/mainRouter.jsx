@@ -4,19 +4,24 @@ import Homepage from "../component/homepage/Homepage.jsx";
 import ChatRoom from "../component/chat/ChatRoom.jsx";
 import SearchProduct from "../component/homepage/SearchProduct.jsx";
 import userRouter from "./userRouter.jsx";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
 
 
 
 
-const adminPageRouter = () => [
+const mainRouter = () => [
     {
         path: "",
         element: <Homepage />
     },
     {
         path: "chat-room/:chatRoomId",
-        element: <ChatRoom />
+        element: (
+            <ProtectedRoute roles={['ROLE_USER']}>
+                <ChatRoom />
+            </ProtectedRoute>
+        )
     },
     {
         path: "search",
@@ -25,4 +30,4 @@ const adminPageRouter = () => [
     ...userRouter(),
 ];
 
-export default adminPageRouter;
+export default mainRouter;

@@ -1,13 +1,12 @@
 package com.example.oauthjwt.controller;
 
 import com.example.oauthjwt.TestSecurityConfig;
-import com.example.oauthjwt.dto.UserDTO;
 import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.interceptor.VisitLogInterceptor;
 import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.service.CustomOAuth2UserService;
+import com.example.oauthjwt.service.impl.CustomOAuth2UserService;
 import com.example.oauthjwt.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -25,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -78,8 +78,16 @@ class AuthControllerTest {
                 .build();
 
         UserResponse userResponse = UserResponse.builder()
+                .id(1L)
                 .email("test@example.com")
+                .name("테스트이름")
                 .username("tester")
+                .birthdate(LocalDate.of(2000, 1, 1))
+                .role("ROLE_USER")
+                .status("ACTIVE")
+                .createdAt(LocalDateTime.now())
+                .wallet(null)
+                .address(null)
                 .build();
 
         Mockito.when(userService.signup(any(UserRequest.class))).thenReturn(userResponse);
@@ -100,17 +108,25 @@ class AuthControllerTest {
     @Test
     @DisplayName("로그인 성공")
     void login_success() throws Exception {
-        UserDTO loginDTO = UserDTO.builder()
+        UserRequest loginRequest = UserRequest.builder()
                 .email("test@example.com")
                 .password("password123")
                 .build();
 
-        UserResponse response = UserResponse.builder()
+        UserResponse userResponse = UserResponse.builder()
+                .id(1L)
                 .email("test@example.com")
+                .name("테스트이름")
                 .username("tester")
+                .birthdate(LocalDate.of(2000, 1, 1))
+                .role("ROLE_USER")
+                .status("ACTIVE")
+                .createdAt(LocalDateTime.now())
+                .wallet(null)
+                .address(null)
                 .build();
 
-        Mockito.when(userService.login(any(UserDTO.class))).thenReturn(response);
+        Mockito.when(userService.login(any(UserRequest.class))).thenReturn(userResponse);
         Mockito.when(jwtUtil.createToken(eq(Map.of("email", "test@example.com")), anyInt()))
                 .thenReturn("access-token");
         Mockito.when(jwtUtil.createToken(eq(Map.of("email", "test@example.com")), eq(60 * 60 * 24 * 7)))
@@ -122,13 +138,11 @@ class AuthControllerTest {
                 .thenReturn(new Cookie("Refresh", "refresh-token"));
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("email", loginDTO.getEmail())
-                        .param("password", loginDTO.getPassword()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
-
 
     /**
      * 3. 현재 로그인한 사용자 정보 조회 (getCurrentUser_success)
@@ -145,8 +159,16 @@ class AuthControllerTest {
         Mockito.when(jwtUtil.getClaims("mock-token")).thenReturn(mockClaims);
 
         UserResponse userResponse = UserResponse.builder()
+                .id(1L)
                 .email("test@example.com")
+                .name("테스트이름")
                 .username("tester")
+                .birthdate(LocalDate.of(2000, 1, 1))
+                .role("ROLE_USER")
+                .status("ACTIVE")
+                .createdAt(LocalDateTime.now())
+                .wallet(null)
+                .address(null)
                 .build();
 
         Mockito.when(userService.getUserByEmail("test@example.com")).thenReturn(userResponse);

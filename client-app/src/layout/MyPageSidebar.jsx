@@ -9,6 +9,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 const menu = [
+  { text: "내 계정", to: "/myPage" },
   { text: "내가 등록한 상품", to: "/myPage/myProducts" },
   { text: "나의 트랜잭션", to: "/myPage/my" },
   { text: "나의 게시글", to: "/myPage/myBoards" },

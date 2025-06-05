@@ -1,5 +1,6 @@
 // src/router/boardRouter.jsx
 import React, { lazy } from "react";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
 // 지금 있는 컴포넌트만 lazy import
 const BoardPage = lazy(() => import("../component/board/BoardPage.jsx"));
@@ -18,11 +19,19 @@ const board = () => {
     },
     {
       path: "save",
-      element: <SaveBoard />, // 게시글 작성
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <SaveBoard />
+          </ProtectedRoute>
+      ), // 게시글 작성
     },
     {
       path: "update/:id",
-      element: <SaveBoard />, // SaveBoard 재활용
+      element: (
+          <ProtectedRoute roles={['ROLE_USER']}>
+            <SaveBoard />
+          </ProtectedRoute>
+      ), // SaveBoard 재활용
     },
   ];
 };

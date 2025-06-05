@@ -29,22 +29,15 @@ export default function AdvertisementList() {
   // ① API 호출하여 “실제 광고 배열”만 뽑아오는 함수
   const fetchMyAds = async () => {
     try {
-      const response = await getMyAdvertisements();
+      
 
-      // 1) 만약 response 자체가 배열이라면 그대로 사용
-      if (Array.isArray(response)) {
-        setAds(response);
-        return;
+      const data = await getMyAdvertisements();
+      if (Array.isArray(data.content)) {
+        setAds(data.content);
+      } else {
+        setAds([]); // fallback
       }
 
-      // 2) 배열이 아니라면 response.content (또는 response.data 등)에 담겨있는 경우
-      if (response && Array.isArray(response.content)) {
-        setAds(response.content);
-        return;
-      }
-
-      // 그 외의 경우에도 빈 배열로 설정 (방어 코드)
-      setAds([]);
     } catch (err) {
       console.error("광고 목록 불러오기 실패:", err);
       alert("광고 목록을 불러오는데 실패했습니다.");

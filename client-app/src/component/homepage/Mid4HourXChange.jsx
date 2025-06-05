@@ -374,6 +374,8 @@ dayjs.locale("ko");
 function Mid4HourXChange({ category = "", keyword = "" }) {
   // 1) 날짜 선택 상태
   const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [rangeStart, setRangeStart] = useState(null);
+  const [rangeEnd, setRangeEnd] = useState(null);
 
   // 2) “팝니다(SELLER)”, “삽니다(BUYER)”, 또는 “전체(ALL)” 상태
   const [providerType, setProviderType] = useState("SELLER");
@@ -426,10 +428,17 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
   const filteredList = allPosts.filter((item) => {
     const start = dayjs(item.startedAt);
     const end = dayjs(item.endAt);
-    return (
-      selectedDate.isSameOrAfter(start, "day") &&
-      selectedDate.isSameOrBefore(end, "day")
-    );
+
+    if (rangeStart && rangeEnd) {
+      return (
+        end.isSameOrAfter(rangeStart, "day") &&
+        start.isSameOrBefore(rangeEnd, "day")
+      );
+    } else if (rangeStart && !rangeEnd) {
+      return start.isSame(rangeStart, "day") || end.isSame(rangeStart, "day");
+    } else {
+      return true; // 아무 날짜도 안 골랐을 때 전체
+    }
   });
 
   // “전체 글 보기” 버튼 클릭 시 이동할 경로를 providerType에 따라 결정
@@ -462,7 +471,7 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
           mb: 3,
         }}
       >
-        게시글 날짜 조회
+        HourXChange 날짜 조회
       </Typography>
 
       {/* 상단: 전체/팝니다/삽니다 토글 버튼 */}
@@ -516,6 +525,7 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
             borderRadius: 3,
             p: 3,
             bgcolor: "#FFFFFF",
+            maxHeight: 450,
           }}
         >
           <Typography
@@ -528,7 +538,17 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
             <DateCalendar
               value={selectedDate}
-              onChange={(newDate) => setSelectedDate(newDate)}
+              onChange={(newDate) => {
+                setSelectedDate(newDate);
+                if (!rangeStart || (rangeStart && rangeEnd)) {
+                  setRangeStart(newDate);
+                  setRangeEnd(null);
+                } else if (newDate.isBefore(rangeStart)) {
+                  setRangeStart(newDate);
+                } else {
+                  setRangeEnd(newDate);
+                }
+              }}
               sx={{
                 "& .Mui-selected": {
                   bgcolor: "#FFCDD2 !important",
@@ -536,6 +556,23 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
                 },
                 "& .MuiCalendarPicker-root": {
                   typography: "body2",
+                },
+              }}
+              slotProps={{
+                day: (ownerState) => {
+                  const day = dayjs(ownerState.day);
+                  const isInRange =
+                    rangeStart &&
+                    rangeEnd &&
+                    day.isSameOrAfter(rangeStart, "day") &&
+                    day.isSameOrBefore(rangeEnd, "day");
+
+                  return {
+                    sx: {
+                      bgcolor: isInRange ? "#ffe0b2" : undefined,
+                      borderRadius: isInRange ? "50%" : undefined,
+                    },
+                  };
                 },
               }}
             />
@@ -558,7 +595,11 @@ function Mid4HourXChange({ category = "", keyword = "" }) {
             align="center"
             sx={{ mb: 2, fontWeight: "bold" }}
           >
-            {selectedDate.format("YYYY년 MM월 DD일")} 게시글
+            {rangeStart && rangeEnd
+              ? `${rangeStart.format("YYYY년 MM월 DD일")} ~ ${rangeEnd.format("YYYY년 MM월 DD일")} 게시글`
+              : rangeStart
+                ? `${rangeStart.format("YYYY년 MM월 DD일")} 게시글`
+                : "날짜를 선택해주세요"}
           </Typography>
 
           {loading ? (

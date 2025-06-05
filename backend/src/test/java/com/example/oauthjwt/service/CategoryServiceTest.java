@@ -3,14 +3,21 @@ package com.example.oauthjwt.service;
 import com.example.oauthjwt.dto.response.CategoryResponse;
 import com.example.oauthjwt.entity.Category;
 import com.example.oauthjwt.repository.CategoryRepository;
+import com.example.oauthjwt.service.impl.CategoryServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,18 +31,21 @@ class CategoryServiceTest {
     private CategoryRepository categoryRepository;
 
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
 
     @Test
     @DisplayName("findAll: repository에서 가져온 엔티티를 DTO 리스트로 변환")
     void findAll_ReturnsDtoList() {
         // given
-        Category c1 = Category.builder().id(1L).categoryName("A").build();
-        Category c2 = Category.builder().id(2L).categoryName("B").build();
-        given(categoryRepository.findAll()).willReturn(List.of(c1, c2));
+        Category c1 = Category.builder().id(1L).categoryName("A").status(true).build();
+        Category c2 = Category.builder().id(2L).categoryName("B").status(true).build();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        given(categoryRepository.findAll(any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(c1, c2))); // ← 수정된 부분
 
         // when
-        List<CategoryResponse> result = categoryService.findAll();
+        Page<CategoryResponse> result = categoryService.findAll(pageable);
 
         // then
         assertThat(result).hasSize(2)
@@ -53,7 +63,7 @@ class CategoryServiceTest {
         given(categoryRepository.save(any(Category.class))).willReturn(saved);
 
         // when
-        Category result = categoryService.addCategory(name);
+        CategoryResponse result = categoryService.addCategory(name);
 
         // then
         assertThat(result.getId()).isEqualTo(3L);
@@ -73,8 +83,8 @@ class CategoryServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
-                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-                    assertThat(rse.getReason()).contains("이미 존재하는 카테고리입니다");
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST); // ← 여기 수정
+                    assertThat(rse.getReason()).contains("이미 존재하는 카테고리");
                 });
     }
 
@@ -90,7 +100,7 @@ class CategoryServiceTest {
         given(categoryRepository.save(any(Category.class))).willReturn(saved);
 
         // when
-        Category result = categoryService.updateCategory(id, newName);
+        CategoryResponse result = categoryService.updateCategory(id, newName);
 
         // then
         assertThat(result.getCategoryName()).isEqualTo(newName);
@@ -106,8 +116,12 @@ class CategoryServiceTest {
 
         // when & then
         assertThatThrownBy(() -> categoryService.updateCategory(99L, "X"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("해당 카테고리가 존재하지 않음");
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(rse.getReason()).isEqualTo("카테고리 정보가 존재하지 않습니다.");
+                });
     }
 
     @Test
@@ -119,10 +133,12 @@ class CategoryServiceTest {
         given(categoryRepository.findById(id)).willReturn(Optional.of(c));
 
         // when
-        Category result = categoryService.findById(id);
+        CategoryResponse result = categoryService.findById(id);
 
         // then
-        assertThat(result).isSameAs(c);
+        assertThat(result.getId()).isEqualTo(c.getId());
+        assertThat(result.getCategoryName()).isEqualTo(c.getCategoryName());
+        assertThat(result.isStatus()).isEqualTo(c.isStatus());
     }
 
     @Test

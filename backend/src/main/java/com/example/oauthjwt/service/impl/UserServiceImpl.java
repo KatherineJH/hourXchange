@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.UserRequest;
@@ -21,7 +20,7 @@ import com.example.oauthjwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,6 +53,7 @@ public class UserServiceImpl implements UserService {
         if(!addressRequest.isEmpty()){
             Address address = Address.of(userRequest.getAddress());
             user.setAddress(address);
+            address.setUser(user);
         }
         // 저장 및 반환
         User result = userRepository.save(user);
@@ -71,6 +71,23 @@ public class UserServiceImpl implements UserService {
         }
         // 반환
         return UserResponse.toDto(user);
+    }
+
+    @Override
+    public void changePasswordWithoutOld(Long userId, String newPassword, String confirmPassword) {
+        if (newPassword == null || confirmPassword == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 필수입니다.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+        }
+        if (newPassword.length() < 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 최소 5자 이상이어야 합니다.");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     @Override
@@ -106,4 +123,34 @@ public class UserServiceImpl implements UserService {
         Page<User> userPage = userRepository.search(condition, pageable);
         return userPage.map(UserResponse::toDto);
     }
+
+    @Override
+    public Map<String, Object> getFeaturesByUserId(Long userId) {
+        List<Object[]> result = userRepository.getUserFeatureRawByUserId(userId);
+
+        if (result == null || result.isEmpty()) {
+            throw new IllegalStateException("유저 특성 정보가 부족합니다 (결과 없음)");
+        }
+
+        Object[] row = result.get(0);
+        log.info("🎯 User features raw: {}", Arrays.toString(row));
+
+        if (row.length != 9 || Arrays.stream(row).anyMatch(Objects::isNull)) {
+            throw new IllegalStateException("유저 특성 정보가 부족합니다 (null 포함)");
+        }
+
+        Map<String, Object> features = new HashMap<>();
+        features.put("age", ((Number) row[0]).intValue());
+        features.put("daysSinceSignup", ((Number) row[1]).intValue());
+        features.put("visitCount", ((Number) row[2]).intValue());
+        features.put("distinctUrlCount", ((Number) row[3]).intValue());
+        features.put("paymentCount", ((Number) row[4]).intValue());
+        features.put("totalPaymentAmount", ((Number) row[5]).doubleValue());
+        features.put("transactionCount", ((Number) row[6]).intValue());
+        features.put("reviewCount", ((Number) row[7]).intValue());
+        features.put("avgStarsGiven", ((Number) row[8]).doubleValue());
+
+        return features;
+    }
+
 }

@@ -14,4 +14,5 @@ public interface VisitLogService {
     List<VisitLogResponse> getWeeklyUniqueCounts(int daysBack);
     List<VisitLogResponse> getMonthlyUniqueCounts(int daysBack);
     List<VisitLogResponse> getYearlyUniqueCounts(int yearsBack);
+    List<VisitLogResponse> getWeekdayStats(Long userId);
 }

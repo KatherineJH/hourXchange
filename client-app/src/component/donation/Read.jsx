@@ -65,9 +65,9 @@ export default function DonationDetail() {
             setSelectedHours(null);
             setCustomHours('');
             fetchDonation();
-        } catch (err) {
-            console.error(err);
-            alert('기부 중 오류가 발생했습니다.');
+        } catch (error) {
+            console.error(error);
+            alert(error.response.data.message);
         }
     };
 

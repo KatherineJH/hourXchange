@@ -25,4 +25,10 @@ public class TimeSeriesController {
         List<Map<String, Object>> forecast = timeSeriesServiece.getForecast(history, periods);
         return ResponseEntity.ok(forecast);
     }
+
+    @PostMapping("/donation")
+    public ResponseEntity<?> donationML(@RequestBody Map<String, Object> features) {
+        Map<String, Object> result = timeSeriesServiece.predictDonation(features);
+        return ResponseEntity.ok(result);
+    }
 }

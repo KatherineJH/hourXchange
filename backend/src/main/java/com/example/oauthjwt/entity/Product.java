@@ -65,10 +65,6 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 서비스 카테고리
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", nullable = false)
-    private Address address; // 주소
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProviderType providerType; // SP 타입 (구매, 판매)
@@ -101,7 +97,6 @@ public class Product {
                              User owner,
                              Category category,
                              ProviderType providerType,
-                             Address address,
                              List<ProductImage> images,
                              List<String> tagStrings) {
 
@@ -115,10 +110,10 @@ public class Product {
                 .lng(productRequest.getLng())
                 .viewCount(0)
                 .createdAt(LocalDateTime.now())
+                .status(true)
                 .owner(owner)
                 .category(category)
                 .providerType(providerType)
-                .address(address)
                 .build();
 
         // 이미지 설정
@@ -139,7 +134,7 @@ public class Product {
         return product;
     }
 
-    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address) {
+    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
         return Product.builder()
                 .title(productRequest.getTitle())
                 .description(productRequest.getDescription())
@@ -154,13 +149,12 @@ public class Product {
                 .owner(owner)
                 .category(category)
                 .providerType(providerType)
-                .address(address)
                 .build();
     }
 
-    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType, Address address,
+    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType,
             List<ProductImage> images) {
-        Product product = of(productRequest, owner, category, providerType, address);
+        Product product = of(productRequest, owner, category, providerType);
         images.forEach(image -> image.setProduct(product));
         product.getImages().addAll(images);
         return product;

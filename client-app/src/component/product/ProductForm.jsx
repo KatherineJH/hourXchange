@@ -36,16 +36,10 @@ export default function ProductForm() {
     categoryId: "",
     providerType: "",
     images: [],
-    lat: 37.529521713,
-    lng: 126.964540921,
+    lat: '',
+    lng: '',
     startedAt: dayjs().add(30, "minute").format("YYYY-MM-DDTHH:mm:ss"),
     endAt: dayjs().add(2, "hour").format("YYYY-MM-DDTHH:mm:ss"),
-    address: {
-      zonecode: "",
-      roadAddress: "",
-      jibunAddress: "",
-      detailAddress: "",
-    },
   });
   const [categories, setCategories] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -111,12 +105,6 @@ export default function ProductForm() {
           ...prev,
           lat: parseFloat(y),
           lng: parseFloat(x),
-          address: {
-            zonecode: data.zonecode,
-            roadAddress: data.roadAddress,
-            jibunAddress: data.jibunAddress,
-            detailAddress: "",
-          },
         }));
       } else {
         alert("주소 검색에 실패했습니다.");
@@ -399,9 +387,11 @@ export default function ProductForm() {
             setSaveData={setSaveData}
             onMapClick={handleMapClick}
           />
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-            선택된 좌표: {saveData.lat.toFixed(6)}, {saveData.lng.toFixed(6)}
-          </Typography>
+          {(saveData.lat && saveData.lng) && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                선택된 좌표: {saveData.lat.toFixed(6)}, {saveData.lng.toFixed(6)}
+              </Typography>
+          )}
         </Box>
 
         {/* 저장 버튼 */}
