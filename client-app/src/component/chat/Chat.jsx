@@ -109,7 +109,7 @@ function Chat({ chatRooms, chatError, navigate }) {
                       secondary={`상품 ID: ${room.productId}`}
                     />
                   </ListItem>
-                  {idx < chatRooms.length - 1 && <Divider component="li" />}
+                  {idx < chatRooms.length - 1 && <Divider />}{" "}
                 </React.Fragment>
               ))}
             </List>

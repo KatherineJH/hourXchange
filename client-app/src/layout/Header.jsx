@@ -97,6 +97,29 @@ function Header() {
     setSuggestions([]);
   };
 
+  const handleSearchKey = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev > 0 ? prev - 1 : suggestions.length - 1
+      );
+    } else if (e.key === "Enter") {
+      if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
+        const selected = suggestions[highlightedIndex];
+        setSearchInput(selected);
+        navigate(`/main/search?keyword=${encodeURIComponent(selected)}`);
+        setSuggestions([]);
+      } else {
+        handleSearch();
+      }
+    }
+  };
+
   useEffect(() => {
     // 쿼리파라미터로 넘어온 keyword를 keyword 상태로 반영
     setKeyword(selectedKeyword);
@@ -120,33 +143,52 @@ function Header() {
             px: 2,
           }}
         >
-          <Toolbar sx={{ height: 80 }}>
+          <Toolbar
+            sx={{
+              flexWrap: "wrap",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+              height: "auto", // 기존 고정 높이 제거
+            }}
+          >
+            {/* 1. 로고 및 제목 */}
             <Box
-              component="img"
-              src="/hourPanda.png"
-              alt="logo"
               sx={{
-                height: 48,
-                width: "auto",
-                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
               }}
-              onClick={() => navigate("/")}
-            />
-
-            <Typography
-              variant="h5"
-              component="div"
-              sx={{ fontWeight: "bold" }}
-              onClick={() => navigate("/")}
             >
-              HourXChange
-            </Typography>
-            {/* Search bar */}
+              <Box
+                component="img"
+                src="/hourPanda.png"
+                alt="logo"
+                sx={{
+                  height: 48,
+                  width: "auto",
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/")}
+              />
+              <Typography
+                variant="h5"
+                component="div"
+                sx={{ fontWeight: "bold", cursor: "pointer" }}
+                onClick={() => navigate("/")}
+              >
+                HourXChange
+              </Typography>
+            </Box>
+
+            {/* 2. 검색창 */}
             <Box
               sx={{
                 position: "relative",
                 display: "flex",
                 flexDirection: "column",
+                width: { xs: "100%", sm: 500 },
               }}
             >
               <Box
@@ -156,8 +198,7 @@ function Header() {
                   px: 1,
                   bgcolor: "#edecec",
                   borderRadius: 1,
-                  ml: 2,
-                  width: 300,
+                  width: "100%",
                 }}
               >
                 <SearchIcon fontSize="small" />
@@ -165,33 +206,7 @@ function Header() {
                   placeholder="검색"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      setHighlightedIndex((prev) =>
-                        prev < suggestions.length - 1 ? prev + 1 : 0
-                      );
-                    } else if (e.key === "ArrowUp") {
-                      e.preventDefault();
-                      setHighlightedIndex((prev) =>
-                        prev > 0 ? prev - 1 : suggestions.length - 1
-                      );
-                    } else if (e.key === "Enter") {
-                      if (
-                        highlightedIndex >= 0 &&
-                        highlightedIndex < suggestions.length
-                      ) {
-                        const selected = suggestions[highlightedIndex];
-                        setSearchInput(selected);
-                        navigate(
-                          `/main/search?keyword=${encodeURIComponent(selected)}`
-                        );
-                        setSuggestions([]);
-                      } else {
-                        handleSearch();
-                      }
-                    }
-                  }}
+                  onKeyDown={handleSearchKey}
                   sx={{
                     bgcolor: "white",
                     px: 1,
@@ -208,7 +223,7 @@ function Header() {
                     position: "absolute",
                     top: "100%",
                     left: 0,
-                    width: "300px",
+                    width: "100%",
                     zIndex: 10,
                     mt: "4px",
                   }}
@@ -235,11 +250,11 @@ function Header() {
                 </Paper>
               )}
             </Box>
-            <Box sx={{ flexGrow: 1 }} />
+
+            {/* 3. 아이콘들 */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <IconButton
                 size="large"
-                aria-label="wishlist"
                 color="inherit"
                 onClick={() => navigate("/main")}
               >
@@ -247,7 +262,6 @@ function Header() {
               </IconButton>
               <IconButton
                 size="large"
-                aria-label="chat list"
                 color="inherit"
                 onClick={() => navigate("/myPage/chat")}
               >
@@ -258,7 +272,6 @@ function Header() {
               <IconButton
                 size="large"
                 edge="end"
-                aria-label="user menu"
                 color="inherit"
                 onClick={(e) => setAnchorEl(e.currentTarget)}
               >

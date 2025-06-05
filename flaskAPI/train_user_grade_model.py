@@ -1,20 +1,24 @@
+# 유저 등급 분류 파이프라인
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 import joblib
 
-# 1. 랜덤 시드 및 샘플 개수
+# ------------------------
+# 1. 데이터 생성
+# ------------------------
 np.random.seed(42)
 n = 50000
-today = datetime(2025, 5, 16)
+today = datetime.now()
 
-# 2. 가짜 가입일 및 지역 생성
 signup_dates = [today - timedelta(days=np.random.randint(0, 1000)) for _ in range(n)]
 regions = np.random.choice(["서울", "강원", "경기", "충청", "전라", "경상", "제주"], size=n)
 REGION_MAP = {"서울": 0, "강원": 1, "경기": 2, "충청": 3, "전라": 4, "경상": 5, "제주": 6}
 
-# 3. 데이터프레임 생성
 data = pd.DataFrame({
     "transaction_count": np.random.randint(0, 100, size=n),
     "payment_count": np.random.randint(0, 50, size=n),
@@ -29,19 +33,12 @@ data = pd.DataFrame({
     "signup_date": signup_dates,
     "region": regions
 })
-
-# 4. 전처리: 가입일 -> days_since_signup, 지역 -> region_code
 data["days_since_signup"] = [(today - d).days for d in data["signup_date"]]
 data["region_code"] = data["region"].map(REGION_MAP)
 
-# 5. 레이블 생성 함수 (규칙 기반)
-# def classify(row):
-#     if row["total_payment_amount"] > 800000 and row["avg_review_score_received"] > 4.5 and row["days_since_last_activity"] < 10:
-#         return 2  # VIP
-#     elif row["days_since_last_activity"] > 180:
-#         return 0  # INACTIVE
-#     else:
-#         return 1  # ACTIVE    
+# ------------------------
+# 2. 라벨 생성
+# ------------------------
 def classify(row):
     if row["total_payment_amount"] > 900_000 and row["avg_review_score_received"] > 4.7 and row["transaction_count"] > 50:
         return 5  # VIP
@@ -56,21 +53,66 @@ def classify(row):
     else:
         return 4  # 일반 유저
 
-
 data["grade"] = data.apply(classify, axis=1)
 
-# 6. 학습
-X = data[[
+# ------------------------
+# 3. 학습 데이터 구성 및 분할
+# ------------------------
+FEATURES = [
     "transaction_count", "payment_count", "total_payment_amount", "total_visit_count",
     "successful_buyer_post_count", "successful_seller_post_count",
     "avg_review_score_given", "avg_review_score_received", "review_count_received",
     "days_since_last_activity", "days_since_signup", "region_code"
-]]
+]
+
+X = data[FEATURES]
 y = data["grade"]
 
-model = DecisionTreeClassifier(max_depth=10, random_state=42)
-model.fit(X, y)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 
-# 7. 저장
-joblib.dump(model, "user_grade_model.pkl")
+# ------------------------
+# 4. 모델 학습 및 검증
+# ------------------------
+model = DecisionTreeClassifier(max_depth=10, random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+print("검증 정확도:", accuracy_score(y_test, y_pred))
+print("분류 리포트:\n", classification_report(y_test, y_pred))
+
+# ------------------------
+# 5. 교차 검증
+# ------------------------
+scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+print("5-Fold 교차 검증 정확도 평균:", np.mean(scores))
+
+# ------------------------
+# 6. GridSearch를 통한 튜닝
+# ------------------------
+param_grid = {
+    'max_depth': [5, 10, 15],
+    'min_samples_split': [2, 5, 10],
+}
+grid = GridSearchCV(DecisionTreeClassifier(random_state=42), param_grid, cv=3, scoring='accuracy')
+grid.fit(X_train, y_train)
+
+print("최적 하이퍼파라미터:", grid.best_params_)
+print("최적 모델 검증 정확도:", accuracy_score(y_test, grid.best_estimator_.predict(X_test)))
+
+# ------------------------
+# 7. Confusion Matrix 시각화
+# ------------------------
+best_model = grid.best_estimator_
+cm = confusion_matrix(y_test, best_model.predict(X_test))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=np.unique(y))
+disp.plot(cmap="Blues")
+plt.title("Confusion Matrix")
+plt.show()
+
+# ------------------------
+# 8. 모델 저장
+# ------------------------
+joblib.dump(best_model, "user_grade_model.pkl")
 print("모델 저장 완료: user_grade_model.pkl")

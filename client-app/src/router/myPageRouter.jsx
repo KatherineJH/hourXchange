@@ -1,11 +1,13 @@
 import React, { lazy } from "react";
+
 import ChatRoom from "../component/chat/ChatRoom.jsx";
 import board from "./boardRouter.jsx";
 import Read from "../component/product/Read.jsx";
 import ProductForm from "../component/product/ProductForm.jsx";
-import Modify from "../component/product/Modify.jsx";
 import transactionRouter from "./transactionRouter.jsx";
-
+import Modify from "../component/product/Modify.jsx";
+const ModifyUser = lazy(() => import("../component/user/Modify.jsx"));
+const MyAccount = lazy(() => import("../component/user/MyAccount.jsx"));
 const MyPostList = lazy(() => import("../component/product/MyPostList.jsx"));
 const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
 const Chat = lazy(() => import("../component/chat/ChatContainer.jsx"));
@@ -24,7 +26,11 @@ const AdvertisementList = lazy(
 const myPageRouter = () => [
   {
     path: "",
-    element: <MyPostList />
+    element: <MyAccount />,
+  },
+  {
+    path: "edit",
+    element: <ModifyUser />,
   },
   {
     path: "chat",

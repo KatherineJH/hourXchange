@@ -105,6 +105,16 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public void delete(Long boardId, Long userId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
+        if (!board.getAuthor().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
+        }
+        boardRepository.delete(board);
+    }
+
+    @Override
     @Transactional
     public BoardResponse toggleThumbsUp(Long boardId, Long userId) {
         // 1) 게시글·사용자 조회

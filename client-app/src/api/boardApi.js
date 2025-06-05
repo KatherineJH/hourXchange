@@ -17,6 +17,14 @@ export const updateBoard = async (id, boardData) => {
   return response.data;
 };
 
+// 게시글 삭제
+export const deleteBoard = async (boardId) => {
+  console.log("deleteBoard 호출됨:", boardId);
+  const response = await api.delete(`/api/board/${boardId}`);
+  console.log("게시글 삭제 응답 데이터:", response.data);
+  return response.data;
+};
+
 // 전체 게시글 불러오기 (페이지네이션 포함)
 export const getAllBoards = async (page = 0, size = 10) => {
   console.log("getAllBoards 호출됨:", { page, size });

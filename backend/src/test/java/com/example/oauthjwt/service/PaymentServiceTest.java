@@ -4,6 +4,7 @@ import com.example.oauthjwt.dto.response.PaymentResponse;
 import com.example.oauthjwt.entity.Payment;
 import com.example.oauthjwt.entity.PaymentItem;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.Wallet;
 import com.example.oauthjwt.jwt.JWTUtil;
 import com.example.oauthjwt.repository.OrdersRepository;
 import com.example.oauthjwt.repository.PaymentItemRepository;
@@ -33,15 +34,14 @@ class PaymentServiceTest {
     @Mock private PaymentItemRepository paymentItemRepository;
     @Mock private OrdersRepository ordersRepository;
     @Mock private JWTUtil jwtUtil;
-
-    // 실제 구현체를 주입해야 Mockito의 @InjectMocks가 작동합니다.
     @InjectMocks private PaymentServiceImpl paymentService;
 
     private Map<String,Object> makeSaveData() {
         Map<String,Object> data = new HashMap<>();
         data.put("buyer_email", "a@b.com");
         data.put("name", "ItemX");
-        data.put("amount", 500);
+        data.put("amount", Integer.valueOf(500));
+        data.put("paid_at", 1717286400L);
         return data;
     }
 
@@ -53,6 +53,9 @@ class PaymentServiceTest {
         User u = new User();
         u.setEmail("a@b.com");
         u.setId(1L);
+        Wallet wallet = new Wallet();
+        wallet.setCredit(1000); // 초기 값은 원하는 대로
+        u.setWallet(wallet);
         given(userRepository.findByEmail("a@b.com")).willReturn(Optional.of(u));
 
         // 2) 상품 조회 목업

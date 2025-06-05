@@ -8,9 +8,15 @@ export const getAllUsers = async () => {
   return response.data;
 };
 
-// 사용자 ID로 정보 가져오기
+// 사용자 ID로 정보 가져오기(어드민)
 export const getUserById = async (id) => {
   const response = await api.get(apiServerUrl + id);
+  return response.data;
+};
+
+// 사용자 ID로 정보 가져오기(유저)
+export const getMyInfo = async () => {
+  const response = await api.get(apiServerUrl + "me");
   return response.data;
 };
 
@@ -28,4 +34,10 @@ export const getSearch = async (page, size, params) => {
     }
   });
   return response;
+};
+
+// 사용자 특성 정보 가져오기
+export const getUserFeatures = async (id) => {
+  const response = await api.get(`${apiServerUrl}${id}/features`);
+  return response.data;
 };

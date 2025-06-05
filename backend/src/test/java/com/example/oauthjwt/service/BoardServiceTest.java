@@ -7,6 +7,7 @@ import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.BoardServiceImpl;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,6 @@ class BoardServiceTest {
     void save_success() {
         // given
         BoardRequest request = BoardRequest.builder()
-                .authorId(1L)
                 .categoryId(2L)
                 .title("제목")
                 .description("내용")
@@ -50,6 +50,7 @@ class BoardServiceTest {
                 .build();
 
         User user = User.builder().id(1L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build();
+        CustomUserDetails userDetails = new CustomUserDetails(user);
         Category category = Category.builder().id(2L).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -58,8 +59,7 @@ class BoardServiceTest {
         when(boardRepository.save(any(Board.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        BoardResponse response = boardService.save(request);
-
+        BoardResponse response = boardService.save(request, userDetails);
         // then
         assertThat(response.getTitle()).isEqualTo("제목");
         verify(boardRepository).save(any(Board.class));
@@ -129,15 +129,22 @@ class BoardServiceTest {
     void update_fail_wrongAuthor() {
         // given
         Long boardId = 1L;
+        User author = User.builder().id(1L).build();
         Board board = Board.builder().id(boardId).author(User.builder().id(1L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build()).build();
         BoardRequest request = BoardRequest.builder()
-                .id(boardId).authorId(999L).categoryId(3L)
-                .title("제목").description("설명").build();
+                .categoryId(3L)
+                .title("제목")
+                .description("설명")
+                .build();
+
+        CustomUserDetails wrongUser = new CustomUserDetails(
+                User.builder().id(999L).build() // 다른 사용자
+        );
 
         when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
 
         // expect
-        assertThatThrownBy(() -> boardService.update(request))
+        assertThatThrownBy(() -> boardService.update(request, boardId, wrongUser))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("작성자만 수정할 수 있습니다.");
     }

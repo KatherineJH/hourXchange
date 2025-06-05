@@ -18,4 +18,6 @@ public interface ReviewService {
     List<String> getReviewTagsByReceiverId(Long userId);
 
     List<UserTagResponse> getUserTags(Long userId);
+
+    List<ReviewResponse> getReviewsByReceiverId(Long userId);
 }

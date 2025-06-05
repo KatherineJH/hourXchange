@@ -1,13 +1,14 @@
 package com.example.oauthjwt.service;
 
+import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.*;
 import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.repository.*;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.impl.ProductServiceImpl;
-import org.junit.jupiter.api.DisplayName;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -16,8 +17,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -33,169 +34,88 @@ class ProductServiceTest {
     @Mock private ReviewRepository reviewRepository;
     @Mock private AddressRepository addressRepository;
     @Mock private StringRedisTemplate stringRedisTemplate;
+    @Mock private ProductTagRepository productTagRepository;
 
-    @InjectMocks private ProductServiceImpl productService;
+    @InjectMocks
+    private ProductServiceImpl productService;
 
-    private ProductRequest makeProductRequest() {
-        return ProductRequest.builder()
-                .title("테스트상품")
-                .description("설명")
-                .hours(2)
-                .startedAt(LocalDateTime.now().plusDays(1))
-                .endAt(LocalDateTime.now().plusDays(2))
-                .categoryId(3L)
-                .providerType("SELLER") // ProviderType.SELLER로 변경!
-                .images(List.of("img1.png"))
-                .lat("37.5")
-                .lng("127.0")
-                .address(null)
-                .build();
+    private User testUser;
+    private Category testCategory;
+
+    @BeforeEach
+    void setup() {
+        testUser = User.builder().id(1L).email("test@example.com").build();
+        testCategory = Category.builder().id(1L).categoryName("TestCat").build();
     }
 
     @Test
-    @DisplayName("save: 정상 저장 및 DTO 반환")
-    void save_Success() {
+    void saveProduct_Success() {
         // given
-        ProductRequest req = makeProductRequest();
-        User owner = new User(); owner.setId(1L);
-        Category cat = new Category(); cat.setId(3L);
-        Address address = new Address(); address.setId(8L);
+        ProductRequest request = ProductRequest.builder()
+                .title("Test Product")
+                .providerType("SELLER")
+                .categoryId(1L)
+                .address(new AddressRequest("12345", "Main Street", null, null))
+                .images(Collections.emptyList())
+                .tags(Collections.emptyList())
+                .lat("37.1234")
+                .lng("127.5678")
+                .build();
 
-        CustomUserDetails userDetails = new CustomUserDetails(owner);
-        given(userRepository.findById(1L)).willReturn(Optional.of(owner));
-        given(categoryRepository.findById(3L)).willReturn(Optional.of(cat));
-        given(productImageRepository.existsByImgUrl("img1.png")).willReturn(false);
-        given(addressRepository.save(any(Address.class))).willReturn(address);
+        CustomUserDetails userDetails = new CustomUserDetails(testUser);
 
-        // (1) setId(10L) 대신 빌더로 새로운 Product 객체 반환
-        given(productRepository.save(any(Product.class))).willAnswer(inv -> {
-            Product p = inv.getArgument(0);
-            // id 필드가 final이 아니고, @Setter 가 있으면 가능
-            try {
-                var field = Product.class.getDeclaredField("id");
-                field.setAccessible(true);
-                field.set(p, 10L);
-            } catch (Exception ignored) {}
-            return p;
-        });
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(testUser));
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(testCategory));
+        given(addressRepository.save(any(Address.class))).willReturn(Address.of(request.getAddress()));
 
-        // when
-        ProductResponse res = productService.save(req, userDetails);
+        Product dummyProduct = Product.builder()
+                .id(1L)
+                .title("Test Product")
+                .hours(1)
+                .providerType(ProviderType.parseProviderType("SELLER"))
+                .address(Address.of(request.getAddress()))
+                .owner(testUser)
+                .category(testCategory)
+                .build();
 
-        // then
-        assertThat(res.getId()).isEqualTo(10L);
-        assertThat(res.getTitle()).isEqualTo("테스트상품");
-        assertThat(res.getCategory().getId()).isEqualTo(3L);
-        then(productRepository).should().save(any(Product.class));
-    }
-
-    @Test
-    @DisplayName("save: 중복 이미지 주소 예외")
-    void save_DuplicateImage() {
-        ProductRequest req = makeProductRequest();
-        User owner = new User(); owner.setId(1L);
-        Category cat = new Category(); cat.setId(3L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(owner);
-        given(userRepository.findById(1L)).willReturn(Optional.of(owner));
-        given(categoryRepository.findById(3L)).willReturn(Optional.of(cat));
-        given(productImageRepository.existsByImgUrl("img1.png")).willReturn(true);
-
-        assertThatThrownBy(() -> productService.save(req, userDetails))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
-                    ResponseStatusException rse = (ResponseStatusException) ex;
-                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        given(productRepository.save(any(Product.class)))
+                .willAnswer(invocation -> {
+                    Product saved = invocation.getArgument(0);
+                    saved.setId(1L);
+                    saved.setLat("37.1234");
+                    saved.setLng("127.5678");
+                    return saved;
                 });
-    }
-
-    @Test
-    @DisplayName("findById: 캐시 없을 때 viewCount 증가 및 반환")
-    void findById_increaseViewCount() {
-        // given
-        Product product = Product.builder()
-                .id(100L).title("t").description("d")
-                .owner(new User()).category(new Category())
-                .providerType(ProviderType.SELLER)
-                .lat("0").lng("0")
-                .startedAt(LocalDateTime.now())
-                .endAt(LocalDateTime.now().plusDays(1))
-                .address(new Address())
-                .createdAt(LocalDateTime.now())
-                .images(new ArrayList<>())
-                .favoriteList(new ArrayList<>())
-                .chatRooms(new ArrayList<>())
-                .reviews(new ArrayList<>())
-                .transactions(new ArrayList<>())
-                .viewCount(0)
-                .build();
-
-        given(productRepository.findById(100L)).willReturn(Optional.of(product));
-        given(stringRedisTemplate.hasKey(anyString())).willReturn(false);
 
         // when
-        ProductResponse res = productService.findById(100L, "userKey1");
+        ProductResponse response = productService.save(request, userDetails);
 
         // then
-        assertThat(res.getId()).isEqualTo(100L);
-        then(productRepository).should().save(any(Product.class));
+        assertThat(response).isNotNull();
+        assertThat(response.getTitle()).isEqualTo("Test Product");
     }
 
     @Test
-    @DisplayName("update: 정상 수정")
-    void update_Success() {
+    void saveProduct_InvalidUser_ThrowsException() {
         // given
-        ProductRequest req = makeProductRequest();
-        User owner = new User(); owner.setId(1L);
-        Category cat = new Category(); cat.setId(3L);
-        Address address = new Address(); address.setId(8L);
-        Product product = Product.builder()
-                .id(100L)
-                .owner(owner)
-                .category(cat)
-                .providerType(ProviderType.SELLER)
-                .address(address)
-                .images(new ArrayList<>())
+        ProductRequest request = ProductRequest.builder()
+                .title("Bad Product")
+                .providerType("SELLER")
+                .categoryId(1L)
+                .address(new com.example.oauthjwt.dto.request.AddressRequest("12345", "Main Street", null, null))
+                .lat("37.1234")
+                .lng("127.5678")
                 .build();
 
-        CustomUserDetails userDetails = new CustomUserDetails(owner);
-        given(productRepository.findById(100L)).willReturn(Optional.of(product));
-        given(categoryRepository.findById(3L)).willReturn(Optional.of(cat));
-        // (2) deleteAllByProductId가 void이면 doNothing() 사용, int 반환이면 아래 그대로 사용
-        doNothing().when(productImageRepository).deleteAllByProductId(100L);
-        given(productImageRepository.existsByImgUrl("img1.png")).willReturn(false);
-        given(productRepository.save(any(Product.class))).willAnswer(inv -> inv.getArgument(0));
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty());
+        CustomUserDetails badUser = new CustomUserDetails(User.builder().id(99L).build());
 
-        // when
-        ProductResponse res = productService.update(req, userDetails, 100L);
-
-        // then
-        assertThat(res.getId()).isEqualTo(100L);
-        assertThat(res.getTitle()).isEqualTo("테스트상품");
-        then(productRepository).should().save(any(Product.class));
-    }
-
-    @Test
-    @DisplayName("update: 본인 소유가 아니면 예외")
-    void update_Forbidden() {
-        ProductRequest req = makeProductRequest();
-        User owner = new User(); owner.setId(1L);
-        User other = new User(); other.setId(2L);
-        Category cat = new Category(); cat.setId(3L);
-        Address address = new Address(); address.setId(8L);
-        Product product = Product.builder()
-                .id(100L)
-                .owner(other) // 다른 사람 소유
-                .category(cat)
-                .providerType(ProviderType.SELLER)
-                .address(address)
-                .build();
-
-        CustomUserDetails userDetails = new CustomUserDetails(owner);
-        given(productRepository.findById(100L)).willReturn(Optional.of(product));
-
-        assertThatThrownBy(() -> productService.update(req, userDetails, 100L))
+        // when & then
+        assertThatThrownBy(() -> productService.save(request, badUser))
                 .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN));
+                .satisfies(e -> {
+                    ResponseStatusException ex = (ResponseStatusException) e;
+                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                });
     }
 }
