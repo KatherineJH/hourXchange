@@ -1,12 +1,14 @@
 import joblib
 import numpy as np
+import pandas as pd
 from datetime import datetime
 
 MODEL_PATH = "user_grade_model.pkl"
 model = joblib.load(MODEL_PATH)
 
 # region 인코딩
-REGION_MAP = {"서울": 0, "강원": 1, "경기": 2, "충청": 3, "전라": 4, "경상": 5, "제주": 6}
+REGION_MAP = {"서울": 0, "인천": 1, "경남": 2, "부산": 3, "대구": 4, "울산": 5, "광주": 6, "전남":7,
+              "전북":8, "대전":9, "강원":10, "제주":11, "기타":12}
 
 # feature 순서 맞춰야 함
 FEATURE_ORDER = [
@@ -51,8 +53,11 @@ def preprocess_input(user_input: dict):
         user_input["days_since_signup"] = DEFAULT_VALUES["days_since_signup"]
 
     # 나머지 누락된 필드 보완
-    full_input = [user_input.get(f, DEFAULT_VALUES[f]) for f in FEATURE_ORDER]
-    return np.array(full_input).reshape(1, -1)
+    full_input = {f: user_input.get(f, DEFAULT_VALUES[f]) for f in FEATURE_ORDER}
+
+    # DataFrame으로 반환
+    return pd.DataFrame([full_input])
+
 
 def predict_user_grade(user_input: dict) -> dict:
     processed = preprocess_input(user_input)

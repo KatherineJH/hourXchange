@@ -33,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
 @Configuration
 @EnableWebSecurity
 @Log4j2
-//@EnableMethodSecurity // PreAuthorize 어노테이션 활성화 배포 후 주석 해제
+@EnableMethodSecurity // PreAuthorize 어노테이션 활성화 배포 후 주석 해제
 public class SecurityConfig {
 
     @Value("${url.frontend}")

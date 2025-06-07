@@ -133,24 +133,26 @@ public class UserServiceImpl implements UserService {
         }
 
         Object[] row = result.get(0);
-        log.info("🎯 User features raw: {}", Arrays.toString(row));
+        log.info("User features raw: {}", Arrays.toString(row));
 
-        if (row.length != 9 || Arrays.stream(row).anyMatch(Objects::isNull)) {
+        if (row.length != 12 || Arrays.stream(row).anyMatch(Objects::isNull)) {
             throw new IllegalStateException("유저 특성 정보가 부족합니다 (null 포함)");
         }
 
         Map<String, Object> features = new HashMap<>();
         features.put("age", ((Number) row[0]).intValue());
-        features.put("daysSinceSignup", ((Number) row[1]).intValue());
-        features.put("visitCount", ((Number) row[2]).intValue());
-        features.put("distinctUrlCount", ((Number) row[3]).intValue());
-        features.put("paymentCount", ((Number) row[4]).intValue());
-        features.put("totalPaymentAmount", ((Number) row[5]).doubleValue());
-        features.put("transactionCount", ((Number) row[6]).intValue());
-        features.put("reviewCount", ((Number) row[7]).intValue());
-        features.put("avgStarsGiven", ((Number) row[8]).doubleValue());
+        features.put("days_since_signup", ((Number) row[1]).intValue());
+        features.put("visit_count", ((Number) row[2]).intValue());
+        features.put("distinct_url_count", ((Number) row[3]).intValue());
+        features.put("payment_count", ((Number) row[4]).intValue());
+        features.put("total_payment_amount", ((Number) row[5]).doubleValue());
+        features.put("donation_count", ((Number) row[6]).intValue());
+        features.put("total_donation_amount", ((Number) row[7]).doubleValue());
+        features.put("transaction_count", ((Number) row[8]).intValue());
+        features.put("review_count", ((Number) row[9]).intValue());
+        features.put("avg_stars_given", ((Number) row[10]).doubleValue());
+        features.put("region", String.valueOf(row[11])); // 지역코드용 텍스트 ("서울" 등)
 
         return features;
     }
-
 }

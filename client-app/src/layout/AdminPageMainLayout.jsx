@@ -18,7 +18,7 @@ function AdminPageMainLayout({ children }) {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
       {isMobile && !mobileOpen && (
         <IconButton
@@ -38,7 +38,7 @@ function AdminPageMainLayout({ children }) {
         </IconButton>
       )}
 
-      <Box sx={{ display: "flex", flex: 1 }}>
+      <Box sx={{ flex: 1, display: "flex" }}>
         {isMobile ? (
           <Drawer
             variant="temporary"
