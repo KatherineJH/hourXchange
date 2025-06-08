@@ -74,21 +74,32 @@ public class AuthController {
     // 리프레쉬 토큰을 사용해 새로운 액세스 토큰 발급
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        // 리프레쉬 쿠키 가져오기
-        String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
-        String email = "";
+        try{
+            // 리프레쉬 쿠키 가져오기
+            String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
+            String email = "";
 
-        // 토큰의 클레임 값 가져오기
-        Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
-        // 클레임 중 email 값 가져오기
-        email = claims.get("email", String.class);
+            // 토큰의 클레임 값 가져오기
+            Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
+            // 클레임 중 email 값 가져오기
+            email = claims.get("email", String.class);
 
-        // 토큰에 이상이 없을 경우 가져온 email 값을 가지고 새로운 토큰을 생성
-        String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
-        // 토큰을 새로운 엑세스 쿠키로 반환
-        response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
-        // 반환
-        return ResponseEntity.ok(Map.of("message", "토큰 재발급 성공"));
+            // 토큰에 이상이 없을 경우 가져온 email 값을 가지고 새로운 토큰을 생성
+            String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
+            // 토큰을 새로운 엑세스 쿠키로 반환
+            response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
+            // 반환
+            return ResponseEntity.ok(Map.of("message", "토큰 재발급 성공"));
+        }catch (Exception e) {
+            // 쿠키 생성
+            Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+            Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+            // 쿠키 반환
+            response.addCookie(emptyAccessCookie);
+            response.addCookie(emptyRefreshCookie);
+            return ResponseEntity.ok(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
+        }
+
     }
 
     /**
@@ -106,14 +117,22 @@ public class AuthController {
 
     // 로그인된 사용자 정보 반환
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> getCurrentUser(HttpServletRequest request) {
-        String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request, HttpServletResponse response) {
+        try{
+            String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
 
-        Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
-        UserResponse result = userService.getUserByEmail(claims.get("email", String.class));
-
-        return ResponseEntity.ok(result);
+            Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
+            UserResponse result = userService.getUserByEmail(claims.get("email", String.class));
+            return ResponseEntity.ok(result);
+        }catch (Exception e) {
+            // 쿠키 생성
+            Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+            Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+            // 쿠키 반환
+            response.addCookie(emptyAccessCookie);
+            response.addCookie(emptyRefreshCookie);
+            return ResponseEntity.ok(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
+        }
     }
 
     @PutMapping("/password")

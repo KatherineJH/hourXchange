@@ -21,7 +21,7 @@ public class VisitLogController {
 
     /** 요청 횟수 기준 */
     @GetMapping("/daily")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public List<VisitLogResponse> daily() {
         return visitLogService.getDailyCounts(14);
     }

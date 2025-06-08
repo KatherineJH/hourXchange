@@ -34,10 +34,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-
-//        // 프론트 테스트 시 없으면 에러 발생해서 추가했는데, 다른 방식이 있다면 바꿔주셔도 됩니다.
         String path = request.getRequestURI();
-        if(path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/login/oauth2/code/")){
+        log.info(path);
+        if(path.startsWith("/api/auth/logout") || path.startsWith("/api/auth/me") || path.startsWith("/api/auth/refresh")){
             return true;
         };
 
@@ -49,6 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String token = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
+        log.info(token);
 
         if (token != null) { // 쿠키가 있으면
             try {
@@ -61,7 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                         userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-//                log.info("JWT authentication successful for user: {}", email);
+                log.info("JWT authentication successful for user: {}", email);
             } catch (ResponseStatusException e){
                 // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)
                 log.warn("User not found during JWT auth, proceeding anonymously: {}", e.getMessage());
@@ -75,6 +75,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 response.addCookie(emptyRefreshCookie);
 
             } catch (JwtException e) {
+                log.info(e.getMessage());
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");

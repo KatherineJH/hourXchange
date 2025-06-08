@@ -74,7 +74,7 @@ export default function EmailLoginForm() {
           }
 
           console.log(formData.get("email"));
-          const response = await dispatch(loginUserAsync(formData));
+          const response = await dispatch(loginUserAsync(formData)).unwrap();
 
           console.log("로그인 성공 응답:", response);
           alert("로그인 성공!");
@@ -82,10 +82,7 @@ export default function EmailLoginForm() {
           return {};
         } catch (error) {
           console.error("로그인 실패:", error);
-          const errorMessage =
-            error?.response?.data?.message ||
-            error?.message ||
-            "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
+          const errorMessage = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
           alert(errorMessage);
           return { error: errorMessage };
         }
