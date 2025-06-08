@@ -19,7 +19,9 @@ function AdminPageMainLayout({ children }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header />
+      <Box sx={{ zIndex: 1201, position: "relative" }}>
+        <Header />
+      </Box>{" "}
       {isMobile && !mobileOpen && (
         <IconButton
           onClick={handleDrawerToggle}
@@ -37,7 +39,6 @@ function AdminPageMainLayout({ children }) {
           <MenuIcon />
         </IconButton>
       )}
-
       <Box sx={{ flex: 1, display: "flex" }}>
         {isMobile ? (
           <Drawer

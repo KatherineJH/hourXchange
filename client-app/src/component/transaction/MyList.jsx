@@ -132,7 +132,7 @@ function MyList() {
   }, []);
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ maxWidth: 1220, mx: "auto", p: 2 }}>
       <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
