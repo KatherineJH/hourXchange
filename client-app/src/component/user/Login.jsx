@@ -1,67 +1,38 @@
 import * as React from "react";
+import { Box, Typography, TextField, Link as MuiLink } from "@mui/material";
 import { SignInPage } from "@toolpad/core/SignInPage";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
-import {
-  TextField,
-  Typography,
-  Box,
-  Link as MuiLink,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Button,
-} from "@mui/material";
-import { useState } from "react";
 import { getAdvertisement } from "../../api/advertisementApi.js";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import UserAdvertisement from "../advertisement/UserAdvertisement.jsx";
-
-const providers = [
-  { id: "naver", name: "Naver" },
-  { id: "google", name: "Google" },
-  { id: "github", name: "GitHub" },
-  { id: "credentials", name: "Email and Password" },
-];
 
 export default function EmailLoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.auth);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [ad, setAd] = useState(null);
+  const [ads, setAds] = useState([]);
 
   useEffect(() => {
     getAdvertisement()
-      .then((ads) => {
-        if (ads.length > 0) {
-          setAd(ads[0]);
+      .then((res) => {
+        if (Array.isArray(res.content)) {
+          setAds(res.content);
         }
       })
       .catch((err) => console.error("광고 로딩 실패:", err));
   }, []);
 
   const signIn = async (provider, formData) => {
-    console.log("선택된 provider:", provider.id);
     switch (provider.id) {
       case "naver":
-        console.log("Naver 로그인 리디렉션 시작");
-        window.location.href = `${backendUrl}/oauth2/authorization/naver`;
-        return {};
-
       case "google":
-        console.log("Google 로그인 리디렉션 시작");
-        window.location.href = `${backendUrl}/oauth2/authorization/google`;
-        return {};
-
       case "github":
-        console.log("GitHub 로그인 리디렉션 시작");
-        window.location.href = `${backendUrl}/oauth2/authorization/github`;
+        window.location.href = `${backendUrl}/oauth2/authorization/${provider.id}`;
         return {};
-
       case "credentials":
         try {
           const email = formData.get("email");
@@ -86,37 +57,57 @@ export default function EmailLoginForm() {
           alert(errorMessage);
           return { error: errorMessage };
         }
-
       default:
-        console.warn("알 수 없는 provider:", provider.id);
         return { error: "지원하지 않는 로그인 방식입니다." };
     }
   };
+
+  // 광고 분할
+  const leftAds = ads.slice(0, 4);
+  const rightAds = ads.slice(4, 8);
 
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
-        minHeight: "100vh",
+        // minHeight: "100vh",
         width: "100%",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
         px: 2,
         gap: 2,
+        overflowY: "auto",
       }}
     >
-      {/* 왼쪽 광고 (1) */}
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-        <UserAdvertisement ad={ad} />
+      {/* 왼쪽 광고 (4개) */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 5,
+          alignItems: "center",
+          position: "sticky",
+          top: 300,
+        }}
+      >
+        {leftAds.map((ad, index) => (
+          <UserAdvertisement key={`left-${index}`} ad={ad} />
+        ))}
       </Box>
 
-      {/* 로그인 폼 (3) */}
+      {/* 로그인 폼 */}
       <Box sx={{ flex: 3, display: "flex", justifyContent: "center" }}>
         <Box sx={{ width: "100%", maxWidth: 500 }}>
           <SignInPage
             signIn={signIn}
-            providers={providers}
+            providers={[
+              { id: "naver", name: "Naver" },
+              { id: "google", name: "Google" },
+              { id: "github", name: "GitHub" },
+              { id: "credentials", name: "Email and Password" },
+            ]}
             slots={{
               signUpLink: () => (
                 <Typography sx={{ textAlign: "center", mt: 2 }}>
@@ -156,9 +147,22 @@ export default function EmailLoginForm() {
           />
         </Box>
       </Box>
-      {/* 오른쪽 광고 (1) */}
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-        <UserAdvertisement ad={ad} />
+
+      {/* 오른쪽 광고 (4개) */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          alignItems: "center",
+          position: "sticky",
+          top: "300",
+        }}
+      >
+        {rightAds.map((ad, index) => (
+          <UserAdvertisement key={`right-${index}`} ad={ad} />
+        ))}
       </Box>
     </Box>
   );
