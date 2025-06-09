@@ -71,7 +71,7 @@ export default function OrderList() {
     };
 
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 주문내역조회
             </Typography>

@@ -144,7 +144,7 @@ export default function PaymentAmountDashboard() {
     ];
 
     return (
-        <Box p={2}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 결제금액현황
             </Typography>

@@ -97,7 +97,7 @@ export default function PaymentDashboard() {
     ];
 
     return (
-        <Box p={2}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 결제현황
             </Typography>

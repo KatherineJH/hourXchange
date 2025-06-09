@@ -116,7 +116,7 @@ export default function Dashboard() {
     ];
 
     return (
-        <Box p={2}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 서버요청현황
             </Typography>
