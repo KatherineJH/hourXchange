@@ -3,10 +3,15 @@ package com.example.oauthjwt.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.response.UserTagResponse;
+import com.example.oauthjwt.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,13 +19,10 @@ import org.springframework.web.client.RestTemplate;
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
 import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.repository.ProductRepository;
-import com.example.oauthjwt.repository.ReviewRepository;
-import com.example.oauthjwt.repository.ReviewTagRepository;
-import com.example.oauthjwt.repository.TransactionRepository;
 import com.example.oauthjwt.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +32,22 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewTagRepository reviewTagRepository;
     private final ProductRepository ProductRepository;
     private final TransactionRepository transactionRepository;
+    private final UserTagRepository userTagRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${url.flask}/predict")
+    @Value("${url.flask}/sentiment/predict")
     private String flaskUrl;
 
     @Override
     public ReviewResponse saveReview(ReviewRequest request, User reviewer) {
         Product product = ProductRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
-
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품 정보가 존재하지 않습니다."));
+        if (request.getTransactionId() != null) {
+            Optional<Review> existingReview = reviewRepository.findByTransactionId(request.getTransactionId());
+            if (existingReview.isPresent()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 해당 거래에 대한 리뷰가 작성되었습니다.");
+            }
+        }
         // Flask 서버에 감성 분석 요청
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -53,16 +61,11 @@ public class ReviewServiceImpl implements ReviewService {
         int rating = ((String) sentiment.get("result")).contains("긍정") ? 1 : 0;
 
         // 리뷰 저장
-        Review review = new Review();
-        review.setContent(request.getText());
-        review.setCreatedAt(LocalDateTime.now());
-        review.setRates(rating);
-        review.setReviewer(reviewer);
-        review.setProduct(product);
-        review.setStars(request.getStars());
+        Review review = Review.of(request, rating, reviewer, product);
+
         if (request.getTransactionId() != null) {
             Transaction transaction = transactionRepository.findById(request.getTransactionId())
-                    .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션 정보가 존재하지 않습니다."));
             review.setTransaction(transaction);
             transaction.setReview(review); // 양방향 연관 설정
         }
@@ -71,10 +74,22 @@ public class ReviewServiceImpl implements ReviewService {
         // 태그 저장 (긍정인 경우만)
         if (rating == 1) {
             for (String tag : tags) {
-                ReviewTag reviewTag = new ReviewTag();
-                reviewTag.setTag(tag);
-                reviewTag.setReview(review);
+                ReviewTag reviewTag = ReviewTag.of(tag, review);
                 reviewTagRepository.save(reviewTag);
+
+                Optional<UserTag> optional = userTagRepository.findByUserAndTag(product.getOwner(), tag);
+                if (optional.isPresent()) {
+                    UserTag userTag = optional.get();
+                    userTag.incrementCount();
+                    userTagRepository.save(userTag);
+                } else {
+                    UserTag userTag = UserTag.builder()
+                            .tag(tag)
+                            .count(1)
+                            .user(product.getOwner())
+                            .build();
+                    userTagRepository.save(userTag);
+                }
             }
         }
         return new ReviewResponse(review.getId(), review.getContent(), rating, review.getStars(), tags);
@@ -83,7 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse getReviewById(Long id) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));
 
         List<String> tags = review.getTags().stream().map(ReviewTag::getTag).toList();
 
@@ -93,10 +108,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));
 
         if (!review.getReviewer().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("자신이 작성한 리뷰만 수정할 수 있습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 작성한 리뷰만 수정이 가능합니다.");
         }
 
         // Flask 서버에 새 텍스트로 감정 분석
@@ -134,4 +149,36 @@ public class ReviewServiceImpl implements ReviewService {
 
         return new ReviewResponse(review.getId(), review.getContent(), rating, review.getStars(), tags);
     }
+
+    @Override
+    public List<String> getReviewTagsByReceiverId(Long userId) {
+        List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
+        return reviews.stream()
+                .flatMap(review -> review.getTags().stream())
+                .map(ReviewTag::getTag)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserTagResponse> getUserTags(Long userId) {
+        return userTagRepository.findByUserIdOrderByCountDesc(userId).stream()
+                .limit(20) // count 기준 상위 20개 제한
+                .map(ut -> new UserTagResponse(ut.getTag(), ut.getCount()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReviewResponse> getReviewsByReceiverId(Long userId) {
+        List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
+        return reviews.stream()
+                .map(review -> ReviewResponse.builder()
+                        .reviewId(review.getId())
+                        .content(review.getContent())
+                        .stars(review.getStars())   // 사용자 별점
+                        .tags(review.getTags().stream().map(ReviewTag::getTag).toList())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

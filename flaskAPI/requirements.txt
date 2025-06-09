@@ -3,10 +3,23 @@ flask-cors==5.0.1
 
 torch==2.6.0
 transformers>=4.44.0
+sentence-transformers
 accelerate
 
 scikit-learn==1.6.0
+cryptography>=40.0.0
+
 
 konlpy
 jpype1
 fugashi
+
+# for the time series model
+prophet
+pandas
+numpy
+statsmodels
+xgboost
+
+sqlalchemy 
+pymysql

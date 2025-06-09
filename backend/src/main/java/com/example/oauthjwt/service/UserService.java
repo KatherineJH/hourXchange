@@ -1,17 +1,32 @@
 package com.example.oauthjwt.service;
 
+import java.util.List;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface UserService {
 
     UserResponse signup(UserRequest userRequest);
 
-    Map<String, String> notExistsByEmail(String email);
+    UserResponse login(UserRequest userRequest);
 
-    Map<String, String> existsById(Long id);
+    void changePasswordWithoutOld(Long userId, String newPassword, String confirmPassword);
 
-    Map<String, String> isEquals(Long tokenId, Long requestId);
+    UserResponse getUserByEmail(String email);
+
+    List<UserResponse> getAllUsers();
+
+    UserResponse getUserById(Long userId);
+
+    Page<UserResponse> getUserList(Pageable pageable);
+
+    Page<UserResponse> search(Pageable pageable, UserSearchCondition condition);
+
+    Map<String, Object> getFeaturesByUserId(Long userId);
 }

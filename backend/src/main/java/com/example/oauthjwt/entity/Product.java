@@ -9,6 +9,7 @@ import java.util.List;
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.VollcolectionResponse.Item;
 
+import com.example.oauthjwt.entity.type.ProviderType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class Product {
 
     @Id
@@ -49,7 +51,10 @@ public class Product {
     private int viewCount;
 
     @Column(nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private boolean status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -66,7 +71,11 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<SPImage> images = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductImage> images = new ArrayList<>();
 
     // single transaction can have multiple service products
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -80,15 +89,71 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Favorite> favoriteList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<ProductTag> productTags = new ArrayList<>();
+
+    public static Product of(ProductRequest productRequest,
+                             User owner,
+                             Category category,
+                             ProviderType providerType,
+                             List<ProductImage> images,
+                             List<String> tagStrings) {
+
+        Product product = Product.builder()
+                .title(productRequest.getTitle())
+                .description(productRequest.getDescription())
+                .hours(productRequest.getHours())
+                .startedAt(productRequest.getStartedAt())
+                .endAt(productRequest.getEndAt())
+                .lat(productRequest.getLat())
+                .lng(productRequest.getLng())
+                .viewCount(0)
+                .createdAt(LocalDateTime.now())
+                .status(true)
+                .owner(owner)
+                .category(category)
+                .providerType(providerType)
+                .build();
+
+        // 이미지 설정
+        images.forEach(img -> img.setProduct(product));
+        product.getImages().addAll(images);
+
+        // 태그 설정
+        if (tagStrings != null) {
+            tagStrings.stream().limit(5).forEach(tagStr -> {
+                ProductTag tag = ProductTag.builder()
+                        .productTag(tagStr)
+                        .product(product)
+                        .build();
+                product.getProductTags().add(tag);
+            });
+        }
+
+        return product;
+    }
+
     public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
-        return Product.builder().title(productRequest.getTitle()).description(productRequest.getDescription())
-                .hours(productRequest.getHours()).startedAt(productRequest.getStartedAt())
-                .endAt(productRequest.getEndAt()).lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
-                .createAt(LocalDateTime.now()).owner(owner).category(category).providerType(providerType).build();
+        return Product.builder()
+                .title(productRequest.getTitle())
+                .description(productRequest.getDescription())
+                .hours(productRequest.getHours())
+                .startedAt(productRequest.getStartedAt())
+                .endAt(productRequest.getEndAt())
+                .lat(productRequest.getLat())
+                .lng(productRequest.getLng())
+                .viewCount(0)
+                .createdAt(LocalDateTime.now())
+                .status(true)
+                .owner(owner)
+                .category(category)
+                .providerType(providerType)
+                .build();
     }
 
     public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType,
-            List<SPImage> images) {
+            List<ProductImage> images) {
         Product product = of(productRequest, owner, category, providerType);
         images.forEach(image -> image.setProduct(product));
         product.getImages().addAll(images);
@@ -96,19 +161,32 @@ public class Product {
     }
 
     public static Product of(Item item, User user, Category category, ProviderType providerType, String[] position) {
-        return Product.builder().title(item.getTitle()).description(item.getSeq()).hours(0)
-                .startedAt(LocalDateTime.now()).endAt(LocalDateTime.now()).lat(position[0]).lng(position[1])
-                .viewCount(0).createAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
-                .owner(user).category(category).providerType(providerType).build();
+        return Product.builder()
+                .title(item.getTitle())
+                .description(item.getSeq())
+                .hours(0)
+                .startedAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .lat(position[0])
+                .lng(position[1])
+                .viewCount(0)
+                .createdAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+                .status(true)
+                .owner(user)
+                .category(category)
+                .providerType(providerType)
+                .build();
     }
 
     public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType,
-            List<SPImage> images) {
+            List<ProductImage> images) {
         this.title = productRequest.getTitle();
         this.description = productRequest.getDescription();
         this.hours = productRequest.getHours();
         this.startedAt = productRequest.getStartedAt();
         this.endAt = productRequest.getEndAt();
+        this.lat = productRequest.getLat();
+        this.lng = productRequest.getLng();
         this.category = category;
         this.providerType = providerType;
         this.getImages().addAll(images);
@@ -118,5 +196,9 @@ public class Product {
     public Product addViewCount() {
         this.viewCount++;
         return this;
+    }
+
+    public void setDelete(){
+        this.status = false;
     }
 }

@@ -1,9 +1,11 @@
+// MyPage에서 거래 내역을 보여주는 컴포넌트
 import React, { useEffect, useState } from "react";
 import {
   getMyTransactionList,
   postReview,
   updateReview,
   getReviewById,
+  patchCompleteTransaction,
 } from "../../api/transactionApi.js";
 import {
   Box,
@@ -41,6 +43,19 @@ function MyList() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [reviewText, setReviewText] = useState("");
   const [reviewStars, setReviewStars] = useState(null);
+
+  const handleMarkAsCompleted = async (transactionId) => {
+    try {
+      await patchCompleteTransaction(transactionId);
+      alert("거래가 완료되었습니다.");
+
+      const refreshed = await getMyTransactionList();
+      setServerDataList(refreshed.data);
+    } catch (error) {
+      console.error("❌ 거래 완료 실패:", error);
+      alert("거래 완료에 실패했습니다.");
+    }
+  };
 
   const handleOpenModal = async (transaction) => {
     setSelectedTransaction(transaction);
@@ -117,11 +132,11 @@ function MyList() {
   }, []);
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <Box sx={{ maxWidth: 1220, mx: "auto", p: 2 }}>
+      <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            나의 거래 내역
+            🙋 나의 거래 내역
           </Typography>
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
@@ -139,7 +154,9 @@ function MyList() {
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     생성일자
                   </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>리뷰</TableCell>
+                  <TableCell sx={{ bgcolor: "secondary.main" }}>
+                    완료 👉 리뷰
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -147,12 +164,21 @@ function MyList() {
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
                     <TableCell>{item.product.title}</TableCell>
-                    <TableCell>{item.product.owner.name}</TableCell>
+                    <TableCell>{item.user?.name || "상대방 없음"}</TableCell>
                     <TableCell>{item.status}</TableCell>
                     <TableCell>
                       {new Date(item.createdAt).toLocaleString("ko-KR")}
                     </TableCell>
                     <TableCell>
+                      {item.status === "ACCEPTED" && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleMarkAsCompleted(item.id)}
+                        >
+                          <Typography>거래 완료</Typography>
+                        </Button>
+                      )}
                       {item.status === "COMPLETED" && (
                         <Button
                           variant="outlined"
@@ -171,7 +197,7 @@ function MyList() {
             </Table>
           </TableContainer>
         </CardContent>
-      </Card>
+      </Box>
 
       {/* 모달 영역 */}
       <Modal open={openModal} onClose={handleCloseModal}>

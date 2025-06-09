@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -28,27 +29,26 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
 
-        log.info("⚠️ [HandshakeInterceptor] executed");
+        log.info("[HandshakeInterceptor] executed");
         URI uri = request.getURI();
         String query = uri.getQuery(); // ?token=eyJ...
-        log.info("🔐 WebSocket Request: {}", query);
+        log.info("WebSocket Request: {}", query);
 
         if (query != null) {
             String token = Arrays.stream(query.split("&")).filter(param -> param.startsWith("token="))
                     .map(param -> param.substring("token=".length())).findFirst().orElse(null);
 
             if (token != null) {
-                log.info("🧪 JWT Checking...: {}", token);
-                try {
-                    if (!jwtUtil.isExpired(token)) {
-                        String username = jwtUtil.getUsername(token);
-                        attributes.put("userId", username);
-                        log.info("✅ User Verified: {}", username);
-                        return true;
-                    }
-                } catch (JwtException e) {
-                    log.error("❌ JWT validation failed: {}", e.getMessage());
-                }
+                log.info("JWT Checking...: {}", token);
+
+                Claims claims = jwtUtil.getClaims(token); // 여기서 토큰 검증도 같이 함
+
+                String email = claims.get("email", String.class);
+                attributes.put("userId", email);
+                log.info("User Verified: {}", email);
+                return true;
+
+
             }
         }
         return false; // 인증 실패 시 false 반환
@@ -57,6 +57,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
             Exception exception) {
-        log.info("🔁 After handshake executed");
+        log.info("After handshake executed");
     }
 }

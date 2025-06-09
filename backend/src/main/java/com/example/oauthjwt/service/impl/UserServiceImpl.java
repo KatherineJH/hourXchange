@@ -1,8 +1,10 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
+import com.example.oauthjwt.dto.request.AddressRequest;
+import com.example.oauthjwt.entity.Wallet;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ import com.example.oauthjwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Log4j2
@@ -27,6 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse signup(UserRequest userRequest) {
+        // 유니크 항목 검사
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일이 중복되었습니다.");
         }
@@ -34,36 +40,119 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
         }
 
-        Address address = Address.of(userRequest.getAddress());
+        // 객체 생성
+        User user = User.of(userRequest);
 
-        userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        // 비밀번호, 지갑, 주소 설정
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-        User result = userRepository.save(User.of(userRequest, address));
+        Wallet wallet = Wallet.of(user);
+        user.setWallet(wallet);
 
+        AddressRequest addressRequest = userRequest.getAddress();
+        if(!addressRequest.isEmpty()){
+            Address address = Address.of(userRequest.getAddress());
+            user.setAddress(address);
+            address.setUser(user);
+        }
+        // 저장 및 반환
+        User result = userRepository.save(user);
         return UserResponse.toDto(result);
     }
 
     @Override
-    public Map<String, String> notExistsByEmail(String email) {
-        if (userRepository.existsByEmail(email)) { // 이메일로 조회한 정보가 존재하는 경우
-            return Map.of("error", "해당 이메일은 이미 사용중입니다.");
+    public UserResponse login(UserRequest userRequest) {
+        // 유저 조회
+        User user = userRepository.findByEmail(userRequest.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+        // 입력값 확인
+        if(!user.getEmail().equals(userRequest.getEmail()) || !passwordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
         }
-        return Collections.emptyMap();
+        // 반환
+        return UserResponse.toDto(user);
     }
 
     @Override
-    public Map<String, String> existsById(Long id) {
-        if (!userRepository.existsById(id)) { // id로 조회한 정보가 존재하지 않는 경우
-            return Map.of("error", "사용자를 찾을 수 없습니다.");
+    public void changePasswordWithoutOld(Long userId, String newPassword, String confirmPassword) {
+        if (newPassword == null || confirmPassword == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 필수입니다.");
         }
-        return Collections.emptyMap();
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+        }
+        if (newPassword.length() < 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 최소 5자 이상이어야 합니다.");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     @Override
-    public Map<String, String> isEquals(Long tokenId, Long requestId) {
-        if (!tokenId.equals(requestId)) {
-            return Map.of("error", "요청한 사용자의 아이디가 일치하지 않습니다.");
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+
+        return UserResponse.toDto(user);
+    }
+
+    @Override
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserResponse::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return UserResponse.toDto(user);
+    }
+
+    @Override
+    public Page<UserResponse> getUserList(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserResponse::toDto);
+    }
+
+    @Override
+    public Page<UserResponse> search(Pageable pageable, UserSearchCondition condition) {
+
+        Page<User> userPage = userRepository.search(condition, pageable);
+        return userPage.map(UserResponse::toDto);
+    }
+
+    @Override
+    public Map<String, Object> getFeaturesByUserId(Long userId) {
+        List<Object[]> result = userRepository.getUserFeatureRawByUserId(userId);
+
+        if (result == null || result.isEmpty()) {
+            throw new IllegalStateException("유저 특성 정보가 부족합니다 (결과 없음)");
         }
-        return Collections.emptyMap();
+
+        Object[] row = result.get(0);
+        log.info("User features raw: {}", Arrays.toString(row));
+
+        if (row.length != 12 || Arrays.stream(row).anyMatch(Objects::isNull)) {
+            throw new IllegalStateException("유저 특성 정보가 부족합니다 (null 포함)");
+        }
+
+        Map<String, Object> features = new HashMap<>();
+        features.put("age", ((Number) row[0]).intValue());
+        features.put("days_since_signup", ((Number) row[1]).intValue());
+        features.put("visit_count", ((Number) row[2]).intValue());
+        features.put("distinct_url_count", ((Number) row[3]).intValue());
+        features.put("payment_count", ((Number) row[4]).intValue());
+        features.put("total_payment_amount", ((Number) row[5]).doubleValue());
+        features.put("donation_count", ((Number) row[6]).intValue());
+        features.put("total_donation_amount", ((Number) row[7]).doubleValue());
+        features.put("transaction_count", ((Number) row[8]).intValue());
+        features.put("review_count", ((Number) row[9]).intValue());
+        features.put("avg_stars_given", ((Number) row[10]).doubleValue());
+        features.put("region", String.valueOf(row[11])); // 지역코드용 텍스트 ("서울" 등)
+
+        return features;
     }
 }

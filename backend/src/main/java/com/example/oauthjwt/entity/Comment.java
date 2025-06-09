@@ -35,6 +35,14 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    public static Comment of(CommentRequest commentRequest, User owner, Board board) {
+        return Comment.builder()
+                .content(commentRequest.getContent())
+                .author(owner)
+                .board(board)
+                .build();
+    }
+
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();

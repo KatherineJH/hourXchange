@@ -1,331 +1,407 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { getList } from '../../api/categoryApi.js';
-import { getRead, putUpdate } from '../../api/productApi.js';
-import { useNavigate, useParams } from 'react-router-dom';
-
-import {
-    Box,
-    Card,
-    CardContent,
-    Typography,
-    Divider,
-    Grid,
-    TextField,
-    Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem
-} from '@mui/material';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+// src/components/ModifyProduct.jsx
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { getRead, getUserTags, putUpdate } from "../../api/productApi.js";
+import { getList as getCategoryList } from "../../api/categoryApi.js";
 import axios from "axios";
-import {useSelector} from "react-redux";
+import {
+  Box,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
+import DaumPostcode from "react-daum-postcode";
+import KakaoSaveMap from "../common/KakaoSaveMap.jsx";
 
-const initState = {
-    title: '',
-    description: '',
-    hours: '',
-    startedAt: '',
-    endAt: '',
-    ownerId: '',
-    owner: {},
-    categoryId: '',
-    category: {},
-    providerType: '',
-    images: []
-};
+const IMAGE_SIZE = 150;
 
-const IMAGE_SIZE = 300;
+export default function ModifyProduct() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const auth = useSelector((state) => state.auth);
 
-function Modify() {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const auth = useSelector(state => state.auth);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    hours: 0,
+    providerType: "",
+    categoryId: "",
+    startedAt: dayjs().add(30, "minute"),
+    endAt: dayjs().add(2, "hour"),
+    images: [],
+    lat: 0,
+    lng: 0,
+  });
+  const [categories, setCategories] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [userTags, setUserTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const defaultTags = ["신규", "잘 부탁 드립니다"];
 
-    const [updateData, setUpdateData] = useState(initState);
-    const [categoryData, setCategoryData] = useState([]);
+  const fileInputRef = useRef();
+  const [openPostcode, setOpenPostcode] = useState(false);
 
-    // 로컬 파일/미리보기 관리
-    const [newFiles, setNewFiles] = useState([]);
-    const [previews, setPreviews] = useState([]);
-    const fileInputRef = useRef(null);
+  useEffect(() => {
+    async function fetch() {
+      const { data } = await getRead(id);
+      if (auth.user?.id !== data.owner.id) {
+        alert("본인이 등록한 상품만 수정할 수 있습니다.");
+        return navigate(-1);
+      }
+      setFormData({
+        title: data.title,
+        description: data.description,
+        hours: data.hours,
+        providerType: data.providerType,
+        categoryId: data.category.id,
+        startedAt: dayjs(data.startedAt),
+        endAt: dayjs(data.endAt),
+        images: data.images || [],
+        lat: data.lat,
+        lng: data.lng,
+      });
+      setPreviews(data.images || []);
+      setSelectedTags(data.tags || []);
+    }
+    fetch();
+    getCategoryList().then((res) => setCategories(res.data.content));
+    getUserTags(auth.user?.id).then(setUserTags);
+  }, [id]);
 
-    // 서버에서 받아온 이미지 URL을 first load
-    useEffect(() => {
-        getRead(id)
-            .then(response => {
-                if(auth.user?.id !== response.data.owner.id) {
-                    alert('본인이 등록한 제품만 수정이 가능합니다.')
-                    navigate('/')
-                }
-                const data = response.data;
-                setUpdateData({
-                    ...data,
-                    categoryId: data.category.id,
-                    ownerId: data.owner.id
-                });
-                setPreviews(data.images || []);
-            })
-            .catch(console.log);
+  const handleTagClick = (tag, source = "user") => {
+    const isSelected = selectedTags.includes(tag);
 
-        getList()
-            .then(response => setCategoryData(response.data))
-            .catch(console.log);
-    }, [id]);
+    if (isSelected) {
+      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+    } else {
+      const defaultSelected = selectedTags.filter((t) =>
+        defaultTags.includes(t)
+      );
+      const userSelected = selectedTags.filter((t) => !defaultTags.includes(t));
 
-    const handleChange = e => {
-        const { name, value } = e.target;
-        setUpdateData(prev => ({ ...prev, [name]: value }));
-    };
+      if (source === "default" && defaultSelected.length >= 2) {
+        alert("기본 키워드는 최대 2개까지 선택할 수 있습니다.");
+        return;
+      }
+      if (selectedTags.length >= 5) {
+        alert("전체 태그는 최대 5개까지 선택할 수 있습니다.");
+        return;
+      }
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
 
-    // 파일 선택
-    const handleAddClick = () => {
-        fileInputRef.current.click();
-    };
+  const handleFieldChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "hours") {
+      const n = parseInt(value, 10);
+      setFormData((p) => ({ ...p, hours: isNaN(n) ? 0 : n }));
+    } else {
+      setFormData((p) => ({ ...p, [name]: value }));
+    }
+  };
 
-    const handleImageChange = e => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setNewFiles(prev => [...prev, file]);
+  const handleDateChange = (field) => (newVal) => {
+    if (field === "startedAt" && newVal.isAfter(formData.endAt)) {
+      return alert("시작 시간은 종료 시간 이전이어야 합니다.");
+    }
+    if (field === "endAt" && newVal.isBefore(formData.startedAt)) {
+      return alert("종료 시간은 시작 시간 이후이어야 합니다.");
+    }
+    setFormData((p) => ({ ...p, [field]: newVal }));
+  };
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviews(prev => [...prev, reader.result]);
-        };
-        reader.readAsDataURL(file);
-        e.target.value = null;
-    };
+  const handleAddClick = () => fileInputRef.current.click();
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviews((p) => [...p, reader.result]);
+    reader.readAsDataURL(file);
+    setNewFiles((p) => [...p, file]);
+    e.target.value = null;
+  };
 
-    // 이미지 삭제
-    const handleRemoveImage = index => {
-        // 기존 URL 삭제
-        setUpdateData(prev => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index)
+  const handleRemoveImage = (idx) => {
+    if (!window.confirm("이 사진을 삭제하시겠습니까?")) return;
+    const existingCount = formData.images.length;
+    if (idx < existingCount) {
+      setFormData((p) => ({
+        ...p,
+        images: p.images.filter((_, i) => i !== idx),
+      }));
+    } else {
+      setNewFiles((p) => p.filter((_, i) => i !== idx - existingCount));
+    }
+    setPreviews((p) => p.filter((_, i) => i !== idx));
+  };
+
+  const handlePostcodeComplete = (data) => {
+    const geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.addressSearch(data.address, (res, status) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const { y, x } = res[0];
+        setFormData((p) => ({
+          ...p,
+          lat: parseFloat(y),
+          lng: parseFloat(x),
         }));
+      } else {
+        alert("주소 검색에 실패했습니다.");
+      }
+    });
+    setOpenPostcode(false);
+  };
 
-        // 파일/preview 삭제
-        setNewFiles(prev => {
-            const urlCount = updateData.images.length;
-            if (index >= urlCount) {
-                // 신규 파일 삭제
-                return prev.filter((_, i) => i !== index - urlCount);
-            }
-            return prev;
-        });
-        setPreviews(prev => prev.filter((_, i) => i !== index));
-    };
+  const handleMapClick = ({ lat, lng, address }) => {
+    setFormData((p) => ({ ...p, lat, lng, address }));
+  };
 
-    // 업데이트 제출
-    const handleSubmit = async e => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const uploadPromises = newFiles.map((file) => {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", import.meta.env.VITE_UPLOAD_PRESET);
+        return axios
+          .post(
+            `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,
+            fd
+          )
+          .then((r) => r.data.secure_url);
+      });
+      const newUrls = await Promise.all(uploadPromises);
+      const finalImages = [...formData.images, ...newUrls];
 
-        try {
-            // 신규 파일만 Cloudinary 업로드
-            const urlPromises = newFiles.map(file => {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', `${import.meta.env.VITE_UPLOAD_PRESET}`);
-                return axios
-                    .post(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, formData)
-                    .then(res => res.data.secure_url);
-            });
-            const newUrls = await Promise.all(urlPromises);
+      const payload = {
+        ...formData,
+        startedAt: formData.startedAt.format("YYYY-MM-DDTHH:mm:ss"),
+        endAt: formData.endAt.format("YYYY-MM-DDTHH:mm:ss"),
+        images: finalImages,
+        tags: selectedTags,
+      };
+      await putUpdate(id, payload);
+      alert("수정 완료!");
+      navigate(`/product/read/${id}`);
+    } catch (err) {
+      console.error(err);
+      alert("수정 중 오류가 발생했습니다.");
+    }
+  };
 
-            // 최종 이미지 URL 목록: 기존 + 신규
-            const finalImages = [...updateData.images, ...newUrls];
-
-            // 업데이트 payload
-            const payload = { ...updateData, images: finalImages };
-            const response = await putUpdate(id, payload);
-            navigate('/product/read/' + response.data.id);
-        } catch (error) {
-            console.error(error);
-            alert('수정 중 오류 발생');
-        }
-    };
-
-    return (
-        <Box sx={{ mt: 4 }}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                <CardContent>
-                    <Typography variant="h5" gutterBottom>
-                        수정
-                    </Typography>
-                    <Divider sx={{ my: 2 }} />
-
-                    {/* 이미지 미리보기 및 추가 */}
-                    <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-                        {previews.map((src, idx) => (
-                            <Box
-                                key={idx}
-                                component="img"
-                                src={src}
-                                alt={`preview-${idx}`}
-                                onClick={() => handleRemoveImage(idx)}
-                                sx={{
-                                    width: IMAGE_SIZE,
-                                    height: IMAGE_SIZE,
-                                    objectFit: 'cover',
-                                    borderRadius: 1,
-                                    border: '1px solid rgba(0,0,0,0.1)',
-                                    cursor: 'pointer'
-                                }}
-                            />
-                        ))}
-                        <Button
-                            variant="outlined"
-                            onClick={handleAddClick}
-                            sx={{
-                                width: IMAGE_SIZE,
-                                height: IMAGE_SIZE,
-                                minWidth: 'auto',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 1,
-                                border: '1px dashed rgba(0,0,0,0.3)'
-                            }}
-                        >
-                            <AddPhotoAlternateIcon />
-                        </Button>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            ref={fileInputRef}
-                            onChange={handleImageChange}
-                        />
-                    </Box>
-
-                    <Grid container spacing={2}>
-                        {/* 제목 */}
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                제목
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="title"
-                                value={updateData.title}
-                                onChange={handleChange}
-                                placeholder="제목을 입력하세요"
-                                margin="normal"
-                            />
-                        </Grid>
-                        {/* 이하 기존 필드 동일 */}
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                설명
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="description"
-                                multiline
-                                rows={4}
-                                value={updateData.description}
-                                onChange={handleChange}
-                                placeholder="설명을 입력하세요"
-                                margin="normal"
-                                sx={{ minHeight: 120, whiteSpace: 'pre-wrap' }}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                시간(비용)
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="hours"
-                                type="number"
-                                value={updateData.hours}
-                                onChange={handleChange}
-                                placeholder="시간 입력"
-                                margin="normal"
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                타입
-                            </Typography>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel id="providerType-label">타입</InputLabel>
-                                <Select
-                                    labelId="providerType-label"
-                                    name="providerType"
-                                    value={updateData.providerType}
-                                    label="타입"
-                                    onChange={handleChange}
-                                >
-                                    <MenuItem value="">---타입---</MenuItem>
-                                    <MenuItem value="BUYER">구매</MenuItem>
-                                    <MenuItem value="SELLER">판매</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                시작 시간
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="startedAt"
-                                type="datetime-local"
-                                InputLabelProps={{ shrink: true }}
-                                value={updateData.startedAt}
-                                onChange={handleChange}
-                                margin="normal"
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                종료 시간
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="endAt"
-                                type="datetime-local"
-                                InputLabelProps={{ shrink: true }}
-                                value={updateData.endAt}
-                                onChange={handleChange}
-                                margin="normal"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                카테고리
-                            </Typography>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel id="categoryId-label">카테고리</InputLabel>
-                                <Select
-                                    labelId="categoryId-label"
-                                    name="categoryId"
-                                    value={updateData.categoryId}
-                                    label="카테고리"
-                                    onChange={handleChange}
-                                >
-                                    <MenuItem value="">---카테고리---</MenuItem>
-                                    {categoryData.map(item => (
-                                        <MenuItem key={item.id} value={item.id}> {item.categoryName} </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sx={{ textAlign: 'center', mt: 4 }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                onClick={handleSubmit}
-                            >
-                                수정하기
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
+  return (
+    <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
+      <form onSubmit={handleSubmit}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+          <input
+              type="file"
+              hidden
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+          />
+          <Button
+              variant="outlined"
+              onClick={handleAddClick}
+              sx={{
+                width: IMAGE_SIZE,
+                height: IMAGE_SIZE,
+                borderRadius: 2,
+                border: "1px dashed rgba(0,0,0,0.3)",
+              }}
+          >
+            <AddPhotoAlternateIcon />
+          </Button>
+          {previews.map((src, idx) => (
+              <Box
+                  key={idx}
+                  sx={{
+                    width: IMAGE_SIZE,
+                    height: IMAGE_SIZE,
+                    cursor: "pointer",
+                    position: "relative",
+                  }}
+                  onClick={() => handleRemoveImage(idx)}
+              >
+                <img
+                    src={src}
+                    alt={`img-${idx}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
+                />
+              </Box>
+          ))}
         </Box>
-    );
-}
 
-export default Modify;
+        {/* 타입 & 카테고리 */}
+        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <FormControl fullWidth size="small">
+            <InputLabel>타입</InputLabel>
+            <Select
+              name="providerType"
+              value={formData.providerType}
+              onChange={handleFieldChange}
+            >
+              <MenuItem value="BUYER">구매</MenuItem>
+              <MenuItem value="SELLER">판매</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth size="small">
+            <InputLabel>카테고리</InputLabel>
+            <Select
+              name="categoryId"
+              value={formData.categoryId}
+              onChange={handleFieldChange}
+            >
+              {Array.isArray(categories) &&
+                categories.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.categoryName}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        <TextField
+          fullWidth
+          label="제목"
+          name="title"
+          margin="normal"
+          value={formData.title}
+          onChange={handleFieldChange}
+        />
+        <TextField
+          fullWidth
+          label="내용"
+          name="description"
+          margin="normal"
+          multiline
+          rows={4}
+          value={formData.description}
+          onChange={handleFieldChange}
+        />
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          좋은 리뷰를 많이 받으신 분들의 추천 태그(기본 키워드 포함 최대 5개
+          선택 가능)
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {userTags.map((tagObj, idx) => {
+            const isSelected = selectedTags.includes(tagObj.tag);
+            return (
+              <Button
+                key={idx}
+                variant={isSelected ? "contained" : "outlined"}
+                size="small"
+                onClick={() => handleTagClick(tagObj.tag, "user")}
+              >
+                #{tagObj.tag}
+              </Button>
+            );
+          })}
+        </Box>
+        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+          아직 키워드가 없으신가요? 기본 키워드 중 0~2 개를 선택하세요.
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {defaultTags.map((tag, index) => {
+            const isSelected = selectedTags.includes(tag);
+            return (
+              <Button
+                key={`default-${index}`}
+                variant={isSelected ? "contained" : "outlined"}
+                onClick={() => handleTagClick(tag, "default")}
+                size="small"
+              >
+                {tag}
+              </Button>
+            );
+          })}
+        </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <DateTimePicker
+              label="시작 시간"
+              value={formData.startedAt}
+              onChange={handleDateChange("startedAt")}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+            <DateTimePicker
+              label="종료 시간"
+              value={formData.endAt}
+              onChange={handleDateChange("endAt")}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Box>
+        </LocalizationProvider>
+
+        <TextField
+          fullWidth
+          label="상품 시간(분)"
+          name="hours"
+          type="number"
+          margin="normal"
+          value={formData.hours}
+          onChange={handleFieldChange}
+        />
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+          <Button variant="outlined" onClick={() => setOpenPostcode(true)}>
+            주소 직접검색
+          </Button>
+        </Box>
+        <Dialog
+          open={openPostcode}
+          onClose={() => setOpenPostcode(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>주소 검색</DialogTitle>
+          <DialogContent sx={{ p: 0, height: 400 }}>
+            <DaumPostcode
+              onComplete={handlePostcodeComplete}
+              style={{ width: "100%", height: "100%" }}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Box sx={{ mb: 2 }}>
+          <KakaoSaveMap
+            saveData={formData}
+            setSaveData={setFormData}
+            onMapClick={handleMapClick}
+          />
+          <Typography variant="caption" color="text.secondary">
+            선택된 좌표: {formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}
+          </Typography>
+        </Box>
+
+        <Box sx={{ textAlign: "right" }}>
+          <Button type="submit" variant="contained" endIcon={<SendIcon />}>
+            수정하기
+          </Button>
+        </Box>
+      </form>
+    </Box>
+  );
+}

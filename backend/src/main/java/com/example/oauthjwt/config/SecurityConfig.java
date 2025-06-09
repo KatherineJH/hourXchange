@@ -3,10 +3,12 @@ package com.example.oauthjwt.config;
 import java.util.Arrays;
 import java.util.List;
 
+import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -21,9 +23,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.oauthjwt.jwt.JWTFilter;
 import com.example.oauthjwt.jwt.JWTUtil;
-import com.example.oauthjwt.oauth2.CustomSuccessHandler;
-import com.example.oauthjwt.service.CustomOAuth2UserService;
-import com.example.oauthjwt.service.CustomUserDetailsService;
+import com.example.oauthjwt.handler.CustomAuthenticationSuccessHandler;
+import com.example.oauthjwt.service.impl.CustomOAuth2UserService;
+//import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
@@ -31,22 +33,23 @@ import lombok.extern.log4j.Log4j2;
 @Configuration
 @EnableWebSecurity
 @Log4j2
+@EnableMethodSecurity // PreAuthorize 어노테이션 활성화 배포 후 주석 해제
 public class SecurityConfig {
 
     @Value("${url.frontend}")
     private String[] allowedOrigins;
 
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler,
-            CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                          JWTUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.customOAuth2UserService = customOAuth2UserService;
-        this.customSuccessHandler = customSuccessHandler;
-        this.customUserDetailsService = customUserDetailsService;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Bean
@@ -55,23 +58,31 @@ public class SecurityConfig {
         http.cors(customizer -> customizer.configurationSource(corsConfigurationSource()));
 
         // CSRF, 폼 로그인, HTTP Basic 비활성화
-        http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable());
+        http.csrf(csrf ->
+                csrf.disable())
+                .formLogin(form ->
+                        form.disable())
+                .httpBasic(basic ->
+                        basic.disable());
 
         // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler));
+        http.oauth2Login(oauth2 ->
+                oauth2.userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService))
+                        .successHandler(customAuthenticationSuccessHandler));
 
         // JWT 필터 추가
         http.addFilterAfter(new JWTFilter(jwtUtil, customUserDetailsService), OAuth2LoginAuthenticationFilter.class);
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
-                // Actuator 공개 엔드포인트
-                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // Preflight OPTIONS 요청 허용
                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                // Actuator 공개 엔드포인트
+                .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // 인증 없이 허용할 API
-                .requestMatchers("/", "/api/auth/**", "/api/chatrooms", "/login/oauth2/code/**", "/error").permitAll()
+                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/logout", "/api/auth/refresh", "/api/auth/me").permitAll()
+                .requestMatchers("/", "/api/advertisement/**", "/login/oauth2/code/**", "/error").permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated());
 
@@ -95,11 +106,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:5173",
-                "https://*.vercel.app",
-                "https://hourxchange.kr"
-        ));
+        // Protocol://host:port 형태 맞춰 등록된 allowedOrigins 사용
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

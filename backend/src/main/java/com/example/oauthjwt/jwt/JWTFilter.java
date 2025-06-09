@@ -2,15 +2,15 @@ package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.oauthjwt.service.CustomUserDetailsService;
+import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -19,60 +19,63 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public JWTFilter(JWTUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+    public JWTFilter(JWTUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-
-        // 🔐 예외 처리: 로그인 및 OAuth2 경로는 JWT 인증 안 함
-        String requestUri = request.getRequestURI();
-        if (requestUri.matches("^/login(?:/.*)?$") || requestUri.matches("^/oauth2(?:/.*)?$")) {
+        log.info(path);
+        if(path.startsWith("/api/auth/logout") || path.startsWith("/api/auth/me") || path.startsWith("/api/auth/refresh")){
             return true;
-        }
-        // return false;
-        // 프론트 테스트 시 없으면 에러 발생해서 추가했는데, 다른 방식이 있다면 바꿔주셔도 됩니다.
-        return path.startsWith("/api/auth/") || path.startsWith("/oauth2/") || path.startsWith("/login")
-                || path.startsWith("/login/oauth2/code/");
+        };
+
+         return false;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 2. 쿠키 사용 함 - 프론트 채팅 테스트 시 주석 풀고 사용
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) { // 쿠키가 있으면
+        String token = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
+        log.info(token);
+
+        if (token != null) { // 쿠키가 있으면
             try {
-                token = Arrays.stream(cookies).filter(cookie -> "Authorization".equals(cookie.getName()))
-                        .map(Cookie::getValue).findFirst().orElse(null);
+                Claims claims = jwtUtil.getClaims(token); // 여기서 토큰 검증도 같이 함
 
-                if (token != null) {
-                    if (jwtUtil.isExpired(token)) {
-                        throw new JwtException("토큰이 만료되었습니다.");
-                    }
+                String email = claims.get("email", String.class);
 
-                    Map<String, Object> claims = jwtUtil.validateToken(token);
-                    String username = claims.get("username").toString();
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = customUserDetailsService.getUserDetailsByEmail(email);
 
-                    Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-                            userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.debug("JWT authentication successful for user: {}", username);
-                }
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                        userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("JWT authentication successful for user: {}", email);
+            } catch (ResponseStatusException e){
+                // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)
+                log.warn("User not found during JWT auth, proceeding anonymously: {}", e.getMessage());
+                SecurityContextHolder.clearContext();
+
+                // 쿠키 초기화
+                Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+                Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+
+                response.addCookie(emptyAccessCookie);
+                response.addCookie(emptyRefreshCookie);
+
             } catch (JwtException e) {
+                log.info(e.getMessage());
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");

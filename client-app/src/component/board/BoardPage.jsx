@@ -1,7 +1,7 @@
 // src/page/board/BoardPage.jsx
 import React, { useEffect, useState } from "react";
 import BoardTable from "../../component/board/BoardTable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -12,21 +12,22 @@ import {
   ListItemText,
   Stack,
   Pagination,
-  Card,
   CardContent,
   Box,
-  Typography,
 } from "@mui/material";
-
 import {
   getAllBoards,
   searchBoards,
   getAutocompleteSuggestions,
 } from "../../api/boardApi";
+import { useCustomDebounce } from "../../assets/useCustomDebounce";
+import CategoryNav from "../../layout/CategoryNav";
 
 function BoardPage() {
   const navigate = useNavigate();
   const [boards, setBoards] = useState([]);
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category") || ""; // 없으면 빈 문자열
 
   const [page, setPage] = useState(0); // JPA는 0부터 시작
   const [size, setSize] = useState(10);
@@ -35,18 +36,29 @@ function BoardPage() {
   const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState(""); // 검색어 입력
   const [suggestions, setSuggestions] = useState([]); // 추천 검색어 리스트
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
+  const debouncedInput = useCustomDebounce(searchInput, 300);
 
   const fetchBoards = async () => {
     try {
+      let data;
       if (keyword.trim() === "") {
-        const data = await getAllBoards(page, size);
-        setBoards(data.content);
-        setTotalPages(data.totalPages);
+        data = await getAllBoards(0, 9999); // 전체 데이터 불러오기
       } else {
-        const data = await searchBoards(keyword, page, size);
-        setBoards(data.content);
-        setTotalPages(data.totalPages);
+        data = await searchBoards(keyword, 0, 9999);
       }
+      let content = data.content;
+      if (categoryParam) {
+        content = content.filter(
+          (board) => board.category?.categoryName === categoryParam
+        );
+      }
+      // 페이지 슬라이싱
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paged = content.slice(startIndex, endIndex);
+      setBoards(paged);
+      setTotalPages(Math.ceil(content.length / size)); // 전 카테고리 페이지 수
     } catch (error) {
       console.error("게시판 불러오기 실패", error);
     }
@@ -54,24 +66,30 @@ function BoardPage() {
 
   useEffect(() => {
     fetchBoards();
-  }, [page, size, keyword]);
+  }, [page, size, keyword, categoryParam]);
 
   useEffect(() => {
+    setPage(0); // 카테고리 변경 시 첫 페이지로 리셋
+  }, [categoryParam]);
+
+  useEffect(() => {
+    if (debouncedInput.trim() === "" || debouncedInput === keyword) {
+      setSuggestions([]);
+      return;
+    }
+
     const fetchSuggestions = async () => {
-      if (searchInput.trim() === "") {
-        setSuggestions([]);
-        return;
-      }
       try {
-        const result = await getAutocompleteSuggestions(searchInput);
+        const result = await getAutocompleteSuggestions(debouncedInput);
         setSuggestions(result);
       } catch (e) {
         console.error("추천 검색어 실패", e);
         setSuggestions([]);
       }
     };
+
     fetchSuggestions();
-  }, [searchInput]);
+  }, [debouncedInput, keyword]);
 
   const handleSearch = () => {
     setKeyword(searchInput);
@@ -79,12 +97,13 @@ function BoardPage() {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <Box
+      sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+    >
+      {/* 카테고리 네비게이션 */}
+      <CategoryNav />
+      <Box>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
-            📋 Board 검색 & 리스트
-          </Typography>
           <Box
             sx={{
               display: "flex",
@@ -103,6 +122,33 @@ function BoardPage() {
                 placeholder="검색어를 입력하세요"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) =>
+                      prev < suggestions.length - 1 ? prev + 1 : 0
+                    );
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) =>
+                      prev > 0 ? prev - 1 : suggestions.length - 1
+                    );
+                  } else if (e.key === "Enter") {
+                    if (
+                      highlightedIndex >= 0 &&
+                      highlightedIndex < suggestions.length
+                    ) {
+                      const selected = suggestions[highlightedIndex];
+                      setSearchInput(selected);
+                      setKeyword(selected);
+                      setPage(0);
+                      setSuggestions([]);
+                      setHighlightedIndex(-1);
+                    } else {
+                      handleSearch();
+                    }
+                  }
+                }}
                 size="small"
               />
               <Button
@@ -136,11 +182,14 @@ function BoardPage() {
                     {suggestions.map((s, idx) => (
                       <ListItem key={idx} disablePadding>
                         <ListItemButton
+                          selected={idx === highlightedIndex}
+                          onMouseEnter={() => setHighlightedIndex(idx)}
                           onClick={() => {
                             setSearchInput(s);
                             setKeyword(s);
                             setPage(0);
                             setSuggestions([]);
+                            setHighlightedIndex(-1);
                           }}
                         >
                           <ListItemText primary={s} />
@@ -185,7 +234,7 @@ function BoardPage() {
             </Stack>
           </Box>
         </CardContent>
-      </Card>
+      </Box>
     </Box>
   );
 }

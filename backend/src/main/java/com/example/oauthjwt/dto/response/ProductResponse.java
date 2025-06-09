@@ -1,13 +1,16 @@
 package com.example.oauthjwt.dto.response;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.SPImage;
+import com.example.oauthjwt.entity.ProductImage;
 
+import com.example.oauthjwt.entity.ProductTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,13 +33,18 @@ public class ProductResponse {
 
     private LocalDateTime endAt; // 끝시간
 
-    private String lat;
+    private Double lat;
 
-    private String lng;
+    private Double lng;
 
     private int viewCount;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+
+    private int favoriteCount;      // 찜한 유저 수
+    private int chatCount;          // 이 상품과 연결된 채팅방 수
+    private double starsAverage;    // 이 상품에 대한 평균 별점
+    private int reviewCount;        // 이 상품에 대한 리뷰 수
 
     private UserResponse owner; // 작성자
 
@@ -46,20 +54,82 @@ public class ProductResponse {
 
     private List<String> images = new ArrayList<>(); // 이미지 url
 
+    private List<String> tags = new ArrayList<>();
+
     public static ProductResponse toDto(Product product) {
-        return ProductResponse.builder().id(product.getId()).title(product.getTitle())
-                .description(product.getDescription()).hours(product.getHours()).startedAt(product.getStartedAt())
-                .endAt(product.getEndAt()).lat(product.getLat()).lng(product.getLng()).viewCount(product.getViewCount())
-                .createAt(product.getCreateAt()).owner(UserResponse.toDto(product.getOwner()))
+        return ProductResponse.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .hours(product.getHours())
+                .startedAt(product.getStartedAt())
+                .endAt(product.getEndAt())
+                .lat(Double.valueOf(product.getLat()))
+                .lng(Double.valueOf(product.getLng()))
+                .viewCount(product.getViewCount())
+                .createdAt(product.getCreatedAt())
+                .owner(UserResponse.toDto(product.getOwner()))
                 .category(CategoryResponse.toDto(product.getCategory()))
                 .providerType(product.getProviderType().toString())
                 .images(product.getImages() == null
                         ? null
-                        : product.getImages().stream().map(SPImage::getImgUrl).collect(Collectors.toList())) // 이미지
-                // 엔티티에서
-                // url만
-                // String
-                // list로 변환
+                        : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
+                .tags(product.getProductTags()
+                        .stream()
+                        .map(ProductTag::getProductTag)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static ProductResponse toDto(Product product, double starsAverage) {
+        return ProductResponse.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .hours(product.getHours())
+                .startedAt(product.getStartedAt())
+                .endAt(product.getEndAt())
+                .lat(Double.valueOf(product.getLat()))
+                .lng(Double.valueOf(product.getLng()))
+                .viewCount(product.getViewCount())
+                .createdAt(product.getCreatedAt())
+                .owner(UserResponse.toDto(product.getOwner()))
+                .category(CategoryResponse.toDto(product.getCategory()))
+                .providerType(product.getProviderType().toString())
+                .images(product.getImages() == null
+                        ? null
+                        : product.getImages().stream().map(ProductImage::getImgUrl).collect(Collectors.toList())) // 이미지
+                .favoriteCount(product.getFavoriteList().size())
+                .chatCount(product.getChatRooms().size())
+                .starsAverage(starsAverage)
+                .reviewCount(product.getReviews().size())
+                .tags(product.getProductTags()
+                        .stream()
+                        .map(ProductTag::getProductTag)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static ProductResponse toDto(ProductDocument productDocument){
+        return ProductResponse.builder()
+                .id(productDocument.getId())
+                .title(productDocument.getTitle())
+                .description(productDocument.getDescription())
+                .hours(productDocument.getHours())
+                .startedAt(productDocument.getStartedAt())
+                .endAt(productDocument.getEndAt())
+                .lat(productDocument.getLat())
+                .lng(productDocument.getLng())
+                .viewCount(productDocument.getViewCount())
+                .createdAt(productDocument.getCreatedAt())
+                .owner(productDocument.getOwner())
+                .category(productDocument.getCategory())
+                .providerType(productDocument.getProviderType())
+                .images(productDocument.getImages())
+                .favoriteCount(productDocument.getFavoriteCount())
+                .chatCount(productDocument.getChatCount())
+                .starsAverage(productDocument.getStarsAverage())
+                .reviewCount(productDocument.getReviewCount())
                 .build();
     }
 }

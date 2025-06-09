@@ -1,86 +1,92 @@
 // src/component/homepage/Homepage.jsx
 import React, { useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
-import {
-  Card,
-  CardHeader,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Collapse,
-  Avatar,
-  IconButton,
-  Typography,
-  Grid,
-} from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ShareIcon from "@mui/icons-material/Share";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
+import New7Days from "./New7Days";
+import HighRanked from "./HighRanked";
+import NearMe from "./NearMe";
+import ListTable from "../product/ListTable";
+import CustomHeader from "../common/CustomHeader.jsx";
+import DonationCardList from "../donation/DonationCardList.jsx";
+import {
+  getRecentDonations,
+  getTopByProgress,
+  getTopByViews,
+} from "../../api/donationApi.js";
+import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
+import CarouselAd from "../advertisement/CarouselAd.jsx";
+import { useSelector } from "react-redux";
+import CategoryNav from "../../layout/CategoryNav.jsx";
 
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  marginLeft: "auto",
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  height: 480,
+  bgcolor: "background.paper",
+  borderRadius: 2,
+  boxShadow: 24,
+  p: 3,
+  gap: 2,
+};
 
 export default function Homepage() {
   const [products, setProducts] = useState([]);
-  const [expandedProductId, setExpandedProductId] = useState(null);
-
   const [favorite, setFavorite] = useState([]);
+  const [expandedProductId, setExpandedProductId] = useState(null);
+  const [TopByProgress, setTopByProgress] = useState([]);
+  const [TopByViews, setTopByViews] = useState([]);
+  const [RecentDonations, setRecentDonations] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const selectedCategory = params.get("category"); // 현재 선택된 카테고리
+  const filteredProducts = products.filter(
+    (p) => !selectedCategory || p.category?.categoryName === selectedCategory
+  );
+  const { pathname } = useLocation(); // 현재 경로
+  const user = useSelector((state) => state.auth);
+  const [openModal, setOpenModal] = useState(true);
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   useEffect(() => {
-    // 상품 정보 조회
-    const fetchProducts = async () => {
-      try {
-        const response = await getList();
-        console.log("📦 받아온 상품 목록:", response.data.content);
+    getList()
+      .then((response) => {
         setProducts(response.data.content);
-      } catch (error) {
-        console.error("상품 목록 불러오기 실패", error);
-      }
-    };
-    fetchProducts();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
 
   useEffect(() => {
-    // 좋아요 정보 조회
+    if (!user.email) return;
+
     getFavoriteList()
       .then((response) => {
         setFavorite(response.data || []);
-        console.log(response.data);
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   }, []);
 
   const handleClickFavorite = async (id) => {
-    // 좋아요 추가
     const isFavorited = favorite.some((f) => f.product.id === id);
-
-    // 1) 로컬 상태 바로 토글
-    setFavorite(
-      (prev) =>
-        isFavorited
-          ? prev.filter((f) => f.product.id !== id) // 이미 좋아요면 제거
-          : [...prev, { product: { id } }] // 아니면 추가
+    setFavorite((prev) =>
+      isFavorited
+        ? prev.filter((f) => f.product.id !== id)
+        : [...prev, { product: { id } }]
     );
-
-    console.log(id);
     try {
-      const response = await postFavorite(id);
-      console.log(response.data);
+      await postFavorite(id);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -88,107 +94,114 @@ export default function Homepage() {
     setExpandedProductId((prev) => (prev === id ? null : id));
   };
 
-  // 여기서 분류
-  const activeProducts = products.slice(0, 4); // 예시: 활동이 활발한 상품
-  const topRatedProducts = products.slice(4, 8); // 예시: 평가가 좋은 상품
-  const nearbyProducts = products.slice(8); // 예시: 내 주변 상품
+  useEffect(() => {
+    getTopByProgress()
+      .then((response) => {
+        setTopByProgress(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
-  const renderProductGrid = (productList) => (
-    <Grid container spacing={2} sx={{ padding: 2, justifyContent: "center" }}>
-      {productList.map((product) => (
-        <Grid key={product.id} xs={12} sm={6} md={4} lg={3}>
-          <Card sx={{ maxWidth: 345 }}>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {product.owner?.name ? product.owner.name[0] : "?"}
-                </Avatar>
-              }
-              action={
-                <IconButton aria-label="settings">
-                  <MoreVertIcon />
-                </IconButton>
-              }
-              title={product.title}
-              subheader={new Date(product.startedAt).toLocaleDateString()}
-            />
-            <CardMedia
-              component="img"
-              height="194"
-              image={product.images?.[0] || "/static/images/cards/paella.jpg"}
-              alt={product.title}
-            />
-            <CardContent>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {product.description}
-              </Typography>
-            </CardContent>
-            <CardActions disableSpacing>
-              <IconButton
-                aria-label="add to favorites"
-                onClick={() => handleClickFavorite(product.id)}
-              >
-                {favorite.some((i) => i.product.id === product.id) ? (
-                  <FavoriteIcon />
-                ) : (
-                  <FavoriteBorderIcon />
-                )}
-              </IconButton>
-              <IconButton aria-label="share">
-                <ShareIcon />
-              </IconButton>
-              <ExpandMore
-                expand={expandedProductId === product.id}
-                onClick={() => handleExpandClick(product.id)}
-                aria-expanded={expandedProductId === product.id}
-                aria-label="show more"
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-            </CardActions>
-            <Collapse
-              in={expandedProductId === product.id}
-              timeout="auto"
-              unmountOnExit
-            >
-              <CardContent>
-                <Typography sx={{ marginBottom: 1 }}>
-                  카테고리: {product.category?.categoryName}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  시작 시간: {new Date(product.startedAt).toLocaleString()}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  종료 시간: {new Date(product.endAt).toLocaleString()}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  제공자: {product.owner?.name || "알 수 없음"}
-                </Typography>
-              </CardContent>
-            </Collapse>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  );
+    getTopByViews()
+      .then((response) => {
+        setTopByViews(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    getRecentDonations()
+      .then((response) => {
+        setRecentDonations(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
-    <>
-      <div style={{ padding: "1rem" }}>
-        <h1>🏠 Home Page</h1>
-      </div>
+    <Box
+      sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+    >
+      {/*모달 영역 */}
+      <Modal open={openModal}>
+        <Box sx={{ ...modalStyle, outline: "none" }}>
+          {/* 이미지 영역 */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ width: "100%" }}>
+              <CarouselAd />
+            </Box>
+          </Box>
 
-      {/* 🔥 상품 섹션별 표시 */}
-      <div style={{ padding: "1rem" }}>
-        <h2>🔥 활동이 활발한 상품</h2>
-        {renderProductGrid(activeProducts)}
+          {/*닫기 버튼 */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1,
+              mt: 3,
+            }}
+          >
+            <Box>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleCloseModal}
+              >
+                닫기
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
 
-        <h2>🌟 평가가 좋은 상품</h2>
-        {renderProductGrid(topRatedProducts)}
+      <CustomHeader text={"거의 모집이 완료된 기부"} />
+      <DonationCardList
+        serverDataList={TopByProgress}
+        navigate={navigate}
+        pathname={pathname}
+      />
+      <CustomHeader text={"가장 조회수가 높은 기부"} />
+      <DonationCardList
+        serverDataList={TopByViews}
+        navigate={navigate}
+        pathname={pathname}
+      />
+      <CustomHeader text={"가장 최근 등록된 기부"} />
+      <DonationCardList
+        serverDataList={RecentDonations}
+        navigate={navigate}
+        pathname={pathname}
+      />
 
-        <h2>📍 내 주변의 상품</h2>
-        {renderProductGrid(nearbyProducts)}
-      </div>
-    </>
+      <New7Days
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
+        favorite={favorite}
+        onToggleFavorite={handleClickFavorite}
+        expandedId={expandedProductId}
+        onToggleExpand={handleExpandClick}
+      />
+      <HighRanked
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
+        favorite={favorite}
+        onToggleFavorite={handleClickFavorite}
+        expandedId={expandedProductId}
+        onToggleExpand={handleExpandClick}
+      />
+      <NearMe
+        selectedCategory={selectedCategory}
+        products={filteredProducts}
+        favorite={favorite}
+        onToggleFavorite={handleClickFavorite}
+        expandedId={expandedProductId}
+        onToggleExpand={handleExpandClick}
+      />
+      <CategoryNav />
+      <ListTable category={selectedCategory} />
+    </Box>
   );
 }

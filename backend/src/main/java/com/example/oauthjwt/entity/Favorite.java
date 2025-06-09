@@ -28,7 +28,11 @@ public class Favorite {
     private boolean status;
 
     public static Favorite of(Product product, User user) {
-        return Favorite.builder().product(product).user(user).status(true).build();
+        return Favorite.builder()
+                .product(product)
+                .user(user)
+                .status(true)
+                .build();
     }
 
     public void toggle() {

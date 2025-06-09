@@ -24,33 +24,29 @@ public class ChatRoom {
 
     private String name;
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> messages = new ArrayList<>();
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     // 동일한 서비스에 여러 문의자가 존재 -> OneToOne 에서 ManyToOne 으로 변경.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public List<User> getParticipants() {
-        Set<User> participants = new HashSet<>();
-        for (ChatRoomUser cru : chatRoomUsers) {
-            if (cru.getUser1() != null)
-                participants.add(cru.getUser1());
-            if (cru.getUser2() != null)
-                participants.add(cru.getUser2());
-        }
-        return new ArrayList<>(participants);
-    }
+    @Builder.Default
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> messages = new ArrayList<>();
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+
+
+    public static ChatRoom of(Product product) {
+        return ChatRoom.builder()
+                .name(product.getTitle() + "채팅방")
+                .product(product)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

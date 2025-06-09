@@ -1,22 +1,31 @@
 // router/userRouter.jsx
 import React from "react";
 import Login from "../component/user/Login.jsx";
-import EmailLoginForm from "../component/user/EmailLoginForm.jsx";
 import Chat from "../component/chat/ChatContainer.jsx";
 import Save from "../component/user/Save.jsx";
+import Favorites from "../component/product/Favorites.jsx";
+import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 
-const UserRouter = () => [
+const userRouter = () => [
+  {
+    path: "favorites",
+    element: (
+        <ProtectedRoute roles={['ROLE_USER']}>
+          <Favorites />
+        </ProtectedRoute>
+    ),
+  },
   {
     path: "chat",
-    element: <Chat />,
+    element: (
+        <ProtectedRoute roles={['ROLE_USER']}>
+          <Chat />
+        </ProtectedRoute>
+    ),
   },
   {
     path: "login",
     element: <Login />,
-  },
-  {
-    path: "email-login",
-    element: <EmailLoginForm />,
   },
   {
     path: "save",
@@ -24,4 +33,4 @@ const UserRouter = () => [
   }
 ];
 
-export default UserRouter;
+export default userRouter;

@@ -34,6 +34,9 @@ public class Board {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
     @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
@@ -42,26 +45,29 @@ public class Board {
     private List<ThumbsUp> thumbsUps = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BoardImage> images = new ArrayList<>();
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 
-    @PrePersist
-    private void onCreate() {
-        createdAt = LocalDateTime.now();
+
+    public static Board of(BoardRequest boardRequest, User author, Category category) {
+        return Board.builder()
+                .title(boardRequest.getTitle())
+                .category(category)
+                .description(boardRequest.getDescription())
+                .author(author)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
-    public Board setUpdateValue(BoardRequest request) {
+    public Board setUpdateValue(BoardRequest request, Category category) {
         if (request.getTitle() != null) { // 제목
             this.title = request.getTitle();
         }
         if (request.getDescription() != null) { // 내용
             this.description = request.getDescription();
         }
-        if (request.getCategory() != null) { // 카테고리
-            this.category = request.getCategory();
-        }
+        this.category = category;
         if (request.getImages() != null && !request.getImages().isEmpty()) { // 이미지
             this.images.clear();
             for (String imageUrl : request.getImages()) {

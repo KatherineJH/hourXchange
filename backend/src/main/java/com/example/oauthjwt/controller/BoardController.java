@@ -1,19 +1,20 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
-import com.example.oauthjwt.dto.response.ApiResponse;
 import com.example.oauthjwt.dto.response.BoardResponse;
-import com.example.oauthjwt.exception.ValidationException;
 import com.example.oauthjwt.service.BoardService;
-import com.example.oauthjwt.service.CustomUserDetails;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,94 +27,80 @@ import lombok.extern.log4j.Log4j2;
 public class BoardController {
 
     private final BoardService boardService;
+    private final ElasticSearchService elasticSearchService;
 
     @PostMapping("/")
-    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest) {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(boardRequest);
-        // try {
-        BoardResponse result = boardService.save(boardRequest);
-        return ResponseEntity.ok(result);
-        // } catch (ValidationException e) {
-        // return
-        // ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-        // } catch (Exception e) {
-        // return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버
-        // 내부
-        // 오류가 발생했습니다."));
-        // }
+        BoardResponse result = boardService.save(boardRequest, userDetails);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/all")
     public ResponseEntity<?> findAllBoards(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // ✅ 최신순 정렬
-            Page<BoardResponse> responses = boardService.findAllBoards(pageable);
-            return ResponseEntity.ok(responses);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("게시글 전체 조회 중 오류가 발생했습니다."));
-        }
-        // try {
-        // List<BoardResponse> responses = boardService.findAllBoards();
-        // return ResponseEntity.ok(responses);
-        // } catch (Exception e) {
-        // return ResponseEntity.internalServerError()
-        // .body(ApiResponse.serverError("게시글 전체 조회 중 오류가 발생했습니다."));
-        // }
+                                           @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<BoardResponse> responses = boardService.findAllBoards(pageable);
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBoards(@RequestParam String keyword,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(
+                elasticSearchService.searchBoards(keyword, page, size)
+        );
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> findMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<BoardResponse> result = boardService.findByAuthorId(userDetails.getUser().getId(), pageable);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Long userId = userDetails.getUser().getId();
-            BoardResponse response = boardService.findById(id, userId);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
-        }
+        Long userId = userDetails.getUser().getId();
+        BoardResponse response = boardService.findById(id, userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoardById(@PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Long userId = userDetails.getUser().getId();
-            BoardResponse response = boardService.findMyBoardById(id, userId);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
-        }
+        Long userId = userDetails.getUser().getId();
+        BoardResponse response = boardService.findMyBoardById(id, userId);
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BoardRequest boardRequest,
+    @PutMapping("/{boardId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> update(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            boardRequest.setId(id); // URL 경로에서 받은 id 설정
-            boardRequest.setAuthorId(userDetails.getUser().getId()); // 로그인 사용자 정보
-            BoardResponse result = boardService.update(boardRequest);
-            return ResponseEntity.ok(result);
-
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
-        }
+        BoardResponse result = boardService.update(boardRequest, boardId, userDetails);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}/thumbs-up")
-    public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
-            return ResponseEntity.ok(resp);
-        } catch (IllegalArgumentException ex) { // 자기 자신의 게시물에 좋아요 누르려고 하는 경우
-            return ResponseEntity.badRequest().body(ApiResponse.badRequest(ex.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(ApiResponse.serverError("서버 내부 오류가 발생했습니다."));
-        }
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
+        return ResponseEntity.ok(resp);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> delete(@PathVariable Long id,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boardService.delete(id, userDetails.getUser().getId());
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
 }

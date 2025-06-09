@@ -2,6 +2,7 @@ package com.example.oauthjwt.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ThumbsUp {
 
     @Id
@@ -22,4 +24,11 @@ public class ThumbsUp {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static ThumbsUp of(Board board, User user) {
+        return ThumbsUp.builder()
+                .board(board)
+                .user(user)
+                .build();
+    }
 }

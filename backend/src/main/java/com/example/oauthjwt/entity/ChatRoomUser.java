@@ -1,5 +1,6 @@
 package com.example.oauthjwt.entity;
 
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +24,17 @@ public class ChatRoomUser {
     private ChatRoom chatRoom;
 
     @ManyToOne
-    @JoinColumn(name = "user1_id", nullable = false)
-    private User user1;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "user2_id", nullable = false)
-    private User user2;
+    @Enumerated(EnumType.STRING)
+    private ChatRoomUserStatus chatRoomUserStatus;
+
+    public static ChatRoomUser of(User user, ChatRoom chatRoom) {
+        return ChatRoomUser.builder()
+                .chatRoom(chatRoom)
+                .user(user)
+                .chatRoomUserStatus(ChatRoomUserStatus.JOIN)
+                .build();
+    }
 }

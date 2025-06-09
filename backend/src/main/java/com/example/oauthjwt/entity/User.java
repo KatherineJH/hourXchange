@@ -4,9 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
+import com.example.oauthjwt.dto.response.OAuth2Response;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -43,50 +47,59 @@ public class User {
     private UserRole role;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private int credit;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Wallet wallet;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.ACTIVE; // nullabe=false로 지정했기때문에 기본값으로 ACTIVE 설정.
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address address; // 서비스 카테고리
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Address address;
-
-    // single user can have multiple reviews, but each review belongs to a single
-    // user
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    public static User of(UserRequest userRequest, Address address) {
-        return User.builder().email(userRequest.getEmail()).password(userRequest.getPassword())
-                .name(userRequest.getName()).username(userRequest.getUsername()).birthdate(userRequest.getBirthdate())
-                .address(address).role(UserRole.ROLE_USER) // 일반유저
-                .credit(0) // 0시간
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Donation> donationHistory = new ArrayList<>();
+
+    @OneToMany(mappedBy = "donator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DonationHistory> donationHistoryList = new ArrayList<>();
+
+    public static User of(UserRequest userRequest) {
+        return User.builder()
+                .email(userRequest.getEmail())
+                .name(userRequest.getName())
+                .username(userRequest.getUsername())
+                .birthdate(userRequest.getBirthdate())
+                .role(UserRole.ROLE_USER) // 일반유저
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
                 .build();
     }
 
-    public static User of(Item item, Address address) {
-        return User.builder().email(item.getCentCode()) // 센터코드
-                .name(item.getCentMaster()).username(item.getCentCode() + item.getCentName()).address(address)
-                .role(UserRole.ROLE_CENTER) // 센터유저
-                .credit(0) // 0시간
-                .status(UserStatus.ACTIVE) // 활성화
-                .createdAt(LocalDateTime.now()) // 현재시간
+    public static User of(OAuth2Response oAuth2Response){
+        return User.builder()
+                .email(oAuth2Response.getEmail()) // 이메일
+                .name(oAuth2Response.getProvider() + UUID.randomUUID())
+                .username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
+                .name(oAuth2Response.getName()).createdAt(LocalDateTime.now())
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
-    // true)
-    // private List<ChatRoomUser> chatRoomUsers = new ArrayList<>();
-    // public List<ChatRoom> getChatRooms() {
-    // return chatRoomUsers.stream().map(ChatRoomUser::getChatRoom).toList();
-    // }
+    public void addCredit(int credit){
+        this.wallet.addCredit(credit);
+    }
+
+    public void subtractCredit(int credit){
+        this.wallet.subtractCredit(credit);
+    }
 }

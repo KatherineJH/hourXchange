@@ -1,3 +1,4 @@
+// Admin Page - List.jsx
 import React, { useEffect, useState } from "react";
 import { getList } from "../../api/transactionApi.js";
 import {
@@ -19,7 +20,7 @@ const initState = {
   user: "",
   product: "",
   status: "",
-  createAt: "",
+  createdAt: "",
 };
 
 function List(props) {

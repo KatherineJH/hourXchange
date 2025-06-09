@@ -1,16 +1,23 @@
 package com.example.oauthjwt.service.elastic;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.example.oauthjwt.dto.document.DonationDocument;
+import com.example.oauthjwt.entity.Donation;
+import com.example.oauthjwt.entity.DonationImage;
+import com.example.oauthjwt.repository.DonationRepository;
+import com.example.oauthjwt.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.oauthjwt.dto.BoardDocument;
-import com.example.oauthjwt.dto.ProductDocument;
+import com.example.oauthjwt.dto.document.BoardDocument;
+import com.example.oauthjwt.dto.document.ProductDocument;
 import com.example.oauthjwt.entity.Board;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.repository.BoardRepository;
@@ -26,12 +33,15 @@ import lombok.extern.slf4j.Slf4j;
 public class Indexer {
     private final ProductRepository productRepository;
     private final BoardRepository boardRepository;
+    private final DonationRepository donationRepository;
+    private final ReviewRepository reviewRepository;
     private final ElasticsearchClient elasticsearchClient;
 
     @Transactional(readOnly = true)
     public void indexAll() {
         indexProducts();
         indexBoards();
+        indexDonations();
     }
 
     private void indexProducts() {
@@ -42,18 +52,42 @@ public class Indexer {
             return;
         }
         products.forEach(product -> {
-            ProductDocument doc = ProductDocument.builder().id(product.getId()).title(product.getTitle())
-                    .description(product.getDescription())
-                    .ownerName(product.getOwner() != null ? product.getOwner().getName() : "Unknown")
-                    .suggest(Stream
-                            .of(product.getTitle(), product.getDescription(),
-                                    product.getOwner() != null ? product.getOwner().getName() : null)
-                            .filter(Objects::nonNull).map(String::toLowerCase).distinct().toList())
-                    .build();
+            List<String> keywords = Stream.of(product.getTitle(), product.getDescription())
+                    .filter(Objects::nonNull)
+                    .flatMap(s -> {
+                        if (s.matches(".*[가-힣].*")) {
+                            return KoreanNounExtractor.extractNouns(s).stream();
+                        } else {
+                            return Arrays.stream(s.split("[\\s\\p{Punct}]"))
+                                    .filter(w -> w.matches(".*[a-zA-Z].*")); // English nouns only
+                        }
+                    })
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toList();
+
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String ownerName = product.getOwner() != null ? product.getOwner().getName() : "Unknown";
+            if (ownerName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(ownerName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(ownerName.toLowerCase());
+            }
+
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner());
+
+            ProductDocument doc = ProductDocument.toDocument(product, ownerName, finalKeywords, starsAverage);
 
             try {
                 elasticsearchClient.index(i -> i.index("product_index").id(String.valueOf(doc.getId())).document(doc));
-                log.info("Indexed Product: id={}, title={}, description={}, ownerName={}," + " suggest={}", doc.getId(),
+                log.info("Indexed Product: id={}, title={}, description={}, ownerName={}, suggest={}", doc.getId(),
                         doc.getTitle(), doc.getDescription(), doc.getOwnerName(), doc.getSuggest());
             } catch (IOException e) {
                 log.error("Product indexing error for id={}: {}", product.getId(), e.getMessage());
@@ -71,29 +105,40 @@ public class Indexer {
             return;
         }
         boards.forEach(board -> {
-            // BoardDocument doc = BoardDocument.builder()
-            // .id(board.getId())
-            // .title(board.getTitle())
-            // .description(board.getDescription())
-            // .authorName(board.getAuthor() != null ? board.getAuthor().getName()
-            // : "Unknown")
-            // .createdAt(board.getCreatedAt())
-            // .suggest(Stream.of(board.getTitle(), board.getDescription(),
-            // board.getAuthor() != null ? board.getAuthor().getName() : null)
-            // .filter(Objects::nonNull)
-            // .map(String::toLowerCase)
-            // .distinct()
-            // .toList())
-            // .build();
-            List<String> keywords = Stream.of(board.getTitle(), board.getDescription(), board.getAuthor().getName())
-                    .filter(Objects::nonNull).flatMap(s -> Arrays.stream(s.split("[\\s\\p{Punct}]"))) // 문장 ➝ 단어
-                    .map(String::toLowerCase).distinct().toList();
-            BoardDocument doc = BoardDocument.builder().id(board.getId()).title(board.getTitle())
-                    .description(board.getDescription()).authorName(board.getAuthor().getName())
-                    .createdAt(board.getCreatedAt()).suggest(keywords).build();
+            List<String> keywords = Stream.of(board.getTitle(), board.getDescription())
+                    .filter(Objects::nonNull)
+                    .flatMap(s -> {
+                        if (s.matches(".*[가-힣].*")) {
+                            return KoreanNounExtractor.extractNouns(s).stream();
+                        } else {
+                            return Arrays.stream(s.split("[\\s\\p{Punct}]"))
+                                    .filter(w -> w.matches(".*[a-zA-Z].*")); // English nouns only
+                        }
+                    })
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toList();
+
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String authorName = board.getAuthor() != null ? board.getAuthor().getName() : "Unknown";
+            if (authorName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(authorName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(authorName.toLowerCase());
+            }
+
+            BoardDocument doc = BoardDocument.toDocument(board, authorName, finalKeywords);
+
             try {
                 elasticsearchClient.index(i -> i.index("board_index").id(String.valueOf(doc.getId())).document(doc));
-                log.info("Indexed Board: id={}, title={}, description={}, authorName={}," + " suggest={}", doc.getId(),
+                log.info("Indexed Board: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
                         doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
             } catch (IOException e) {
                 log.error("Board indexing error for id={}: {}", board.getId(), e.getMessage());
@@ -101,5 +146,57 @@ public class Indexer {
             }
         });
         log.info("Completed indexing Boards");
+    }
+
+    @Transactional
+    public void indexDonations() {
+        List<Donation> Donations = donationRepository.findAll();
+        log.info("Found {} Donations to index", Donations.size());
+        if (Donations.isEmpty()) {
+            log.warn("No Donations found in database");
+            return;
+        }
+        Donations.forEach(donation -> {
+            List<String> keywords = Stream.of(donation.getTitle(), donation.getDescription())
+                    .filter(Objects::nonNull)
+                    .flatMap(s -> {
+                        if (s.matches(".*[가-힣].*")) {
+                            return KoreanNounExtractor.extractNouns(s).stream();
+                        } else {
+                            return Arrays.stream(s.split("[\\s\\p{Punct}]"))
+                                    .filter(w -> w.matches(".*[a-zA-Z].*")); // English nouns only
+                        }
+                    })
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toList();
+
+            // Handle username separately
+            List<String> finalKeywords = new ArrayList<>(keywords);
+            String authorName = donation.getAuthor() != null ? donation.getAuthor().getName() : "Unknown";
+            if (authorName.contains(" ")) {
+                // Split usernames with spaces
+                finalKeywords.addAll(Arrays.stream(authorName.split("[\\s\\p{Punct}]"))
+                        .filter(w -> !w.isEmpty())
+                        .map(String::toLowerCase)
+                        .distinct()
+                        .toList());
+            } else {
+                // Add full username as a single term
+                finalKeywords.add(authorName.toLowerCase());
+            }
+
+            DonationDocument doc = DonationDocument.toDocument(donation, authorName, finalKeywords);
+
+            try {
+                elasticsearchClient.index(i -> i.index("donation_index").id(String.valueOf(doc.getId())).document(doc));
+                log.info("Indexed Donation: id={}, title={}, description={}, authorName={}, suggest={}", doc.getId(),
+                        doc.getTitle(), doc.getDescription(), doc.getAuthorName(), doc.getSuggest());
+            } catch (IOException e) {
+                log.error("Donation indexing error for id={}: {}", donation.getId(), e.getMessage());
+                throw new RuntimeException("Donation 인덱싱 중 오류", e);
+            }
+        });
+        log.info("Completed indexing Donations");
     }
 }

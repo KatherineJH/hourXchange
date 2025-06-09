@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.oauthjwt.dto.request.ReviewRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Review {
 
     @Id
@@ -37,7 +40,7 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product Product;
+    private Product product;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewTag> tags = new ArrayList<>();
@@ -45,4 +48,15 @@ public class Review {
     @OneToOne
     @JoinColumn(name = "transaction_id")
     private Transaction transaction;
+
+    public static Review of(ReviewRequest request, int rating, User reviewer, Product product) {
+        return Review.builder()
+                .content(request.getText())
+                .createdAt(LocalDateTime.now())
+                .rates(rating)
+                .reviewer(reviewer)
+                .product(product)
+                .stars(request.getStars())
+                .build();
+    }
 }
