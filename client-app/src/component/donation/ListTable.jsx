@@ -64,6 +64,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
 
     return (
         <>
+            <Box sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}>
             <CustomHeader text={'기부모집'}/>
             {/* 검색창 + 버튼 영역 */}
             <Box sx={{
@@ -87,6 +88,7 @@ export default function ListTable({ filterProviderType, category, keyword: keywo
             <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />
             {/*무한 스크롤*/}
             <InfiniteScrollList />
+            </Box>
         </>
     );
 }

@@ -75,6 +75,9 @@ export default function ListMap() {
 
     return (
         <>
+            <Box
+                sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+            >
             {/* 헤더 + 주소 검색 버튼 */}
             <Box sx={{ maxWidth: '100%', mx: 'auto', mt: 4 }}>
                 <CustomHeader text={'지역별'} />
@@ -149,6 +152,7 @@ export default function ListMap() {
                     kogl.or.kr
                 </Link>
             </Typography>
+            </Box>
         </>
     );
 }
