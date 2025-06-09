@@ -7,7 +7,7 @@ import MyPage from "../page/MyPage.jsx";
 
 import NotFound from "../component/common/NotFound.jsx";
 import ErrorPage from "../component/common/ErrorPage.jsx";
-import board from "./boardRouter.jsx";           // 게시판 관련 라우터
+import board from "./boardRouter.jsx"; // 게시판 관련 라우터
 import productRouter from "./productRouter.jsx";
 import transactionRouter from "./transactionRouter.jsx";
 import myPageRouter from "./myPageRouter.jsx";
@@ -22,11 +22,13 @@ import mainRouter from "./mainRouter.jsx";
 import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 import Unauthorized from "../component/common/Unauthorized.jsx";
 
+import advertisementRouter from "./advertisementRouter.jsx";
+
 const root = createBrowserRouter([
   {
     path: "/",
-    element: <Outlet />,              // 최상위 Outlet을 반드시 넣어야 자식이 렌더됩니다
-    errorElement: <ErrorPage />,      // 한 번만 지정하면 모든 하위 경로에 적용
+    element: <Outlet />, // 최상위 Outlet을 반드시 넣어야 자식이 렌더됩니다
+    errorElement: <ErrorPage />, // 한 번만 지정하면 모든 하위 경로에 적용
     children: [
       {
         index: true,
@@ -73,6 +75,11 @@ const root = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: myPageRouter(),
+      },
+      {
+        path: "advertisement",
+        element: <Main />,
+        children: advertisementRouter(),
       },
       {
         path: "admin",

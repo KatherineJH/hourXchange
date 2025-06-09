@@ -1,11 +1,12 @@
 import api from "./Api.js";
 
+// 1) 광고 전체 리스트 조회
 export async function fetchAdvertisement() {
   const res = await api.get("/api/advertisement");
   return res.data;
 }
 
-// 광고 전체 가져오기
+// 2) 광고 전체(GET /api/advertisement/all)
 export const getAdvertisement = async () => {
   try {
     console.log("광고 호출 완료");
@@ -14,15 +15,15 @@ export const getAdvertisement = async () => {
     return response.data;
   } catch (error) {
     console.error("광고 전체 불러오기 실패:", error);
-    throw error; // 필요 시 상위에서 처리
+    throw error;
   }
 };
 
-// 광고 하나 상세 조회
+// 3) 광고 하나 상세 조회(GET /api/advertisement/{id})
 export const getAdvertisementDetail = async (id) => {
   try {
     const response = await api.get(`/api/advertisement/${id}`);
-
+    // 일부 API가 `response.data.data` 형태로 내려줄 수도 있어서 둘 중 하나를 사용
     const ad = response.data.data ?? response.data;
     console.log("▶️ 상세 조회 결과:", ad);
     return ad;
@@ -32,11 +33,13 @@ export const getAdvertisementDetail = async (id) => {
   }
 };
 
-//광고 등록
+// 4) 광고 등록(POST /api/advertisement)
 export const postAdvertisement = async (adData) => {
   try {
     console.log("postAdvertisement 호출 데이터:", adData);
-    const response = await api.post("/api/advertisement/", adData);
+    // 주의: URL 끝에 슬래시(/)가 붙어 있으면 맵핑이 다를 수 있으므로
+    //       백엔드와 정확히 일치하도록 "/api/advertisement"로 보냅니다.
+    const response = await api.post("/api/advertisement", adData);
     console.log("광고 등록 응답:", response.data);
     return response.data;
   } catch (error) {
@@ -45,6 +48,7 @@ export const postAdvertisement = async (adData) => {
   }
 };
 
+// 5) 내 광고 목록 조회(GET /api/advertisement/my)
 export const getMyAdvertisements = async () => {
   try {
     console.log("내 광고 호출 완료");
@@ -57,7 +61,7 @@ export const getMyAdvertisements = async () => {
   }
 };
 
-// 광고 삭제
+// 6) 광고 삭제(DELETE /api/advertisement/{id})
 export const deleteAdvertisement = async (id) => {
   try {
     const response = await api.delete(`/api/advertisement/${id}`);
@@ -69,12 +73,12 @@ export const deleteAdvertisement = async (id) => {
   }
 };
 
-//광고 수정
+// 7) 광고 수정(PUT /api/advertisement/{id})
 export const updateAdvertisement = async (id, adData) => {
   try {
-    // PUT /api/advertisement/{id} 로 adData(객체)를 보냅니다.
     const response = await api.put(`/api/advertisement/${id}`, adData);
-    return response.data; // 보통 { data: AdvertisementResponse } 형태라면 .data 로 꺼내 쓰세요
+    console.log("광고 수정 응답:", response.data);
+    return response.data;
   } catch (error) {
     console.error("광고 수정 실패:", error);
     throw error;

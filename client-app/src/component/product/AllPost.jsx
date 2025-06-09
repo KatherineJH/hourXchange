@@ -16,7 +16,6 @@ import CategoryNav from "../../layout/CategoryNav";
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
 
-// 슬릭 커스텀 화살표
 const ArrowButton = ({ className, onClick, direction }) => (
   <Box
     onClick={onClick}
@@ -75,7 +74,7 @@ export default function AllPost() {
   const selectedCategory = new URLSearchParams(location.search).get("category");
   const user = useSelector((state) => state.auth);
 
-  // 찜 목록 가져오기
+  // 1) 찜 목록 가져오기
   useEffect(() => {
     if (!user.email) return;
     getFavoriteList()
@@ -83,11 +82,11 @@ export default function AllPost() {
       .catch(console.error);
   }, [user.email]);
 
-  // 광고 목록 가져오기
+  // 2) 광고 목록 가져오기 (data.content 사용)
   useEffect(() => {
     getAdvertisement()
       .then((data) => {
-        const formattedAds = data.map((ad) => ({ ...ad, type: "ad" }));
+        const formattedAds = data.content.map((ad) => ({ ...ad, type: "ad" }));
         setAdvertisements(formattedAds);
         setShuffledAds([...formattedAds].sort(() => Math.random() - 0.5));
       })
@@ -96,13 +95,15 @@ export default function AllPost() {
       });
   }, []);
 
-  // 상품 리스트 변경 시 페이지 초기화 및 광고 셔플
+  // 3) visibleProducts 또는 advertisements가 바뀔 때마다 카드 행 수 초기화 및 광고 재셔플
   useEffect(() => {
+    setCardRowCount(1);
     if (advertisements.length > 0) {
       setShuffledAds([...advertisements].sort(() => Math.random() - 0.5));
     }
-  }, [advertisements, visibleProducts]);
+  }, [visibleProducts, advertisements]);
 
+  // 4) 찜(즐겨찾기) 클릭 핸들러
   const handleClickFavorite = async (id) => {
     const isFav = favorite.some((f) => f.product.id === id);
     setFavorite((prev) =>
@@ -117,27 +118,31 @@ export default function AllPost() {
     }
   };
 
+  // 5) 확장(펼침) 클릭 핸들러
   const handleExpandClick = (id) => {
     setExpandedProductId((prev) => (prev === id ? null : id));
   };
 
-  // 페이징된 상품 목록
+  // 6) 페이징된 상품 목록
   const shownProducts = visibleProducts.slice(0, cardRowCount * PAGE_SIZE);
   const shouldInjectAds = shownProducts.length >= AD_INTERVAL;
 
+  // 7) 상품 + 광고 섞기
   const itemsWithAds = shouldInjectAds
     ? shownProducts
         .filter((product) => product && product.id)
         .reduce((acc, product, i) => {
+          // 상품 추가
           acc.push({ ...product, key: `product-${product.id}` });
 
-          const adIndex = Math.floor(i / AD_INTERVAL);
-          const ad = shuffledAds[adIndex]; // ad는 조건문 전에 선언되어야 함
-
-          if ((i + 1) % AD_INTERVAL === 0 && i && ad) {
-            acc.push({ ...ad, key: `ad-${ad.id}`, type: "ad" });
-          } // shuffledAds[adIndex]가 undefined일 수 있기 때문에 .id 접근 시 오류 방지
-
+          // (i + 1)이 AD_INTERVAL 배수일 때만 광고 삽입
+          if ((i + 1) % AD_INTERVAL === 0) {
+            const adIndex = Math.floor(i / AD_INTERVAL);
+            const ad = shuffledAds[adIndex];
+            if (ad) {
+              acc.push({ ...ad, key: `ad-${ad.id}`, type: "ad" });
+            }
+          }
           return acc;
         }, [])
     : shownProducts
@@ -147,8 +152,8 @@ export default function AllPost() {
           key: `product-${product.id}`,
         }));
 
-  //"다음" 페이지로 넘기기 전
-  const DISPLAY_COUNT = 5;
+  // 8) 상품+광고가 섞인 itemsWithAds에서 화면에 실질 렌더링할 개수만큼 자르기
+  const DISPLAY_COUNT = PAGE_SIZE + Math.floor(PAGE_SIZE / AD_INTERVAL);
   const displayedItems = itemsWithAds.slice(0, cardRowCount * DISPLAY_COUNT);
   const hasMore = shownProducts.length < visibleProducts.length;
 
@@ -156,13 +161,16 @@ export default function AllPost() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
+      {/* 카테고리 네비게이션 */}
       <CategoryNav />
-      {/* 슬라이더 */}
+
+      {/* 슬라이더(이미지 캐러셀) */}
       <Box
         sx={{
           width: "100%",
           mx: "auto",
           mt: 3,
+          position: "relative",
           "& .slick-dots": {
             position: "static",
             mt: 1,
@@ -201,6 +209,7 @@ export default function AllPost() {
         </Slider>
       </Box>
 
+      {/* 상품 + 광고 그리드 */}
       <Box sx={{ mt: 3 }}>
         <ProductGrid
           products={displayedItems}
@@ -209,7 +218,8 @@ export default function AllPost() {
           expandedId={expandedProductId}
           onToggleExpand={handleExpandClick}
         />
-        {/* 더 보기 버튼 */}
+
+        {/* “더 보기” 버튼 */}
         {hasMore && (
           <Box display="flex" justifyContent="center" mt={2}>
             <Button
@@ -222,8 +232,9 @@ export default function AllPost() {
           </Box>
         )}
       </Box>
+
+      {/* 리스트 테이블 */}
       <Box>
-        {/* 리스트 테이블 */}
         <ListTable
           category={selectedCategory}
           onVisibleItemsChange={setVisibleProducts}
