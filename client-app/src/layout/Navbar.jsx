@@ -98,7 +98,7 @@ function Navbar({ onClickAny, forceCloseMenu }) {
   }, [forceCloseMenu]);
 
   return (
-    <Box sx={{ px: 2, py: 3 }}>
+    <Box>
       {isMobile ? (
         <Stack spacing={2} alignItems="center" sx={{ mt: 15 }}>
           {menuItems.map((item) => (
@@ -172,8 +172,9 @@ function Navbar({ onClickAny, forceCloseMenu }) {
                   item.subMenu ? handleClick(e, item.text) : navigate(item.to)
                 }
                 sx={{
-                  p: 2,
-                  borderRadius: 3,
+                  px:4,
+                  py: 1,
+                  borderRadius: 2,
                   textAlign: "center",
                   cursor: "pointer",
                   bgcolor: "third.main",

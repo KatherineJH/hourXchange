@@ -143,146 +143,117 @@ function Header() {
             px: 2,
           }}
         >
-          <Toolbar
-            sx={{
-              flexWrap: "wrap",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              height: "auto", // 기존 고정 높이 제거
-            }}
-          >
-            {/* 1. 로고 및 제목 */}
+          <Toolbar>
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", md: "row" }, // 작은 화면이면 세로 정렬
+                justifyContent: "space-between",
                 alignItems: "center",
-                gap: 1,
+                width: "100%",
+                maxWidth: 1220,
+                mx: "auto",
+                px: { xs: 1, sm: 2 },
               }}
             >
-              <Box
-                component="img"
-                src="/hourPanda.png"
-                alt="logo"
-                sx={{
-                  height: 48,
-                  width: "auto",
-                  cursor: "pointer",
-                }}
-                onClick={() => navigate("/")}
-              />
-              <Typography
-                variant="h5"
-                component="div"
-                sx={{ fontWeight: "bold", cursor: "pointer" }}
-                onClick={() => navigate("/")}
-              >
-                HourXChange
-              </Typography>
-            </Box>
-
-            {/* 2. 검색창 */}
-            <Box
-              sx={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                width: { xs: "100%", sm: 500 },
-              }}
-            >
+              {/* 왼쪽 묶음: 로고 + 검색창 */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  px: 1,
-                  bgcolor: "#edecec",
-                  borderRadius: 1,
-                  width: "100%",
+                  gap: 2,
+                  flex: 1, // 왼쪽 공간 확보
+                  minWidth: 0, // 검색창 줄어들도록 허용
                 }}
               >
-                <SearchIcon fontSize="small" />
-                <InputBase
-                  placeholder="검색"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={handleSearchKey}
-                  sx={{
-                    bgcolor: "white",
-                    px: 1,
-                    borderRadius: 1,
-                    width: "100%",
-                    height: 50,
-                  }}
-                />
-              </Box>
+                {/* 로고 + 제목 */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    component="img"
+                    src="/hourPanda.png"
+                    alt="logo"
+                    sx={{ height: 48, width: "auto", cursor: "pointer" }}
+                    onClick={() => navigate("/")}
+                  />
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                    onClick={() => navigate("/")}
+                  >
+                    HourXChange
+                  </Typography>
+                </Box>
 
-              {suggestions.length > 0 && (
-                <Paper
+                {/* 검색창 */}
+                <Box
                   sx={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    width: "100%",
-                    zIndex: 10,
-                    mt: "4px",
+                    flex: 1,
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    px: 1,
+                    bgcolor: "#edecec",
+                    borderRadius: 1,
+                    maxWidth: 500,
                   }}
                 >
-                  <List dense>
-                    {suggestions.map((s, idx) => (
-                      <ListItem key={idx} disablePadding>
-                        <ListItemButton
-                          selected={idx === highlightedIndex}
-                          onMouseEnter={() => setHighlightedIndex(idx)}
-                          onClick={() => {
-                            setSearchInput(s);
-                            navigate(
-                              `/main/search?keyword=${encodeURIComponent(s)}`
-                            );
-                            setSuggestions([]);
-                          }}
-                        >
-                          <ListItemText primary={s} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Paper>
-              )}
-            </Box>
+                  <SearchIcon fontSize="small" />
+                  <InputBase
+                    placeholder="검색"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={handleSearchKey}
+                    sx={{
+                      bgcolor: "white",
+                      px: 1,
+                      borderRadius: 1,
+                      width: "100%",
+                      height: 50,
+                    }}
+                  />
+                </Box>
+              </Box>
 
-            {/* 3. 아이콘들 */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <IconButton
-                size="large"
-                color="inherit"
-                onClick={() => navigate("/main")}
+              {/* 오른쪽 묶음: 아이콘들 */}
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 2, ml: 2 }}
               >
-                <HomeIcon />
-              </IconButton>
-              <IconButton
-                size="large"
-                color="inherit"
-                onClick={() => navigate("/myPage/chat")}
-              >
-                <Badge badgeContent={17} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                size="large"
-                edge="end"
-                color="inherit"
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-              >
-                {user.name ? (
-                  <Typography variant="subtitle1">
-                    {user.name.charAt(0).toUpperCase()}
-                  </Typography>
-                ) : (
-                  <AccountCircle />
-                )}
-              </IconButton>
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={() => navigate("/main")}
+                >
+                  <HomeIcon />
+                </IconButton>
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={() => navigate("/myPage/chat")}
+                >
+                  <Badge badgeContent={17} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  color="inherit"
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                >
+                  {user.name ? (
+                    <Typography variant="subtitle1">
+                      {user.name.charAt(0).toUpperCase()}
+                    </Typography>
+                  ) : (
+                    <AccountCircle />
+                  )}
+                </IconButton>
+              </Box>
             </Box>
           </Toolbar>
         </AppBar>
@@ -293,15 +264,13 @@ function Header() {
         >
           {user.email ? (
             <>
-              <MenuItem disabled>
-                {user.name}님, 환영합니다
-              </MenuItem>
+              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
               {user.role === "ROLE_ADMIN" ? (
                 <MenuItem onClick={handleMoveToAdminPage}>
                   어드민페이지
                 </MenuItem>
               ) : (
-                  <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
+                <MenuItem onClick={handleMoveToMyPage}>마이페이지</MenuItem>
               )}
               <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
             </>

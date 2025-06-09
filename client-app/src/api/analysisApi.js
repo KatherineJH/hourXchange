@@ -42,3 +42,12 @@ export const predictDonation = async (features) => {
   const response = await api.post("/api/forecast/donation", features);
   return response.data;
 };
+export const simulateDonation = async (features, varName, valueRange) => {
+  const response = await api.post("/api/forecast/donation", {
+    simulate: true,
+    user_input: features,
+    var_name: varName,
+    value_range: valueRange,
+  });
+  return response.data;
+};

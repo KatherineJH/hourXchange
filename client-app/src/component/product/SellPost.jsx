@@ -167,56 +167,10 @@ export default function SellPost() {
 
   return (
     <Box
-      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
+          sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+        >
       {/* 카테고리 네비게이션 */}
       <CategoryNav />
-
-      {/* 슬라이더(이미지 캐러셀) */}
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: "1200px",
-          mx: "auto",
-          mt: 3,
-          position: "relative",
-          "& .slick-dots": {
-            position: "static",
-            mt: 1,
-            display: "flex !important",
-            justifyContent: "center",
-          },
-          "& .slick-slide > div": {
-            display: "block !important",
-          },
-        }}
-      >
-        <Slider {...carouselSettings}>
-          {carouselImages.map((url, idx) => (
-            <Box
-              key={idx}
-              sx={{
-                height: { xs: 200, sm: 300, md: 400 },
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              <img
-                src={url}
-                alt={`carousel-${idx}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-            </Box>
-          ))}
-        </Slider>
-      </Box>
 
       {/* 상품 + 광고 그리드 */}
       <Box
@@ -265,6 +219,52 @@ export default function SellPost() {
           category={selectedCategory}
           onVisibleItemsChange={setVisibleProducts}
         />
+      </Box>
+
+      {/* 슬라이더(이미지 캐러셀) */}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "1200px",
+          mx: "auto",
+          mt: 3,
+          position: "relative",
+          "& .slick-dots": {
+            position: "static",
+            mt: 1,
+            display: "flex !important",
+            justifyContent: "center",
+          },
+          "& .slick-slide > div": {
+            display: "block !important",
+          },
+        }}
+      >
+        <Slider {...carouselSettings}>
+          {carouselImages.map((url, idx) => (
+            <Box
+              key={idx}
+              sx={{
+                height: { xs: 200, sm: 300, md: 400 },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#f5f5f5",
+              }}
+            >
+              <img
+                src={url}
+                alt={`carousel-${idx}`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+            </Box>
+          ))}
+        </Slider>
       </Box>
     </Box>
   );

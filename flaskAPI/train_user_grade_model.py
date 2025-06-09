@@ -16,8 +16,14 @@ n = 50000
 today = datetime.now()
 
 signup_dates = [today - timedelta(days=np.random.randint(0, 1000)) for _ in range(n)]
-regions = np.random.choice(["서울", "강원", "경기", "충청", "전라", "경상", "제주"], size=n)
-REGION_MAP = {"서울": 0, "강원": 1, "경기": 2, "충청": 3, "전라": 4, "경상": 5, "제주": 6}
+regions = np.random.choice(
+    ["서울", "인천", "경남", "부산", "대구", "울산", "광주", "전남", "전북", "대전", "강원", "제주", "기타"],
+    size=n
+)
+REGION_MAP = {
+    "서울": 0, "인천": 1, "경남": 2, "부산": 3, "대구": 4, "울산": 5,
+    "광주": 6, "전남": 7, "전북": 8, "대전": 9, "강원": 10, "제주": 11, "기타":12
+}
 
 data = pd.DataFrame({
     "transaction_count": np.random.randint(0, 100, size=n),

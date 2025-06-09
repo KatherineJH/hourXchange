@@ -15,7 +15,6 @@ import { getAdvertisement } from "../../api/advertisementApi";
 import AdvertisementCard from "../advertisement/AdvertisementCard";
 import CategoryNav from "../../layout/CategoryNav";
 
-
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
 
@@ -136,7 +135,6 @@ export default function BuyPost() {
 
           const adIndex = Math.floor(i / AD_INTERVAL);
 
-
           const ad = shuffledAds[adIndex]; // ad는 조건문 전에 선언되어야 함
 
           if ((i + 1) % AD_INTERVAL === 0 && i && ad) {
@@ -161,7 +159,38 @@ export default function BuyPost() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
-      <CategoryNav/>
+      <CategoryNav />
+
+      <Box sx={{ mt: 3 }}>
+        <ProductGrid
+          products={displayedItems}
+          favorite={favorite}
+          onToggleFavorite={handleClickFavorite}
+          expandedId={expandedProductId}
+          onToggleExpand={handleExpandClick}
+        />
+        {/* 더 보기 버튼 */}
+        {hasMore && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="outlined"
+              onClick={() => setCardRowCount((c) => c + 1)}
+              sx={{ borderRadius: 2 }}
+            >
+              더 보기
+            </Button>
+          </Box>
+        )}
+      </Box>
+      <Box>
+        {/* 리스트 테이블 */}
+        <ListTable
+          filterProviderType="BUYER"
+          category={selectedCategory}
+          onVisibleItemsChange={setVisibleProducts}
+        />
+      </Box>
+
       {/* 슬라이더 */}
       <Box
         sx={{
@@ -205,36 +234,6 @@ export default function BuyPost() {
             </Box>
           ))}
         </Slider>
-      </Box>
-
-      <Box sx={{ mt: 3 }}>
-        <ProductGrid
-          products={displayedItems}
-          favorite={favorite}
-          onToggleFavorite={handleClickFavorite}
-          expandedId={expandedProductId}
-          onToggleExpand={handleExpandClick}
-        />
-        {/* 더 보기 버튼 */}
-        {hasMore && (
-          <Box display="flex" justifyContent="center" mt={2}>
-            <Button
-              variant="outlined"
-              onClick={() => setCardRowCount((c) => c + 1)}
-              sx={{ borderRadius: 2 }}
-            >
-              더 보기
-            </Button>
-          </Box>
-        )}
-      </Box>
-      <Box>
-        {/* 리스트 테이블 */}
-        <ListTable
-          filterProviderType="BUYER"
-          category={selectedCategory}
-          onVisibleItemsChange={setVisibleProducts}
-        />
       </Box>
     </Box>
   );

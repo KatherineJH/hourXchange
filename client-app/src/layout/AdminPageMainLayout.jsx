@@ -18,8 +18,10 @@ function AdminPageMainLayout({ children }) {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <Header />
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box sx={{ zIndex: 1201, position: "relative" }}>
+        <Header />
+      </Box>{" "}
       {isMobile && !mobileOpen && (
         <IconButton
           onClick={handleDrawerToggle}
@@ -37,15 +39,14 @@ function AdminPageMainLayout({ children }) {
           <MenuIcon />
         </IconButton>
       )}
-
-      <Box sx={{ display: "flex", flex: 1 }}>
+      <Box sx={{ flex: 1, display: "flex" }}>
         {isMobile ? (
           <Drawer
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{ keepMounted: true }}
-            sx={{ "& .MuiDrawer-paper": { width: 240 } }}
+            sx={{ "& .MuiDrawer-paper": { width: "50%", maxWidth: 280 } }}
           >
             <AdminPageSidebar onClickAny={handleDrawerToggle} />
           </Drawer>

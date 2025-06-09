@@ -40,6 +40,9 @@ public class UserGradeServiceImpl implements UserGradeService {
         String regionFull = userRepository.findRegionByUserId(userId);
         String region = extractRegion(regionFull);
 
+//        System.out.println("[DEBUG] userId=" + userId + " → raw regionFull = " + regionFull);
+//        System.out.println("[DEBUG] userId=" + userId + " → extracted region = " + region);
+
         int transactionCount = transactionRepository.countCompletedTransactions(userId);
         int paymentCount = paymentRepository.countPaymentsByUserId(userId);
         Integer totalAmount = paymentRepository.sumPaymentsByUserId(userId);
@@ -67,8 +70,8 @@ public class UserGradeServiceImpl implements UserGradeService {
 
     private String extractRegion(String address) {
         if (address == null || address.isBlank()) return "기타";
-        String[] parts = address.trim().split(" ");
-        return parts.length > 0 ? parts[0] : "기타"; // "경기 성남시..." → "경기"
+        String trimmed = address.trim();
+        return trimmed.length() >= 2 ? trimmed.substring(0, 2) : trimmed;
     }
 
     @Override

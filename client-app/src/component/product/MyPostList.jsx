@@ -47,7 +47,7 @@ function MyPostList() {
   }, [page, size]);
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ maxWidth: 1220, mx: "auto", p: 2 }}>
       <Box>
         <CardContent>
           <Typography variant="h5" gutterBottom>
@@ -74,12 +74,7 @@ function MyPostList() {
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     시간(비용)
                   </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    시작시간
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    끝시간
-                  </TableCell>
+                  <TableCell sx={{ bgcolor: "secondary.main" }}>날짜</TableCell>
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     작성자
                   </TableCell>
@@ -103,11 +98,16 @@ function MyPostList() {
                     <TableCell>{item.title}</TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell>{item.hours}</TableCell>
-                    <TableCell>{item.startedAt}</TableCell>
-                    <TableCell>{item.endAt}</TableCell>
+                    <TableCell>{item.startedAt?.substring(0, 10)}</TableCell>
                     <TableCell>{item.owner.name}</TableCell>
                     <TableCell>{item.category.categoryName}</TableCell>
-                    <TableCell>{item.providerType}</TableCell>
+                    <TableCell>
+                      {item.providerType === "SELLER"
+                        ? "판매"
+                        : item.providerType === "BUYER"
+                          ? "구매"
+                          : item.providerType}
+                    </TableCell>{" "}
                   </TableRow>
                 ))}
               </TableBody>
