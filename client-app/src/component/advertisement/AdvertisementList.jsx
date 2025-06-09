@@ -29,15 +29,12 @@ export default function AdvertisementList() {
   // ① API 호출하여 “실제 광고 배열”만 뽑아오는 함수
   const fetchMyAds = async () => {
     try {
-      
-
       const data = await getMyAdvertisements();
       if (Array.isArray(data.content)) {
         setAds(data.content);
       } else {
         setAds([]); // fallback
       }
-
     } catch (err) {
       console.error("광고 목록 불러오기 실패:", err);
       alert("광고 목록을 불러오는데 실패했습니다.");
@@ -95,15 +92,13 @@ export default function AdvertisementList() {
       <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
         <Table size="small">
           {/* 테이블 헤더 */}
-          <TableHead sx={{ backgroundColor: "primary.main" }}>
+          <TableHead sx={{ backgroundColor: "secondary.main" }}>
             <TableRow>
-              <TableCell sx={{ color: "#fff" }}>제목</TableCell>
-              <TableCell sx={{ color: "#fff" }}>설명</TableCell>
-              <TableCell sx={{ color: "#fff" }}>시간(분)</TableCell>
-              <TableCell sx={{ color: "#fff" }}>작성자</TableCell>
-              <TableCell align="right" sx={{ color: "#fff" }}>
-                수정 / 삭제
-              </TableCell>
+              <TableCell>제목</TableCell>
+              <TableCell>설명</TableCell>
+              <TableCell>시간</TableCell>
+              <TableCell>작성자</TableCell>
+              <TableCell align="right">수정 / 삭제</TableCell>
             </TableRow>
           </TableHead>
 
@@ -122,12 +117,14 @@ export default function AdvertisementList() {
                       onClick={() =>
                         navigate(`/myPage/advertisement/modify/${ad.id}`)
                       }
+                      sx={{ color: "secondary.main" }}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => handleDelete(ad.id)}
+                      sx={{ color: "secondary.main" }}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
