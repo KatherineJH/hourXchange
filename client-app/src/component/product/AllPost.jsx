@@ -163,7 +163,36 @@ export default function AllPost() {
     >
       {/* 카테고리 네비게이션 */}
       <CategoryNav />
+      {/* 상품 + 광고 그리드 */}
+      <Box sx={{ mt: 3 }}>
+        <ProductGrid
+          products={displayedItems}
+          favorite={favorite}
+          onToggleFavorite={handleClickFavorite}
+          expandedId={expandedProductId}
+          onToggleExpand={handleExpandClick}
+        />
+        {/* “더 보기” 버튼 */}
+        {hasMore && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="outlined"
+              onClick={() => setCardRowCount((c) => c + 1)}
+              sx={{ borderRadius: 2 }}
+            >
+              더 보기
+            </Button>
+          </Box>
+        )}
+      </Box>
 
+      {/* 리스트 테이블 */}
+      <Box>
+        <ListTable
+          category={selectedCategory}
+          onVisibleItemsChange={setVisibleProducts}
+        />
+      </Box>
       {/* 슬라이더(이미지 캐러셀) */}
       <Box
         sx={{
@@ -207,38 +236,6 @@ export default function AllPost() {
             </Box>
           ))}
         </Slider>
-      </Box>
-
-      {/* 상품 + 광고 그리드 */}
-      <Box sx={{ mt: 3 }}>
-        <ProductGrid
-          products={displayedItems}
-          favorite={favorite}
-          onToggleFavorite={handleClickFavorite}
-          expandedId={expandedProductId}
-          onToggleExpand={handleExpandClick}
-        />
-
-        {/* “더 보기” 버튼 */}
-        {hasMore && (
-          <Box display="flex" justifyContent="center" mt={2}>
-            <Button
-              variant="outlined"
-              onClick={() => setCardRowCount((c) => c + 1)}
-              sx={{ borderRadius: 2 }}
-            >
-              더 보기
-            </Button>
-          </Box>
-        )}
-      </Box>
-
-      {/* 리스트 테이블 */}
-      <Box>
-        <ListTable
-          category={selectedCategory}
-          onVisibleItemsChange={setVisibleProducts}
-        />
       </Box>
     </Box>
   );

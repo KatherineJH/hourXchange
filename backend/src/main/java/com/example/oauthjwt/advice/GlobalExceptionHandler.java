@@ -3,7 +3,6 @@ package com.example.oauthjwt.advice;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.UNAUTHORIZED.value());
         body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        body.put("message", "인증이 필요합니다.");  // 원하는 메시지로 변경 가능
+        body.put("message", "인증이 필요합니다."); // 원하는 메시지로 변경 가능
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
-        body.put("message", "권한이 없습니다.");  // 원하는 메시지로 변경 가능
+        body.put("message", "권한이 없습니다."); // 원하는 메시지로 변경 가능
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.UNAUTHORIZED.value());
         body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        body.put("message", ex.getMessage());  // 원하는 메시지로 변경 가능
+        body.put("message", ex.getMessage()); // 원하는 메시지로 변경 가능
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 

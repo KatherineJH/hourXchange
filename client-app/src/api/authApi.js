@@ -19,14 +19,15 @@ export const loginUser = async (formData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error.response?.data || "로그인 실패";
+    throw error;
+    // return error.response?.data || "로그인 실패";
   }
 }
 
 // 로그아웃 액션
 export const logoutUser = async () => {
   try {
-    const response = await api.post("/api/auth/logout", {});
+    const response = await api.post("/api/auth/logout");
     return response.data;
   } catch (error) {
     return error.response?.data || "로그아웃 실패";
@@ -37,6 +38,7 @@ export const logoutUser = async () => {
 export const fetchUser = async () => {
   // try {
     const response = await api.get("/api/auth/me");
+    console.log(response);
     return response.data;
   // } catch (error) {
   //   throw error.response?.data

@@ -1,5 +1,21 @@
 package com.example.oauthjwt.service;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.*;
@@ -9,35 +25,27 @@ import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.TransactionServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
- * TransactionServiceTest는 TransactionServiceImpl 클래스의 거래 처리 기능을 단위 테스트.
- * 각 테스트는 트랜잭션 생성, 유효성 검증, 상태 전이, 크레딧 처리 등 핵심 로직이 예상대로 동작하는지를 검증.
+ * TransactionServiceTest는 TransactionServiceImpl 클래스의 거래 처리 기능을 단위 테스트. 각 테스트는
+ * 트랜잭션 생성, 유효성 검증, 상태 전이, 크레딧 처리 등 핵심 로직이 예상대로 동작하는지를 검증.
  */
 public class TransactionServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private TransactionRepository transactionRepository;
-    @Mock private ChatService chatService;
-    @Mock private ChatRoomUserRepository chatRoomUserRepository;
-    @Mock private WalletHistoryRepository walletHistoryRepository;
-    @Mock private UserService userService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private TransactionRepository transactionRepository;
+    @Mock
+    private ChatService chatService;
+    @Mock
+    private ChatRoomUserRepository chatRoomUserRepository;
+    @Mock
+    private WalletHistoryRepository walletHistoryRepository;
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -48,8 +56,8 @@ public class TransactionServiceTest {
     }
 
     /**
-     * 1. 거래 생성 성공 (saveTransaction_success)
-     *    - 거래 요청자가 상품 등록자와 다르고, 유효한 요청일 때 거래가 저장되고 응답이 생성되는지 검증.
+     * 1. 거래 생성 성공 (saveTransaction_success) - 거래 요청자가 상품 등록자와 다르고, 유효한 요청일 때 거래가
+     * 저장되고 응답이 생성되는지 검증.
      */
     @Test
     @DisplayName("거래 생성 성공")
@@ -59,30 +67,13 @@ public class TransactionServiceTest {
         request.setProductId(2L);
         request.setStatus("PENDING");
 
-        User buyer = User.builder()
-                .id(1L)
-                .name("구매자")
-                .email("buyer@example.com")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .build();
-        User seller = User.builder()
-                .id(2L)
-                .name("판매자")
-                .email("seller@example.com")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .build();
-        Category category = Category.builder()
-                .id(1L)
-                .categoryName("운동")
-                .build();
-        Product product = Product.builder().id(2L)
-                .owner(seller).category(category)
-                .providerType(ProviderType.SELLER)
-                .lat("37.1234")
-                .lng("127.5678")
-                .description("서울시 강남구 역삼동").build();
+        User buyer = User.builder().id(1L).name("구매자").email("buyer@example.com").role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE).build();
+        User seller = User.builder().id(2L).name("판매자").email("seller@example.com").role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE).build();
+        Category category = Category.builder().id(1L).categoryName("운동").build();
+        Product product = Product.builder().id(2L).owner(seller).category(category).providerType(ProviderType.SELLER)
+                .lat("37.1234").lng("127.5678").description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(10L).product(product).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(buyer));
@@ -97,8 +88,8 @@ public class TransactionServiceTest {
     }
 
     /**
-     * 2. 자기 자신의 상품에 거래 요청 시 예외 발생 (saveTransaction_fail_selfRequest)
-     *    - 거래 요청자가 본인의 상품에 요청하는 경우 예외를 던지는지 검증.
+     * 2. 자기 자신의 상품에 거래 요청 시 예외 발생 (saveTransaction_fail_selfRequest) - 거래 요청자가 본인의
+     * 상품에 요청하는 경우 예외를 던지는지 검증.
      */
     @Test
     @DisplayName("자기 자신에게 요청 시 예외 발생")
@@ -109,38 +100,33 @@ public class TransactionServiceTest {
         request.setStatus("PENDING");
 
         User sameUser = User.builder().id(1L).build();
-        Product product = Product.builder().id(2L)
-                .owner(sameUser)
-                .lat("37.1234")
-                .lng("127.5678")
+        Product product = Product.builder().id(2L).owner(sameUser).lat("37.1234").lng("127.5678")
                 .description("서울시 강남구 역삼동").build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(sameUser));
         when(productRepository.findById(2L)).thenReturn(Optional.of(product));
 
-        assertThatThrownBy(() -> transactionService.save(request))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> transactionService.save(request)).isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("자신이 올린 글에는 요청할 수 없습니다.");
     }
 
     /**
      *
-     * 3. 존재하지 않는 ID로 거래 조회 시 예외 발생 (findById_notFound)
-     *    - ID로 거래 조회 시 없을 경우 예외가 발생하는지 확인.
+     * 3. 존재하지 않는 ID로 거래 조회 시 예외 발생 (findById_notFound) - ID로 거래 조회 시 없을 경우 예외가
+     * 발생하는지 확인.
      */
     @Test
     @DisplayName("거래 조회 실패 - 존재하지 않는 ID")
     void findById_notFound() {
         when(transactionRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> transactionService.findById(99L))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> transactionService.findById(99L)).isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("트랜잭션 정보가 존재하지 않습니다.");
     }
 
     /**
-     * 4. 거래 상태 REQUESTED로 전환 성공 (updateTransactionStatusToRequested_success)
-     *    - PENDING 상태의 거래를 요청 시 REQUESTED 상태로 변경되는지 검증.
+     * 4. 거래 상태 REQUESTED로 전환 성공 (updateTransactionStatusToRequested_success) -
+     * PENDING 상태의 거래를 요청 시 REQUESTED 상태로 변경되는지 검증.
      */
     @Test
     @DisplayName("거래 상태 REQUESTED로 업데이트 성공")
@@ -150,20 +136,13 @@ public class TransactionServiceTest {
 
         User owner = User.builder().id(2L).build();
         User requester = User.builder().id(1L).build();
-        Product product = Product.builder().id(3L)
-                .owner(owner)
-                .lat("37.1234")
-                .lng("127.5678")
+        Product product = Product.builder().id(3L).owner(owner).lat("37.1234").lng("127.5678")
                 .description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(chatRoomId).product(product).build();
         ChatRoomUser chatRoomUser = ChatRoomUser.of(requester, chatRoom);
 
-        Transaction tx = Transaction.builder()
-                .status(TransactionStatus.PENDING)
-                .chatRoom(chatRoom)
-                .product(product)
-                .user(requester)
-                .build();
+        Transaction tx = Transaction.builder().status(TransactionStatus.PENDING).chatRoom(chatRoom).product(product)
+                .user(requester).build();
 
         when(chatService.findById(chatRoomId)).thenReturn(chatRoom);
         when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
@@ -176,8 +155,8 @@ public class TransactionServiceTest {
     }
 
     /**
-     * 5. 거래 완료 후 크레딧 지급 처리 (completeTransaction_success)
-     *    - ACCEPTED 상태의 거래를 완료 처리 시, 공급자에게 크레딧이 정상적으로 지급되는지 확인.
+     * 5. 거래 완료 후 크레딧 지급 처리 (completeTransaction_success) - ACCEPTED 상태의 거래를 완료 처리
+     * 시, 공급자에게 크레딧이 정상적으로 지급되는지 확인.
      */
     @Test
     @DisplayName("거래 완료 후 크레딧 지급")
@@ -192,21 +171,12 @@ public class TransactionServiceTest {
         Wallet sellerWallet = Wallet.builder().credit(200).user(seller).build();
         seller.setWallet(sellerWallet);
 
-        Product product = Product.builder().id(10L)
-                .owner(seller).hours(5)
-                .providerType(ProviderType.SELLER)
-                .lat("37.1234")
-                .lng("127.5678")
-                .description("서울시 강남구 역삼동").build();
+        Product product = Product.builder().id(10L).owner(seller).hours(5).providerType(ProviderType.SELLER)
+                .lat("37.1234").lng("127.5678").description("서울시 강남구 역삼동").build();
         ChatRoom chatRoom = ChatRoom.builder().id(5L).product(product).build();
 
-        Transaction tx = Transaction.builder()
-                .id(transactionId)
-                .product(product)
-                .chatRoom(chatRoom)
-                .user(buyer)
-                .status(TransactionStatus.ACCEPTED)
-                .build();
+        Transaction tx = Transaction.builder().id(transactionId).product(product).chatRoom(chatRoom).user(buyer)
+                .status(TransactionStatus.ACCEPTED).build();
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(tx));
         when(transactionRepository.findByChatRoomId(chatRoom.getId())).thenReturn(List.of(tx));

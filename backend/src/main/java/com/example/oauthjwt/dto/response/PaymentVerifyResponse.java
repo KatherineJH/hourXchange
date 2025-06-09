@@ -4,7 +4,7 @@ import com.example.oauthjwt.entity.Orders;
 import com.example.oauthjwt.entity.Payment;
 import com.example.oauthjwt.entity.PaymentItem;
 import com.example.oauthjwt.entity.User;
-import jakarta.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,15 +31,10 @@ public class PaymentVerifyResponse {
     private PaymentResponse payment;
 
     public static PaymentVerifyResponse toDto(Orders orders, User user, Payment payment, PaymentItem paymentItem) {
-        return PaymentVerifyResponse.builder()
-                .id(orders.getId())
-                .impUid(orders.getImpUid())
-                .merchantUid(orders.getMerchantUid())
-                .email(orders.getEmail())
-                .paymentItemName(orders.getPaymentItemName())
-                .paymentItemPrice(orders.getPaymentItemPrice())
-                .payment(PaymentResponse.toDto(payment, user, paymentItem))
-                .build();
+        return PaymentVerifyResponse.builder().id(orders.getId()).impUid(orders.getImpUid())
+                .merchantUid(orders.getMerchantUid()).email(orders.getEmail())
+                .paymentItemName(orders.getPaymentItemName()).paymentItemPrice(orders.getPaymentItemPrice())
+                .payment(PaymentResponse.toDto(payment, user, paymentItem)).build();
     }
 
 }

@@ -1,15 +1,12 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.request.AddressRequest;
-import com.example.oauthjwt.dto.request.UserRequest;
-import com.example.oauthjwt.dto.response.UserResponse;
-import com.example.oauthjwt.entity.Address;
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.Wallet;
-import com.example.oauthjwt.entity.type.UserRole;
-import com.example.oauthjwt.entity.type.UserStatus;
-import com.example.oauthjwt.repository.UserRepository;
-import com.example.oauthjwt.service.impl.UserServiceImpl;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,50 +17,36 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import com.example.oauthjwt.dto.request.AddressRequest;
+import com.example.oauthjwt.dto.request.UserRequest;
+import com.example.oauthjwt.dto.response.UserResponse;
+import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.entity.type.UserStatus;
+import com.example.oauthjwt.repository.UserRepository;
+import com.example.oauthjwt.service.impl.UserServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @InjectMocks private UserServiceImpl userService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @InjectMocks
+    private UserServiceImpl userService;
 
     private UserRequest makeUserRequest() {
-        return UserRequest.builder()
-                .email("test@a.com")
-                .password("pw")
-                .name("홍길동")
-                .username("tester")
-                .birthdate(LocalDate.of(2000, 1, 1))
-                .address(AddressRequest.builder()
-                        .zonecode("12345")
-                        .roadAddress("서울로 1길")
-                        .jibunAddress("")
-                        .detailAddress("")
-                        .build())
+        return UserRequest.builder().email("test@a.com").password("pw").name("홍길동").username("tester")
+                .birthdate(LocalDate.of(2000, 1, 1)).address(AddressRequest.builder().zonecode("12345")
+                        .roadAddress("서울로 1길").jibunAddress("").detailAddress("").build())
                 .build();
     }
 
     private User makeUser() {
-        User u = User.builder()
-                .id(1L)
-                .email("test@a.com")
-                .password("encodedpw")
-                .name("홍길동")
-                .username("tester")
-                .birthdate(LocalDate.of(2000, 1, 1))
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .wallet(null)
-                .address(null)
-                .build();
+        User u = User.builder().id(1L).email("test@a.com").password("encodedpw").name("홍길동").username("tester")
+                .birthdate(LocalDate.of(2000, 1, 1)).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now()).wallet(null).address(null).build();
         return u;
     }
 
@@ -75,12 +58,11 @@ class UserServiceTest {
         given(userRepository.existsByEmail("test@a.com")).willReturn(false);
         given(userRepository.existsByUsername("tester")).willReturn(false);
         given(passwordEncoder.encode("pw")).willReturn("encodedpw");
-        given(userRepository.save(any(User.class)))
-                .willAnswer(inv -> {
-                    User u = inv.getArgument(0);
-                    u.setId(1L);
-                    return u;
-                });
+        given(userRepository.save(any(User.class))).willAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(1L);
+            return u;
+        });
 
         // when
         UserResponse res = userService.signup(req);
@@ -97,9 +79,8 @@ class UserServiceTest {
         UserRequest req = makeUserRequest();
         given(userRepository.existsByEmail("test@a.com")).willReturn(true);
 
-        assertThatThrownBy(() -> userService.signup(req))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+        assertThatThrownBy(() -> userService.signup(req)).isInstanceOf(ResponseStatusException.class).satisfies(
+                ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
     }
 
     @Test
@@ -109,9 +90,8 @@ class UserServiceTest {
         given(userRepository.existsByEmail("test@a.com")).willReturn(false);
         given(userRepository.existsByUsername("tester")).willReturn(true);
 
-        assertThatThrownBy(() -> userService.signup(req))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+        assertThatThrownBy(() -> userService.signup(req)).isInstanceOf(ResponseStatusException.class).satisfies(
+                ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
     }
 
     @Test
@@ -135,9 +115,8 @@ class UserServiceTest {
         UserRequest req = UserRequest.builder().email("none@a.com").password("pw").build();
         given(userRepository.findByEmail("none@a.com")).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.login(req))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+        assertThatThrownBy(() -> userService.login(req)).isInstanceOf(ResponseStatusException.class).satisfies(
+                ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
@@ -148,13 +127,11 @@ class UserServiceTest {
         given(userRepository.findByEmail("test@a.com")).willReturn(Optional.of(user));
         given(passwordEncoder.matches("wrongpw", "encodedpw")).willReturn(false);
 
-        assertThatThrownBy(() -> userService.login(req))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
-                    ResponseStatusException rse = (ResponseStatusException) ex;
-                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    assertThat(rse.getReason()).isEqualTo("아이디 또는 비밀번호가 일치하지 않습니다.");
-                });
+        assertThatThrownBy(() -> userService.login(req)).isInstanceOf(ResponseStatusException.class).satisfies(ex -> {
+            ResponseStatusException rse = (ResponseStatusException) ex;
+            assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(rse.getReason()).isEqualTo("아이디 또는 비밀번호가 일치하지 않습니다.");
+        });
     }
 
     @Test
@@ -173,16 +150,18 @@ class UserServiceTest {
     void getUserByEmail_not_found() {
         given(userRepository.findByEmail("none@a.com")).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getUserByEmail("none@a.com"))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+        assertThatThrownBy(() -> userService.getUserByEmail("none@a.com")).isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
     @DisplayName("모든 유저 조회")
     void getAllUsers() {
         User u1 = makeUser();
-        User u2 = makeUser(); u2.setId(2L); u2.setEmail("u2@a.com");
+        User u2 = makeUser();
+        u2.setId(2L);
+        u2.setEmail("u2@a.com");
         given(userRepository.findAll()).willReturn(List.of(u1, u2));
 
         List<UserResponse> users = userService.getAllUsers();
@@ -208,8 +187,7 @@ class UserServiceTest {
     void getUserById_not_found() {
         given(userRepository.findById(2L)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getUserById(2L))
-                .isInstanceOf(RuntimeException.class)
+        assertThatThrownBy(() -> userService.getUserById(2L)).isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("User not found");
     }
 
@@ -217,7 +195,9 @@ class UserServiceTest {
     @DisplayName("유저 페이지네이션 조회")
     void getUserList() {
         User u1 = makeUser();
-        User u2 = makeUser(); u2.setId(2L); u2.setEmail("u2@a.com");
+        User u2 = makeUser();
+        u2.setId(2L);
+        u2.setEmail("u2@a.com");
 
         Pageable pageable = PageRequest.of(0, 2);
         Page<User> page = new PageImpl<>(List.of(u1, u2), pageable, 2);

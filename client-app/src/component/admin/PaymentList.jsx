@@ -77,7 +77,7 @@ export default function PaymentList() {
     };
 
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 결제내역조회
             </Typography>
@@ -261,7 +261,7 @@ export default function PaymentList() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={7} align="center">
+                                <TableCell colSpan={12} align="center">
                                     등록된 정보가 없습니다.
                                 </TableCell>
                             </TableRow>

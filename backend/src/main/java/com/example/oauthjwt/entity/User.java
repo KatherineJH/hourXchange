@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.oauthjwt.dto.request.UserRequest;
-import com.example.oauthjwt.dto.response.CenterResponse.Item;
 import com.example.oauthjwt.dto.response.OAuth2Response;
 import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
@@ -72,34 +71,26 @@ public class User {
     private List<DonationHistory> donationHistoryList = new ArrayList<>();
 
     public static User of(UserRequest userRequest) {
-        return User.builder()
-                .email(userRequest.getEmail())
-                .name(userRequest.getName())
-                .username(userRequest.getUsername())
-                .birthdate(userRequest.getBirthdate())
-                .role(UserRole.ROLE_USER) // 일반유저
+        return User.builder().email(userRequest.getEmail()).name(userRequest.getName())
+                .username(userRequest.getUsername()).birthdate(userRequest.getBirthdate()).role(UserRole.ROLE_USER) // 일반유저
                 .status(UserStatus.ACTIVE) // 활성화
                 .createdAt(LocalDateTime.now()) // 현재시간
                 .build();
     }
 
-    public static User of(OAuth2Response oAuth2Response){
-        return User.builder()
-                .email(oAuth2Response.getEmail()) // 이메일
+    public static User of(OAuth2Response oAuth2Response) {
+        return User.builder().email(oAuth2Response.getEmail()) // 이메일
                 .name(oAuth2Response.getProvider() + UUID.randomUUID())
                 .username(oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId()) // 유저네임
-                .name(oAuth2Response.getName()).createdAt(LocalDateTime.now())
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .build();
+                .name(oAuth2Response.getName()).createdAt(LocalDateTime.now()).role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE).createdAt(LocalDateTime.now()).build();
     }
 
-    public void addCredit(int credit){
+    public void addCredit(int credit) {
         this.wallet.addCredit(credit);
     }
 
-    public void subtractCredit(int credit){
+    public void subtractCredit(int credit) {
         this.wallet.subtractCredit(credit);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.oauthjwt.entity;
 
 import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,10 +32,6 @@ public class ChatRoomUser {
     private ChatRoomUserStatus chatRoomUserStatus;
 
     public static ChatRoomUser of(User user, ChatRoom chatRoom) {
-        return ChatRoomUser.builder()
-                .chatRoom(chatRoom)
-                .user(user)
-                .chatRoomUserStatus(ChatRoomUserStatus.JOIN)
-                .build();
+        return ChatRoomUser.builder().chatRoom(chatRoom).user(user).chatRoomUserStatus(ChatRoomUserStatus.JOIN).build();
     }
 }

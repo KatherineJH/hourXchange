@@ -2,19 +2,17 @@ package com.example.oauthjwt.dto.document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.response.UserResponse;
-import com.example.oauthjwt.entity.Donation;
-import com.example.oauthjwt.entity.DonationImage;
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.type.DonationStatus;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import com.example.oauthjwt.dto.response.UserResponse;
+import com.example.oauthjwt.entity.Donation;
+import com.example.oauthjwt.entity.DonationImage;
 
 import jakarta.persistence.Id;
 import lombok.*;
@@ -57,31 +55,21 @@ public class DonationDocument {
 
     private String status; // 상태
 
-    private List<String> images  = new ArrayList<>(); // 이미지 리스트;
+    private List<String> images = new ArrayList<>(); // 이미지 리스트;
 
     private List<String> suggest;
 
     public static DonationDocument toDocument(Donation donation, String authorName, List<String> finalKeywords) {
-//        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        return DonationDocument.builder()
-                .id(donation.getId())
-                .purpose(donation.getPurpose())
-                .currentAmount(donation.getCurrentAmount())
-                .targetAmount(donation.getTargetAmount())
-                .title(donation.getTitle())
-                .description(donation.getDescription())
-                .authorName(authorName)
-                .startDate(donation.getStartDate())
-                .endDate(donation.getEndDate())
-                .createdAt(donation.getCreatedAt())
-                .viewCount(donation.getViewCount())
-                .author(UserResponse.toDto(donation.getAuthor()))
-                .status(donation.getStatus().toString().equals("ONGOING") ? "진행중" :
-                        donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
-                .images(donation.getImages().stream()
-                        .map(DonationImage::getImgUrl)
-                        .collect(Collectors.toList()))
-                .suggest(finalKeywords)
-                .build();
+        // .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        return DonationDocument.builder().id(donation.getId()).purpose(donation.getPurpose())
+                .currentAmount(donation.getCurrentAmount()).targetAmount(donation.getTargetAmount())
+                .title(donation.getTitle()).description(donation.getDescription()).authorName(authorName)
+                .startDate(donation.getStartDate()).endDate(donation.getEndDate()).createdAt(donation.getCreatedAt())
+                .viewCount(donation.getViewCount()).author(UserResponse.toDto(donation.getAuthor()))
+                .status(donation.getStatus().toString().equals("ONGOING")
+                        ? "진행중"
+                        : donation.getStatus().toString().equals("COMPLETE") ? "완료" : "취소")
+                .images(donation.getImages().stream().map(DonationImage::getImgUrl).collect(Collectors.toList()))
+                .suggest(finalKeywords).build();
     }
 }

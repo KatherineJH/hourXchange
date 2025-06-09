@@ -18,8 +18,10 @@ function MyPageLayout({ children }) {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <Header />
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box sx={{ zIndex: 1201, position: "relative" }}>
+        <Header />
+      </Box>{" "}
       {isMobile && !mobileOpen && (
         <IconButton
           onClick={handleDrawerToggle}
@@ -37,8 +39,7 @@ function MyPageLayout({ children }) {
           <MenuIcon />
         </IconButton>
       )}
-
-      <Box sx={{ display: "flex", flex: 1 }}>
+      <Box sx={{ flex: 1, display: "flex" }}>
         {isMobile ? (
           <Drawer
             variant="temporary"

@@ -25,9 +25,6 @@ public class DonationImage {
     private Donation donation;
 
     public static DonationImage of(String imgUrl, Donation donation) {
-        return DonationImage.builder()
-                .imgUrl(imgUrl)
-                .donation(donation)
-                .build();
+        return DonationImage.builder().imgUrl(imgUrl).donation(donation).build();
     }
 }

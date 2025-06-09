@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getUserById, getUserFeatures } from "../../api/userApi";
-import { predictDonation } from "../../api/analysisApi";
+import { predictDonation, simulateDonation } from "../../api/analysisApi";
 import {
   Box,
   Typography,
@@ -17,6 +17,7 @@ const UserDetailPage = () => {
   const [features, setFeatures] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [simulation, setSimulation] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -29,6 +30,13 @@ const UserDetailPage = () => {
 
         const predictionData = await predictDonation(featureData);
         setPrediction(predictionData);
+        const baseAmount = featureData.total_payment_amount;
+        const simulationData = await simulateDonation(
+          featureData,
+          "total_payment_amount",
+          [10000, 20000, 30000, 50000, 100000, 200000].map((extra) => baseAmount + extra)
+        );
+        setSimulation(simulationData.simulated_results);
       } catch (error) {
         console.error("유저 데이터 로딩 실패:", error);
       } finally {
@@ -82,10 +90,27 @@ const UserDetailPage = () => {
             💡 기부 행동 예측
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          <Box>
+          <Box sx={{ mb: 3 }}>
             {Object.entries(prediction).map(([key, value]) => (
               <Typography key={key}>
-                {key}: {value}
+                {key}: {typeof value === "boolean" ? value.toString() : value}
+              </Typography>
+            ))}
+          </Box>
+        </>
+      )}
+
+      {simulation && (
+        <>
+          <Typography variant="h6" gutterBottom>
+            📈 시뮬레이션: 결제 금액 변화에 따른 기부 예측
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <Box sx={{ mb: 3 }}>
+            {simulation.map((item, index) => (
+              <Typography key={index}>
+                💰 합산 결제 금액 {item.value.toLocaleString()} → 예상 기부액:{" "}
+                {item.predicted.toFixed(2)}
               </Typography>
             ))}
           </Box>

@@ -1,6 +1,5 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.service.BoardService;
+import com.example.oauthjwt.service.elastic.ElasticSearchService;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
@@ -32,7 +32,7 @@ public class BoardController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest,
-                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(boardRequest);
         BoardResponse result = boardService.save(boardRequest, userDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -40,26 +40,22 @@ public class BoardController {
 
     @GetMapping("/all")
     public ResponseEntity<?> findAllBoards(@RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<BoardResponse> responses = boardService.findAllBoards(pageable);
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchBoards(@RequestParam String keyword,
-                                          @RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(
-                elasticSearchService.searchBoards(keyword, page, size)
-        );
+    public ResponseEntity<?> searchBoards(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(elasticSearchService.searchBoards(keyword, page, size));
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> findMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                          @RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<BoardResponse> result = boardService.findByAuthorId(userDetails.getUser().getId(), pageable);
         return ResponseEntity.ok(result);
@@ -91,15 +87,15 @@ public class BoardController {
 
     @PutMapping("/{id}/thumbs-up")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+    public ResponseEntity<?> updateLike(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails)
+            throws Exception {
         BoardResponse resp = boardService.toggleThumbsUp(id, userDetails.getUser().getId());
         return ResponseEntity.ok(resp);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> delete(@PathVariable Long id,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> delete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
         boardService.delete(id, userDetails.getUser().getId());
         return ResponseEntity.noContent().build(); // 204 No Content
     }

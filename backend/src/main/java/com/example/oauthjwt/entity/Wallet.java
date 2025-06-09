@@ -22,10 +22,7 @@ public class Wallet {
     private User user;
 
     public static Wallet of(User user) {
-        return Wallet.builder()
-                .credit(0)
-                .user(user)
-                .build();
+        return Wallet.builder().credit(0).user(user).build();
     }
 
     public void addCredit(int credit) {

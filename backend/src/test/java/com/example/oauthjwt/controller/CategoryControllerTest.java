@@ -1,11 +1,15 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.response.CategoryResponse;
-import com.example.oauthjwt.entity.Category;
-import com.example.oauthjwt.interceptor.VisitLogInterceptor;
-import com.example.oauthjwt.repository.CategoryRepository;
-import com.example.oauthjwt.service.CategoryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import com.example.oauthjwt.dto.response.CategoryResponse;
+import com.example.oauthjwt.entity.Category;
+import com.example.oauthjwt.interceptor.VisitLogInterceptor;
+import com.example.oauthjwt.repository.CategoryRepository;
+import com.example.oauthjwt.service.CategoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(CategoryController.class)
 class CategoryControllerTest {
@@ -50,17 +51,9 @@ class CategoryControllerTest {
     @DisplayName("전체 카테고리 조회 성공")
     @WithMockUser
     void getAllCategories() throws Exception {
-        CategoryResponse res1 = CategoryResponse.builder()
-                .id(1L)
-                .categoryName("운동")
-                .status(true)
-                .build();
+        CategoryResponse res1 = CategoryResponse.builder().id(1L).categoryName("운동").status(true).build();
 
-        CategoryResponse res2 = CategoryResponse.builder()
-                .id(2L)
-                .categoryName("음악")
-                .status(true)
-                .build();
+        CategoryResponse res2 = CategoryResponse.builder().id(2L).categoryName("음악").status(true).build();
 
         List<CategoryResponse> categories = Arrays.asList(res1, res2);
         Page<CategoryResponse> page = new PageImpl<>(categories);
@@ -68,14 +61,10 @@ class CategoryControllerTest {
         when(categoryService.findAll(any(Pageable.class))).thenReturn(page);
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        mockMvc.perform(get("/api/category/list")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value(1L))
+        mockMvc.perform(get("/api/category/list").accept(MediaType.APPLICATION_JSON)).andDo(print())
+                .andExpect(status().isOk()).andExpect(jsonPath("$.content[0].id").value(1L))
                 .andExpect(jsonPath("$.content[0].categoryName").value("운동"))
-                .andExpect(jsonPath("$.content[0].status").value(true))
-                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[0].status").value(true)).andExpect(jsonPath("$.content[1].id").value(2L))
                 .andExpect(jsonPath("$.content[1].categoryName").value("음악"))
                 .andExpect(jsonPath("$.content[1].status").value(true));
     }
@@ -92,13 +81,9 @@ class CategoryControllerTest {
         when(categoryService.findById(1L)).thenReturn(CategoryResponse.toDto(cat));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        mockMvc.perform(get("/api/category/1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("운동"))
-                .andExpect(jsonPath("$.status").value(true));
+        mockMvc.perform(get("/api/category/1").accept(MediaType.APPLICATION_JSON)).andDo(print())
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.categoryName").value("운동")).andExpect(jsonPath("$.status").value(true));
     }
 
     @Test
@@ -113,15 +98,10 @@ class CategoryControllerTest {
         when(categoryService.addCategory("운동")).thenReturn(CategoryResponse.toDto(cat));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        mockMvc.perform(post("/api/category/")
-                        .param("categoryName", "운동")
-                        .with(csrf())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("운동"))
-                .andExpect(jsonPath("$.status").value(true));
+        mockMvc.perform(
+                post("/api/category/").param("categoryName", "운동").with(csrf()).accept(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.categoryName").value("운동")).andExpect(jsonPath("$.status").value(true));
     }
 
     @Test
@@ -136,14 +116,9 @@ class CategoryControllerTest {
         when(categoryService.updateCategory(1L, "헬스")).thenReturn(CategoryResponse.toDto(updated));
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        mockMvc.perform(put("/api/category/1")
-                        .param("categoryName", "헬스")
-                        .with(csrf())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.categoryName").value("헬스"))
-                .andExpect(jsonPath("$.status").value(true));
+        mockMvc.perform(
+                put("/api/category/1").param("categoryName", "헬스").with(csrf()).accept(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.categoryName").value("헬스")).andExpect(jsonPath("$.status").value(true));
     }
 }

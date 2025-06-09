@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.response.PageResult;
-import com.example.oauthjwt.entity.type.ProviderType;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,8 +20,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.FavoriteResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.dto.response.ProductResponse;
 import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.entity.type.ProviderType;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.*;
 
@@ -34,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@CacheConfig(cacheNames = { "productFindAll" })
+@CacheConfig(cacheNames = {"productFindAll"})
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     private final StringRedisTemplate stringRedisTemplate;
     private final ProductTagRepository productTagRepository;
 
-    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
+    @CacheEvict(cacheNames = {"productFindAll", "searchProducts"}, allEntries = true)
     public ProductResponse save(ProductRequest productRequest, CustomUserDetails userDetails) {
         // 유저 검증
         User owner = userRepository.findById(userDetails.getUser().getId())
@@ -85,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
         String key = "view productId: " + productId + ", by: " + userKey;
 
         Boolean alreadyExists = stringRedisTemplate.hasKey(key);
-        if(!alreadyExists) { // 존재하지 않으면
+        if (!alreadyExists) { // 존재하지 않으면
             log.info("캐싱");
             // 뷰 카운트 증가
             productRepository.save(product.addViewCount());
@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = { "productFindAll", "searchProducts" }, allEntries = true)
+    @CacheEvict(cacheNames = {"productFindAll", "searchProducts"}, allEntries = true)
     public ProductResponse update(ProductRequest productRequest, CustomUserDetails userDetails, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
@@ -134,8 +134,7 @@ public class ProductServiceImpl implements ProductService {
 
         // 새로운 태그 추가
         if (productRequest.getTags() != null && !productRequest.getTags().isEmpty()) {
-            List<ProductTag> updatedTags = productRequest.getTags().stream()
-                    .limit(5)
+            List<ProductTag> updatedTags = productRequest.getTags().stream().limit(5)
                     .map(tag -> ProductTag.builder().product(product).productTag(tag).build())
                     .collect(Collectors.toList());
             product.getProductTags().addAll(updatedTags);
@@ -146,27 +145,21 @@ public class ProductServiceImpl implements ProductService {
         return ProductResponse.toDto(result);
     }
 
-
     @Override
     @Cacheable(cacheNames = "productFindAll", key = "#page + ':' + #size")
     public PageResult<ProductResponse> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
         Page<Product> productPage = productRepository.findAll(pageable);
 
-
         List<ProductResponse> content = productPage.getContent().stream().map(product -> {
-            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner()); // 판매자 기준 // 매번 조회 시 점점 느려질 것 같습니다.
+            double starsAverage = reviewRepository.getAverageStarsByOwner(product.getOwner()); // 판매자 기준 // 매번 조회 시 점점
+                                                                                               // 느려질 것 같습니다.
 
             return ProductResponse.toDto(product, starsAverage);
         }).collect(Collectors.toList());
 
-        return new PageResult<>(
-                content,
-                productPage.getNumber(),
-                productPage.getSize(),
-                productPage.getTotalElements(),
-                productPage.getTotalPages()
-        );
+        return new PageResult<>(content, productPage.getNumber(), productPage.getSize(), productPage.getTotalElements(),
+                productPage.getTotalPages());
     }
 
     @Override
@@ -174,11 +167,9 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         if (providerType != null) {
-            return productRepository.findByProviderType(providerType, pageable)
-                    .map(ProductResponse::toDto);
+            return productRepository.findByProviderType(providerType, pageable).map(ProductResponse::toDto);
         } else {
-            return productRepository.findAll(pageable)
-                    .map(ProductResponse::toDto);
+            return productRepository.findAll(pageable).map(ProductResponse::toDto);
         }
     }
 
@@ -232,7 +223,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse delete(CustomUserDetails userDetails, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));
-        if(!product.getOwner().getId().equals(userDetails.getUser().getId())) {
+        if (!product.getOwner().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "자신이 등록한 제품만 삭제가 가능합니다.");
         }
         product.setDelete();

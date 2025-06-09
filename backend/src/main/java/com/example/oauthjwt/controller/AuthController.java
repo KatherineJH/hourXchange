@@ -1,30 +1,29 @@
 package com.example.oauthjwt.controller;
 
+import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
+import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
+
 import java.util.Map;
 
-import com.example.oauthjwt.service.impl.CustomUserDetails;
-import io.jsonwebtoken.Claims;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.oauthjwt.dto.request.ChangePasswordRequest;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.jwt.JWTUtil;
 import com.example.oauthjwt.service.UserService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.server.ResponseStatusException;
-
-import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
-import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,7 +45,8 @@ public class AuthController {
 
     // 이메일 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@ModelAttribute @Valid UserRequest userRequest, HttpServletResponse response) {
+    public ResponseEntity<UserResponse> login(@ModelAttribute @Valid UserRequest userRequest,
+            HttpServletResponse response) {
         // 서비스 호출
         UserResponse result = userService.login(userRequest);
         // 토큰 생성
@@ -74,21 +74,32 @@ public class AuthController {
     // 리프레쉬 토큰을 사용해 새로운 액세스 토큰 발급
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        // 리프레쉬 쿠키 가져오기
-        String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
-        String email = "";
+        try {
+            // 리프레쉬 쿠키 가져오기
+            String refreshToken = jwtUtil.getTokenFromCookiesByName(request, "Refresh");
+            String email = "";
 
-        // 토큰의 클레임 값 가져오기
-        Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
-        // 클레임 중 email 값 가져오기
-        email = claims.get("email", String.class);
+            // 토큰의 클레임 값 가져오기
+            Claims claims = jwtUtil.getClaims(refreshToken); // 여기서 토큰 검증도 같이 함
+            // 클레임 중 email 값 가져오기
+            email = claims.get("email", String.class);
 
-        // 토큰에 이상이 없을 경우 가져온 email 값을 가지고 새로운 토큰을 생성
-        String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
-        // 토큰을 새로운 엑세스 쿠키로 반환
-        response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
-        // 반환
-        return ResponseEntity.ok(Map.of("message", "토큰 재발급 성공"));
+            // 토큰에 이상이 없을 경우 가져온 email 값을 가지고 새로운 토큰을 생성
+            String newAccessToken = jwtUtil.createToken(Map.of("email", email), ACCESS_TOKEN_TIME);
+            // 토큰을 새로운 엑세스 쿠키로 반환
+            response.addCookie(jwtUtil.createCookie("Authorization", newAccessToken, ACCESS_TOKEN_TIME));
+            // 반환
+            return ResponseEntity.ok(Map.of("message", "토큰 재발급 성공"));
+        } catch (Exception e) {
+            // 쿠키 생성
+            Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+            Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+            // 쿠키 반환
+            response.addCookie(emptyAccessCookie);
+            response.addCookie(emptyRefreshCookie);
+            return ResponseEntity.ok(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
+        }
+
     }
 
     /**
@@ -106,38 +117,38 @@ public class AuthController {
 
     // 로그인된 사용자 정보 반환
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> getCurrentUser(HttpServletRequest request) {
-        String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String authorization = jwtUtil.getTokenFromCookiesByName(request, "Authorization");
 
-        Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
-        UserResponse result = userService.getUserByEmail(claims.get("email", String.class));
-
-        return ResponseEntity.ok(result);
+            Claims claims = jwtUtil.getClaims(authorization); // 여기서 토큰 검증도 같이 함
+            UserResponse result = userService.getUserByEmail(claims.get("email", String.class));
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            // 쿠키 생성
+            Cookie emptyAccessCookie = jwtUtil.createCookie("Authorization", null, 0); // 엑세스 토큰
+            Cookie emptyRefreshCookie = jwtUtil.createCookie("Refresh", null, 0); // 리프레쉬 토큰
+            // 쿠키 반환
+            response.addCookie(emptyAccessCookie);
+            response.addCookie(emptyRefreshCookie);
+            return ResponseEntity.ok(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
+        }
     }
 
     @PutMapping("/password")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> changePassword(
-            @RequestBody Map<String, String> request,
-            HttpServletRequest httpRequest) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        String newPassword = request.get("newPassword");
-        String confirmPassword = request.get("confirmPassword");
+        Long userId = userDetails.getUser().getId();
+        userService.changePasswordWithoutOld(userId, request.getNewPassword(), request.getConfirmPassword());
 
-        String token = jwtUtil.getTokenFromCookiesByName(httpRequest, "Authorization");
-        Claims claims = jwtUtil.getClaims(token); // JWT에서 이메일 추출
-        String email = claims.get("email", String.class);
-        Long userId = userService.getUserByEmail(email).getId(); // userId 가져오기
-
-        userService.changePasswordWithoutOld(userId, newPassword, confirmPassword);
         return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
     }
 
     /**
-     * 나중에 반드시 제거해야 할 API
-     * 절차 없이 비밀번호 변경이 가능한 컨트롤러.
-     * */
+     * 나중에 반드시 제거해야 할 API 절차 없이 비밀번호 변경이 가능한 컨트롤러.
+     */
     @PutMapping("/dev/password")
     public ResponseEntity<?> devChangePassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");

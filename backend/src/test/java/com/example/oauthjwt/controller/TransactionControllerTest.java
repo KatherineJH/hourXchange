@@ -1,16 +1,16 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.request.TransactionRequest;
-import com.example.oauthjwt.dto.response.ProductResponse;
-import com.example.oauthjwt.dto.response.TransactionResponse;
-import com.example.oauthjwt.dto.response.UserResponse;
-import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.entity.type.UserRole;
-import com.example.oauthjwt.interceptor.VisitLogInterceptor;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
-import com.example.oauthjwt.service.TransactionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,17 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.example.oauthjwt.dto.request.TransactionRequest;
+import com.example.oauthjwt.dto.response.ProductResponse;
+import com.example.oauthjwt.dto.response.TransactionResponse;
+import com.example.oauthjwt.dto.response.UserResponse;
+import com.example.oauthjwt.entity.Product;
+import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.interceptor.VisitLogInterceptor;
+import com.example.oauthjwt.service.TransactionService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = TransactionController.class)
 class TransactionControllerTest {
@@ -51,26 +52,18 @@ class TransactionControllerTest {
 
     // Helper method to create mock CustomUserDetails
     private CustomUserDetails mockUserDetails(Long userId) {
-        User user = User.builder()
-                .id(userId)
-                .email("mock@user.com")
-                .password("password")
-                .role(UserRole.ROLE_USER)
+        User user = User.builder().id(userId).email("mock@user.com").password("password").role(UserRole.ROLE_USER)
                 .build();
         return new CustomUserDetails(user);
     }
 
     // Helper method to create mock TransactionResponse
-    private TransactionResponse mockTransactionResponse(Long id, Long userId, Long productId, String status, Long chatRoomId) {
-        return TransactionResponse.builder()
-                .id(id)
+    private TransactionResponse mockTransactionResponse(Long id, Long userId, Long productId, String status,
+            Long chatRoomId) {
+        return TransactionResponse.builder().id(id)
                 .user(UserResponse.toDto(User.builder().id(userId).email("mock@user.com").build()))
                 .product(ProductResponse.toDto(Product.builder().id(productId).title("Test Product").build()))
-                .status(status)
-                .createdAt(LocalDateTime.now())
-                .chatRoomId(chatRoomId)
-                .reviewId(null)
-                .build();
+                .status(status).createdAt(LocalDateTime.now()).chatRoomId(chatRoomId).reviewId(null).build();
     }
 
     @Test
@@ -80,10 +73,7 @@ class TransactionControllerTest {
         Long userId = 100L;
         CustomUserDetails userDetails = mockUserDetails(userId);
 
-        TransactionRequest transactionRequest = TransactionRequest.builder()
-                .productId(1L)
-                .status("PENDING")
-                .build();
+        TransactionRequest transactionRequest = TransactionRequest.builder().productId(1L).status("PENDING").build();
 
         TransactionResponse mockResponse = mockTransactionResponse(1L, userId, 1L, "PENDING", 1L);
 
@@ -91,19 +81,12 @@ class TransactionControllerTest {
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then
-        mockMvc.perform(post("/api/transaction/")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionRequest)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.user.id").value(userId))
-                .andExpect(jsonPath("$.product.id").value(1L))
-                .andExpect(jsonPath("$.status").value("PENDING"))
+        mockMvc.perform(post("/api/transaction/").with(SecurityMockMvcRequestPostProcessors.user(userDetails))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(transactionRequest)))
+                .andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L)).andExpect(jsonPath("$.user.id").value(userId))
+                .andExpect(jsonPath("$.product.id").value(1L)).andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.chatRoomId").value(1L));
     }
 
@@ -118,16 +101,11 @@ class TransactionControllerTest {
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then
-        mockMvc.perform(get("/api/transaction/{id}", transactionId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
+        mockMvc.perform(get("/api/transaction/{id}", transactionId).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(transactionId))
-                .andExpect(jsonPath("$.user.id").value(100L))
-                .andExpect(jsonPath("$.product.id").value(1L))
-                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.id").value(transactionId)).andExpect(jsonPath("$.user.id").value(100L))
+                .andExpect(jsonPath("$.product.id").value(1L)).andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.chatRoomId").value(1L));
     }
 
@@ -145,16 +123,11 @@ class TransactionControllerTest {
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then
-        mockMvc.perform(get("/api/transaction/list")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].status").value("PENDING"))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[1].status").value("ACCEPTED"));
+        mockMvc.perform(
+                get("/api/transaction/list").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L)).andExpect(jsonPath("$[0].status").value("PENDING"))
+                .andExpect(jsonPath("$[1].id").value(2L)).andExpect(jsonPath("$[1].status").value("ACCEPTED"));
     }
 
     @Test
@@ -172,17 +145,12 @@ class TransactionControllerTest {
         when(visitLogInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         // when & then
-        mockMvc.perform(get("/api/transaction/my")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].user.id").value(101L)) // Opponent user
-                .andExpect(jsonPath("$[0].product.id").value(1L))
-                .andExpect(jsonPath("$[0].status").value("PENDING"))
+        mockMvc.perform(get("/api/transaction/my").with(SecurityMockMvcRequestPostProcessors.user(userDetails))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andDo(print())
+                .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L)).andExpect(jsonPath("$[0].user.id").value(101L)) // Opponent
+                                                                                                          // user
+                .andExpect(jsonPath("$[0].product.id").value(1L)).andExpect(jsonPath("$[0].status").value("PENDING"))
                 .andExpect(jsonPath("$[0].chatRoomId").value(1L));
     }
 
@@ -194,10 +162,7 @@ class TransactionControllerTest {
         Long userId = 100L;
         CustomUserDetails userDetails = mockUserDetails(userId);
 
-        TransactionRequest transactionRequest = TransactionRequest.builder()
-                .productId(1L)
-                .status("ACCEPTED")
-                .build();
+        TransactionRequest transactionRequest = TransactionRequest.builder().productId(1L).status("ACCEPTED").build();
 
         TransactionResponse mockResponse = mockTransactionResponse(transactionId, userId, 1L, "ACCEPTED", 1L);
 
@@ -206,18 +171,12 @@ class TransactionControllerTest {
 
         // when & then
         mockMvc.perform(put("/api/transaction/{id}", transactionId)
-                        .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionRequest)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(transactionId))
-                .andExpect(jsonPath("$.user.id").value(userId))
-                .andExpect(jsonPath("$.product.id").value(1L))
-                .andExpect(jsonPath("$.status").value("ACCEPTED"))
+                .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(transactionRequest)))
+                .andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(transactionId)).andExpect(jsonPath("$.user.id").value(userId))
+                .andExpect(jsonPath("$.product.id").value(1L)).andExpect(jsonPath("$.status").value("ACCEPTED"))
                 .andExpect(jsonPath("$.chatRoomId").value(1L));
     }
 
@@ -231,11 +190,8 @@ class TransactionControllerTest {
 
         // when & then
         mockMvc.perform(patch("/api/transaction/complete/{transactionId}", transactionId)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("\"거래가 완료되었습니다.\""));
     }
@@ -250,14 +206,10 @@ class TransactionControllerTest {
         TransactionRequest transactionRequest = TransactionRequest.builder().build(); // Missing productId, status
 
         // when & then
-        mockMvc.perform(post("/api/transaction/")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(transactionRequest)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        mockMvc.perform(post("/api/transaction/").with(SecurityMockMvcRequestPostProcessors.user(userDetails))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(transactionRequest)))
+                .andDo(print()).andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.validationErrors.productId").value("제품 정보는 필수입니다."))
                 .andExpect(jsonPath("$.validationErrors.status").value("상태 정보는 필수입니다."));

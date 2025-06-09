@@ -10,10 +10,6 @@ const Unauthorized = () => {
         navigate("/");
     };
 
-    const handleLogin = () => {
-        navigate("/login");
-    };
-
     return (
         <div style={{ padding: 40, textAlign: "center", color: "#d32f2f" }}>
             <h1>403 - 접근 거부</h1>
@@ -21,9 +17,6 @@ const Unauthorized = () => {
             <div style={{ marginTop: 24 }}>
                 <button onClick={handleGoHome} style={{ marginRight: 12, padding: "8px 16px" }}>
                     홈으로
-                </button>
-                <button onClick={handleLogin} style={{ padding: "8px 16px" }}>
-                    로그인
                 </button>
             </div>
         </div>

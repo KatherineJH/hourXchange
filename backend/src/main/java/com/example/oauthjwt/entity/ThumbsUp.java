@@ -26,9 +26,6 @@ public class ThumbsUp {
     private User user;
 
     public static ThumbsUp of(Board board, User user) {
-        return ThumbsUp.builder()
-                .board(board)
-                .user(user)
-                .build();
+        return ThumbsUp.builder().board(board).user(user).build();
     }
 }

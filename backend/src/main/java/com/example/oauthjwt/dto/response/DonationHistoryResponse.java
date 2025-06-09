@@ -1,18 +1,13 @@
 package com.example.oauthjwt.dto.response;
 
-import com.example.oauthjwt.entity.Donation;
+import java.time.LocalDateTime;
+
 import com.example.oauthjwt.entity.DonationHistory;
-import com.example.oauthjwt.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -36,22 +31,14 @@ public class DonationHistoryResponse {
     private Double sum;
 
     public static DonationHistoryResponse toDto(DonationHistory donationHistory) {
-        return DonationHistoryResponse.builder()
-                .id(donationHistory.getId())
-                .amount(donationHistory.getAmount())
-                .balance(donationHistory.getBalance())
-                .createdAt(donationHistory.getCreatedAt())
+        return DonationHistoryResponse.builder().id(donationHistory.getId()).amount(donationHistory.getAmount())
+                .balance(donationHistory.getBalance()).createdAt(donationHistory.getCreatedAt())
                 .donation(DonationResponse.toDto(donationHistory.getDonation()))
-                .donator(UserResponse.toDto(donationHistory.getDonator()))
-                .build();
+                .donator(UserResponse.toDto(donationHistory.getDonator())).build();
     }
 
     // 집계 데이터용
     public static DonationHistoryResponse toDto(String period, Integer count, Double sum) {
-        return DonationHistoryResponse.builder()
-                .period(period)
-                .count(count)
-                .sum(sum)
-                .build();
+        return DonationHistoryResponse.builder().period(period).count(count).sum(sum).build();
     }
 }

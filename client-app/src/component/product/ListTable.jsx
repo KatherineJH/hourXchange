@@ -67,13 +67,12 @@ function ListTable({
     const fetch = async () => {
       try {
         let response;
-
         if (keyword.trim() !== "") {
-          response = await getListWithKeyword(keyword, page, size);
+          response = await getListWithKeyword(keyword, 0, 9999);
         } else if (filterProviderType) {
-          response = await getFilteredList(page, size, filterProviderType);
+          response = await getFilteredList(0, 9999, filterProviderType);
         } else {
-          response = await getList(page, size);
+          response = await getList(0, 9999);
         }
 
         let full = response.data.content;
@@ -82,14 +81,16 @@ function ListTable({
           full = full.filter((p) => p.category?.categoryName === category);
         }
 
-        setServerDataList(full);
-        setTotalPages(response.data.totalPages);
+        const startIndex = page * size;
+        const endIndex = startIndex + size;
+        const paged = full.slice(startIndex, endIndex);
 
+        setServerDataList(paged);
+        setTotalPages(Math.ceil(full.length / size));
 
         if (onVisibleItemsChange) {
           onVisibleItemsChange(full);
         }
-
       } catch (error) {
         console.error("리스트 조회 실패:", error);
       }
@@ -221,12 +222,7 @@ function ListTable({
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     시간(비용)
                   </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    시작시간
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "secondary.main" }}>
-                    끝시간
-                  </TableCell>
+                  <TableCell sx={{ bgcolor: "secondary.main" }}>날짜</TableCell>
                   <TableCell sx={{ bgcolor: "secondary.main" }}>
                     작성자
                   </TableCell>
@@ -249,11 +245,16 @@ function ListTable({
                       <TableCell>{item.title}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell>{item.hours}</TableCell>
-                      <TableCell>{item.startedAt}</TableCell>
-                      <TableCell>{item.endAt}</TableCell>
+                      <TableCell>{item.startedAt?.substring(0, 10)}</TableCell>
                       <TableCell>{item.owner.name}</TableCell>
                       <TableCell>{item.category.categoryName}</TableCell>
-                      <TableCell>{item.providerType}</TableCell>
+                      <TableCell>
+                        {item.providerType === "SELLER"
+                          ? "판매"
+                          : item.providerType === "BUYER"
+                            ? "구매"
+                            : item.providerType}
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (

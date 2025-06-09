@@ -1,5 +1,11 @@
 package com.example.oauthjwt.repository.custom.impl;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import com.example.oauthjwt.dto.condition.DonationSearchCondition;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.QDonation;
@@ -7,12 +13,8 @@ import com.example.oauthjwt.entity.type.DonationStatus;
 import com.example.oauthjwt.repository.custom.DonationRepositoryCustom;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DonationRepositoryImpl implements DonationRepositoryCustom {
@@ -24,36 +26,29 @@ public class DonationRepositoryImpl implements DonationRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
         // 동적 조건 where 조건
-        if(condition.getDonationId() != null) {
+        if (condition.getDonationId() != null) {
             builder.and(donation.id.eq(condition.getDonationId()));
         }
-        if(condition.getTitle() != null && !condition.getTitle().isBlank()) {
+        if (condition.getTitle() != null && !condition.getTitle().isBlank()) {
             builder.and(donation.title.containsIgnoreCase(condition.getTitle()));
         }
-        if(condition.getDescription() != null && !condition.getDescription().isBlank()) {
+        if (condition.getDescription() != null && !condition.getDescription().isBlank()) {
             builder.and(donation.description.containsIgnoreCase(condition.getDescription()));
         }
-        if(condition.getStatus() != null && !condition.getStatus().isBlank()) {
+        if (condition.getStatus() != null && !condition.getStatus().isBlank()) {
             builder.and(donation.status.eq(DonationStatus.valueOf(condition.getStatus())));
         }
-        if(condition.getStartDate() != null) {
+        if (condition.getStartDate() != null) {
             builder.and(donation.startDate.after(condition.getStartDate()));
         }
-        if(condition.getEndDate() != null) {
+        if (condition.getEndDate() != null) {
             builder.and(donation.endDate.before(condition.getEndDate()));
         }
         // 실제 데이터 쿼리
-        List<Donation> result = queryFactory
-                .selectFrom(donation)
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        List<Donation> result = queryFactory.selectFrom(donation).where(builder).offset(pageable.getOffset())
+                .limit(pageable.getPageSize()).fetch();
         // 전체 개수 쿼리
-        long total = queryFactory
-                .selectFrom(donation)
-                .where(builder)
-                .fetchCount();
+        long total = queryFactory.selectFrom(donation).where(builder).fetchCount();
 
         return new PageImpl<>(result, pageable, total);
     }

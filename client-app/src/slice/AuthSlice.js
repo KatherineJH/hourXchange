@@ -44,7 +44,8 @@ const authSlice = createSlice({
     // 로그아웃
     builder
       .addCase(logoutUserAsync.fulfilled, (state) => {
-        return initialState // 초기화
+          state.user = initialState.user
+          state.loading = false
       })
     // // 사용자 정보 조회
     builder

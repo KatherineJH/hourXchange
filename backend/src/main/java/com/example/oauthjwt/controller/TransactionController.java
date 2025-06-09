@@ -3,7 +3,6 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 import java.util.Map;
 
-import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,10 +12,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class TransactionController {
     @GetMapping("/list")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<TransactionResponse>> findAll(@RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         Page<TransactionResponse> transactionResponseList = transactionService.findAll(pageable);
@@ -62,28 +62,29 @@ public class TransactionController {
     @GetMapping("/search/list")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<TransactionResponse>> search(@RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size,
-                                                            @ModelAttribute TransactionSearchCondition transactionSearchCondition) {
+            @RequestParam(defaultValue = "10") int size,
+            @ModelAttribute TransactionSearchCondition transactionSearchCondition) {
         log.info(transactionSearchCondition);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
-        Page<TransactionResponse> transactionResponseList = transactionService.search(pageable, transactionSearchCondition);
+        Page<TransactionResponse> transactionResponseList = transactionService.search(pageable,
+                transactionSearchCondition);
         return ResponseEntity.ok(transactionResponseList);
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<List<TransactionResponse>> findMyTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<TransactionResponse>> findMyTransactions(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         List<TransactionResponse> myTransactions = transactionService.findByUserId(userId);
         return ResponseEntity.ok(myTransactions);
     }
 
-
     @PutMapping("/{transactionId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<TransactionResponse> update(@PathVariable("transactionId") Long transactionId,
-                                    @RequestBody @Valid TransactionRequest transactionRequest) {
+            @RequestBody @Valid TransactionRequest transactionRequest) {
 
         TransactionResponse result = transactionService.update(transactionRequest, transactionId);
         return ResponseEntity.ok(result);

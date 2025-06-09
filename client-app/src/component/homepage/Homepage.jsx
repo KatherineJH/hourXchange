@@ -6,8 +6,6 @@ import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
 import NearMe from "./NearMe";
 import ListTable from "../product/ListTable";
-import ProductGrid from "../common/ProductGrid";
-import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 import CustomHeader from "../common/CustomHeader.jsx";
 import DonationCardList from "../donation/DonationCardList.jsx";
 import {
@@ -16,7 +14,6 @@ import {
   getTopByViews,
 } from "../../api/donationApi.js";
 import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
-import { height } from "@mui/system";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
@@ -124,6 +121,7 @@ export default function Homepage() {
   }, []);
 
   return (
+
     <div style={{ padding: "1rem" }}>
       {/* 왼쪽 아래 팝업 영역 */}
       {openModal && (
@@ -153,9 +151,11 @@ export default function Homepage() {
             </Button>
           </Box>
         </Box>
+
       )}
       <h1>🏠 Home Page</h1>
       <TopDonatorsChart />
+
 
       <CustomHeader text={"거의 모집이 완료된 기부"} />
       <DonationCardList
@@ -202,6 +202,6 @@ export default function Homepage() {
       />
       <CategoryNav />
       <ListTable category={selectedCategory} />
-    </div>
+    </Box>
   );
 }

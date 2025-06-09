@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
-import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -15,7 +14,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import com.example.oauthjwt.jwt.JWTUtil;
 
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -47,7 +46,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 attributes.put("userId", email);
                 log.info("User Verified: {}", email);
                 return true;
-
 
             }
         }

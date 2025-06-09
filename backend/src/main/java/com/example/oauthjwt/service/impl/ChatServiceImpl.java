@@ -5,25 +5,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.request.ChatMessageRequest;
-import com.example.oauthjwt.dto.response.ChatMessageResponse;
-import com.example.oauthjwt.dto.response.ChatRoomResponse;
-import com.example.oauthjwt.entity.type.ChatMessageType;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
-import com.example.oauthjwt.entity.type.TransactionStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.example.oauthjwt.dto.request.ChatMessageRequest;
+import com.example.oauthjwt.dto.response.ChatMessageResponse;
+import com.example.oauthjwt.dto.response.ChatRoomResponse;
 import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.entity.type.ChatMessageType;
+import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
+import com.example.oauthjwt.entity.type.TransactionStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -56,11 +56,9 @@ public class ChatServiceImpl implements ChatService {
         User requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
 
-
         // 1) 기존 방 조회
-        Optional<ChatRoom> existing = chatRoomRepository.findByProductAndParticipants(
-                product.getId(), product.getOwner().getId(), requesterId
-        );
+        Optional<ChatRoom> existing = chatRoomRepository.findByProductAndParticipants(product.getId(),
+                product.getOwner().getId(), requesterId);
 
         if (existing.isPresent()) {
             return ChatRoomResponse.toDto(existing.get());
@@ -88,7 +86,8 @@ public class ChatServiceImpl implements ChatService {
         User sender = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
 
-        ChatMessage result = ChatMessage.of(chatRoom, sender, chatMessageRequest.getContent(), chatMessageRequest.getType());
+        ChatMessage result = ChatMessage.of(chatRoom, sender, chatMessageRequest.getContent(),
+                chatMessageRequest.getType());
 
         return ChatMessageResponse.toDto(chatMessageRepository.save(result));
     }
@@ -121,7 +120,6 @@ public class ChatServiceImpl implements ChatService {
         transaction.setStatus(TransactionStatus.COMPLETED);
     }
 
-
     @Override
     public ChatRoom findById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
@@ -137,8 +135,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         // 가장 최신 거래 기준으로 처리
-        Transaction latest = txList.stream()
-                .max((t1, t2) -> t1.getCreatedAt().compareTo(t2.getCreatedAt()))
+        Transaction latest = txList.stream().max((t1, t2) -> t1.getCreatedAt().compareTo(t2.getCreatedAt()))
                 .orElseThrow(); // theoretically never null
 
         return latest.getStatus().name();
@@ -146,7 +143,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public ChatMessageResponse addUser(ChatMessageRequest chatMessageRequest, SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
+    public ChatMessageResponse addUser(ChatMessageRequest chatMessageRequest,
+            SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
 
         Map<String, Object> sessionAttributes = simpMessageHeaderAccessor.getSessionAttributes();
         if (sessionAttributes == null) {

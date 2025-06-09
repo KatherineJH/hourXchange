@@ -1,5 +1,19 @@
 package com.example.oauthjwt.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
 import com.example.oauthjwt.entity.*;
@@ -7,19 +21,6 @@ import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.ReviewServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.springframework.web.client.RestTemplate;
-
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 class ReviewServiceTest {
 
@@ -40,13 +41,8 @@ class ReviewServiceTest {
         userTagRepository = mock(UserTagRepository.class);
         restTemplate = mock(RestTemplate.class); // 이걸 주입에도 사용해야 함
 
-        reviewService = new ReviewServiceImpl(
-                reviewRepository,
-                reviewTagRepository,
-                productRepository,
-                transactionRepository,
-                userTagRepository
-        );
+        reviewService = new ReviewServiceImpl(reviewRepository, reviewTagRepository, productRepository,
+                transactionRepository, userTagRepository);
 
         Field rtField = ReviewServiceImpl.class.getDeclaredField("restTemplate");
         rtField.setAccessible(true);
@@ -67,29 +63,18 @@ class ReviewServiceTest {
         request.setStars(5);
         request.setTransactionId(10L);
 
-        User reviewer = User.builder()
-                .id(100L)
-                .name("tester")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
+        User reviewer = User.builder().id(100L).name("tester").role(UserRole.ROLE_USER).status(UserStatus.ACTIVE)
                 .build();
 
-        Product product = Product.builder()
-                .id(1L)
-                .title("테스트 상품")
-                .build();
+        Product product = Product.builder().id(1L).title("테스트 상품").build();
 
-        Transaction transaction = Transaction.builder()
-                .id(10L)
-                .build();
+        Transaction transaction = Transaction.builder().id(10L).build();
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(transactionRepository.findById(10L)).thenReturn(Optional.of(transaction));
 
-        Map<String, Object> mockFlaskResponse = Map.of(
-                "sentiment", Map.of("result", "긍정"),
-                "tags", List.of("친절해요", "재미있어요")
-        );
+        Map<String, Object> mockFlaskResponse = Map.of("sentiment", Map.of("result", "긍정"), "tags",
+                List.of("친절해요", "재미있어요"));
 
         when(restTemplate.postForObject(anyString(), any(), ArgumentMatchers.<Class<Map>>any()))
                 .thenReturn(mockFlaskResponse);

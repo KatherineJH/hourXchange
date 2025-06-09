@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PaymentLogResponse {
-    private String period;  // ex) "2025-05-13", "Week 20", "2025-05"
+    private String period; // ex) "2025-05-13", "Week 20", "2025-05"
     private Long count;
 
     public PaymentLogResponse(Object periodObj, Long count) {
         this.period = periodObj == null ? null : periodObj.toString();
-        this.count  = count;
+        this.count = count;
     }
 }

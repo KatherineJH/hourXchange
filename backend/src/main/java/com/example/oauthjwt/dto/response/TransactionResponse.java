@@ -38,14 +38,10 @@ public class TransactionResponse {
     }
 
     public static TransactionResponse toDto(Transaction transaction, Transaction opponent) {
-        return TransactionResponse.builder()
-                .id(transaction.getId())
+        return TransactionResponse.builder().id(transaction.getId())
                 .user(opponent != null ? UserResponse.toDto(opponent.getUser()) : null)
-                .product(ProductResponse.toDto(transaction.getProduct()))
-                .status(transaction.getStatus().toString())
-                .createdAt(transaction.getCreatedAt())
-                .chatRoomId(transaction.getChatRoom().getId())
-                .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null)
-                .build();
+                .product(ProductResponse.toDto(transaction.getProduct())).status(transaction.getStatus().toString())
+                .createdAt(transaction.getCreatedAt()).chatRoomId(transaction.getChatRoom().getId())
+                .reviewId(transaction.getReview() != null ? transaction.getReview().getId() : null).build();
     }
 }

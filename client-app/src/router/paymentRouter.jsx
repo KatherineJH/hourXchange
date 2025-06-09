@@ -7,7 +7,7 @@ const paymentRouter = () => [
   {
     path: "buy",
     element: (
-        <ProtectedRoute roles={['ROLE_USER']}>
+        <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
           <PackagePaymentScreen />
         </ProtectedRoute>
     ),
