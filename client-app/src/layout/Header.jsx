@@ -147,6 +147,7 @@ function Header() {
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", md: "row" }, // 작은 화면이면 세로 정렬
                 justifyContent: "space-between",
                 alignItems: "center",
                 width: "100%",

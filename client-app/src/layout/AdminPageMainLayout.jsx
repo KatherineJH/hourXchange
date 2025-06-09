@@ -46,7 +46,7 @@ function AdminPageMainLayout({ children }) {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{ keepMounted: true }}
-            sx={{ "& .MuiDrawer-paper": { width: 240 } }}
+            sx={{ "& .MuiDrawer-paper": { width: "50%", maxWidth: 280 } }}
           >
             <AdminPageSidebar onClickAny={handleDrawerToggle} />
           </Drawer>
