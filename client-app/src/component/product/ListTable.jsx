@@ -67,13 +67,12 @@ function ListTable({
     const fetch = async () => {
       try {
         let response;
-
         if (keyword.trim() !== "") {
-          response = await getListWithKeyword(keyword, page, size);
+          response = await getListWithKeyword(keyword, 0, 9999);
         } else if (filterProviderType) {
-          response = await getFilteredList(page, size, filterProviderType);
+          response = await getFilteredList(0, 9999, filterProviderType);
         } else {
-          response = await getList(page, size);
+          response = await getList(0, 9999);
         }
 
         let full = response.data.content;
@@ -82,8 +81,12 @@ function ListTable({
           full = full.filter((p) => p.category?.categoryName === category);
         }
 
-        setServerDataList(full);
-        setTotalPages(response.data.totalPages);
+        const startIndex = page * size;
+        const endIndex = startIndex + size;
+        const paged = full.slice(startIndex, endIndex);
+
+        setServerDataList(paged);
+        setTotalPages(Math.ceil(full.length / size));
 
         if (onVisibleItemsChange) {
           onVisibleItemsChange(full);
