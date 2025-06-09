@@ -17,6 +17,7 @@ import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
+import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -121,7 +122,6 @@ export default function Homepage() {
   }, []);
 
   return (
-
     <div style={{ padding: "1rem" }}>
       {/* 왼쪽 아래 팝업 영역 */}
       {openModal && (
@@ -151,11 +151,10 @@ export default function Homepage() {
             </Button>
           </Box>
         </Box>
-
       )}
+
       <h1>🏠 Home Page</h1>
       <TopDonatorsChart />
-
 
       <CustomHeader text={"거의 모집이 완료된 기부"} />
       <DonationCardList
@@ -202,6 +201,6 @@ export default function Homepage() {
       />
       <CategoryNav />
       <ListTable category={selectedCategory} />
-    </Box>
+    </div>
   );
 }
