@@ -1,6 +1,8 @@
+
+
 import React, { useEffect, useState } from "react";
 import {
-  Grid,
+  Box,
   Card,
   CardHeader,
   CardMedia,
@@ -10,12 +12,9 @@ import {
   Avatar,
   IconButton,
   Typography,
-  Box,
-  ListItem,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +34,6 @@ export default function ProductGrid({
   useEffect(() => {
     const fetchAllTags = async () => {
       const newMap = {};
-
       await Promise.all(
         products.map(async (product) => {
           if (!product.id) return;
@@ -43,12 +41,14 @@ export default function ProductGrid({
             const tags = await getProductTags(product.id);
             newMap[product.id] = tags;
           } catch (err) {
-            console.error(`Failed to fetch tags for product ${product.id}`, err);
+            console.error(
+              `Failed to fetch tags for product ${product.id}`,
+              err
+            );
             newMap[product.id] = [];
           }
         })
       );
-
       setTagsMap(newMap);
     };
 
@@ -60,22 +60,30 @@ export default function ProductGrid({
       sx={{
         display: "grid",
         gap: 2,
+        // DonationCardList와 동일하게 '최소 300px, 최대 1fr' 컬럼
         gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
         mt: 2,
+        width: "100%",
+        justifyItems: "start",
+        justifyContent: "flex-start",
       }}
     >
       {products.map((product) => {
         if (product.type === "ad") {
           return <AdvertisementCard key={`ad-${product.id}`} ad={product} />;
         }
+
         return (
           <Card
             key={`product-${product.id}`}
             sx={{
               maxWidth: 345,
+              width: "100%",
+              height: 400,
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
+              cursor: "pointer",
             }}
           >
             <CardHeader
@@ -92,118 +100,105 @@ export default function ProductGrid({
               title={product.title}
               subheader={new Date(product.startedAt).toLocaleDateString()}
             />
+
+            {/* 기부 카드와 동일하게 이미지 높이를 160px로 고정 */}
             <CardMedia
               component="img"
-              height="194"
+              height="160"
               image={product.images?.[0] || "/default.png"}
               alt={product.title}
               onClick={() => navigate(`/product/read/${product.id}`)}
-              sx={{ cursor: "pointer" }}
+              sx={{ cursor: "pointer", objectFit: "cover" }}
             />
-            <CardContent sx={{ minHeight: 64 }}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {product.description}
+
+            {/* flexGrow로 남은 공간을 채워 높이를 맞춤 */}
+            <CardContent sx={{ flexGrow: 1, p: 2 }}>
+              <Typography sx={{ color: "text.secondary" }}>
+                {product.description.length > 10
+                  ? product.description.substring(0, 10) + "..."
+                  : product.description}
               </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                작성자: {product.owner?.name || "알 수 없음"}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                카테고리 : {product.category?.categoryName}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                시작 시간: {new Date(product.startedAt).toLocaleString()}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                종료 시간: {new Date(product.endAt).toLocaleString()}
+              </Typography>
+              <Box>
+                <CardActions
+                  disableSpacing
+                  sx={{
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    // px: 2,
+                    pt: 1,
+                    // DonationCardList의 CardContent 밑 부분 여백과 비슷한 높이를 확보
+                    minHeight: 80,
+                  }}
+                >
+                  <IconButton
+                    onClick={() => {
+                      const isFavorited = favorite.some(
+                        (f) => f.product.id === product.id
+                      );
+                      if (isFavorited) {
+                        const confirm =
+                          window.confirm("정말 찜을 취소하시겠습니까?");
+                        if (!confirm) return;
+                      }
+                      onToggleFavorite(product.id);
+                    }}
+                    sx={{ color: "primary.main" }}
+                  >
+                    {favorite.some((f) => f.product.id === product.id) ? (
+                      <FavoriteIcon />
+                    ) : (
+                      <FavoriteBorderIcon />
+                    )}
+                  </IconButton>
+                </CardActions>
+              </Box>
             </CardContent>
-            <CardActions
-              disableSpacing
+
+            <Box
               sx={{
-                flexDirection: "column",
-                alignItems: "stretch",
-                px: 2,
-                pt: 1,
-                minHeight: 92,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: 0,
+                mb: 0,
+              }}
+            ></Box>
+
+            {/* 태그 렌더링 */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
+                justifyContent: "flex-end",
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
-                  mb: 1,
-                }}
-              >
-                <IconButton
-                  onClick={() => {
-                    const isFavorited = favorite.some(
-                      (f) => f.product.id === product.id
-                    );
-                    if (isFavorited) {
-                      const confirm = window.confirm("정말 찜을 취소하시겠습니까?");
-                      if (!confirm) return;
-                    }
-                    onToggleFavorite(product.id);
-                  }}
-                  sx={{ color: "primary.main" }}
-                >
-                  {favorite.some((f) => f.product.id === product.id) ? (
-                    <FavoriteIcon />
-                  ) : (
-                    <FavoriteBorderIcon />
-                  )}
-                </IconButton>
-
+              {tagsMap[product.id]?.map((tag, idx) => (
                 <Box
+                  key={idx}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
+                    backgroundColor: "secondary.main",
+                    padding: "4px 10px",
+                    borderRadius: "16px",
+                    fontSize: "0.8rem",
                   }}
-                  onClick={() => onToggleExpand(product.id)}
                 >
-                  <ExpandMoreIcon />
-                  <Typography variant="body2" sx={{ ml: 0.5 }}>
-                    (상세보기 클릭)
-                  </Typography>
+                  {tag}
                 </Box>
-              </Box>
-
-              {/* product.id 기준 태그 렌더링 */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 1,
-                  justifyContent: "flex-end",
-                }}
-              >
-                {tagsMap[product.id]?.map((tag, idx) => (
-                  <Box
-                    key={idx}
-                    sx={{
-                      backgroundColor: "secondary.main",
-                      padding: "4px 10px",
-                      borderRadius: "16px",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {tag}
-                  </Box>
-                ))}
-              </Box>
-            </CardActions>
-
-            <Collapse
-              in={expandedId === product.id}
-              timeout="auto"
-              unmountOnExit
-            >
-              <CardContent>
-                <Typography sx={{ marginBottom: 1 }}>
-                  카테고리: {product.category?.categoryName}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  시작 시간: {new Date(product.startedAt).toLocaleString()}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  종료 시간: {new Date(product.endAt).toLocaleString()}
-                </Typography>
-                <Typography sx={{ marginBottom: 1 }}>
-                  제공자: {product.owner?.name || "알 수 없음"}
-                </Typography>
-              </CardContent>
-            </Collapse>
+              ))}
+            </Box>
           </Card>
         );
       })}
