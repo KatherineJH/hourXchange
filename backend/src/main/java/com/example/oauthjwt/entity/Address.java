@@ -1,7 +1,6 @@
 package com.example.oauthjwt.entity;
 
 import com.example.oauthjwt.dto.request.AddressRequest;
-import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.CenterResponse.Item;
 
 import jakarta.persistence.*;
@@ -9,9 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -37,7 +33,6 @@ public class Address {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
 
     public static Address of(AddressRequest addressRequest) {
         return Address.builder().zonecode(addressRequest.getZonecode()).roadAddress(addressRequest.getRoadAddress())

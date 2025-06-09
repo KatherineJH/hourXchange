@@ -1,5 +1,15 @@
 package com.example.oauthjwt.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
 import com.example.oauthjwt.entity.*;
@@ -8,16 +18,6 @@ import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.BoardServiceImpl;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class BoardServiceTest {
 
@@ -35,19 +35,16 @@ class BoardServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         boardImageRepository = mock(BoardImageRepository.class);
         thumbsUpRepository = mock(ThumbsUpRepository.class);
-        boardService = new BoardServiceImpl(userRepository, boardRepository, boardImageRepository, categoryRepository, thumbsUpRepository);
+        boardService = new BoardServiceImpl(userRepository, boardRepository, boardImageRepository, categoryRepository,
+                thumbsUpRepository);
     }
 
     @Test
     @DisplayName("게시글 등록 성공")
     void save_success() {
         // given
-        BoardRequest request = BoardRequest.builder()
-                .categoryId(2L)
-                .title("제목")
-                .description("내용")
-                .images(List.of("url1", "url2"))
-                .build();
+        BoardRequest request = BoardRequest.builder().categoryId(2L).title("제목").description("내용")
+                .images(List.of("url1", "url2")).build();
 
         User user = User.builder().id(1L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build();
         CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -70,13 +67,9 @@ class BoardServiceTest {
     void toggleThumbsUp_add() throws Exception {
         // given
         Long boardId = 1L, userId = 2L;
-        Board board = Board.builder()
-                .id(boardId)
+        Board board = Board.builder().id(boardId)
                 .author(User.builder().id(3L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build())
-                .category(Category.builder().id(10L).build())
-                .title("title")
-                .description("desc")
-                .build();
+                .category(Category.builder().id(10L).build()).title("title").description("desc").build();
         User user = User.builder().id(userId).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build();
 
         when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
@@ -98,13 +91,9 @@ class BoardServiceTest {
     void toggleThumbsUp_remove() throws Exception {
         // given
         Long boardId = 1L, userId = 2L;
-        Board board = Board.builder()
-                .id(boardId)
+        Board board = Board.builder().id(boardId)
                 .author(User.builder().id(3L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build())
-                .category(Category.builder().id(10L).build())
-                .title("title")
-                .description("desc")
-                .build();
+                .category(Category.builder().id(10L).build()).title("title").description("desc").build();
         User user = User.builder().id(userId).build();
         ThumbsUp thumbsUp = new ThumbsUp();
         thumbsUp.setBoard(board);
@@ -130,22 +119,17 @@ class BoardServiceTest {
         // given
         Long boardId = 1L;
         User author = User.builder().id(1L).build();
-        Board board = Board.builder().id(boardId).author(User.builder().id(1L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build()).build();
-        BoardRequest request = BoardRequest.builder()
-                .categoryId(3L)
-                .title("제목")
-                .description("설명")
-                .build();
+        Board board = Board.builder().id(boardId)
+                .author(User.builder().id(1L).role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build()).build();
+        BoardRequest request = BoardRequest.builder().categoryId(3L).title("제목").description("설명").build();
 
-        CustomUserDetails wrongUser = new CustomUserDetails(
-                User.builder().id(999L).build() // 다른 사용자
+        CustomUserDetails wrongUser = new CustomUserDetails(User.builder().id(999L).build() // 다른 사용자
         );
 
         when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
 
         // expect
         assertThatThrownBy(() -> boardService.update(request, boardId, wrongUser))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("작성자만 수정할 수 있습니다.");
+                .isInstanceOf(ResponseStatusException.class).hasMessageContaining("작성자만 수정할 수 있습니다.");
     }
 }

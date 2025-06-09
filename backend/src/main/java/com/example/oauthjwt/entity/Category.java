@@ -35,10 +35,7 @@ public class Category {
     private List<Board> boards = new ArrayList<>();
 
     public static Category of(String categoryName) {
-        return Category.builder()
-                .categoryName(categoryName)
-                .status(true)
-                .build();
+        return Category.builder().categoryName(categoryName).status(true).build();
     }
 
     public void updateCategory(String categoryName) {

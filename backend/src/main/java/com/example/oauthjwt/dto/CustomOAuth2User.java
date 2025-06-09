@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.example.oauthjwt.dto.response.UserResponse;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import com.example.oauthjwt.dto.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
 

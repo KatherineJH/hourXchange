@@ -1,13 +1,14 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
+
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -37,13 +38,8 @@ public class Orders {
     private LocalDateTime createdAt;
 
     public static Orders of(PaymentOrderRequest paymentOrderRequest, String impUid, String merchantUid) {
-        return Orders.builder()
-                .impUid(impUid)
-                .merchantUid(merchantUid)
-                .email(paymentOrderRequest.getEmail())
+        return Orders.builder().impUid(impUid).merchantUid(merchantUid).email(paymentOrderRequest.getEmail())
                 .paymentItemName(paymentOrderRequest.getPaymentItemName())
-                .paymentItemPrice(paymentOrderRequest.getPaymentItemPrice())
-                .createdAt(LocalDateTime.now())
-                .build();
+                .paymentItemPrice(paymentOrderRequest.getPaymentItemPrice()).createdAt(LocalDateTime.now()).build();
     }
 }

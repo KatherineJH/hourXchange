@@ -1,14 +1,16 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.service.TimeSeriesServiece;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
+import com.example.oauthjwt.service.TimeSeriesServiece;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

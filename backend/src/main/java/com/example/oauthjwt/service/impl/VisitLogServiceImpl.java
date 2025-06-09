@@ -1,16 +1,18 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.dto.response.VisitLogResponse;
-import com.example.oauthjwt.repository.VisitLogRepository;
-import com.example.oauthjwt.service.VisitLogService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.oauthjwt.dto.response.VisitLogResponse;
+import com.example.oauthjwt.repository.VisitLogRepository;
+import com.example.oauthjwt.service.VisitLogService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -71,15 +73,13 @@ public class VisitLogServiceImpl implements VisitLogService {
         return visitLogRepository.countUniqueUsersByYear(from);
     }
 
-    private static final List<String> DAY_ORDER = List.of(
-            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-    );
+    private static final List<String> DAY_ORDER = List.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+            "Saturday", "Sunday");
 
     @Override
     public List<VisitLogResponse> getWeekdayStats(Long userId) {
         List<Object[]> raw = visitLogRepository.countByWeekdayForUser(userId);
-        return raw.stream()
-                .map(row -> new VisitLogResponse((String) row[0], ((Number) row[1]).longValue()))
+        return raw.stream().map(row -> new VisitLogResponse((String) row[0], ((Number) row[1]).longValue()))
                 .collect(Collectors.toList());
     }
 }

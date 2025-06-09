@@ -1,20 +1,20 @@
 package com.example.oauthjwt.dto.response;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.example.oauthjwt.dto.document.DonationDocument;
 import com.example.oauthjwt.entity.Donation;
 import com.example.oauthjwt.entity.DonationImage;
 import com.example.oauthjwt.entity.type.DonationStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -49,41 +49,25 @@ public class DonationResponse {
     private List<String> images = new ArrayList<>(); // 이미지 리스트
 
     public static DonationResponse toDto(Donation donation) {
-        return DonationResponse.builder()
-                .id(donation.getId())
-                .purpose(donation.getPurpose())
-                .currentAmount(donation.getCurrentAmount())
-                .targetAmount(donation.getTargetAmount())
-                .title(donation.getTitle())
-                .description(donation.getDescription())
-                .startDate(donation.getStartDate())
-                .endDate(donation.getEndDate())
-                .createdAt(donation.getCreatedAt())
-                .viewCount(donation.getViewCount())
+        return DonationResponse.builder().id(donation.getId()).purpose(donation.getPurpose())
+                .currentAmount(donation.getCurrentAmount()).targetAmount(donation.getTargetAmount())
+                .title(donation.getTitle()).description(donation.getDescription()).startDate(donation.getStartDate())
+                .endDate(donation.getEndDate()).createdAt(donation.getCreatedAt()).viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
-                .status(donation.getStatus().toString().equals(DonationStatus.ONGOING.toString()) ? "진행중" :
-                        donation.getStatus().toString().equals(DonationStatus.COMPLETED.toString()) ? "완료" : "취소")
-                .images(donation.getImages().stream()
-                        .map(DonationImage::getImgUrl)
-                        .collect(Collectors.toList()))
+                .status(donation.getStatus().toString().equals(DonationStatus.ONGOING.toString())
+                        ? "진행중"
+                        : donation.getStatus().toString().equals(DonationStatus.COMPLETED.toString()) ? "완료" : "취소")
+                .images(donation.getImages().stream().map(DonationImage::getImgUrl).collect(Collectors.toList()))
                 .build();
     }
 
     public static DonationResponse toDto(DonationDocument donationDocument) {
-        return DonationResponse.builder()
-                .id(donationDocument.getId())
-                .purpose(donationDocument.getPurpose())
-                .currentAmount(donationDocument.getCurrentAmount())
-                .targetAmount(donationDocument.getTargetAmount())
-                .title(donationDocument.getTitle())
-                .description(donationDocument.getDescription())
-                .startDate(donationDocument.getStartDate())
-                .endDate(donationDocument.getEndDate())
-                .createdAt(donationDocument.getCreatedAt())
-                .viewCount(donationDocument.getViewCount())
-                .author(donationDocument.getAuthor())
-                .status(donationDocument.getStatus())
-                .images(donationDocument.getImages())
-                .build();
+        return DonationResponse.builder().id(donationDocument.getId()).purpose(donationDocument.getPurpose())
+                .currentAmount(donationDocument.getCurrentAmount()).targetAmount(donationDocument.getTargetAmount())
+                .title(donationDocument.getTitle()).description(donationDocument.getDescription())
+                .startDate(donationDocument.getStartDate()).endDate(donationDocument.getEndDate())
+                .createdAt(donationDocument.getCreatedAt()).viewCount(donationDocument.getViewCount())
+                .author(donationDocument.getAuthor()).status(donationDocument.getStatus())
+                .images(donationDocument.getImages()).build();
     }
 }

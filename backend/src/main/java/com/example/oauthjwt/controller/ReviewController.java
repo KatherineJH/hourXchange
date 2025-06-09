@@ -1,5 +1,7 @@
 package com.example.oauthjwt.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -7,13 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.ReviewService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")

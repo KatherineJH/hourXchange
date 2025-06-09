@@ -1,13 +1,13 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Entity
 @Data
@@ -37,14 +37,8 @@ public class VisitLog {
     @Column(length = 2048)
     private String referer;
 
-    public static VisitLog of(Long userId, String ipAddress, String userAgent, String url, String referer){
-        return VisitLog.builder()
-                .visitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
-                .userId(userId)
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .url(url)
-                .referer(referer)
-                .build();
+    public static VisitLog of(Long userId, String ipAddress, String userAgent, String url, String referer) {
+        return VisitLog.builder().visitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul"))).userId(userId)
+                .ipAddress(ipAddress).userAgent(userAgent).url(url).referer(referer).build();
     }
 }

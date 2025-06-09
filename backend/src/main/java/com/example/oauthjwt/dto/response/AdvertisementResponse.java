@@ -1,13 +1,13 @@
 package com.example.oauthjwt.dto.response;
 
+import java.util.List;
+
 import com.example.oauthjwt.entity.Advertisement;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -28,14 +28,8 @@ public class AdvertisementResponse {
     private List<String> images;
 
     public static AdvertisementResponse toDto(Advertisement ad) {
-        return AdvertisementResponse.builder()
-                .id(ad.getId())
-                .title(ad.getTitle())
-                .description(ad.getDescription())
-                .hours(ad.getHours())
-                .ownerId(ad.getOwner().getId())
-                .ownerName(ad.getOwner().getName())
-                .images(ad.getImages())
-                .build();
+        return AdvertisementResponse.builder().id(ad.getId()).title(ad.getTitle()).description(ad.getDescription())
+                .hours(ad.getHours()).ownerId(ad.getOwner().getId()).ownerName(ad.getOwner().getName())
+                .images(ad.getImages()).build();
     }
 }

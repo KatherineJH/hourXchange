@@ -3,8 +3,6 @@ package com.example.oauthjwt.dto.request;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.oauthjwt.entity.Category;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

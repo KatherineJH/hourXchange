@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.oauthjwt.dto.request.ReviewRequest;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,13 +51,7 @@ public class Review {
     private Transaction transaction;
 
     public static Review of(ReviewRequest request, int rating, User reviewer, Product product) {
-        return Review.builder()
-                .content(request.getText())
-                .createdAt(LocalDateTime.now())
-                .rates(rating)
-                .reviewer(reviewer)
-                .product(product)
-                .stars(request.getStars())
-                .build();
+        return Review.builder().content(request.getText()).createdAt(LocalDateTime.now()).rates(rating)
+                .reviewer(reviewer).product(product).stars(request.getStars()).build();
     }
 }

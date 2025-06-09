@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.example.oauthjwt.dto.response.*;
-import com.example.oauthjwt.dto.CustomOAuth2User;
-import com.example.oauthjwt.entity.Wallet;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,12 +15,15 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.example.oauthjwt.dto.CustomOAuth2User;
+import com.example.oauthjwt.dto.response.*;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.Wallet;
 import com.example.oauthjwt.repository.UserRepository;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
@@ -31,7 +31,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
-
 
     public CustomOAuth2UserService(UserRepository userRepository, RestTemplate restTemplate) {
 
@@ -66,18 +65,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
                 // 이메일 리스트 조회
                 ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
-                        "https://api.github.com/user/emails",
-                        HttpMethod.GET,
-                        entity,
+                        "https://api.github.com/user/emails", HttpMethod.GET, entity,
                         new ParameterizedTypeReference<>() {
-                        }
-                );
+                        });
 
                 List<Map<String, Object>> emails = resp.getBody();
                 String primaryEmail = emails.stream()
                         .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
-                        .map(e -> e.get("email").toString())
-                        .findFirst()
+                        .map(e -> e.get("email").toString()).findFirst()
                         .orElseGet(() -> emails.isEmpty() ? "" : emails.get(0).get("email").toString());
 
                 attributes.put("email", primaryEmail);

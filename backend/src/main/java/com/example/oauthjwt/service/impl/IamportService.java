@@ -1,9 +1,7 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.dto.response.PaymentResponse;
-import com.example.oauthjwt.service.PaymentService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -12,7 +10,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
+import com.example.oauthjwt.dto.response.PaymentResponse;
+import com.example.oauthjwt.service.PaymentService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -38,19 +40,14 @@ public class IamportService {
 
         // form 데이터 바디 구성
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.add("imp_key",    apiKey);
+        form.add("imp_key", apiKey);
         form.add("imp_secret", apiSecret);
 
         // HttpEntity에 헤더 + 바디 담기
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(form, headers);
 
         // POST 요청
-        ResponseEntity<Map> resp = rt.exchange(
-                url,
-                HttpMethod.POST,
-                request,
-                Map.class
-        );
+        ResponseEntity<Map> resp = rt.exchange(url, HttpMethod.POST, request, Map.class);
 
         // 응답에서 access_token 추출
         Map response = (Map) resp.getBody().get("response");
@@ -70,12 +67,7 @@ public class IamportService {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         String url = "https://api.iamport.kr/payments/" + impUid;
-        ResponseEntity<Map> resp = rt.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                Map.class
-        );
+        ResponseEntity<Map> resp = rt.exchange(url, HttpMethod.GET, entity, Map.class);
 
         Map response = (Map) resp.getBody().get("response"); // 바디에 있는 값만 추출
 

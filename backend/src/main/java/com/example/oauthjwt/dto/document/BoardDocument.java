@@ -3,10 +3,11 @@ package com.example.oauthjwt.dto.document;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.example.oauthjwt.entity.Board;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import com.example.oauthjwt.entity.Board;
 
 import jakarta.persistence.Id;
 import lombok.*;
@@ -36,14 +37,8 @@ public class BoardDocument {
     private List<String> suggest;
 
     public static BoardDocument toDocument(Board board, String authorName, List<String> finalKeywords) {
-        return BoardDocument.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .description(board.getDescription())
-                .authorName(authorName)
-                .createdAt(board.getCreatedAt()
-                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .suggest(finalKeywords)
-                .build();
+        return BoardDocument.builder().id(board.getId()).title(board.getTitle()).description(board.getDescription())
+                .authorName(authorName).createdAt(board.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .suggest(finalKeywords).build();
     }
 }

@@ -19,10 +19,7 @@ public class CategoryResponse {
     private boolean status;
 
     public static CategoryResponse toDto(Category category) {
-        return CategoryResponse.builder()
-                .id(category.getId())
-                .categoryName(category.getCategoryName())
-                .status(category.isStatus())
-                .build();
+        return CategoryResponse.builder().id(category.getId()).categoryName(category.getCategoryName())
+                .status(category.isStatus()).build();
     }
 }

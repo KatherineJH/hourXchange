@@ -1,21 +1,21 @@
 package com.example.oauthjwt.handler;
 
+import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
+import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
+
 import java.io.IOException;
 import java.util.Map;
 
-import com.example.oauthjwt.dto.CustomOAuth2User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.example.oauthjwt.dto.CustomOAuth2User;
 import com.example.oauthjwt.jwt.JWTUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
-import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
 
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {

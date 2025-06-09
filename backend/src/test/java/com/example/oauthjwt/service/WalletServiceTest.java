@@ -1,5 +1,17 @@
 package com.example.oauthjwt.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.response.WalletHistoryResponse;
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.Wallet;
@@ -8,17 +20,6 @@ import com.example.oauthjwt.entity.type.WalletATM;
 import com.example.oauthjwt.repository.WalletHistoryRepository;
 import com.example.oauthjwt.repository.WalletRepository;
 import com.example.oauthjwt.service.impl.WalletServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class WalletServiceTest {
 
@@ -41,25 +42,11 @@ class WalletServiceTest {
         Wallet wallet = Wallet.builder().id(10L).build();
         Product product = Product.builder().id(100L).title("테니스 교습").build();
 
-        WalletHistory history1 = WalletHistory.builder()
-                .id(1L)
-                .wallet(wallet)
-                .type(WalletATM.EARN)
-                .amount(10)
-                .balance(110)
-                .createdAt(LocalDateTime.now())
-                .product(product)
-                .build();
+        WalletHistory history1 = WalletHistory.builder().id(1L).wallet(wallet).type(WalletATM.EARN).amount(10)
+                .balance(110).createdAt(LocalDateTime.now()).product(product).build();
 
-        WalletHistory history2 = WalletHistory.builder()
-                .id(2L)
-                .wallet(wallet)
-                .type(WalletATM.SPEND)
-                .amount(5)
-                .balance(105)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .product(product)
-                .build();
+        WalletHistory history2 = WalletHistory.builder().id(2L).wallet(wallet).type(WalletATM.SPEND).amount(5)
+                .balance(105).createdAt(LocalDateTime.now().minusDays(1)).product(product).build();
 
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
         when(walletHistoryRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId()))
@@ -90,8 +77,7 @@ class WalletServiceTest {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // then
-        assertThatThrownBy(() -> walletService.getWalletHistory(userId))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> walletService.getWalletHistory(userId)).isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("지갑 정보를 찾을 수 없습니다.");
     }
 }

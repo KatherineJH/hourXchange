@@ -3,14 +3,13 @@ package com.example.oauthjwt.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.repository.custom.TransactionRepositoryCustom;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.oauthjwt.entity.Product;
 import com.example.oauthjwt.entity.Transaction;
-import org.springframework.data.repository.query.Param;
+import com.example.oauthjwt.repository.custom.TransactionRepositoryCustom;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, TransactionRepositoryCustom {
     Optional<Transaction> findByProduct(Product product);

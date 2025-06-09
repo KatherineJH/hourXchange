@@ -1,10 +1,11 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
+
 import com.example.oauthjwt.entity.type.WalletATM;
+
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -39,13 +40,7 @@ public class WalletHistory {
     private Product product;
 
     public static WalletHistory of(User opponent, Product product, WalletATM walletATM, int hours) {
-        return WalletHistory.builder()
-                .wallet(opponent.getWallet())
-                .product(product)
-                .type(walletATM)
-                .amount(hours)
-                .balance(opponent.getWallet().getCredit())
-                .createdAt(LocalDateTime.now())
-                .build();
+        return WalletHistory.builder().wallet(opponent.getWallet()).product(product).type(walletATM).amount(hours)
+                .balance(opponent.getWallet().getCredit()).createdAt(LocalDateTime.now()).build();
     }
 }

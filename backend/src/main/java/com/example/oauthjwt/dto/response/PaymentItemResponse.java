@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.PaymentItem;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,11 +18,7 @@ public class PaymentItemResponse {
     private int price; // 가격
 
     public static PaymentItemResponse toDto(PaymentItem paymentItem) {
-        return PaymentItemResponse.builder()
-                .id(paymentItem.getId())
-                .name(paymentItem.getName())
-                .time(paymentItem.getTime())
-                .price(paymentItem.getPrice())
-                .build();
+        return PaymentItemResponse.builder().id(paymentItem.getId()).name(paymentItem.getName())
+                .time(paymentItem.getTime()).price(paymentItem.getPrice()).build();
     }
 }

@@ -1,13 +1,14 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDateTime;
+
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Entity
@@ -38,23 +39,14 @@ public class DonationHistory {
 
     // 취소
     public static DonationHistory of(Donation donation, User user, Integer hours) {
-        return DonationHistory.builder()
-                .amount(-hours)
-                .balance(user.getWallet().getCredit())
-                .createdAt(LocalDateTime.now())
-                .donation(donation)
-                .donator(user)
-                .build();
+        return DonationHistory.builder().amount(-hours).balance(user.getWallet().getCredit())
+                .createdAt(LocalDateTime.now()).donation(donation).donator(user).build();
     }
 
     // 기부
     public static DonationHistory of(DonationHistoryRequest donationHistoryRequest, Donation donation, User donator) {
-        return DonationHistory.builder()
-                .amount(donationHistoryRequest.getAmount())
-                .balance(donator.getWallet().getCredit())
-                .createdAt(LocalDateTime.now())
-                .donation(donation)
-                .donator(donator)
-                .build();
+        return DonationHistory.builder().amount(donationHistoryRequest.getAmount())
+                .balance(donator.getWallet().getCredit()).createdAt(LocalDateTime.now()).donation(donation)
+                .donator(donator).build();
     }
 }

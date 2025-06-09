@@ -2,7 +2,6 @@ package com.example.oauthjwt.service.elastic;
 
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -12,7 +11,7 @@ public class ElasticsearchStartupRunner {
     private final ElasticIndexCreator indexCreator;
     private final Indexer indexer;
 
-//    @PostConstruct // 실행 시 자동 인덱싱
+    // @PostConstruct // 실행 시 자동 인덱싱
     public void init() {
         try {
             indexCreator.createIndices();
@@ -23,4 +22,3 @@ public class ElasticsearchStartupRunner {
         }
     }
 }
-

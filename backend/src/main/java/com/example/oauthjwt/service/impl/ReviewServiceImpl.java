@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.response.UserTagResponse;
-import com.example.oauthjwt.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,14 +13,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ReviewRequest;
 import com.example.oauthjwt.dto.response.ReviewResponse;
+import com.example.oauthjwt.dto.response.UserTagResponse;
 import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -83,11 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
                     userTag.incrementCount();
                     userTagRepository.save(userTag);
                 } else {
-                    UserTag userTag = UserTag.builder()
-                            .tag(tag)
-                            .count(1)
-                            .user(product.getOwner())
-                            .build();
+                    UserTag userTag = UserTag.builder().tag(tag).count(1).user(product.getOwner()).build();
                     userTagRepository.save(userTag);
                 }
             }
@@ -153,31 +149,23 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<String> getReviewTagsByReceiverId(Long userId) {
         List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
-        return reviews.stream()
-                .flatMap(review -> review.getTags().stream())
-                .map(ReviewTag::getTag)
-                .distinct()
+        return reviews.stream().flatMap(review -> review.getTags().stream()).map(ReviewTag::getTag).distinct()
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UserTagResponse> getUserTags(Long userId) {
-        return userTagRepository.findByUserIdOrderByCountDesc(userId).stream()
-                .limit(20) // count 기준 상위 20개 제한
-                .map(ut -> new UserTagResponse(ut.getTag(), ut.getCount()))
-                .collect(Collectors.toList());
+        return userTagRepository.findByUserIdOrderByCountDesc(userId).stream().limit(20) // count 기준 상위 20개 제한
+                .map(ut -> new UserTagResponse(ut.getTag(), ut.getCount())).collect(Collectors.toList());
     }
 
     @Override
     public List<ReviewResponse> getReviewsByReceiverId(Long userId) {
         List<Review> reviews = reviewRepository.findByProductOwnerId(userId);
         return reviews.stream()
-                .map(review -> ReviewResponse.builder()
-                        .reviewId(review.getId())
-                        .content(review.getContent())
-                        .stars(review.getStars())   // 사용자 별점
-                        .tags(review.getTags().stream().map(ReviewTag::getTag).toList())
-                        .build())
+                .map(review -> ReviewResponse.builder().reviewId(review.getId()).content(review.getContent())
+                        .stars(review.getStars()) // 사용자 별점
+                        .tags(review.getTags().stream().map(ReviewTag::getTag).toList()).build())
                 .collect(Collectors.toList());
     }
 

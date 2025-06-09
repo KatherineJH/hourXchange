@@ -1,9 +1,7 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.response.PaymentItemRatioResponse;
-import com.example.oauthjwt.dto.response.PaymentLogResponse;
-import com.example.oauthjwt.service.PaymentService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.example.oauthjwt.dto.response.PaymentItemRatioResponse;
+import com.example.oauthjwt.dto.response.PaymentLogResponse;
+import com.example.oauthjwt.service.PaymentService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -88,14 +90,12 @@ public class PaymentLogController {
 
     /** 기간을 선택하여 데이터를 로드 */
     @GetMapping("/range")
-    public ResponseEntity<List<PaymentLogResponse>> getPaymentsByDateRange(
-            @RequestParam("from") String fromDateStr,
+    public ResponseEntity<List<PaymentLogResponse>> getPaymentsByDateRange(@RequestParam("from") String fromDateStr,
             @RequestParam("to") String toDateStr) {
         return ResponseEntity.ok(paymentService.getPaymentsBetween(fromDateStr, toDateStr));
     }
     @GetMapping("/range/amount")
-    public ResponseEntity<List<PaymentLogResponse>> getAmountSumByRange(
-            @RequestParam("from") String from,
+    public ResponseEntity<List<PaymentLogResponse>> getAmountSumByRange(@RequestParam("from") String from,
             @RequestParam("to") String to) {
         return ResponseEntity.ok(paymentService.getAmountSumBetween(from, to));
     }

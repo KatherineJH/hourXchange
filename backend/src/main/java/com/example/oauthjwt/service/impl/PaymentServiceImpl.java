@@ -1,6 +1,20 @@
 // src/main/java/com/example/oauthjwt/service/impl/PaymentServiceImpl.java
 package com.example.oauthjwt.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
 import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
 import com.example.oauthjwt.dto.request.PaymentOrderRequest;
@@ -13,22 +27,10 @@ import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.jwt.JWTUtil;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.PaymentService;
+
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
         // 구매한 금액과 사용자의 이메일이 같은지 검사
-        if (paymentItem.getPrice() != (int) data.get("amount")
-                || !user.getEmail().equals(data.get("buyer_email"))) {
+        if (paymentItem.getPrice() != (int) data.get("amount") || !user.getEmail().equals(data.get("buyer_email"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보와 상품 정보가 일치하지 않습니다.");
         }
 
@@ -86,14 +87,16 @@ public class PaymentServiceImpl implements PaymentService {
         Claims claims = jwtUtil.getClaims(paymentVerifyRequest.getOrderToken());
 
         // 토큰이 정상이라면 해당 merchantUid를 사용해 주문 내역 조회
-        Orders orders = ordersRepository.findByImpUidAndMerchantUid((claims.get("impUid", String.class)), claims.get("merchantUid", String.class))
+        Orders orders = ordersRepository
+                .findByImpUidAndMerchantUid((claims.get("impUid", String.class)),
+                        claims.get("merchantUid", String.class))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."));
 
         // 토큰으로 조회한 주문 내역과 토큰의 내용이 다르면
-        if(!orders.getImpUid().equals(claims.get("impUid", String.class)) ||
-                !orders.getEmail().equals(claims.get("email", String.class)) ||
-                !orders.getPaymentItemName().equals(claims.get("paymentItemName", String.class)) ||
-                !orders.getPaymentItemPrice().equals(claims.get("paymentItemPrice", String.class))) {
+        if (!orders.getImpUid().equals(claims.get("impUid", String.class))
+                || !orders.getEmail().equals(claims.get("email", String.class))
+                || !orders.getPaymentItemName().equals(claims.get("paymentItemName", String.class))
+                || !orders.getPaymentItemPrice().equals(claims.get("paymentItemPrice", String.class))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보와 주문 내역이 일치하지 않습니다.");
         }
 
@@ -103,14 +106,12 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentItem paymentItem = paymentItemRepository.findByName(orders.getPaymentItemName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
-
         user.addCredit(paymentItem.getTime()); // 시간 추가
 
         Payment payment = paymentRepository.save(Payment.of(orders, user, paymentItem));
 
         return PaymentVerifyResponse.toDto(orders, user, payment, paymentItem);
     }
-
 
     /*--- 기존 countByXXX (건수) ---*/
     @Override

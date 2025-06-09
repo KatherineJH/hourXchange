@@ -25,9 +25,6 @@ public class ReviewTag {
     private Review review;
 
     public static ReviewTag of(String tag, Review review) {
-        return ReviewTag.builder()
-                .tag(tag)
-                .review(review)
-                .build();
+        return ReviewTag.builder().tag(tag).review(review).build();
     }
 }

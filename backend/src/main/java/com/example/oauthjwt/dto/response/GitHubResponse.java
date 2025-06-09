@@ -2,7 +2,7 @@ package com.example.oauthjwt.dto.response;
 
 import java.util.Map;
 
-public class GitHubResponse implements OAuth2Response{
+public class GitHubResponse implements OAuth2Response {
     private final Map<String, Object> attributes;
 
     public GitHubResponse(Map<String, Object> attributes) {

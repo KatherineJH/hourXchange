@@ -2,9 +2,7 @@ package com.example.oauthjwt.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,13 +38,8 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages = new ArrayList<>();
 
-
-
     public static ChatRoom of(Product product) {
-        return ChatRoom.builder()
-                .name(product.getTitle() + "채팅방")
-                .product(product)
-                .createdAt(LocalDateTime.now())
+        return ChatRoom.builder().name(product.getTitle() + "채팅방").product(product).createdAt(LocalDateTime.now())
                 .build();
     }
 }

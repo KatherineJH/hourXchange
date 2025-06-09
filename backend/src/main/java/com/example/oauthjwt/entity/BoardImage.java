@@ -25,9 +25,6 @@ public class BoardImage {
     private Board board;
 
     public static BoardImage of(String url, Board board) {
-        return BoardImage.builder()
-                .imgUrl(url)
-                .board(board)
-                .build();
+        return BoardImage.builder().imgUrl(url).board(board).build();
     }
 }
