@@ -8,7 +8,7 @@
 # from sklearn.preprocessing import OneHotEncoder
 
 # # 1. SQLAlchemy 엔진 설정
-# engine = create_engine("mysql+pymysql://root:root@localhost/db_hourxchange?charset=utf8mb4")
+# engine = create_engine("mysql+pymysql://user_hourxchange:1234@mysql/db_hourxchange?charset=utf8mb4")
 
 # # 2. SQL 데이터 조회
 # query = """
@@ -22,8 +22,8 @@
 #   d.purpose,
 #   d.targetAmount,
 #   d.user_id AS fundraiser_user_id
-# FROM donationhistory dh
-# JOIN donation d ON dh.donation_id = d.id;
+# FROM DonationHistory dh
+# JOIN Donation d ON dh.donation_id = d.id;
 # """
 
 # df = pd.read_sql(query, engine)
@@ -92,7 +92,7 @@ import os
 def load_and_preprocess_data():
     print("데이터 로드 및 전처리 시작...")
     try:
-        engine = create_engine("mysql+pymysql://root:root@localhost/db_hourxchange?charset=utf8mb4")
+        engine = create_engine("mysql+pymysql://user_hourxchange:1234@mysql/db_hourxchange?charset=utf8mb4")
 
         query = """
         SELECT
@@ -109,12 +109,12 @@ def load_and_preprocess_data():
             COALESCE(t.transaction_count, 0) AS transaction_count,
             COALESCE(r.review_count, 0) AS review_count,
             COALESCE(r.avg_stars_given, 0) AS avg_stars_given
-        FROM user u
+        FROM User u
         LEFT JOIN (
             SELECT userId, 
                    COUNT(*) AS visit_count,
                    COUNT(DISTINCT url) AS distinct_url_count
-            FROM visitlog
+            FROM VisitLog
             WHERE userId IS NOT NULL
             GROUP BY userId
         ) v ON u.id = v.userId
@@ -122,7 +122,7 @@ def load_and_preprocess_data():
             SELECT userId,
                    COUNT(*) AS payment_count,
                    SUM(amount) AS total_payment_amount
-            FROM payment
+            FROM Payment
             WHERE status = 'paid'
             GROUP BY userId
         ) p ON u.id = p.userId
@@ -130,14 +130,14 @@ def load_and_preprocess_data():
             SELECT user_id,
                    COUNT(*) AS donation_count,
                    SUM(amount) AS total_donation_amount
-            FROM donationhistory
+            FROM DonationHistory
             WHERE amount > 0
             GROUP BY user_id
         ) d ON u.id = d.user_id
         LEFT JOIN (
             SELECT user_id,
                    COUNT(*) AS transaction_count
-            FROM transaction
+            FROM Transaction
             WHERE status = 'COMPLETED'
             GROUP BY user_id
         ) t ON u.id = t.user_id
@@ -145,7 +145,7 @@ def load_and_preprocess_data():
             SELECT reviewer_id,
                    COUNT(*) AS review_count,
                    AVG(stars) AS avg_stars_given
-            FROM review
+            FROM Review
             GROUP BY reviewer_id
         ) r ON u.id = r.reviewer_id;
         """

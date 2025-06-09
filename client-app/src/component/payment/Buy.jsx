@@ -70,7 +70,7 @@ export default function PackagePaymentScreen() {
     };
 
     return (
-        <Box sx={{ maxWidth: 960, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}>
             <Typography variant="h4" align="center" gutterBottom>
                 시간 충전
             </Typography>

@@ -20,6 +20,7 @@ import Save from "../component/user/Save.jsx";
 import EmailLoginForm from "../component/user/Login.jsx";
 import mainRouter from "./mainRouter.jsx";
 import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
+import PublicRoute from "../component/common/PublicRoute.jsx";
 import Unauthorized from "../component/common/Unauthorized.jsx";
 
 import advertisementRouter from "./advertisementRouter.jsx";
@@ -36,11 +37,19 @@ const root = createBrowserRouter([
       },
       {
         path: "login",
-        element: <EmailLoginForm />,
+        element: (
+            <PublicRoute>
+              <EmailLoginForm />
+            </PublicRoute>
+        ),
       },
       {
         path: "save",
-        element: <Save />,
+        element: (
+            <PublicRoute>
+              <Save />
+            </PublicRoute>
+        ),
       },
       {
         path: "main",

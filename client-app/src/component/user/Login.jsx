@@ -37,15 +37,25 @@ export default function EmailLoginForm() {
         try {
           const email = formData.get("email");
           const password = formData.get("password");
-          if (!email || !password)
-            throw new Error("이메일 또는 비밀번호를 입력하세요.");
-          const response = await dispatch(loginUserAsync(formData));
+
+          console.log("formData:", Object.fromEntries(formData));
+          console.log("추출된 값:", { email, password });
+          if (!email || !password) {
+            throw new Error("이메일 또는 비밀번호가 입력되지 않았습니다.");
+          }
+
+          console.log(formData.get("email"));
+          const response = await dispatch(loginUserAsync(formData)).unwrap();
+
+          console.log("로그인 성공 응답:", response);
           alert("로그인 성공!");
           navigate("/");
           return {};
         } catch (error) {
-          alert(error?.response?.data?.message || error.message);
-          return { error: error.message };
+          console.error("로그인 실패:", error);
+          const errorMessage = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
+          alert(errorMessage);
+          return { error: errorMessage };
         }
       default:
         return { error: "지원하지 않는 로그인 방식입니다." };

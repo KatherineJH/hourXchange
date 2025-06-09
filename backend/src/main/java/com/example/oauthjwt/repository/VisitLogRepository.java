@@ -140,7 +140,7 @@ public interface VisitLogRepository extends JpaRepository<VisitLog, Long> {
       SELECT weekday, COUNT(*) AS count
       FROM (
         SELECT DAYNAME(v.visitTime) AS weekday
-        FROM visitlog v
+        FROM VisitLog v
         WHERE v.userId = :userId
           AND v.visitTime IS NOT NULL
       ) AS derived
