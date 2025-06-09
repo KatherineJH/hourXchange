@@ -43,7 +43,7 @@ function CategoryNav() {
       }}
     >
       <Typography variant="subtitle2" sx={{ mr: 2 }}>
-        🗂️ 카테고리
+        {/* 🗂️ 카테고리 */}
       </Typography>
       <RadioGroup
         row

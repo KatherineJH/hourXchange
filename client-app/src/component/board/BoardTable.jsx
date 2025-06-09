@@ -36,6 +36,10 @@ function BoardTable({ boards, navigate }) {
               <TableCell sx={{ bgcolor: "secondary.main" }}> ID </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 이미지 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 제목 </TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}>
+                {" "}
+                카테고리{" "}
+              </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 작성자 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 작성일 </TableCell>
               <TableCell sx={{ bgcolor: "secondary.main" }}> 삭제 </TableCell>
@@ -44,7 +48,7 @@ function BoardTable({ boards, navigate }) {
           <TableBody>
             {boards?.length > 0 ? (
               boards.map((board) => {
-                const isMine = board.author?.id === user?.id; 
+                const isMine = board.author?.id === user?.id;
 
                 return (
                   <TableRow
@@ -62,13 +66,11 @@ function BoardTable({ boards, navigate }) {
                       />
                     </TableCell>
                     <TableCell>{board.title}</TableCell>
+                    <TableCell>{board.category?.categoryName || "-"}</TableCell>
                     <TableCell>
                       {board.authorName || board.author?.name}
                     </TableCell>
-                    <TableCell>
-                      {new Date(board.createdAt).toLocaleString()}
-                    </TableCell>
-
+                    <TableCell>{board.createdAt.slice(0, 10)}</TableCell>
                     <TableCell>
                       <Button
                         variant="contained"

@@ -1,7 +1,7 @@
 // src/page/board/BoardPage.jsx
 import React, { useEffect, useState } from "react";
 import BoardTable from "../../component/board/BoardTable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -14,7 +14,6 @@ import {
   Pagination,
   CardContent,
   Box,
-  Typography,
 } from "@mui/material";
 import {
   getAllBoards,
@@ -22,10 +21,13 @@ import {
   getAutocompleteSuggestions,
 } from "../../api/boardApi";
 import { useCustomDebounce } from "../../assets/useCustomDebounce";
+import CategoryNav from "../../layout/CategoryNav";
 
 function BoardPage() {
   const navigate = useNavigate();
   const [boards, setBoards] = useState([]);
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category") || ""; // 없으면 빈 문자열
 
   const [page, setPage] = useState(0); // JPA는 0부터 시작
   const [size, setSize] = useState(10);
@@ -39,15 +41,24 @@ function BoardPage() {
 
   const fetchBoards = async () => {
     try {
+      let data;
       if (keyword.trim() === "") {
-        const data = await getAllBoards(page, size);
-        setBoards(data.content);
-        setTotalPages(data.totalPages);
+        data = await getAllBoards(0, 9999); // 전체 데이터 불러오기
       } else {
-        const data = await searchBoards(keyword, page, size);
-        setBoards(data.content);
-        setTotalPages(data.totalPages);
+        data = await searchBoards(keyword, 0, 9999);
       }
+      let content = data.content;
+      if (categoryParam) {
+        content = content.filter(
+          (board) => board.category?.categoryName === categoryParam
+        );
+      }
+      // 페이지 슬라이싱
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paged = content.slice(startIndex, endIndex);
+      setBoards(paged);
+      setTotalPages(Math.ceil(content.length / size)); // 전 카테고리 페이지 수
     } catch (error) {
       console.error("게시판 불러오기 실패", error);
     }
@@ -55,7 +66,11 @@ function BoardPage() {
 
   useEffect(() => {
     fetchBoards();
-  }, [page, size, keyword]);
+  }, [page, size, keyword, categoryParam]);
+
+  useEffect(() => {
+    setPage(0); // 카테고리 변경 시 첫 페이지로 리셋
+  }, [categoryParam]);
 
   useEffect(() => {
     if (debouncedInput.trim() === "" || debouncedInput === keyword) {
@@ -85,11 +100,10 @@ function BoardPage() {
     <Box
       sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
     >
+      {/* 카테고리 네비게이션 */}
+      <CategoryNav />
       <Box>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
-            📋 Board 검색 & 리스트
-          </Typography>
           <Box
             sx={{
               display: "flex",
