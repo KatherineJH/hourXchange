@@ -125,38 +125,35 @@ export default function Homepage() {
 
   return (
     <div style={{ padding: "1rem" }}>
-      {/*모달 영역 */}
-      <Modal open={openModal}>
-        <Box sx={{ ...modalStyle, outline: "none" }}>
-          {/* 이미지 영역 */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ width: "100%" }}>
-              <CarouselAd />
-            </Box>
+      {/* 왼쪽 아래 팝업 영역 */}
+      {openModal && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: "2rem",
+            left: 35,
+            zIndex: 1300,
+            width: 320,
+            height: 300,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 5,
+            p: 1,
+          }}
+        >
+          {/* 이미지 캐러셀 */}
+          <Box sx={{ width: "100%", mb: 1 }}>
+            <CarouselAd />
           </Box>
 
-          {/*닫기 버튼 */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 1,
-              mt: 3,
-            }}
-          >
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleCloseModal}
-              >
-                닫기
-              </Button>
-            </Box>
+          {/* 닫기 버튼 */}
+          <Box sx={{ textAlign: "center" }}>
+            <Button variant="contained" size="small" onClick={handleCloseModal}>
+              닫기
+            </Button>
           </Box>
         </Box>
-      </Modal>
+      )}
       <h1>🏠 Home Page</h1>
       <TopDonatorsChart />
 
@@ -203,7 +200,7 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
-      <CategoryNav/>
+      <CategoryNav />
       <ListTable category={selectedCategory} />
     </div>
   );
