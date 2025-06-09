@@ -69,7 +69,7 @@ export default function DonationList() {
     };
 
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 기부모집조회
             </Typography>

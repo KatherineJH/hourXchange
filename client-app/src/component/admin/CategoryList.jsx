@@ -32,7 +32,7 @@ export default function CategoryList() {
     }, [page]);
 
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 카테고리조회
             </Typography>

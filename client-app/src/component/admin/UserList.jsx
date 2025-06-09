@@ -60,7 +60,7 @@ export default function UserList() {
         setParams(prev => ({ ...prev, [name]: value }));
     };
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+        <Box sx={{ mx: 'auto', mt: 4, p: 2 }}>
             <Typography variant="h4" gutterBottom>
                 유저조회
             </Typography>

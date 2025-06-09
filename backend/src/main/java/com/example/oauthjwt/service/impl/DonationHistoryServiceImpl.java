@@ -102,7 +102,7 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
                 .collect(Collectors.toList());
     }
 
-    // 반년(6개월) top 3
+    // 연간 top 3
     @Override
     public List<TopDonatorResponse> getYearlyTop3() {
         var rows = donationHistoryRepository.findTopDonatorsSince(

@@ -110,6 +110,7 @@ export default function VolunteerList() {
 
     return (
         <>
+            <Box sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}>
             <CustomHeader text={'1365 봉사모집 정보'}/>
 
             <Card variant="outlined" sx={{ mb: 3 }}>
@@ -216,6 +217,7 @@ export default function VolunteerList() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            </Box>
         </>
     );
 }

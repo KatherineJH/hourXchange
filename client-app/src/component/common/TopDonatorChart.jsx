@@ -1,12 +1,12 @@
 // src/components/TopDonatorsChart.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Box,
     Typography,
     Stack,
     CircularProgress,
-    Paper
+    Paper,
+    useTheme
 } from '@mui/material';
 import {
     BarChart,
@@ -17,15 +17,15 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
-import { getTopDonators } from "../../api/donationHistoryApi.js";
+import { getTopDonators } from '../../api/donationHistoryApi.js';
 
 export default function TopDonatorsChart() {
-    const [weekly, setWeekly] = useState(null);
+    const theme = useTheme();
+    const [weekly, setWeekly]   = useState(null);
     const [monthly, setMonthly] = useState(null);
-    const [yearly, setYearly] = useState(null);
+    const [yearly, setYearly]   = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 순서 재정렬: 2등, 1등, 3등 이상
     const reorder = (data) => {
         if (!data || data.length < 2) return data;
         const arr = [...data];
@@ -45,8 +45,6 @@ export default function TopDonatorsChart() {
                 setWeekly(w.data);
                 setMonthly(m.data);
                 setYearly(y.data);
-            } catch (e) {
-                console.error('Failed to load top donators', e);
             } finally {
                 setLoading(false);
             }
@@ -55,25 +53,94 @@ export default function TopDonatorsChart() {
     }, []);
 
     const renderChart = (data, title) => (
-        <Paper elevation={2} sx={{ p: 2, flex: '1 1 300px', minWidth: 300 }}>
+        <Paper
+            elevation={2}
+            sx={{
+                p: 2,
+                flex: '1 1 300px',
+                minWidth: 300,
+                backgroundColor: theme.palette.background.paper
+            }}
+        >
             <Typography variant="subtitle1" gutterBottom align="center">
                 {title}
             </Typography>
+
             {data && data.length > 0 ? (
                 <ResponsiveContainer width="100%" height={200}>
                     <BarChart
                         data={reorder(data)}
                         margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="user.name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="totalDonationTime" />
+                        {/* 그라데이션 정의 */}
+                        <defs>
+                            <linearGradient id={`grad-${title}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop
+                                    offset="0%"
+                                    stopColor={theme.palette.primary.main}
+                                    stopOpacity={0.8}
+                                />
+                                <stop
+                                    offset="100%"
+                                    stopColor={theme.palette.primary.main}
+                                    stopOpacity={0.2}
+                                />
+                            </linearGradient>
+                        </defs>
+
+                        {/* 배경 격자 */}
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke={theme.palette.divider}
+                            opacity={0.2}
+                        />
+
+                        {/* X축 */}
+                        <XAxis
+                            dataKey="user.name"
+                            tick={{
+                                fill: theme.palette.text.secondary,
+                                fontSize: 12
+                            }}
+                            axisLine={{ stroke: theme.palette.divider }}
+                            tickLine={false}
+                        />
+
+                        {/* Y축 */}
+                        <YAxis
+                            tick={{
+                                fill: theme.palette.text.secondary,
+                                fontSize: 12
+                            }}
+                            axisLine={{ stroke: theme.palette.divider }}
+                            tickLine={false}
+                        />
+
+                        {/* 툴팁 */}
+                        <Tooltip
+                            contentStyle={{
+                                backgroundColor: theme.palette.background.paper,
+                                border: `1px solid ${theme.palette.divider}`,
+                                boxShadow: theme.shadows[2],
+                                borderRadius: 4
+                            }}
+                            formatter={(value) =>
+                                `${value.toLocaleString()}시간`
+                            }
+                        />
+
+                        {/* Bar */}
+                        <Bar
+                            dataKey="totalDonationTime"
+                            fill={`url(#grad-${title})`}
+                            radius={[4, 4, 0, 0]}
+                        />
                     </BarChart>
                 </ResponsiveContainer>
             ) : (
-                <Typography variant="body2" align="center">데이터 없음</Typography>
+                <Typography variant="body2" align="center">
+                    데이터 없음
+                </Typography>
             )}
         </Paper>
     );

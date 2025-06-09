@@ -119,6 +119,7 @@ function DonationList() {
 
     return(
         <>
+            <Box sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}>
             <CustomHeader text={'1365 기부모집 정보'}/>
             <Card variant="outlined" sx={{mb:3}}>
                 <CardHeader title="검색 조건" />
@@ -176,6 +177,7 @@ function DonationList() {
             </TableContainer>
             {/* 페이지네이션 */}
             <CustomPagination totalPages={totalPages} page={filters.pageNo - 1} setPage={setPage} />
+            </Box>
         </>
     );
 }
