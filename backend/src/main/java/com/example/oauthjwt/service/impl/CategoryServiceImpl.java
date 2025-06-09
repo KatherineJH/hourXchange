@@ -1,13 +1,10 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.response.CategoryResponse;
 import com.example.oauthjwt.entity.Category;
@@ -15,7 +12,6 @@ import com.example.oauthjwt.repository.CategoryRepository;
 import com.example.oauthjwt.service.CategoryService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor

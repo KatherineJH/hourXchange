@@ -1,16 +1,15 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.condition.DonationHistorySearchCondition;
-import com.example.oauthjwt.dto.request.DonationHistoryRequest;
+import java.util.List;
 
-import com.example.oauthjwt.dto.response.DonationHistoryResponse;
-import com.example.oauthjwt.dto.response.DonationResponse;
-import com.example.oauthjwt.dto.response.TopDonatorResponse;
-import com.example.oauthjwt.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import com.example.oauthjwt.dto.condition.DonationHistorySearchCondition;
+import com.example.oauthjwt.dto.request.DonationHistoryRequest;
+import com.example.oauthjwt.dto.response.DonationHistoryResponse;
+import com.example.oauthjwt.dto.response.TopDonatorResponse;
+import com.example.oauthjwt.entity.User;
 
 public interface DonationHistoryService {
     DonationHistoryResponse createDonationHistory(DonationHistoryRequest donationHistoryRequest, Long userId);

@@ -1,9 +1,5 @@
 package com.example.oauthjwt.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -12,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
+import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.entity.Advertisement;
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.AdvertisementRepository;
@@ -27,7 +24,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     private final AdvertisementRepository advertisementRepository;
     private final UserRepository userRepository;
-
 
     @Override
     public Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
@@ -47,13 +43,14 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional(readOnly = true)
     public AdvertisementResponse findAdvertisementDetail(Long advertisementId) {
-        Advertisement advertisement =  advertisementRepository.findById(advertisementId)
+        Advertisement advertisement = advertisementRepository.findById(advertisementId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "광고가 존재하지 않습니다."));
         return AdvertisementResponse.toDto(advertisement);
     }
 
     @Override
-    public AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
+    public AdvertisementResponse updateAdvertisement(Long advertisementId, AdvertisementRequest advertisementRequest,
+            CustomUserDetails userDetails) {
         User owner = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
@@ -72,24 +69,19 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementResponse> findAllAdvertisements(Pageable pageable) {
-//        List<Advertisement> advertisementList = advertisementRepository.findAll();
-//        advertisementList.forEach(ad -> ad.getImages().size());
-        return advertisementRepository.findAll(pageable)
-                .map(AdvertisementResponse::toDto);
+        // List<Advertisement> advertisementList = advertisementRepository.findAll();
+        // advertisementList.forEach(ad -> ad.getImages().size());
+        return advertisementRepository.findAll(pageable).map(AdvertisementResponse::toDto);
     }
 
     @Override
     @Transactional
     public AdvertisementResponse deleteAdvertisement(Long advertisementId, CustomUserDetails userDetails) {
         User owner = userRepository.findById(userDetails.getUser().getId())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다.")
-                );
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
         Advertisement advertisement = advertisementRepository.findById(advertisementId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 광고가 존재하지 않습니다.")
-                );
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 광고가 존재하지 않습니다."));
         if (!advertisement.getOwner().getId().equals(owner.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
         }
@@ -103,12 +95,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails, Pageable pageable) {
-//        Long userId = userDetails.getUser().getId();
-//        List<Advertisement> advertisementList = advertisementRepository.findAllByOwnerId(userId);
-//        advertisementList.forEach(ad -> ad.getImages().size());
+        // Long userId = userDetails.getUser().getId();
+        // List<Advertisement> advertisementList =
+        // advertisementRepository.findAllByOwnerId(userId);
+        // advertisementList.forEach(ad -> ad.getImages().size());
         User user = userRepository.findById(userDetails.getUser().getId())
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
-        return advertisementRepository.findByOwner(user, pageable)
-                .map(AdvertisementResponse::toDto);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+        return advertisementRepository.findByOwner(user, pageable).map(AdvertisementResponse::toDto);
     }
 }

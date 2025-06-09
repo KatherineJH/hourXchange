@@ -1,16 +1,14 @@
 package com.example.oauthjwt.repository;
 
-import com.example.oauthjwt.entity.Product;
-import com.example.oauthjwt.entity.ReviewTag;
-import com.example.oauthjwt.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.Optional;
 
-import com.example.oauthjwt.entity.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.oauthjwt.entity.Review;
+import com.example.oauthjwt.entity.User;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 

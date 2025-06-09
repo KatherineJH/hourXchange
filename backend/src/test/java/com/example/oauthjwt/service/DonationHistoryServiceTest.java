@@ -1,5 +1,22 @@
 package com.example.oauthjwt.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.request.DonationHistoryRequest;
 import com.example.oauthjwt.dto.response.DonationHistoryResponse;
 import com.example.oauthjwt.dto.response.TopDonatorResponse;
@@ -10,23 +27,6 @@ import com.example.oauthjwt.repository.DonationHistoryRepository;
 import com.example.oauthjwt.repository.DonationRepository;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.impl.DonationHistoryServiceImpl;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DonationHistoryServiceTest {
@@ -44,10 +44,7 @@ class DonationHistoryServiceTest {
     private DonationHistoryServiceImpl donationHistoryService;
 
     private DonationHistoryRequest makeRequest(int amount, Long donationId) {
-        return DonationHistoryRequest.builder()
-                .amount(amount)
-                .donationId(donationId)
-                .build();
+        return DonationHistoryRequest.builder().amount(amount).donationId(donationId).build();
     }
 
     @Test
@@ -71,8 +68,7 @@ class DonationHistoryServiceTest {
         given(donation.getTargetAmount()).willReturn(100);
 
         // stub save twice
-        given(donationHistoryRepository.save(any(DonationHistory.class)))
-                .willAnswer(inv -> inv.getArgument(0));
+        given(donationHistoryRepository.save(any(DonationHistory.class))).willAnswer(inv -> inv.getArgument(0));
 
         // 실행
         DonationHistoryResponse res = donationHistoryService.createDonationHistory(req, userId);
@@ -89,10 +85,8 @@ class DonationHistoryServiceTest {
         Long userId = 1L;
         given(userRepository.findById(userId)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() ->
-                donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId)
-        ).isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
+        assertThatThrownBy(() -> donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId))
+                .isInstanceOf(ResponseStatusException.class).satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
                 });
@@ -109,10 +103,8 @@ class DonationHistoryServiceTest {
         given(donator.getWallet()).willReturn(wallet);
         given(wallet.getCredit()).willReturn(3);
 
-        assertThatThrownBy(() ->
-                donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId)
-        ).isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
+        assertThatThrownBy(() -> donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId))
+                .isInstanceOf(ResponseStatusException.class).satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 });
@@ -130,10 +122,8 @@ class DonationHistoryServiceTest {
         given(wallet.getCredit()).willReturn(10);
         given(donationRepository.findById(2L)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() ->
-                donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId)
-        ).isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
+        assertThatThrownBy(() -> donationHistoryService.createDonationHistory(makeRequest(5, 2L), userId))
+                .isInstanceOf(ResponseStatusException.class).satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
                 });
@@ -156,10 +146,8 @@ class DonationHistoryServiceTest {
         given(donation.getCurrentAmount()).willReturn(60);
         given(donation.getTargetAmount()).willReturn(100);
 
-        assertThatThrownBy(() ->
-                donationHistoryService.createDonationHistory(req, userId)
-        ).isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
+        assertThatThrownBy(() -> donationHistoryService.createDonationHistory(req, userId))
+                .isInstanceOf(ResponseStatusException.class).satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 });
@@ -170,15 +158,12 @@ class DonationHistoryServiceTest {
     void getMyDonationHistoryByDonator_Success() {
         User donator = new User();
         PageRequest pageable = PageRequest.of(0, 2);
-        DonationHistory dh = DonationHistory.of(mock(Donation.class),
-                donator, 5);
+        DonationHistory dh = DonationHistory.of(mock(Donation.class), donator, 5);
         Page<DonationHistory> page = new PageImpl<>(List.of(dh), pageable, 1);
 
-        given(donationHistoryRepository.findByDonator(pageable, donator))
-                .willReturn(page);
+        given(donationHistoryRepository.findByDonator(pageable, donator)).willReturn(page);
 
-        Page<DonationHistoryResponse> result =
-                donationHistoryService.getMyDonationHistoryByDonator(pageable, donator);
+        Page<DonationHistoryResponse> result = donationHistoryService.getMyDonationHistoryByDonator(pageable, donator);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getAmount()).isEqualTo(5);
@@ -188,15 +173,12 @@ class DonationHistoryServiceTest {
     @DisplayName("getDonationHistoryByDonator: 전체 페이징 반환")
     void getDonationHistoryByDonator_Success() {
         PageRequest pageable = PageRequest.of(0, 3);
-        DonationHistory dh = DonationHistory.of(mock(Donation.class),
-                mock(User.class), 7);
+        DonationHistory dh = DonationHistory.of(mock(Donation.class), mock(User.class), 7);
         Page<DonationHistory> page = new PageImpl<>(List.of(dh), pageable, 1);
 
-        given(donationHistoryRepository.findAll(pageable))
-                .willReturn(page);
+        given(donationHistoryRepository.findAll(pageable)).willReturn(page);
 
-        Page<DonationHistoryResponse> result =
-                donationHistoryService.getDonationHistoryByDonator(pageable);
+        Page<DonationHistoryResponse> result = donationHistoryService.getDonationHistoryByDonator(pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getAmount()).isEqualTo(7);
@@ -205,12 +187,12 @@ class DonationHistoryServiceTest {
     @Test
     @DisplayName("getWeeklyTop3: 주간 Top3 반환")
     void getWeeklyTop3_Success() {
-        User topUser = new User(); topUser.setId(10L);
+        User topUser = new User();
+        topUser.setId(10L);
         List<Object[]> rows = new ArrayList<>();
-        rows.add(new Object[]{ topUser, 15 });
+        rows.add(new Object[]{topUser, 15});
 
-        given(donationHistoryRepository.findTopDonatorsSince(
-                any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
+        given(donationHistoryRepository.findTopDonatorsSince(any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
                 .willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getWeeklyTop3();
@@ -223,12 +205,12 @@ class DonationHistoryServiceTest {
     @Test
     @DisplayName("getMonthlyTop3: 월간 Top3 반환")
     void getMonthlyTop3_Success() {
-        User topUser = new User(); topUser.setId(20L);
+        User topUser = new User();
+        topUser.setId(20L);
         List<Object[]> rows = new ArrayList<>();
-        rows.add(new Object[]{ topUser, 25 });
+        rows.add(new Object[]{topUser, 25});
 
-        given(donationHistoryRepository.findTopDonatorsSince(
-                any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
+        given(donationHistoryRepository.findTopDonatorsSince(any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
                 .willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getMonthlyTop3();
@@ -245,12 +227,10 @@ class DonationHistoryServiceTest {
         topUser.setId(30L);
 
         List<Object[]> rows = new ArrayList<>();
-        rows.add(new Object[]{ topUser, 35 });
+        rows.add(new Object[]{topUser, 35});
 
-        given(donationHistoryRepository.findTopDonatorsSince(
-                any(LocalDateTime.class),
-                eq(PageRequest.of(0, 3))
-        )).willReturn(rows);
+        given(donationHistoryRepository.findTopDonatorsSince(any(LocalDateTime.class), eq(PageRequest.of(0, 3))))
+                .willReturn(rows);
 
         List<TopDonatorResponse> topList = donationHistoryService.getYearlyTop3();
 

@@ -2,7 +2,6 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +14,7 @@ import com.example.oauthjwt.entity.Comment;
 import com.example.oauthjwt.service.CommentService;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 

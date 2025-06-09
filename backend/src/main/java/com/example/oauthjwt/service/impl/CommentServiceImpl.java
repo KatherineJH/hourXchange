@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.CommentRequest;
 import com.example.oauthjwt.dto.response.CommentResponse;
@@ -14,7 +15,6 @@ import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.CommentService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor

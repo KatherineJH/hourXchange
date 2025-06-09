@@ -1,9 +1,11 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.response.CategoryResponse;
-import com.example.oauthjwt.entity.Category;
-import com.example.oauthjwt.repository.CategoryRepository;
-import com.example.oauthjwt.service.impl.CategoryServiceImpl;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,15 +16,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import com.example.oauthjwt.dto.response.CategoryResponse;
+import com.example.oauthjwt.entity.Category;
+import com.example.oauthjwt.repository.CategoryRepository;
+import com.example.oauthjwt.service.impl.CategoryServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -41,16 +40,13 @@ class CategoryServiceTest {
         Category c2 = Category.builder().id(2L).categoryName("B").status(true).build();
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(categoryRepository.findAll(any(Pageable.class)))
-                .willReturn(new PageImpl<>(List.of(c1, c2))); // ← 수정된 부분
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(List.of(c1, c2))); // ← 수정된 부분
 
         // when
         Page<CategoryResponse> result = categoryService.findAll(pageable);
 
         // then
-        assertThat(result).hasSize(2)
-                .extracting(CategoryResponse::getCategoryName)
-                .containsExactly("A", "B");
+        assertThat(result).hasSize(2).extracting(CategoryResponse::getCategoryName).containsExactly("A", "B");
     }
 
     @Test
@@ -79,8 +75,7 @@ class CategoryServiceTest {
         given(categoryRepository.existsByCategoryName(name)).willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> categoryService.addCategory(name))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> categoryService.addCategory(name)).isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST); // ← 여기 수정
@@ -104,8 +99,8 @@ class CategoryServiceTest {
 
         // then
         assertThat(result.getCategoryName()).isEqualTo(newName);
-        then(categoryRepository).should().save(argThat(c -> c.getId().equals(id)
-                && c.getCategoryName().equals(newName)));
+        then(categoryRepository).should()
+                .save(argThat(c -> c.getId().equals(id) && c.getCategoryName().equals(newName)));
     }
 
     @Test
@@ -115,8 +110,7 @@ class CategoryServiceTest {
         given(categoryRepository.findById(99L)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> categoryService.updateCategory(99L, "X"))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> categoryService.updateCategory(99L, "X")).isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -148,8 +142,7 @@ class CategoryServiceTest {
         given(categoryRepository.findById(100L)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> categoryService.findById(100L))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> categoryService.findById(100L)).isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> {
                     ResponseStatusException rse = (ResponseStatusException) ex;
                     assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

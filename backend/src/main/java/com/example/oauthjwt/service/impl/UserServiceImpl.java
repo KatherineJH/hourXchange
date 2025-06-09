@@ -1,8 +1,8 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.dto.condition.UserSearchCondition;
-import com.example.oauthjwt.dto.request.AddressRequest;
-import com.example.oauthjwt.entity.Wallet;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -10,18 +10,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
+import com.example.oauthjwt.dto.request.AddressRequest;
 import com.example.oauthjwt.dto.request.UserRequest;
 import com.example.oauthjwt.dto.response.UserResponse;
 import com.example.oauthjwt.entity.Address;
 import com.example.oauthjwt.entity.User;
+import com.example.oauthjwt.entity.Wallet;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         user.setWallet(wallet);
 
         AddressRequest addressRequest = userRequest.getAddress();
-        if(!addressRequest.isEmpty()){
+        if (!addressRequest.isEmpty()) {
             Address address = Address.of(userRequest.getAddress());
             user.setAddress(address);
             address.setUser(user);
@@ -66,7 +66,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(userRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         // 입력값 확인
-        if(!user.getEmail().equals(userRequest.getEmail()) || !passwordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
+        if (!user.getEmail().equals(userRequest.getEmail())
+                || !passwordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
         }
         // 반환
@@ -100,15 +101,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserResponse::toDto)
-                .collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserResponse::toDto).collect(Collectors.toList());
     }
 
     @Override
     public UserResponse getUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return UserResponse.toDto(user);
     }
 

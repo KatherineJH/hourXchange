@@ -9,8 +9,8 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateConfig {
 
     /**
-     * RestTemplateBuilder를 사용해 RestTemplate 빈을 생성합니다.
-     * 필요한 경우 timeout, messageConverters 등 추가 설정이 가능합니다.
+     * RestTemplateBuilder를 사용해 RestTemplate 빈을 생성합니다. 필요한 경우 timeout,
+     * messageConverters 등 추가 설정이 가능합니다.
      */
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {

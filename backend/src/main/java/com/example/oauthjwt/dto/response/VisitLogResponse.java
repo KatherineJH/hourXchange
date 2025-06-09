@@ -16,7 +16,7 @@ public class VisitLogResponse {
 
     public VisitLogResponse(Object periodObj, Long count) {
         this.period = periodObj == null ? null : periodObj.toString();
-        this.count  = count;
+        this.count = count;
         this.weekday = this.period;
     }
 }

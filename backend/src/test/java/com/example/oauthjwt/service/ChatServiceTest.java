@@ -1,5 +1,18 @@
 package com.example.oauthjwt.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
 import com.example.oauthjwt.dto.response.ChatMessageResponse;
 import com.example.oauthjwt.entity.*;
@@ -9,29 +22,21 @@ import com.example.oauthjwt.entity.type.UserRole;
 import com.example.oauthjwt.entity.type.UserStatus;
 import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.impl.ChatServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
- * ChatServiceTest는 ChatServiceImpl 클래스의 채팅 기능에 대한 단위 테스트를 제공.
- * 채팅방 생성, 메시지 저장, 예외 처리 등 사용자 간 실시간 상호작용을 처리하는 핵심 로직의 정상 동작을 검증.
+ * ChatServiceTest는 ChatServiceImpl 클래스의 채팅 기능에 대한 단위 테스트를 제공. 채팅방 생성, 메시지 저장,
+ * 예외 처리 등 사용자 간 실시간 상호작용을 처리하는 핵심 로직의 정상 동작을 검증.
  */
 public class ChatServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private ChatRoomRepository chatRoomRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private ChatMessageRepository chatMessageRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ChatRoomRepository chatRoomRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private ChatMessageRepository chatMessageRepository;
 
     @InjectMocks
     private ChatServiceImpl chatService;
@@ -42,8 +47,8 @@ public class ChatServiceTest {
     }
 
     /**
-     * 1. 채팅방 생성 성공 (initiateChat_success)
-     *    - 상품을 기준으로 요청자와 게시자 간 새로운 채팅방을 성공적으로 생성하는지 확인.
+     * 1. 채팅방 생성 성공 (initiateChat_success) - 상품을 기준으로 요청자와 게시자 간 새로운 채팅방을 성공적으로
+     * 생성하는지 확인.
      */
     @Test
     @DisplayName("채팅방 생성 성공")
@@ -51,36 +56,16 @@ public class ChatServiceTest {
         Long productId = 1L;
         Long requesterId = 2L;
 
-        Category category = Category.builder()
-                .id(10L)
-                .categoryName("운동")
-                .build();
+        Category category = Category.builder().id(10L).categoryName("운동").build();
 
-        User requester = User.builder()
-                .id(requesterId)
-                .name("요청자")
-                .email("requester@example.com")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .build();
+        User requester = User.builder().id(requesterId).name("요청자").email("requester@example.com")
+                .role(UserRole.ROLE_USER).status(UserStatus.ACTIVE).build();
 
-        User owner = User.builder()
-                .id(1L)
-                .name("상품주인")
-                .email("owner@example.com")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
-                .build();
+        User owner = User.builder().id(1L).name("상품주인").email("owner@example.com").role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE).build();
 
-        Product product = Product.builder()
-                .id(productId)
-                .owner(owner)
-                .category(category)
-                .providerType(ProviderType.SELLER)
-                .lat("37.1234")
-                .lng("127.5678")
-                .description("서울시 강남구")
-                .build();
+        Product product = Product.builder().id(productId).owner(owner).category(category)
+                .providerType(ProviderType.SELLER).lat("37.1234").lng("127.5678").description("서울시 강남구").build();
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
@@ -99,8 +84,8 @@ public class ChatServiceTest {
     }
 
     /**
-     * 2. 채팅방 생성 실패 - 자기 자신에게 요청 (initiateChat_fail_ownProduct)
-     *    - 사용자가 자신의 상품에 대해 채팅 요청을 시도할 경우 예외가 발생하는지 확인합니다.
+     * 2. 채팅방 생성 실패 - 자기 자신에게 요청 (initiateChat_fail_ownProduct) - 사용자가 자신의 상품에 대해 채팅
+     * 요청을 시도할 경우 예외가 발생하는지 확인합니다.
      */
     @Test
     @DisplayName("메시지 저장 성공")
@@ -110,28 +95,13 @@ public class ChatServiceTest {
 
         Category category = Category.builder().id(10L).categoryName("운동").build();
 
-        User sender = User.builder()
-                .id(99L)
-                .email(email)
-                .name("홍길동")
-                .role(UserRole.ROLE_USER)
-                .status(UserStatus.ACTIVE)
+        User sender = User.builder().id(99L).email(email).name("홍길동").role(UserRole.ROLE_USER).status(UserStatus.ACTIVE)
                 .build();
 
-        Product product = Product.builder()
-                .id(1L)
-                .owner(sender)
-                .category(category)
-                .providerType(ProviderType.SELLER)
-                .lat("37.1234")
-                .lng("127.5678")
-                .description("서울시 강남구")
-                .build();
+        Product product = Product.builder().id(1L).owner(sender).category(category).providerType(ProviderType.SELLER)
+                .lat("37.1234").lng("127.5678").description("서울시 강남구").build();
 
-        ChatRoom chatRoom = ChatRoom.builder()
-                .id(roomId)
-                .product(product)
-                .build();
+        ChatRoom chatRoom = ChatRoom.builder().id(roomId).product(product).build();
 
         ChatMessageRequest request = new ChatMessageRequest();
         request.setChatRoomId(roomId);
@@ -149,8 +119,8 @@ public class ChatServiceTest {
     }
 
     /**
-     * 3. 메시지 저장 성공 (saveMessage_success)
-     *    - 채팅방과 사용자 정보가 올바를 때, 메시지가 정상적으로 저장되고 응답으로 변환되는지 검증합니다.
+     * 3. 메시지 저장 성공 (saveMessage_success) - 채팅방과 사용자 정보가 올바를 때, 메시지가 정상적으로 저장되고 응답으로
+     * 변환되는지 검증합니다.
      */
     @Test
     @DisplayName("채팅방 생성 실패 - 자기 자신의 상품")
@@ -164,13 +134,12 @@ public class ChatServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         assertThatThrownBy(() -> chatService.initiateChatFromPost(productId, requesterId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("자신의 상품에 대해 채팅방을 생성할 수 없습니다");
+                .isInstanceOf(ResponseStatusException.class).hasMessageContaining("자신의 상품에 대해 채팅방을 생성할 수 없습니다");
     }
 
     /**
-     * 4. 메시지 저장 실패 - 유저 없음 (saveMessage_fail_userNotFound)
-     *    - 존재하지 않는 유저의 이메일로 메시지를 저장하려 할 때 예외가 발생하는지 확인합니다.
+     * 4. 메시지 저장 실패 - 유저 없음 (saveMessage_fail_userNotFound) - 존재하지 않는 유저의 이메일로 메시지를
+     * 저장하려 할 때 예외가 발생하는지 확인합니다.
      */
     @Test
     @DisplayName("메시지 저장 실패 - 유저 없음")
@@ -186,9 +155,7 @@ public class ChatServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(new ChatRoom()));
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> chatService.saveMessage(request, email))
-                .isInstanceOf(ResponseStatusException.class)
+        assertThatThrownBy(() -> chatService.saveMessage(request, email)).isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("유저 정보가 존재하지 않습니다");
     }
 }
-

@@ -1,8 +1,8 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.dto.response.VisitLogResponse;
-
 import java.util.List;
+
+import com.example.oauthjwt.dto.response.VisitLogResponse;
 
 public interface VisitLogService {
     List<VisitLogResponse> getDailyCounts(int daysBack);

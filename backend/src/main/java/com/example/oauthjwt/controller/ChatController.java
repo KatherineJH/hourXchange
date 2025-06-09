@@ -3,7 +3,6 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.response.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,12 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.dto.request.ChatMessageRequest;
+import com.example.oauthjwt.dto.response.*;
 import com.example.oauthjwt.dto.response.ChatRoomResponse;
 import com.example.oauthjwt.entity.ChatMessage;
 import com.example.oauthjwt.entity.ChatRoom;
 import com.example.oauthjwt.service.ChatService;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import com.example.oauthjwt.service.TransactionService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,8 @@ public class ChatController {
     private final TransactionService transactionService;
 
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload ChatMessageRequest chatMessageRequest, SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
+    public void sendMessage(@Payload ChatMessageRequest chatMessageRequest,
+            SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
         String email = (String) simpMessageHeaderAccessor.getSessionAttributes().get("userId");
 
         ChatMessageResponse result = chatService.saveMessage(chatMessageRequest, email);
@@ -45,7 +46,8 @@ public class ChatController {
     }
 
     @MessageMapping("/chat.addUser")
-    public void addUser(@Payload ChatMessageRequest chatMessageRequest, SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
+    public void addUser(@Payload ChatMessageRequest chatMessageRequest,
+            SimpMessageHeaderAccessor simpMessageHeaderAccessor) {
 
         ChatMessageResponse result = chatService.addUser(chatMessageRequest, simpMessageHeaderAccessor);
 
@@ -64,12 +66,14 @@ public class ChatController {
     @GetMapping("/messages/{chatRoomId}")
     public ResponseEntity<List<ChatMessageResponse>> getMessages(@PathVariable Long chatRoomId) {
         List<ChatMessage> messages = chatService.getMessages(chatRoomId);
-        List<ChatMessageResponse> messageDTOs = messages.stream().map(ChatMessageResponse::toDto).collect(Collectors.toList());
+        List<ChatMessageResponse> messageDTOs = messages.stream().map(ChatMessageResponse::toDto)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(messageDTOs);
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<ChatRoomResponse> result = chatService.findChatRoomsByUserId(userDetails);
 
         return ResponseEntity.ok(result);
@@ -88,18 +92,15 @@ public class ChatController {
 
         String transactionStatus = chatService.getTransactionStatusByChatRoomId(chatRoomId);
 
-        ChatRoomInfoResponse response = ChatRoomInfoResponse.builder()
-                .chatRoomId(chatRoom.getId())
-                .ownerId(chatRoom.getProduct().getOwner().getId())
-                .transactionStatus(transactionStatus)
-                .build();
+        ChatRoomInfoResponse response = ChatRoomInfoResponse.builder().chatRoomId(chatRoom.getId())
+                .ownerId(chatRoom.getProduct().getOwner().getId()).transactionStatus(transactionStatus).build();
 
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/request/{chatRoomId}")
     public ResponseEntity<?> requestTransaction(@PathVariable Long chatRoomId,
-                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         ChatRoom chatRoom = chatService.findById(chatRoomId);
         Long requesterId = userDetails.getUser().getId();
         if (chatRoom.getProduct().getOwner().getId().equals(requesterId)) {
@@ -111,7 +112,7 @@ public class ChatController {
 
     @PatchMapping("/accept/{chatRoomId}")
     public ResponseEntity<?> acceptTransaction(@PathVariable Long chatRoomId,
-                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         ChatRoom chatRoom = chatService.findById(chatRoomId);
         Long ownerId = userDetails.getUser().getId();
         if (!chatRoom.getProduct().getOwner().getId().equals(ownerId)) {

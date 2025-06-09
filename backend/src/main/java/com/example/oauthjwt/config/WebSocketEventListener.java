@@ -1,18 +1,12 @@
 package com.example.oauthjwt.config;
 
-import com.example.oauthjwt.dto.response.ChatMessageResponse;
-import com.example.oauthjwt.service.ChatService;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.example.oauthjwt.entity.ChatMessage;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
-import com.example.oauthjwt.entity.User;
-import com.example.oauthjwt.repository.UserRepository;
+import com.example.oauthjwt.dto.response.ChatMessageResponse;
+import com.example.oauthjwt.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

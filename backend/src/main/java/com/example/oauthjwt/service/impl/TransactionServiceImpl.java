@@ -4,22 +4,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
-import com.example.oauthjwt.entity.type.ProviderType;
-import com.example.oauthjwt.entity.type.TransactionStatus;
-import com.example.oauthjwt.entity.type.WalletATM;
-import com.example.oauthjwt.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.oauthjwt.dto.condition.TransactionSearchCondition;
 import com.example.oauthjwt.dto.request.TransactionRequest;
 import com.example.oauthjwt.dto.response.TransactionResponse;
 import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.entity.type.ProviderType;
+import com.example.oauthjwt.entity.type.TransactionStatus;
+import com.example.oauthjwt.entity.type.WalletATM;
+import com.example.oauthjwt.repository.*;
 import com.example.oauthjwt.service.ChatService;
 import com.example.oauthjwt.service.TransactionService;
 import com.example.oauthjwt.service.UserService;
@@ -92,18 +91,15 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionResponse> findByUserId(Long userId) {
         List<Transaction> myTransactions = transactionRepository.findByUserId(userId);
 
-        return myTransactions.stream()
-                .map(transaction -> {
-                    // 각 트랜잭션마다 해당 트랜잭션의 상대방을 찾음
-                    Transaction opponent = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId()).stream()
-                            .filter(t -> t.getProduct().getId().equals(transaction.getProduct().getId()) &&
-                                    !t.getUser().getId().equals(userId))
-                            .findFirst()
-                            .orElse(null);
+        return myTransactions.stream().map(transaction -> {
+            // 각 트랜잭션마다 해당 트랜잭션의 상대방을 찾음
+            Transaction opponent = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId()).stream()
+                    .filter(t -> t.getProduct().getId().equals(transaction.getProduct().getId())
+                            && !t.getUser().getId().equals(userId))
+                    .findFirst().orElse(null);
 
-                    return TransactionResponse.toDto(transaction, opponent);
-                })
-                .collect(Collectors.toList());
+            return TransactionResponse.toDto(transaction, opponent);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -187,8 +183,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "트랜잭션이 존재하지 않습니다."));
 
         // 같은 chatRoomId, productId 를 가진 짝 트랜잭션 모두 조회
-        List<Transaction> pair = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId())
-                .stream()
+        List<Transaction> pair = transactionRepository.findByChatRoomId(transaction.getChatRoom().getId()).stream()
                 .filter(t -> t.getProduct().getId().equals(transaction.getProduct().getId()))
                 .collect(Collectors.toList());
 
@@ -207,14 +202,9 @@ public class TransactionServiceImpl implements TransactionService {
 
         // 크레딧 지급
         receiver.addCredit(hours);
-        walletHistoryRepository.save(WalletHistory.builder()
-                .wallet(receiver.getWallet())
-                .product(product)
-                .type(WalletATM.EARN)
-                .amount(hours)
-                .balance(receiver.getWallet().getCredit())
-                .createdAt(LocalDateTime.now())
-                .build());
+        walletHistoryRepository.save(
+                WalletHistory.builder().wallet(receiver.getWallet()).product(product).type(WalletATM.EARN).amount(hours)
+                        .balance(receiver.getWallet().getCredit()).createdAt(LocalDateTime.now()).build());
     }
 
     @Override

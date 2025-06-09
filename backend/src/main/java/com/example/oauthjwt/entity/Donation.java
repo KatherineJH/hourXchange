@@ -1,17 +1,18 @@
 package com.example.oauthjwt.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.oauthjwt.dto.request.DonationRequest;
 import com.example.oauthjwt.entity.type.DonationStatus;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @Entity
@@ -67,19 +68,11 @@ public class Donation {
     private User author;
 
     public static Donation of(DonationRequest donationRequest, User user) {
-        return Donation.builder()
-                .purpose(donationRequest.getPurpose())
-                .currentAmount(0)
-                .targetAmount(donationRequest.getTargetAmount())
-                .title(donationRequest.getTitle())
-                .description(donationRequest.getDescription())
-                .startDate(donationRequest.getStartDate())
-                .endDate(donationRequest.getEndDate())
-                .createdAt(LocalDateTime.now())
-                .viewCount(0)
-                .status(DonationStatus.ONGOING)
-                .author(user)
-                .build();
+        return Donation.builder().purpose(donationRequest.getPurpose()).currentAmount(0)
+                .targetAmount(donationRequest.getTargetAmount()).title(donationRequest.getTitle())
+                .description(donationRequest.getDescription()).startDate(donationRequest.getStartDate())
+                .endDate(donationRequest.getEndDate()).createdAt(LocalDateTime.now()).viewCount(0)
+                .status(DonationStatus.ONGOING).author(user).build();
     }
 
     public Donation setUpdateValue(DonationRequest donationRequest) {
@@ -102,7 +95,7 @@ public class Donation {
         this.currentAmount += amount;
     }
 
-    public Donation addViewCount(){
+    public Donation addViewCount() {
         this.viewCount++;
         return this;
     }

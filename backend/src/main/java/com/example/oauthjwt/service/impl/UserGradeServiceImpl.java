@@ -1,22 +1,24 @@
 package com.example.oauthjwt.service.impl;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.oauthjwt.entity.User;
 import com.example.oauthjwt.repository.PaymentRepository;
 import com.example.oauthjwt.repository.TransactionRepository;
 import com.example.oauthjwt.repository.UserRepository;
 import com.example.oauthjwt.repository.VisitLogRepository;
 import com.example.oauthjwt.service.UserGradeService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -40,25 +42,23 @@ public class UserGradeServiceImpl implements UserGradeService {
         String regionFull = userRepository.findRegionByUserId(userId);
         String region = extractRegion(regionFull);
 
-//        System.out.println("[DEBUG] userId=" + userId + " → raw regionFull = " + regionFull);
-//        System.out.println("[DEBUG] userId=" + userId + " → extracted region = " + region);
+        // System.out.println("[DEBUG] userId=" + userId + " → raw regionFull = " +
+        // regionFull);
+        // System.out.println("[DEBUG] userId=" + userId + " → extracted region = " +
+        // region);
 
         int transactionCount = transactionRepository.countCompletedTransactions(userId);
         int paymentCount = paymentRepository.countPaymentsByUserId(userId);
         Integer totalAmount = paymentRepository.sumPaymentsByUserId(userId);
-        if (totalAmount == null) totalAmount = 0;
+        if (totalAmount == null)
+            totalAmount = 0;
 
         LocalDateTime lastVisit = visitLogRepository.findLastVisitTime(userId);
         long daysSinceLastActivity = Duration.between(lastVisit, LocalDateTime.now()).toDays();
 
-        Map<String, Object> features = Map.of(
-                "signup_date", signupDate.toLocalDate().toString(),
-                "region", region,
-                "transaction_count", transactionCount,
-                "payment_count", paymentCount,
-                "total_payment_amount", totalAmount,
-                "days_since_last_activity", daysSinceLastActivity
-        );
+        Map<String, Object> features = Map.of("signup_date", signupDate.toLocalDate().toString(), "region", region,
+                "transaction_count", transactionCount, "payment_count", paymentCount, "total_payment_amount",
+                totalAmount, "days_since_last_activity", daysSinceLastActivity);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -69,7 +69,8 @@ public class UserGradeServiceImpl implements UserGradeService {
     }
 
     private String extractRegion(String address) {
-        if (address == null || address.isBlank()) return "기타";
+        if (address == null || address.isBlank())
+            return "기타";
         String trimmed = address.trim();
         return trimmed.length() >= 2 ? trimmed.substring(0, 2) : trimmed;
     }
@@ -83,17 +84,12 @@ public class UserGradeServiceImpl implements UserGradeService {
     public List<Map<String, Object>> predictAllUserGrades() {
         List<User> users = userRepository.findAll();
 
-        return users.stream()
-                .<Map<String, Object>>map(user -> {
-                    try {
-                        return predictUserGradeById(user.getId());
-                    } catch (Exception e) {
-                        return Map.of(
-                                "userId", user.getId(),
-                                "error", e.getMessage()
-                        );
-                    }
-                })
-                .collect(Collectors.toList());
+        return users.stream().<Map<String, Object>>map(user -> {
+            try {
+                return predictUserGradeById(user.getId());
+            } catch (Exception e) {
+                return Map.of("userId", user.getId(), "error", e.getMessage());
+            }
+        }).collect(Collectors.toList());
     }
 }

@@ -48,16 +48,9 @@ public class Board {
     @Builder.Default
     private List<BoardImage> images = new ArrayList<>();
 
-
-
     public static Board of(BoardRequest boardRequest, User author, Category category) {
-        return Board.builder()
-                .title(boardRequest.getTitle())
-                .category(category)
-                .description(boardRequest.getDescription())
-                .author(author)
-                .createdAt(LocalDateTime.now())
-                .build();
+        return Board.builder().title(boardRequest.getTitle()).category(category)
+                .description(boardRequest.getDescription()).author(author).createdAt(LocalDateTime.now()).build();
     }
 
     public Board setUpdateValue(BoardRequest request, Category category) {

@@ -1,11 +1,11 @@
 package com.example.oauthjwt.service;
 
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.example.oauthjwt.dto.request.BoardRequest;
 import com.example.oauthjwt.dto.response.BoardResponse;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 public interface BoardService {
 

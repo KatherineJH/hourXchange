@@ -1,9 +1,10 @@
 package com.example.oauthjwt.repository;
 
-import com.example.oauthjwt.entity.WalletHistory;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.example.oauthjwt.entity.WalletHistory;
 
 public interface WalletHistoryRepository extends JpaRepository<WalletHistory, Long> {
     List<WalletHistory> findByWalletIdOrderByCreatedAtDesc(Long walletId);

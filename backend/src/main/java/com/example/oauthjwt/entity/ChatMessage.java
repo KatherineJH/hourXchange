@@ -3,8 +3,7 @@ package com.example.oauthjwt.entity;
 import java.time.LocalDateTime;
 
 import com.example.oauthjwt.entity.type.ChatMessageType;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
-import com.example.oauthjwt.entity.type.ChatRoomUserStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,12 +38,7 @@ public class ChatMessage {
     private LocalDateTime sentAt;
 
     public static ChatMessage of(ChatRoom chatRoom, User sender, String content, ChatMessageType chatMessageType) {
-        return ChatMessage.builder()
-                .chatRoom(chatRoom)
-                .sender(sender)
-                .content(content)
-                .chatMessageType(chatMessageType)
-                .sentAt(LocalDateTime.now())
-                .build();
+        return ChatMessage.builder().chatRoom(chatRoom).sender(sender).content(content).chatMessageType(chatMessageType)
+                .sentAt(LocalDateTime.now()).build();
     }
 }

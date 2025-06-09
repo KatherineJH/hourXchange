@@ -1,17 +1,7 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
-import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
-import com.example.oauthjwt.dto.request.PaymentOrderRequest;
-import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
-import com.example.oauthjwt.dto.response.PaymentOrderResponse;
-import com.example.oauthjwt.dto.response.PaymentResponse;
-import com.example.oauthjwt.dto.response.PaymentVerifyResponse;
-import com.example.oauthjwt.service.impl.IamportService;
-import com.example.oauthjwt.service.PaymentService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import com.example.oauthjwt.dto.condition.OrdersSearchCondition;
+import com.example.oauthjwt.dto.condition.PaymentSearchCondition;
+import com.example.oauthjwt.dto.request.PaymentOrderRequest;
+import com.example.oauthjwt.dto.request.PaymentVerifyRequest;
+import com.example.oauthjwt.dto.response.PaymentOrderResponse;
+import com.example.oauthjwt.dto.response.PaymentResponse;
+import com.example.oauthjwt.dto.response.PaymentVerifyResponse;
+import com.example.oauthjwt.service.PaymentService;
+import com.example.oauthjwt.service.impl.IamportService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequestMapping("/api/pay")
@@ -29,7 +31,6 @@ import java.util.Map;
 public class PaymentController {
     private final IamportService iamportService;
     private final PaymentService paymentService;
-
 
     /** 클라이언트 콜백으로부터 imp_uid, merchant_uid 를 받아 검증 */
     @PostMapping("/iamport/transaction")
@@ -63,7 +64,7 @@ public class PaymentController {
     @GetMapping("/order/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<PaymentOrderResponse>> orderList(@RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         Page<PaymentOrderResponse> result = paymentService.orderList(pageable);
@@ -74,8 +75,7 @@ public class PaymentController {
     @GetMapping("/order/search/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<PaymentOrderResponse>> orderSearch(@RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "10") int size,
-                                                             @ModelAttribute OrdersSearchCondition ordersSearchCondition) {
+            @RequestParam(defaultValue = "10") int size, @ModelAttribute OrdersSearchCondition ordersSearchCondition) {
         log.info(ordersSearchCondition);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
@@ -87,7 +87,7 @@ public class PaymentController {
     @GetMapping("/payment/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<PaymentResponse>> paymentList(@RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("paidAt").descending()); // 최신순 정렬
 
         Page<PaymentResponse> result = paymentService.paymentList(pageable);
@@ -98,8 +98,8 @@ public class PaymentController {
     @GetMapping("/payment/search/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<PaymentResponse>> paymentSearch(@RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "10") int size,
-                                                               @ModelAttribute PaymentSearchCondition paymentSearchCondition) {
+            @RequestParam(defaultValue = "10") int size,
+            @ModelAttribute PaymentSearchCondition paymentSearchCondition) {
         log.info(paymentSearchCondition);
         Pageable pageable = PageRequest.of(page, size, Sort.by("paidAt").descending()); // 최신순 정렬
 

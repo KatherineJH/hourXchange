@@ -81,6 +81,7 @@ tasks.named('test') {
 
 spotless {
 	java {
+		targetExclude("build/generated/**")
 		eclipse().configFile("eclipse-formatter.xml")
 		importOrder('java', 'javax', 'org', 'com')
 		removeUnusedImports()

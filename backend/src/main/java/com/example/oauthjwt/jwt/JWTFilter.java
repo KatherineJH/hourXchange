@@ -1,17 +1,17 @@
 package com.example.oauthjwt.jwt;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.oauthjwt.service.impl.CustomUserDetailsService;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +19,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 public class JWTFilter extends OncePerRequestFilter {
@@ -36,11 +35,12 @@ public class JWTFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         log.info(path);
-        if(path.startsWith("/api/auth/logout") || path.startsWith("/api/auth/me") || path.startsWith("/api/auth/refresh")){
+        if (path.startsWith("/api/auth/logout") || path.startsWith("/api/auth/me")
+                || path.startsWith("/api/auth/refresh")) {
             return true;
-        };
+        } ;
 
-         return false;
+        return false;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class JWTFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("JWT authentication successful for user: {}", email);
-            } catch (ResponseStatusException e){
+            } catch (ResponseStatusException e) {
                 // DB에 유저 정보가 없으면 인증 컨텍스트만 클리어하고 넘어감 (익명 처리)
                 log.warn("User not found during JWT auth, proceeding anonymously: {}", e.getMessage());
                 SecurityContextHolder.clearContext();

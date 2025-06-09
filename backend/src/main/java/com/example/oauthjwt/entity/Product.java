@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.VollcolectionResponse.Item;
-
 import com.example.oauthjwt.entity.type.ProviderType;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -93,28 +93,14 @@ public class Product {
     @Builder.Default
     private List<ProductTag> productTags = new ArrayList<>();
 
-    public static Product of(ProductRequest productRequest,
-                             User owner,
-                             Category category,
-                             ProviderType providerType,
-                             List<ProductImage> images,
-                             List<String> tagStrings) {
+    public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType,
+            List<ProductImage> images, List<String> tagStrings) {
 
-        Product product = Product.builder()
-                .title(productRequest.getTitle())
-                .description(productRequest.getDescription())
-                .hours(productRequest.getHours())
-                .startedAt(productRequest.getStartedAt())
-                .endAt(productRequest.getEndAt())
-                .lat(productRequest.getLat())
-                .lng(productRequest.getLng())
-                .viewCount(0)
-                .createdAt(LocalDateTime.now())
-                .status(true)
-                .owner(owner)
-                .category(category)
-                .providerType(providerType)
-                .build();
+        Product product = Product.builder().title(productRequest.getTitle())
+                .description(productRequest.getDescription()).hours(productRequest.getHours())
+                .startedAt(productRequest.getStartedAt()).endAt(productRequest.getEndAt()).lat(productRequest.getLat())
+                .lng(productRequest.getLng()).viewCount(0).createdAt(LocalDateTime.now()).status(true).owner(owner)
+                .category(category).providerType(providerType).build();
 
         // 이미지 설정
         images.forEach(img -> img.setProduct(product));
@@ -123,10 +109,7 @@ public class Product {
         // 태그 설정
         if (tagStrings != null) {
             tagStrings.stream().limit(5).forEach(tagStr -> {
-                ProductTag tag = ProductTag.builder()
-                        .productTag(tagStr)
-                        .product(product)
-                        .build();
+                ProductTag tag = ProductTag.builder().productTag(tagStr).product(product).build();
                 product.getProductTags().add(tag);
             });
         }
@@ -135,20 +118,10 @@ public class Product {
     }
 
     public static Product of(ProductRequest productRequest, User owner, Category category, ProviderType providerType) {
-        return Product.builder()
-                .title(productRequest.getTitle())
-                .description(productRequest.getDescription())
-                .hours(productRequest.getHours())
-                .startedAt(productRequest.getStartedAt())
-                .endAt(productRequest.getEndAt())
-                .lat(productRequest.getLat())
-                .lng(productRequest.getLng())
-                .viewCount(0)
-                .createdAt(LocalDateTime.now())
-                .status(true)
-                .owner(owner)
-                .category(category)
-                .providerType(providerType)
+        return Product.builder().title(productRequest.getTitle()).description(productRequest.getDescription())
+                .hours(productRequest.getHours()).startedAt(productRequest.getStartedAt())
+                .endAt(productRequest.getEndAt()).lat(productRequest.getLat()).lng(productRequest.getLng()).viewCount(0)
+                .createdAt(LocalDateTime.now()).status(true).owner(owner).category(category).providerType(providerType)
                 .build();
     }
 
@@ -161,21 +134,10 @@ public class Product {
     }
 
     public static Product of(Item item, User user, Category category, ProviderType providerType, String[] position) {
-        return Product.builder()
-                .title(item.getTitle())
-                .description(item.getSeq())
-                .hours(0)
-                .startedAt(LocalDateTime.now())
-                .endAt(LocalDateTime.now())
-                .lat(position[0])
-                .lng(position[1])
-                .viewCount(0)
-                .createdAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
-                .status(true)
-                .owner(user)
-                .category(category)
-                .providerType(providerType)
-                .build();
+        return Product.builder().title(item.getTitle()).description(item.getSeq()).hours(0)
+                .startedAt(LocalDateTime.now()).endAt(LocalDateTime.now()).lat(position[0]).lng(position[1])
+                .viewCount(0).createdAt(LocalDate.parse(item.getRegDate(), DateTimeFormatter.ISO_DATE).atStartOfDay())
+                .status(true).owner(user).category(category).providerType(providerType).build();
     }
 
     public Product setUpdateValue(ProductRequest productRequest, Category category, ProviderType providerType,
@@ -198,7 +160,7 @@ public class Product {
         return this;
     }
 
-    public void setDelete(){
+    public void setDelete() {
         this.status = false;
     }
 }

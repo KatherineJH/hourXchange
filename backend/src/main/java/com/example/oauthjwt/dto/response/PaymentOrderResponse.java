@@ -1,6 +1,7 @@
 package com.example.oauthjwt.dto.response;
 
 import com.example.oauthjwt.entity.Orders;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +28,8 @@ public class PaymentOrderResponse {
     private String orderToken; // 주문시 발급 된 토큰
 
     public static PaymentOrderResponse toDto(Orders orders) {
-        return PaymentOrderResponse.builder()
-                .id(orders.getId())
-                .merchantUid(orders.getMerchantUid())
-                .impUid(orders.getImpUid())
-                .email(orders.getEmail())
-                .paymentItemName(orders.getPaymentItemName())
-                .paymentItemPrice(orders.getPaymentItemPrice())
-                .build();
+        return PaymentOrderResponse.builder().id(orders.getId()).merchantUid(orders.getMerchantUid())
+                .impUid(orders.getImpUid()).email(orders.getEmail()).paymentItemName(orders.getPaymentItemName())
+                .paymentItemPrice(orders.getPaymentItemPrice()).build();
     }
 }

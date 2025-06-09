@@ -1,17 +1,11 @@
 package com.example.oauthjwt.service.impl;
 
-import com.example.oauthjwt.dto.condition.DonationSearchCondition;
-import com.example.oauthjwt.dto.request.DonationRequest;
-import com.example.oauthjwt.dto.response.DonationHistoryResponse;
-import com.example.oauthjwt.dto.response.DonationResponse;
-import com.example.oauthjwt.dto.response.PageResult;
-import com.example.oauthjwt.entity.*;
-import com.example.oauthjwt.entity.type.DonationStatus;
-import com.example.oauthjwt.repository.*;
-import com.example.oauthjwt.service.DonationService;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,16 +18,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.oauthjwt.dto.condition.DonationSearchCondition;
+import com.example.oauthjwt.dto.request.DonationRequest;
+import com.example.oauthjwt.dto.response.DonationHistoryResponse;
+import com.example.oauthjwt.dto.response.DonationResponse;
+import com.example.oauthjwt.dto.response.PageResult;
+import com.example.oauthjwt.entity.*;
+import com.example.oauthjwt.entity.type.DonationStatus;
+import com.example.oauthjwt.repository.*;
+import com.example.oauthjwt.service.DonationService;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
-@CacheConfig(cacheNames = { "donationFindAll" })
+@CacheConfig(cacheNames = {"donationFindAll"})
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository donationRepository;
     private final DonationHistoryRepository donationHistoryRepository;
@@ -43,7 +45,7 @@ public class DonationServiceImpl implements DonationService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
-    @CacheEvict(cacheNames = { "donationFindAll", "searchDonations" }, allEntries = true)
+    @CacheEvict(cacheNames = {"donationFindAll", "searchDonations"}, allEntries = true)
     public DonationResponse createDonation(DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -71,7 +73,7 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = { "donationFindAll", "donationSearch" }, allEntries = true)
+    @CacheEvict(cacheNames = {"donationFindAll", "donationSearch"}, allEntries = true)
     public DonationResponse update(Long donationId, DonationRequest donationRequest, CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         User author = userRepository.findById(userId)
@@ -80,11 +82,11 @@ public class DonationServiceImpl implements DonationService {
         Donation donation = donationRepository.findById(donationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
 
-        if(!donation.getAuthor().getId().equals(author.getId())) {
+        if (!donation.getAuthor().getId().equals(author.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글을 수정할 권한이 없습니다.");
         }
 
-        if(donationRequest.getTargetAmount() < donation.getCurrentAmount()){
+        if (donationRequest.getTargetAmount() < donation.getCurrentAmount()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "모집 목표시간은 현재 모집된 시간보다 높아야합니다.");
         }
 
@@ -113,7 +115,7 @@ public class DonationServiceImpl implements DonationService {
         String key = "view donationId: " + donationId + ", by: " + userKey;
 
         Boolean alreadyExists = stringRedisTemplate.hasKey(key);
-        if(!alreadyExists) { // 존재하지 않으면
+        if (!alreadyExists) { // 존재하지 않으면
             log.info("캐싱");
             // 뷰 카운트 증가
             donationRepository.save(result.addViewCount());
@@ -132,17 +134,11 @@ public class DonationServiceImpl implements DonationService {
 
         Page<Donation> donationPage = donationRepository.findAll(pageable);
 
-        List<DonationResponse> content = donationPage.getContent().stream()
-                .map(DonationResponse::toDto)
+        List<DonationResponse> content = donationPage.getContent().stream().map(DonationResponse::toDto)
                 .collect(Collectors.toList());
 
-        return new PageResult<>(
-                content,
-                donationPage.getNumber(),
-                donationPage.getSize(),
-                donationPage.getTotalElements(),
-                donationPage.getTotalPages()
-        );
+        return new PageResult<>(content, donationPage.getNumber(), donationPage.getSize(),
+                donationPage.getTotalElements(), donationPage.getTotalPages());
     }
 
     @Override
@@ -151,10 +147,10 @@ public class DonationServiceImpl implements DonationService {
         Donation donation = donationRepository.findById(donationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
 
-        if(!donation.getAuthor().getId().equals(userDetails.getUser().getId())) {
+        if (!donation.getAuthor().getId().equals(userDetails.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "게시글을 삭제할 권한이 없습니다.");
         }
-        if(donation.getStatus().equals(DonationStatus.CANCELLED)){
+        if (donation.getStatus().equals(DonationStatus.CANCELLED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 삭제된 기부모집입니다.");
         }
 
@@ -181,37 +177,22 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public List<DonationResponse> getTopByProgress(int limit) {
         LocalDate today = LocalDate.now();
-        return donationRepository.findTopByProgress(
-                        DonationStatus.ONGOING,
-                        today,
-                        PageRequest.of(0, limit)
-                ).stream()
-                .map(DonationResponse::toDto)
-                .collect(Collectors.toList());
+        return donationRepository.findTopByProgress(DonationStatus.ONGOING, today, PageRequest.of(0, limit)).stream()
+                .map(DonationResponse::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<DonationResponse> getTopByViewCount(int limit) {
         LocalDate today = LocalDate.now();
-        return donationRepository.findTopByViewCount(
-                        DonationStatus.ONGOING,
-                        today,
-                        PageRequest.of(0, limit)
-                ).stream()
-                .map(DonationResponse::toDto)
-                .collect(Collectors.toList());
+        return donationRepository.findTopByViewCount(DonationStatus.ONGOING, today, PageRequest.of(0, limit)).stream()
+                .map(DonationResponse::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<DonationResponse> getTopByRecent(int limit) {
         LocalDate today = LocalDate.now();
-        return donationRepository.findTopByCreatedAt(
-                        DonationStatus.ONGOING,
-                        today,
-                        PageRequest.of(0, limit)
-                ).stream()
-                .map(DonationResponse::toDto)
-                .collect(Collectors.toList());
+        return donationRepository.findTopByCreatedAt(DonationStatus.ONGOING, today, PageRequest.of(0, limit)).stream()
+                .map(DonationResponse::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -220,16 +201,10 @@ public class DonationServiceImpl implements DonationService {
 
         Page<Donation> donationPage = donationRepository.search(condition, pageable);
 
-        List<DonationResponse> content = donationPage.getContent().stream()
-                .map(DonationResponse::toDto)
+        List<DonationResponse> content = donationPage.getContent().stream().map(DonationResponse::toDto)
                 .collect(Collectors.toList());
 
-        return new PageResult<>(
-                content,
-                donationPage.getNumber(),
-                donationPage.getSize(),
-                donationPage.getTotalElements(),
-                donationPage.getTotalPages()
-        );
+        return new PageResult<>(content, donationPage.getNumber(), donationPage.getSize(),
+                donationPage.getTotalElements(), donationPage.getTotalPages());
     }
 }

@@ -3,8 +3,8 @@ package com.example.oauthjwt.entity;
 import java.time.LocalDateTime;
 
 import com.example.oauthjwt.dto.request.TransactionRequest;
-
 import com.example.oauthjwt.entity.type.TransactionStatus;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,13 +45,8 @@ public class Transaction {
     private Review review;
 
     public static Transaction of(User user, Product product, TransactionStatus status, ChatRoom chatRoom) {
-        return Transaction.builder()
-                .user(user)
-                .product(product)
-                .status(status)
-                .chatRoom(chatRoom)
-                .createdAt(LocalDateTime.now())
-                .build();
+        return Transaction.builder().user(user).product(product).status(status).chatRoom(chatRoom)
+                .createdAt(LocalDateTime.now()).build();
     }
 
     public Transaction setUpdateValue(TransactionRequest transactionRequest, User user, Product product,

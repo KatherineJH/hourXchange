@@ -1,11 +1,8 @@
 package com.example.oauthjwt.controller;
 
-import com.example.oauthjwt.dto.condition.UserSearchCondition;
-import com.example.oauthjwt.dto.response.DonationHistoryResponse;
-import com.example.oauthjwt.dto.response.UserResponse;
-import com.example.oauthjwt.service.UserService;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
-import lombok.extern.log4j.Log4j2;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +12,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
+import com.example.oauthjwt.dto.condition.UserSearchCondition;
+import com.example.oauthjwt.dto.response.UserResponse;
+import com.example.oauthjwt.service.UserService;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequestMapping("/api/user")
@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/list")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<Page<UserResponse>> getUserList(@RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
         Page<UserResponse> result = userService.getUserList(pageable);
@@ -61,8 +61,7 @@ public class UserController {
     @GetMapping("/search/list")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<Page<UserResponse>> search(@RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "10") int size,
-                                                     @ModelAttribute UserSearchCondition condition) {
+            @RequestParam(defaultValue = "10") int size, @ModelAttribute UserSearchCondition condition) {
         log.info(condition);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 

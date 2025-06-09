@@ -1,12 +1,7 @@
 package com.example.oauthjwt.controller;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import com.example.oauthjwt.dto.response.AdvertisementResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
+import com.example.oauthjwt.dto.response.AdvertisementResponse;
 import com.example.oauthjwt.entity.Advertisement;
 import com.example.oauthjwt.service.AdvertisementService;
 import com.example.oauthjwt.service.impl.CustomUserDetails;
@@ -41,7 +37,6 @@ public class AdvertisementController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
-
         log.info(advertisementRequest.toString());
         Advertisement ad = advertisementService.createAdvertisement(advertisementRequest, userDetails);
         AdvertisementResponse response = AdvertisementResponse.toDto(ad);
@@ -49,14 +44,17 @@ public class AdvertisementController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?>  findAllAdvertisement(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<?> findAllAdvertisement(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Page<AdvertisementResponse> responses = advertisementService.findAllAdvertisements(PageRequest.of(page, size));
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> findMyAds(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "10") int size) {
-        Page<AdvertisementResponse> responses = advertisementService.findMyAdvertisements(userDetails, PageRequest.of(page, size));
+    public ResponseEntity<?> findMyAds(@AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<AdvertisementResponse> responses = advertisementService.findMyAdvertisements(userDetails,
+                PageRequest.of(page, size));
         return ResponseEntity.ok(responses);
     }
     @GetMapping("/{advertisementId}")
@@ -69,17 +67,17 @@ public class AdvertisementController {
     @PutMapping("/{advertisementId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateAdvertisement(@PathVariable Long advertisementId,
-                                                 @RequestBody @Valid AdvertisementRequest advertisementRequest,
-                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @RequestBody @Valid AdvertisementRequest advertisementRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementId, advertisementRequest, userDetails);
+        AdvertisementResponse response = advertisementService.updateAdvertisement(advertisementId, advertisementRequest,
+                userDetails);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{advertisementId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public void deleteAdvertisement(
-            @PathVariable Long advertisementId,
+    public void deleteAdvertisement(@PathVariable Long advertisementId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         advertisementService.deleteAdvertisement(advertisementId, userDetails);
     }

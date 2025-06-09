@@ -1,15 +1,15 @@
 package com.example.oauthjwt.entity;
 
+import java.util.List;
+
 import com.example.oauthjwt.dto.request.AdvertisementRequest;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
-
-import java.util.List;
 
 @Entity
 @Data
@@ -41,7 +41,7 @@ public class Advertisement {
     @JsonIgnore
     private User owner;
 
-    //광고 수정용 메서드
+    // 광고 수정용 메서드
     public void setUpdateValue(AdvertisementRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
@@ -50,12 +50,7 @@ public class Advertisement {
     }
 
     public static Advertisement of(AdvertisementRequest request, User owner) {
-        return Advertisement.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .hours(request.getHours())
-                .images(request.getImages())
-                .owner(owner)
-                .build();
+        return Advertisement.builder().title(request.getTitle()).description(request.getDescription())
+                .hours(request.getHours()).images(request.getImages()).owner(owner).build();
     }
 }

@@ -2,15 +2,15 @@ package com.example.oauthjwt.service;
 
 import java.util.List;
 
-import com.example.oauthjwt.dto.response.PageResult;
-import com.example.oauthjwt.entity.type.ProviderType;
-import com.example.oauthjwt.service.impl.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.example.oauthjwt.dto.request.ProductRequest;
 import com.example.oauthjwt.dto.response.FavoriteResponse;
+import com.example.oauthjwt.dto.response.PageResult;
 import com.example.oauthjwt.dto.response.ProductResponse;
+import com.example.oauthjwt.entity.type.ProviderType;
+import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 public interface ProductService {
 
