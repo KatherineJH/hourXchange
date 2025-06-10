@@ -10,13 +10,13 @@ export default function CarouselAd() {
   const images = [
     {
       id: 1,
-      src: "/donationAd.png",
+      src: "/donations.png",
       alt: "광고1",
       linkTo: "/product/donation",
     },
     {
       id: 2,
-      src: "/donationAd1.png",
+      src: "/volunteer.png",
       alt: "광고2",
       linkTo: "/product/volunteer",
     },
@@ -81,7 +81,7 @@ export default function CarouselAd() {
               onClick={() => handleImageClick(image.linkTo)}
               sx={{
                 flexShrink: 0,
-                width: `${200 / images.length}%`, // ❗ 기존 사용자 설정 유지
+                width: `${200 / images.length}%`, //기존 사용자 설정 유지
                 height: "100%",
                 objectFit: "cover",
                 borderRadius: 1,

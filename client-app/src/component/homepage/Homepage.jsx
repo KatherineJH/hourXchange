@@ -18,6 +18,7 @@ import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
 import {useHasEmail} from "../../assets/useCustomAuth.js";
+import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -50,8 +51,23 @@ export default function Homepage() {
   const { pathname } = useLocation(); // 현재 경로
   const isLoggedIn = useHasEmail();
   const [openModal, setOpenModal] = useState(true);
+  const [noShowChecked, setNoShowChecked] = useState(false);
+
+  useEffect(() => {
+    const expire = Number(localStorage.getItem("homepageAdNoShowUntil"));
+    const now = new Date().getTime();
+    if (now < expire) {
+      setOpenModal(false);
+    } else {
+      setOpenModal(true);
+    }
+  }, []);
 
   const handleCloseModal = () => {
+    if (noShowChecked) {
+      const expireDate = new Date().getTime() + 3 * 24 * 60 * 60 * 1000;
+      localStorage.setItem("homepageAdNoShowUntil", expireDate);
+    }
     setOpenModal(false);
   };
 
@@ -122,41 +138,50 @@ export default function Homepage() {
   }, []);
 
   return (
-    <Box
-      sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
-    >
-      {/*모달 영역 */}
-      <Modal open={openModal}>
-        <Box sx={{ ...modalStyle, outline: "none" }}>
-          {/* 이미지 영역 */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ width: "100%" }}>
-              <CarouselAd />
-            </Box>
+    <div style={{ padding: "1rem" }}>
+      {/* 왼쪽 아래 팝업 영역 */}
+      {openModal && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: "2rem",
+            left: 35,
+            zIndex: 1300,
+            width: 320,
+            height: 320,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 5,
+            p: 1,
+          }}
+        >
+          {/* 이미지 캐러셀 */}
+          <Box sx={{ width: "100%", mb: 1 }}>
+            <CarouselAd />
           </Box>
 
-          {/*닫기 버튼 */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 1,
-              mt: 3,
-            }}
-          >
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleCloseModal}
-              >
-                닫기
-              </Button>
-            </Box>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={noShowChecked}
+                onChange={(e) => setNoShowChecked(e.target.checked)}
+              />
+            }
+            label="3일 동안 이 창 보지 않기"
+            sx={{ display: "block" }}
+          />
+
+          {/* 닫기 버튼 */}
+          <Box sx={{ textAlign: "center" }}>
+            <Button variant="contained" size="small" onClick={handleCloseModal}>
+              닫기
+            </Button>
           </Box>
         </Box>
-      </Modal>
+      )}
+
+      <h1>🏠 Home Page</h1>
+      <TopDonatorsChart />
 
       <CustomHeader text={"거의 모집이 완료된 기부"} />
       <DonationCardList
@@ -203,6 +228,6 @@ export default function Homepage() {
       />
       <CategoryNav />
       <ListTable category={selectedCategory} />
-    </Box>
+    </div>
   );
 }

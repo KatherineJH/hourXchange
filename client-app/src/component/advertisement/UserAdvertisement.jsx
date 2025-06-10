@@ -1,97 +1,103 @@
-// import React from "react";
-// import { Box, Typography, CardContent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Chip, CircularProgress } from "@mui/material";
+import { getAdvertisement } from "../../api/advertisementApi";
 
-// function UserAdvertisement({ ad }) {
-//   if (!ad) {
-//     return (
-//       <Box
-//         sx={{
-//           border: "1px dashed gray",
-//           padding: 2,
-//           borderRadius: 2,
-//           textAlign: "center",
-//         }}
-//       >
-//         <Typography color="text.secondary">
-//           광고를 불러오는 중입니다...
-//         </Typography>
-//       </Box>
-//     );
-//   }
+export default function UserAdvertisement({ width = 300, height = 200 }) {
+  const [ad, setAd] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-//   return (
-//     <Box
-//       sx={{
-//         minHeight: 700,
-//         p: 2,
-//         border: "1px solid #ccc",
-//         borderRadius: 2,
-//         backgroundColor: "#fafafa",
-//         maxWidth: 300,
-//         width: "100%",
-//         flexDirection: "column",
-//         boxShadow: 3,
-//       }}
-//     >
-//       <CardContent>
-//         <Typography variant="h6" gutterBottom>
-//           {ad.title}
-//         </Typography>
-//         <Typography variant="body2" gutterBottom>
-//           {ad.description}
-//         </Typography>
-//       </CardContent>
-//       <Box
-//         component="img"
-//         src={ad.imgUrl ?? "/donationAd.png"}
-//         alt={ad.title}
-//         sx={{
-//           width: "100%",
-//           borderRadius: 1,
-//           mb: 2,
-//         }}
-//       />
-//       <Typography variant="caption" color="text.secondary">
-//         작성자: {ad.ownerName}
-//       </Typography>
-//     </Box>
-//   );
-// }
+  // adsArray 중 하나를 무작위로 반환
+  const pickRandomAd = (adsArray) => {
+    if (!Array.isArray(adsArray) || adsArray.length === 0) return null;
+    const idx = Math.floor(Math.random() * adsArray.length);
+    return adsArray[idx];
+  };
 
-// export default UserAdvertisement;
+  useEffect(() => {
+    let isMounted = true;
 
-import React from "react";
-import { Box, Typography, CardContent, Chip, Button } from "@mui/material";
+    getAdvertisement()
+      .then((res) => {
+        if (!isMounted) return;
+        if (Array.isArray(res.content) && res.content.length > 0) {
+          const randomAd = pickRandomAd(res.content);
+          console.log("▶️ 랜덤 선택된 ad:", randomAd);
+          setAd(randomAd);
+        } else {
+          setError("등록된 광고가 없습니다.");
+        }
+      })
+      .catch((err) => {
+        console.error("광고 로딩 실패:", err);
+        if (isMounted) setError("광고를 불러오는 데 실패했습니다.");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
-function UserAdvertisement({ ad }) {
-  if (!ad) {
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // 로딩 중 표시
+  if (loading) {
     return (
       <Box
         sx={{
-          border: "1px dashed gray",
-          padding: 2,
-          borderRadius: 2,
+          width,
+          height,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: 3,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+          background: "linear-gradient(to bottom, #ffffff, #f7f7f7)",
+        }}
+      >
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
+
+  if (error || !ad) {
+    return (
+      <Box
+        sx={{
+          width,
+          height,
+          borderRadius: 3,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+          background: "linear-gradient(to bottom, #ffffff, #f7f7f7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 2,
           textAlign: "center",
         }}
       >
-        <Typography color="text.secondary">
-          광고를 불러오는 중입니다...
+        <Typography variant="body2" color="text.secondary">
+          {error || "광고를 불러오는 중 문제가 발생했습니다."}
         </Typography>
       </Box>
     );
   }
 
+  const imageUrl =
+    Array.isArray(ad.images) && ad.images.length > 0
+      ? ad.images[0]
+      : "/default.png";
+
   return (
     <Box
       sx={{
-        maxWidth: 300,
-        width: "100%",
-        borderRadius: 3,
+        width,
+        height: "250px",
+        borderRadius: 1,
         overflow: "hidden",
         background: "linear-gradient(to bottom, #ffffff, #f7f7f7)",
         boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        display: "flex",
-        flexDirection: "column",
         position: "relative",
       }}
     >
@@ -103,45 +109,17 @@ function UserAdvertisement({ ad }) {
         sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}
       />
 
-      {/* 이미지 */}
+      {/* 광고 이미지 */}
       <Box
         component="img"
-        src={ad.imgUrl ?? "/donateNow.png"}
-        alt={ad.title}
-        sx={{ width: "100%", height: 160, objectFit: "cover" }}
+        src={imageUrl}
+        alt={ad.title || "광고 이미지"}
+        sx={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
-
-      {/* 콘텐츠 */}
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          {ad.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" gutterBottom noWrap>
-          {ad.description}
-        </Typography>
-      </CardContent>
-
-      {/* CTA 버튼 */}
-      <Box sx={{ p: 2, pt: 0 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          color="primary"
-          href={ad.linkUrl || "#"}
-          target="_blank"
-        >
-          자세히 보기
-        </Button>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ mt: 1, display: "block" }}
-        >
-          작성자: {ad.ownerName}
-        </Typography>
-      </Box>
     </Box>
   );
 }
-
-export default UserAdvertisement;

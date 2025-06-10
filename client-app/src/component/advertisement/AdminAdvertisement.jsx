@@ -67,19 +67,22 @@ export default function AdminAdvertisementList() {
 
   return (
     <Box p={2}>
-      <Typography variant="h5" color="primary" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         모든 광고 리스트 (관리자 전용)
       </Typography>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead sx={{ backgroundColor: "primary.main" }}>
+          <TableHead>
             <TableRow>
-              <TableCell sx={{ color: "white" }}>ID</TableCell>
-              <TableCell sx={{ color: "white" }}>제목</TableCell>
-              <TableCell sx={{ color: "white" }}>설명</TableCell>
-              <TableCell sx={{ color: "white" }}>시간</TableCell>
-              <TableCell sx={{ color: "white" }}>작성자</TableCell>
-              <TableCell sx={{ color: "white" }} align="right">
+              <TableCell sx={{ bgcolor: "secondary.main" }}>ID</TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}>제목</TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}>설명</TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}>시간</TableCell>
+              <TableCell sx={{ bgcolor: "secondary.main" }}>작성자</TableCell>
+              <TableCell
+                sx={{ bgcolor: "secondary.main", pr: 3 }}
+                align="right"
+              >
                 삭제
               </TableCell>
             </TableRow>
