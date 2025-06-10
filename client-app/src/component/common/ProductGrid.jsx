@@ -41,7 +41,7 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
             sx={{
               maxWidth: 345,
               width: "100%",
-              height: 400,
+              height: 420,
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
@@ -92,7 +92,7 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
             <CardContent sx={{ flexGrow: 1, p: 2 }}>
               <Typography sx={{ color: "text.secondary" }}>
                 {product.description.length > 10
-                  ? product.description.substring(0, 10) + "..."
+                  ? product.description.substring(0, 20) + "..."
                   : product.description}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -140,7 +140,7 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
                       key={idx}
                       sx={{
                         backgroundColor: "secondary.main",
-                        color: "#fff",
+                        color: "#000",
                         padding: "4px 10px",
                         borderRadius: "16px",
                         fontSize: "0.8rem",

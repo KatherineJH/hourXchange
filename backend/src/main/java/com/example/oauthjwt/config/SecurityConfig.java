@@ -79,7 +79,7 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/api/category/list", "/api/donation/recent", "/api/donation/top-progress", "/api/donation/top-views",
                         "/api/donation/list/all", "/api/product/list/all", "/api/donationHistory/topDonator", "/api/donation/list",
-                        "/api/board/all", "/api/product/listMap", "/api/product/list"
+                        "/api/board/all", "/api/product/listMap", "/api/product/list", "/api/reviews/list"
                 ).permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated());
