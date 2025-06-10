@@ -54,7 +54,11 @@ function Mid3HourXChange() {
             >
               로그인 하러 가기
             </Button>
-            <Button variant="outlined" onClick={() => navigate("/save")}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/save")}
+              sx={{ color: "black" }}
+            >
               회원가입 하러 가기
             </Button>
           </Box>
