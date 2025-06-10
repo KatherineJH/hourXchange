@@ -37,8 +37,8 @@ const DonationAmountForecast = () => {
   useEffect(() => {
     const fetchDateRange = async () => {
       try {
-        const firstRow = await getRowFromTable("donationhistory", "first");
-        const lastRow = await getRowFromTable("donationhistory", "last");
+        const firstRow = await getRowFromTable("DonationHistory", "first");
+        const lastRow = await getRowFromTable("DonationHistory", "last");
 
         const extractDate = (row) =>
           row.createdAt || row.created_at || row.period || row.date;
