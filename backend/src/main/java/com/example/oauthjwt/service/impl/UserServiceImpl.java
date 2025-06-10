@@ -106,7 +106,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         return UserResponse.toDto(user);
     }
 
