@@ -26,7 +26,7 @@ public class CommonController {
     private static final Set<String> allowedTables = Set.of("Address", "Advertisement", "Board", "BoardImage",
             "Category", "chat_messages", "chat_room_users", "chat_rooms", "Comment", "Donation", "DonationHistory",
             "DonationImage", "Favorite", "Orders", "Payment", "PaymentItem", "Product", "Review", "ReviewTag",
-            "Product", "ProductImage", "ThumbsUp", "Transaction", "User", "VisitLog", "Wallet", "WalletHistory");
+            "ProductImage", "ThumbsUp", "Transaction", "User", "VisitLog", "Wallet", "WalletHistory");
 
     /**
      * 지정된 테이블에서 첫 번째 또는 마지막 row를 조회. 해당 컨트롤러는 서비스와 레포지토리를 따로 사용하지 않음으로, 예외적으로 예외처리를
