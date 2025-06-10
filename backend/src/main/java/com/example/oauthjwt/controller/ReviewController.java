@@ -3,6 +3,10 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import com.example.oauthjwt.util.LocationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,6 +39,13 @@ public class ReviewController {
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponse> getReviewById(@PathVariable Long id) {
         return ResponseEntity.ok(reviewService.getReviewById(id));
+    }
+    @GetMapping("/list")
+    public ResponseEntity<Page<ReviewResponse>> getAllReviews(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+        Page<ReviewResponse> result = reviewService.getAllReviews(pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")

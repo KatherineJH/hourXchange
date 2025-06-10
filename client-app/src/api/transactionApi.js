@@ -42,6 +42,15 @@ export const getReviewById = async (reviewId) => {
   return response.data;
 };
 
+export const getAllReviews = async (page = 0, size = 10) => {
+  console.log("getAllReviews 호출됨:", { page, size });
+  const response = await api.get("/api/reviews/list", {
+    params: { page, size },
+  });
+  console.log("응답 데이터:", response.data);
+  return response.data;
+};
+
 export const updateReview = async (reviewId, reviewData) => {
   const response = await api.put(`${reviewApiUrl}/${reviewId}`, reviewData, {
     headers: { "Content-Type": "application/json" },

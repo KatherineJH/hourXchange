@@ -44,9 +44,7 @@ export default function OrderList() {
                 startDate: params.startDate?.format('YYYY-MM-DD') ?? null,
                 endDate:   params.endDate?.format('YYYY-MM-DD')   ?? null,
             };
-            console.log(formattedParams);
             const response = await getOrderSearch(page, size, formattedParams);
-            console.log(response.data.content)
             setServerData(response.data.content);
             setTotalPages(response.data.totalPages);
         }catch(error){

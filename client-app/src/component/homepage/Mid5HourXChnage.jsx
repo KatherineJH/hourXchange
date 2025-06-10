@@ -10,8 +10,9 @@ import {
 } from "@mui/material";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import {
-  getMyTransactionList,
-  getReviewById,
+    getAllReviews,
+    getMyTransactionList,
+    getReviewById,
 } from "../../api/transactionApi.js";
 import { getAllBoards } from "../../api/boardApi.js";
 
@@ -38,21 +39,9 @@ function Mid5HourXChange() {
     // ─── 리뷰 가져오기 ───
     const fetchReviews = async () => {
       try {
-        const txRes = await getMyTransactionList();
-        const txList = txRes.data || [];
-        const txWithReview = txList.filter((tx) => tx.reviewId);
-
-        const reviewPromises = txWithReview.map(async (tx) => {
-          const reviewRes = await getReviewById(tx.reviewId);
-          return {
-            id: tx.reviewId,
-            content: reviewRes.content,
-            date: reviewRes.createdAt || tx.completedAt || tx.createdAt,
-          };
-        });
-
-        const fetched = await Promise.all(reviewPromises);
-        setReviews(fetched);
+        const response = await getAllReviews(0, 3);
+        console.log(response.content)
+        setReviews(response.content);
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
         setReviews([]);
@@ -180,7 +169,7 @@ function Mid5HourXChange() {
           {tabValue === 0 && (
             <Grid container spacing={3}>
               {reviews.map((rev) => (
-                <Grid item key={rev.id} xs={12} sm={4} md={4}>
+                <Grid item key={rev.reviewId} xs={12} sm={4} md={4}>
                   <Card
                     sx={{
                       width: "100%",

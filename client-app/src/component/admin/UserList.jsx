@@ -34,9 +34,7 @@ export default function UserList() {
 
     const getSearchFuntion = async () => {
         try{
-            console.log(params);
             const response = await getSearch(page, size, params);
-            console.log(response.data.content)
             setServerData(response.data.content);
             setTotalPages(response.data.totalPages);
         }catch(error){

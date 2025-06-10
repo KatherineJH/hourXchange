@@ -62,7 +62,7 @@ public class TransactionController {
     }
 
     @GetMapping("/search/list")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<TransactionResponse>> search(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @ModelAttribute TransactionSearchCondition transactionSearchCondition) {
