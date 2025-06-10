@@ -23,7 +23,7 @@ function Mid5HourXChange() {
   const [recentBoards, setRecentBoards] = useState([]);
   const [boardsLoading, setBoardsLoading] = useState(true);
 
-  const CARD_HEIGHT = "240px";
+  const CARD_HEIGHT = "200px";
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -33,6 +33,7 @@ function Mid5HourXChange() {
           id: r.id,
           content: r.content,
           date: r.createdAt || new Date(),
+          stars: r.stars,
         }));
         setReviews(mapped);
       } catch (error) {
@@ -173,27 +174,31 @@ function Mid5HourXChange() {
                     }}
                   >
                     <Box>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: "bold", mb: 1 }}
-                      >
-                        참여후기
-                      </Typography>
-                      <Typography
-                        variant="body1"
+                      <Box
                         sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          mb: 1,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          참여후기
+                        </Typography>
+                        <img
+                          src="/deer.png"
+                          alt="deer"
+                          style={{ width: 60, opacity: 0.6 }}
+                        />
+                      </Box>
+                      <Typography>
                         {rev.content.length > 10
                           ? rev.content.slice(0, 10) + "..."
                           : rev.content}
                       </Typography>
+                      <Typography>{"★".repeat(rev.stars)}</Typography>
                       <Typography
                         variant="caption"
                         sx={{ color: "text.secondary" }}
@@ -204,13 +209,6 @@ function Mid5HourXChange() {
                           day: "2-digit",
                         })}
                       </Typography>
-                    </Box>
-                    <Box sx={{ mt: 1, textAlign: "right" }}>
-                      <img
-                        src="/deer.png"
-                        alt="deer"
-                        style={{ width: 60, opacity: 0.6 }}
-                      />
                     </Box>
                   </Card>
                 </Grid>
@@ -244,26 +242,34 @@ function Mid5HourXChange() {
                     onClick={() => goToDetail(board.id)}
                   >
                     <Box>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: "bold", mb: 1 }}
-                      >
-                        커뮤니티
-                      </Typography>
-                      <Typography
-                        variant="body1"
+                      <Box
                         sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          mb: 1,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          커뮤니티
+                        </Typography>
+                        <img
+                          src="/deer.png"
+                          alt="deer"
+                          style={{ width: 60, opacity: 0.6 }}
+                        />
+                      </Box>
+                      <Typography>
                         {board.title.length > 10
                           ? board.title.slice(0, 10) + "..."
                           : board.title}
+                      </Typography>
+                      <Typography>
+                        {board.description.length > 10
+                          ? board.description.slice(0, 20) + "..."
+                          : board.description}
                       </Typography>
                       <Typography
                         variant="caption"
@@ -275,13 +281,6 @@ function Mid5HourXChange() {
                           day: "2-digit",
                         })}
                       </Typography>
-                    </Box>
-                    <Box sx={{ mt: 1, textAlign: "right" }}>
-                      <img
-                        src="/deer.png"
-                        alt="deer"
-                        style={{ width: 60, opacity: 0.6 }}
-                      />
                     </Box>
                   </Card>
                 </Grid>
