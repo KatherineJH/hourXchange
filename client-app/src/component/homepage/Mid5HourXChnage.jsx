@@ -28,9 +28,14 @@ function Mid5HourXChange() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await getAllReviews(0, 3);
-        console.log(response.content)
-        setReviews(response.content);
+        const reviewList = await getAllReviews(0, 5);
+        const mapped = reviewList.map((r) => ({
+          id: r.id,
+          content: r.content,
+          date: r.createdAt || new Date(),
+          stars: r.stars,
+        }));
+        setReviews(mapped.slice(0, 5));
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
         setReviews([]);
