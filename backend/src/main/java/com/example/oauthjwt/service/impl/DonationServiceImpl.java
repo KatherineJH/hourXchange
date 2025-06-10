@@ -58,7 +58,7 @@ public class DonationServiceImpl implements DonationService {
         if (donationRequest.getImages() != null) {
             for (String url : donationRequest.getImages()) {
                 if (donationImageRepository.existsByImgUrl(url)) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 등록된 이미지입니다: " + url);
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 이미지입니다: " + url);
                 }
                 DonationImage donationImage = DonationImage.of(url, donation);
                 donation.getImages().add(donationImage);
@@ -95,7 +95,7 @@ public class DonationServiceImpl implements DonationService {
             donationImageRepository.deleteByDonationId(donation.getId());
             for (String url : donationRequest.getImages()) {
                 if (donationImageRepository.existsByImgUrl(url)) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 등록된 이미지입니다.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 이미지입니다.");
                 }
                 DonationImage donationImage = DonationImage.of(url, donation);
                 donation.getImages().add(donationImage);

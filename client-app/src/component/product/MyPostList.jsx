@@ -107,7 +107,7 @@ function MyPostList() {
                         : item.providerType === "BUYER"
                           ? "구매"
                           : item.providerType}
-                    </TableCell>{" "}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

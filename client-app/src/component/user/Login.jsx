@@ -62,16 +62,15 @@ export default function EmailLoginForm() {
     }
   };
 
-  // 광고 분할
-  const leftAds = ads.slice(0, 4);
-  const rightAds = ads.slice(4, 8);
+  // ← 이 부분만 변경
+  const leftAds = ads.slice(0, 2);
+  const rightAds = ads.slice(2, 4);
 
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
-        // minHeight: "100vh",
         width: "100%",
         alignItems: "flex-start",
         justifyContent: "center",
@@ -80,16 +79,16 @@ export default function EmailLoginForm() {
         overflowY: "auto",
       }}
     >
-      {/* 왼쪽 광고 (4개) */}
+      {/* 왼쪽 광고 (1개) */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 5,
+          gap: 0,
           alignItems: "center",
           position: "sticky",
-          top: 300,
+          top: 170,
         }}
       >
         {leftAds.map((ad, index) => (
@@ -148,16 +147,17 @@ export default function EmailLoginForm() {
         </Box>
       </Box>
 
-      {/* 오른쪽 광고 (4개) */}
+      {/* 오른쪽 광고  */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 0,
           alignItems: "center",
           position: "sticky",
-          top: "300",
+          mt: 20,
+          height: "100%",
         }}
       >
         {rightAds.map((ad, index) => (

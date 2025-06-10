@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import {postTransaction} from "../../api/paymentApi.js";
 import {useSelector} from "react-redux";
 
 const iamportKey = import.meta.env.VITE_IAMPORT_KEY;
 
-export default function IamportButton({ orderId, productName, amount }) {
+export default function IamportButton({ productName, amount }) {
     const [loading, setLoading] = useState(false);
     const {user} = useSelector((state) => state.auth);
 

@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public UserDetails getUserDetailsByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         return new CustomUserDetails(user);
     }

@@ -50,8 +50,8 @@ export default function Save() {
   const [ads, setAds] = useState([]);
 
   // 광고를 4개씩 분할해서 좌·우에 뿌리기 위함
-  const leftAds = ads.slice(0, 4);
-  const rightAds = ads.slice(4, 8);
+  const leftAds = ads.slice(0, 2);
+  const rightAds = ads.slice(2, 4);
 
   // 회원가입 폼 핸들링
   const handleChange = (e) => {
@@ -95,11 +95,11 @@ export default function Save() {
     }
     try {
       await postSave(saveData);
-      alert("회원가입이 완료되었습니다.")
+      alert("회원가입이 완료되었습니다.");
       navigate("/login", { replace: true });
     } catch (error) {
       console.error(error);
-      alert("회원가입에 실패했습니다. 다시 확인해주세요.");
+      alert(error.response.data.message);
     }
   };
 
@@ -127,32 +127,35 @@ export default function Save() {
           justifyContent: "center",
           px: 2,
           gap: 2,
-          // 로그인 화면처럼 최상위에는 overflowY 설정을 주지 않습니다.
         }}
       >
-        {/* 왼쪽 광고 (최대 4개) */}
+        {/* 왼쪽 광고 */}
         <Box
           sx={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 0,
             alignItems: "center",
+            position: "sticky",
+            mt: 20,
+            height: "100%",
           }}
         >
-          {leftAds.map((ad, index) => (
-            <UserAdvertisement key={`left-${index}`} ad={ad} />
-          ))}
+          <Box>
+            {leftAds.map((ad, index) => (
+              <UserAdvertisement key={`left-${index}`} ad={ad} />
+            ))}
+          </Box>
         </Box>
 
-        {/* 중앙 회원가입 폼 */}
         <Box
           sx={{
             flex: 3,
             display: "flex",
             justifyContent: "center",
             alignContent: "center",
-            mt: 28,
+            mt: { xs: 4, md: 20 }, // md 이상에서 20(spacing) = 160px
           }}
         >
           <Card
@@ -163,8 +166,7 @@ export default function Save() {
               maxWidth: 410,
               width: "100%",
               p: 4,
-              borderRadius: 3,
-
+              borderRadius: 1,
               boxShadow:
                 "0px 4px 8px rgba(0, 0, 0, 0.25), 0px 1px 2px rgba(0, 0, 0, 0.3)",
             }}
@@ -272,15 +274,17 @@ export default function Save() {
           </Card>
         </Box>
 
-        {/* 오른쪽 광고 (최대 4개) */}
         <Box
-          sx={{
+          sx={(theme) => ({
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 0,
             alignItems: "center",
-          }}
+            position: "sticky",
+            top: theme.spacing(20), // 중앙 폼의 mt:20 (=160px)과 동일
+            mt: { xs: 0, md: 0 },
+          })}
         >
           {rightAds.map((ad, index) => (
             <UserAdvertisement key={`right-${index}`} ad={ad} />
