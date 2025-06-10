@@ -13,7 +13,7 @@ spring:
 #        enabled: ${REDIS_SSL_ENABLED:false} # SSL 사용 여부 (기본값 false)
 
   elasticsearch:
-    uris: http://${BACKEND_SERVER}:${ELASTIC_PORT}
+    uris: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
     connection-timeout: 5s
     read-timeout: 5s
 
@@ -100,9 +100,9 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: http://${FRONTEND_SERVER}
-  elastic: http://${BACKEND_SERVER}:${ELASTIC_PORT}
-  flask: http://${BACKEND_SERVER}:${FLASK_PORT}
+  frontend: https://${FRONTEND_SERVER}
+  elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
+  flask: http://${FLASK_SERVER}:${FLASK_PORT}
 
 # 결제 연동
 iamport:

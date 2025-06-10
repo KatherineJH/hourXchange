@@ -57,7 +57,7 @@ def extract_positive_tags(text, top_k=5, threshold=0.3):
     noun_embeddings = model.encode(candidates, convert_to_tensor=True)
     scores = util.cos_sim(sentence_embedding, noun_embeddings)[0]
 
-    # ✅ 너무 유사하거나 너무 일반적인 단어는 제거
+    # 너무 유사하거나 너무 일반적인 단어는 제거
     filtered = []
     for word, score in zip(candidates, scores):
         s = float(score)
