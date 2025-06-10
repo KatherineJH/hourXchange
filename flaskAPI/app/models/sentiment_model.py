@@ -17,7 +17,8 @@ class KcELECTRAClassifier(nn.Module):
 
 # 모델 및 토크나이저 초기화
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../kc_electra_sentiment_model.pt")
+# MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../kc_electra_sentiment_model.pt") # 로컬 개발용
+MODEL_PATH = "/home/ubuntu/hourxchange-models/kc_electra_sentiment_model.pt" # 배포 서버용
 
 model = KcELECTRAClassifier(num_classes=2).to(DEVICE)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
