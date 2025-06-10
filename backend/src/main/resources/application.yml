@@ -100,7 +100,7 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: http://${FRONTEND_SERVER}
+  frontend: https://${FRONTEND_SERVER}
   elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
   flask: http://${FLASK_SERVER}:${FLASK_PORT}
 

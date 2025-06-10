@@ -22,7 +22,7 @@ export default function UserAdvertisement({ width = 300, height = 200 }) {
         if (!isMounted) return;
         if (Array.isArray(res.content) && res.content.length > 0) {
           const randomAd = pickRandomAd(res.content);
-          console.log("▶️ 랜덤 선택된 ad:", randomAd);
+          // console.log("랜덤 선택된 ad:", randomAd);
           setAd(randomAd);
         } else {
           setError("등록된 광고가 없습니다.");
