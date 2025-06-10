@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DonationHistoryController {
     private final DonationHistoryService donationHistoryService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -36,8 +38,7 @@ public class DonationHistoryController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         DonationHistoryResponse result = donationHistoryService.createDonationHistory(donationHistoryRequest,
                 userDetails.getUser().getId());
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/list")

@@ -2,16 +2,16 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import {
-  Avatar,
-  Box,
-  Typography,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  CircularProgress,
-  Divider,
-  Paper,
+    Avatar,
+    Box,
+    Typography,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    CircularProgress,
+    Divider,
+    Paper, ListItemButton,
 } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
@@ -80,8 +80,7 @@ function Chat({ chatRooms, chatError, navigate }) {
             <List disablePadding>
               {chatRooms.map((room, idx) => (
                 <React.Fragment key={room.id}>
-                  <ListItem
-                    button
+                  <ListItemButton
                     onClick={() =>
                       navigate(`${pathPrefix}/chat-room/${room.id}`)
                     }
@@ -108,7 +107,7 @@ function Chat({ chatRooms, chatError, navigate }) {
                       }
                       secondary={`상품 ID: ${room.productId}`}
                     />
-                  </ListItem>
+                  </ListItemButton>
                   {idx < chatRooms.length - 1 && <Divider />}{" "}
                 </React.Fragment>
               ))}

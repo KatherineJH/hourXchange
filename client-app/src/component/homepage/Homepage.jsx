@@ -17,6 +17,8 @@ import { Button, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
+import {useHasEmail} from "../../assets/useCustomAuth.js";
+import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -47,7 +49,7 @@ export default function Homepage() {
     (p) => !selectedCategory || p.category?.categoryName === selectedCategory
   );
   const { pathname } = useLocation(); // 현재 경로
-  const user = useSelector((state) => state.auth);
+  const isLoggedIn = useHasEmail();
   const [openModal, setOpenModal] = useState(true);
   const [noShowChecked, setNoShowChecked] = useState(false);
 
@@ -80,7 +82,7 @@ export default function Homepage() {
   }, []);
 
   useEffect(() => {
-    if (!user.email) return;
+    if (!isLoggedIn) return;
 
     getFavoriteList()
       .then((response) => {

@@ -2,6 +2,11 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,17 +26,26 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final LocationUtil locationUtil;
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(reviewService.saveReview(request, userDetails.getUser()));
+        ReviewResponse result = reviewService.saveReview(request, userDetails.getUser());
+        return ResponseEntity.created(locationUtil.createdLocation(result.getReviewId())).body(result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponse> getReviewById(@PathVariable Long id) {
         return ResponseEntity.ok(reviewService.getReviewById(id));
+    }
+    @GetMapping("/list")
+    public ResponseEntity<Page<ReviewResponse>> getAllReviews(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
+        Page<ReviewResponse> result = reviewService.getAllReviews(pageable);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping

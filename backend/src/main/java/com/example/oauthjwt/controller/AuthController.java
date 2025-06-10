@@ -3,8 +3,10 @@ package com.example.oauthjwt.controller;
 import static com.example.oauthjwt.jwt.JWTUtil.ACCESS_TOKEN_TIME;
 import static com.example.oauthjwt.jwt.JWTUtil.REFRESH_TOKEN_TIME;
 
+import java.net.URI;
 import java.util.Map;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,6 +36,7 @@ public class AuthController {
 
     private final UserService userService;
     private final JWTUtil jwtUtil;
+    private final LocationUtil locationUtil;
 
     // 일반 회원가입 처리
     @PostMapping("/signup")
@@ -40,7 +44,7 @@ public class AuthController {
         // 서비스 호출
         UserResponse result = userService.signup(userRequest);
         // 반환
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocationWithUrl(result.getId(), "/api/user")).body(result);
     }
 
     // 이메일 로그인 처리

@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,7 +47,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (request.getTransactionId() != null) {
             Optional<Review> existingReview = reviewRepository.findByTransactionId(request.getTransactionId());
             if (existingReview.isPresent()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 해당 거래에 대한 리뷰가 작성되었습니다.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 해당 거래에 대한 리뷰가 작성되었습니다.");
             }
         }
         // Flask 서버에 감성 분석 요청
@@ -88,7 +90,7 @@ public class ReviewServiceImpl implements ReviewService {
                 }
             }
         }
-        return new ReviewResponse(review.getId(), review.getContent(), rating, review.getStars(), tags);
+        return ReviewResponse.toDto(review);
     }
 
     @Override
@@ -96,9 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));
 
-        List<String> tags = review.getTags().stream().map(ReviewTag::getTag).toList();
-
-        return new ReviewResponse(review.getId(), review.getContent(), review.getRates(), review.getStars(), tags);
+        return ReviewResponse.toDto(review);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
-        return new ReviewResponse(review.getId(), review.getContent(), rating, review.getStars(), tags);
+        return ReviewResponse.toDto(review);
     }
 
     @Override
@@ -186,6 +186,11 @@ public class ReviewServiceImpl implements ReviewService {
                         .stars(review.getStars()) // 사용자 별점
                         .tags(review.getTags().stream().map(ReviewTag::getTag).toList()).build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ReviewResponse> getAllReviews(Pageable pageable) {
+        return reviewRepository.findAll(pageable).map(ReviewResponse::toDto);
     }
 
 }

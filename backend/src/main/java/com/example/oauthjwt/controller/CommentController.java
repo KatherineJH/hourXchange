@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,13 +26,13 @@ import lombok.extern.log4j.Log4j2;
 public class CommentController {
 
     private final CommentService commentService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid CommentRequest commentRequest) {
-        log.info(commentRequest);
         CommentResponse result = commentService.save(commentRequest);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/{id}")

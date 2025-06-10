@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +27,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DonationController {
     private final DonationService donationService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -34,7 +36,7 @@ public class DonationController {
         log.info(donationRequest);
 
         DonationResponse result = donationService.createDonation(donationRequest, userDetails);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/{donationId}")

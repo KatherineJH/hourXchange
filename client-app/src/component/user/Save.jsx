@@ -99,7 +99,7 @@ export default function Save() {
       navigate("/login", { replace: true });
     } catch (error) {
       console.error(error);
-      alert("회원가입에 실패했습니다. 다시 확인해주세요.");
+      alert(error.response.data.message);
     }
   };
 

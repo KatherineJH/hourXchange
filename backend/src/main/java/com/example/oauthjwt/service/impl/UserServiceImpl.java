@@ -34,10 +34,10 @@ public class UserServiceImpl implements UserService {
     public UserResponse signup(UserRequest userRequest) {
         // 유니크 항목 검사
         if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일이 중복되었습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이메일이 중복되었습니다.");
         }
         if (userRepository.existsByUsername(userRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "닉네임이 중복되었습니다.");
         }
 
         // 객체 생성
@@ -106,7 +106,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         return UserResponse.toDto(user);
     }
 

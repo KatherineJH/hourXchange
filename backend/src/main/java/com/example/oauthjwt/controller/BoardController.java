@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,14 +29,14 @@ public class BoardController {
 
     private final BoardService boardService;
     private final ElasticSearchService elasticSearchService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> save(@RequestBody @Valid BoardRequest boardRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info(boardRequest);
         BoardResponse result = boardService.save(boardRequest, userDetails);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/all")
