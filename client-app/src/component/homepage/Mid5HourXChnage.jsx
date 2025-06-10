@@ -28,14 +28,9 @@ function Mid5HourXChange() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewList = await getAllReviews(0, 5);
-        const mapped = reviewList.map((r) => ({
-          id: r.id,
-          content: r.content,
-          date: r.createdAt || new Date(),
-          stars: r.stars,
-        }));
-        setReviews(mapped.slice(0, 5));
+        const response = await getAllReviews(0, 5);
+        console.log(response.content);
+        setReviews(response.content);
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
         setReviews([]);
@@ -158,7 +153,7 @@ function Mid5HourXChange() {
               sx={{ ml: 1 }}
             >
               {reviews.map((rev) => (
-                <Grid item key={rev.reviewId} xs={12} sm={4} md={4}>
+                <Grid item key={rev.id} xs={2} sm={2} md={2}>
                   <Card
                     sx={{
                       width: "270px",
@@ -195,7 +190,7 @@ function Mid5HourXChange() {
                       </Box>
                       <Typography>
                         {rev.content.length > 10
-                          ? rev.content.slice(0, 10) + "..."
+                          ? rev.content.slice(0, 20) + "..."
                           : rev.content}
                       </Typography>
                       <Typography>{"★".repeat(rev.stars)}</Typography>
@@ -203,7 +198,7 @@ function Mid5HourXChange() {
                         variant="caption"
                         sx={{ color: "text.secondary" }}
                       >
-                        {new Date(rev.date).toLocaleDateString("ko-KR", {
+                        {new Date(rev.createdAt).toLocaleDateString("ko-KR", {
                           year: "numeric",
                           month: "2-digit",
                           day: "2-digit",

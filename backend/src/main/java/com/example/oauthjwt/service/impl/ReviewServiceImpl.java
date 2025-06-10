@@ -102,25 +102,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getAllReviews() {
-        List<Review> reviews = reviewRepository.findAll();
-
-        return reviews.stream().map(review -> {
-            List<String> tags = review.getTags().stream()
-                    .map(ReviewTag::getTag)
-                    .toList();
-
-            return new ReviewResponse(
-                    review.getId(),
-                    review.getContent(),
-                    review.getRates(),
-                    review.getStars(),
-                    tags
-            );
-        }).toList();
-    }
-
-    @Override
     public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰 정보가 존재하지 않습니다."));

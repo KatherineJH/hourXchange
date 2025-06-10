@@ -72,16 +72,6 @@ export const postReview = async (reviewData) => {
   return response.data;
 };
 
-export const getAllReviews = async () => {
-  try {
-    const response = await api.get(reviewApiUrl);
-    return response.data; 
-  } catch (error) {
-    console.error("리뷰 전체 조회 실패:", error);
-    throw error;
-  }
-};
-
 // 특정 유저가 받은 리뷰들의 태그 조회
 export const getReviewTagsByReceiverId = async (userId) => {
   const response = await api.get(`${reviewApiUrl}/receiver/${userId}/tags`);

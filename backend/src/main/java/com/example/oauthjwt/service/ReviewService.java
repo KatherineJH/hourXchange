@@ -15,8 +15,6 @@ public interface ReviewService {
 
     ReviewResponse getReviewById(Long id);
 
-    List<ReviewResponse> getAllReviews();
-
     ReviewResponse updateReview(Long id, ReviewRequest request, User user);
 
     List<String> getReviewTagsByReceiverId(Long userId);
