@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse addCategory(String categoryName) {
         if (categoryRepository.existsByCategoryName(categoryName)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 카테고리 이름입니다.");
         }
         Category category = Category.of(categoryName);
 
@@ -39,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."));
 
         if (categoryRepository.existsByCategoryName(categoryName)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 카테고리 이름입니다.");
         }
 
         category.updateCategory(categoryName);

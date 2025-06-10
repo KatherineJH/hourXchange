@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.Map;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import lombok.extern.log4j.Log4j2;
 public class PaymentController {
     private final IamportService iamportService;
     private final PaymentService paymentService;
+    private final LocationUtil locationUtil;
 
     /** 클라이언트 콜백으로부터 imp_uid, merchant_uid 를 받아 검증 */
     @PostMapping("/iamport/transaction")
@@ -45,20 +47,17 @@ public class PaymentController {
     @PostMapping("/order")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<PaymentOrderResponse> order(@RequestBody @Valid PaymentOrderRequest paymentOrderRequest) {
-        log.info("Order request: " + paymentOrderRequest);
         PaymentOrderResponse result = paymentService.order(paymentOrderRequest);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @PostMapping("/verify")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<PaymentVerifyResponse> verify(@RequestBody @Valid PaymentVerifyRequest paymentVerifyRequest) {
-        log.info("Verify request: " + paymentVerifyRequest);
-
         PaymentVerifyResponse result = paymentService.verify(paymentVerifyRequest);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/order/list")

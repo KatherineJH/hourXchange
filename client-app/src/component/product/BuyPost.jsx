@@ -14,6 +14,7 @@ import { getAdvertisement } from "../../api/advertisementApi";
 
 import AdvertisementCard from "../advertisement/AdvertisementCard";
 import CategoryNav from "../../layout/CategoryNav";
+import {useHasEmail} from "../../assets/useCustomAuth.js";
 
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
@@ -75,15 +76,15 @@ export default function BuyPost() {
 
   const location = useLocation();
   const selectedCategory = new URLSearchParams(location.search).get("category");
-  const user = useSelector((state) => state.auth);
+    const isLoggedIn = useHasEmail();
 
   // 찜 목록 가져오기
   useEffect(() => {
-    if (!user.email) return;
+      if (!isLoggedIn) return;
     getFavoriteList()
       .then((res) => setFavorite(res.data || []))
       .catch(console.error);
-  }, [user.email]);
+  }, []);
 
   // 광고 목록 가져오기
   useEffect(() => {

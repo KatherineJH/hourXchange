@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,12 +22,14 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final LocationUtil locationUtil;
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(reviewService.saveReview(request, userDetails.getUser()));
+        ReviewResponse result = reviewService.saveReview(request, userDetails.getUser());
+        return ResponseEntity.created(locationUtil.createdLocation(result.getReviewId())).body(result);
     }
 
     @GetMapping("/{id}")

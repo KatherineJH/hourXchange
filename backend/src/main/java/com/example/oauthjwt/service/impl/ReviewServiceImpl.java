@@ -45,7 +45,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (request.getTransactionId() != null) {
             Optional<Review> existingReview = reviewRepository.findByTransactionId(request.getTransactionId());
             if (existingReview.isPresent()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 해당 거래에 대한 리뷰가 작성되었습니다.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 해당 거래에 대한 리뷰가 작성되었습니다.");
             }
         }
         // Flask 서버에 감성 분석 요청

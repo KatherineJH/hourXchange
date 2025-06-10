@@ -29,31 +29,31 @@ export default function ProductGrid({
   onToggleExpand,
 }) {
   const navigate = useNavigate();
-  const [tagsMap, setTagsMap] = useState({});
-
-  useEffect(() => {
-    const fetchAllTags = async () => {
-      const newMap = {};
-      await Promise.all(
-        products.map(async (product) => {
-          if (!product.id) return;
-          try {
-            const tags = await getProductTags(product.id);
-            newMap[product.id] = tags;
-          } catch (err) {
-            console.error(
-              `Failed to fetch tags for product ${product.id}`,
-              err
-            );
-            newMap[product.id] = [];
-          }
-        })
-      );
-      setTagsMap(newMap);
-    };
-
-    fetchAllTags();
-  }, [products]);
+  // const [tagsMap, setTagsMap] = useState({});
+  //
+  // useEffect(() => {
+  //   const fetchAllTags = async () => {
+  //     const newMap = {};
+  //     await Promise.all(
+  //       products.map(async (product) => {
+  //         if (!product.id) return;
+  //         try {
+  //           const tags = await getProductTags(product.id);
+  //           newMap[product.id] = tags;
+  //         } catch (err) {
+  //           console.error(
+  //             `Failed to fetch tags for product ${product.id}`,
+  //             err
+  //           );
+  //           newMap[product.id] = [];
+  //         }
+  //       })
+  //     );
+  //     setTagsMap(newMap);
+  //   };
+  //
+  //   fetchAllTags();
+  // }, [products]);
 
   return (
     <Box
@@ -185,7 +185,7 @@ export default function ProductGrid({
                 justifyContent: "flex-end",
               }}
             >
-              {tagsMap[product.id]?.map((tag, idx) => (
+              {product.tags?.map((tag, idx) => (
                 <Box
                   key={idx}
                   sx={{

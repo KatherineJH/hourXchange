@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/api/transaction")
 public class TransactionController {
     private final TransactionService transactionService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -37,7 +39,7 @@ public class TransactionController {
         // 저장
         TransactionResponse result = transactionService.save(transactionRequest, userDetails);
         // 반환
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/{transactionId}")

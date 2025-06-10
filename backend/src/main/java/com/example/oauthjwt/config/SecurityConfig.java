@@ -74,10 +74,13 @@ public class SecurityConfig {
                 // Actuator 공개 엔드포인트
                 .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
                 // 인증 없이 허용할 API
-                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/logout", "/api/auth/refresh",
-                        "/api/auth/me")
-                .permitAll().requestMatchers("/", "/api/advertisement/**", "/login/oauth2/code/**", "/error")
-                .permitAll()
+                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/logout", "/api/auth/refresh", "/api/auth/me").permitAll()
+                .requestMatchers("/", "/api/advertisement/**", "/login/oauth2/code/**", "/error").permitAll()
+                .requestMatchers(
+                        "/api/category/list", "/api/donation/recent", "/api/donation/top-progress", "/api/donation/top-views",
+                        "/api/donation/list/all", "/api/product/list/all", "/api/donationHistory/topDonator", "/api/donation/list",
+                        "/api/board/all", "/api/product/listMap", "/api/product/list"
+                ).permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated());
 

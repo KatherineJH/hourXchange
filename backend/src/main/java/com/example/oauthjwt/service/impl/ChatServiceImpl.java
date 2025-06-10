@@ -47,14 +47,14 @@ public class ChatServiceImpl implements ChatService {
 
         // 상품 정보 조회
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
 
         if (product.getOwner().getId().equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신의 상품에 대해 채팅방을 생성할 수 없습니다.");
         }
 
         User requester = userRepository.findById(requesterId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         // 1) 기존 방 조회
         Optional<ChatRoom> existing = chatRoomRepository.findByProductAndParticipants(product.getId(),
@@ -82,9 +82,9 @@ public class ChatServiceImpl implements ChatService {
     public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, String email) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 정보가 존재하지 않습니다."));
         User sender = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         ChatMessage result = ChatMessage.of(chatRoom, sender, chatMessageRequest.getContent(),
                 chatMessageRequest.getType());
@@ -111,7 +111,7 @@ public class ChatServiceImpl implements ChatService {
 
         Product product = chatRoom.getProduct();
         if (product == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방에 연결된 상품이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방에 연결된 상품이 없습니다.");
         }
 
         Transaction transaction = transactionRepository.findByProduct(product)
@@ -148,24 +148,24 @@ public class ChatServiceImpl implements ChatService {
 
         Map<String, Object> sessionAttributes = simpMessageHeaderAccessor.getSessionAttributes();
         if (sessionAttributes == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "웹 소켓 세션이 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "웹 소켓 세션이 존재하지 않습니다.");
         }
 
         String email = (String) sessionAttributes.get("userId");
         if (email == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "세션에 저장된 유저의 아이디 값이 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "세션에 저장된 유저의 아이디 값이 존재하지 않습니다.");
         }
 
         Long chatRoomId = chatMessageRequest.getChatRoomId();
         if (chatRoomId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 아이디 값이 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 아이디 값이 존재하지 않습니다.");
         }
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 정보가 존재하지 않습니다."));
 
         User sender = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         ChatMessage result = ChatMessage.of(chatRoom, sender, sender.getName() + "님이 입장하셨습니다.", ChatMessageType.TEXT);
 
@@ -184,22 +184,22 @@ public class ChatServiceImpl implements ChatService {
 
         String email = (String) headerAccessor.getSessionAttributes().get("userId");
         if (email == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "세션에 저장된 유저의 아이디 값이 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "세션에 저장된 유저의 아이디 값이 존재하지 않습니다.");
         }
 
         Long chatRoomId = (Long) headerAccessor.getSessionAttributes().get("chatRoomId");
         if (chatRoomId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 아이디 값이 존재하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 아이디 값이 존재하지 않습니다.");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 정보가 존재하지 않습니다."));
 
         ChatRoomUser chatRoomUser = chatRoomUserRepository.findByChatRoomAndUser(chatRoom, user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "채팅방 유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방 유저 정보가 존재하지 않습니다."));
 
         chatRoomUser.setChatRoomUserStatus(ChatRoomUserStatus.LEAVE);
 
