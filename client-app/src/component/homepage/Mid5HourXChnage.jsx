@@ -153,7 +153,7 @@ function Mid5HourXChange() {
               sx={{ ml: 1 }}
             >
               {reviews.map((rev) => (
-                <Grid item key={rev.id} xs={2} sm={2} md={2}>
+                <Grid item key={rev.reviewId} xs={2} sm={2} md={2}>
                   <Card
                     sx={{
                       width: "270px",
