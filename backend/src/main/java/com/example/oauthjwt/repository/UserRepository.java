@@ -58,14 +58,14 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
                     -- region (jibunAddress 앞 두 글자)
                     COALESCE(SUBSTRING(a.jibunAddress, 1, 2), '기타') AS region
 
-                FROM `user` u
-                LEFT JOIN address a ON u.id = a.user_id
+                FROM `User` u
+                LEFT JOIN Address a ON u.id = a.user_id
 
                 LEFT JOIN (
                     SELECT userId,
                            COUNT(*) AS visit_count,
                            COUNT(DISTINCT url) AS distinct_url_count
-                    FROM visitlog
+                    FROM VisitLog
                     WHERE userId IS NOT NULL
                     GROUP BY userId
                 ) v ON u.id = v.userId
@@ -74,7 +74,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
                     SELECT userId,
                            COUNT(*) AS payment_count,
                            SUM(amount) AS total_payment_amount
-                    FROM payment
+                    FROM Payment
                     WHERE status = 'paid'
                     GROUP BY userId
                 ) p ON u.id = p.userId
@@ -83,14 +83,14 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
                     SELECT user_id,
                            COUNT(*) AS donation_count,
                            -SUM(amount) AS total_donation_amount
-                    FROM donationhistory
+                    FROM DonationHistory
                     GROUP BY user_id
                 ) d ON u.id = d.user_id
 
                 LEFT JOIN (
                     SELECT user_id,
                            COUNT(*) AS transaction_count
-                    FROM transaction
+                    FROM Transaction
                     WHERE status = 'COMPLETED'
                     GROUP BY user_id
                 ) t ON u.id = t.user_id
@@ -99,7 +99,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
                     SELECT reviewer_id,
                            COUNT(*) AS review_count,
                            AVG(stars) AS avg_stars_given
-                    FROM review
+                    FROM Review
                     GROUP BY reviewer_id
                 ) r ON u.id = r.reviewer_id
 
