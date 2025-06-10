@@ -105,6 +105,17 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
                 날짜 : {new Date(product.startedAt).toLocaleDateString("ko-KR")}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                시간:{" "}
+                {(() => {
+                  const m = Math.floor(
+                    (new Date(product.endAt) - new Date(product.startedAt)) /
+                      60000
+                  );
+                  return `${Math.floor(m / 60)}시간 ${m % 60}분`;
+                })()}
+              </Typography>
+
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 타입:{" "}
                 {product.providerType === "SELLER"
                   ? "판매"

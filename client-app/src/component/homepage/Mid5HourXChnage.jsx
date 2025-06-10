@@ -9,9 +9,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import {
-  getAllReviews,
-} from "../../api/transactionApi.js";
+import { getAllReviews } from "../../api/transactionApi.js";
 import { getAllBoards } from "../../api/boardApi.js";
 
 function Mid5HourXChange() {
@@ -30,7 +28,7 @@ function Mid5HourXChange() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewList = await getAllReviews();
+        const reviewList = await getAllReviews(0, 5);
         const mapped = reviewList.map((r) => ({
           id: r.id,
           content: r.content,
@@ -47,7 +45,7 @@ function Mid5HourXChange() {
 
     const fetchRecentBoards = async () => {
       try {
-        const pageResponse = await getAllBoards(0, 3);
+        const pageResponse = await getAllBoards(0, 5);
         const items = Array.isArray(pageResponse)
           ? pageResponse
           : pageResponse.content || [];
@@ -146,20 +144,23 @@ function Mid5HourXChange() {
         alignItems="flex-start"
         spacing={2}
         sx={{
-          width: "100%",
-          maxWidth: "1200px",
-          mx: "auto",
+          maxWidth: "5000px",
           px: { xs: 2, md: 4 },
         }}
       >
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1, margin: 0 }}>
           {tabValue === 0 && (
-            <Grid container spacing={3}>
+            <Grid
+              container
+              spacing={3}
+              justifyContent="flex-start"
+              sx={{ ml: 1 }}
+            >
               {reviews.map((rev) => (
-                <Grid item key={rev.id} xs={12} sm={4} md={4}>
+                <Grid item key={rev.id} xs={2} sm={2} md={2}>
                   <Card
                     sx={{
-                      width: "100%",
+                      width: "270px",
                       height: CARD_HEIGHT,
                       borderRadius: 2,
                       boxShadow: 1,
@@ -189,7 +190,9 @@ function Mid5HourXChange() {
                           mb: 1,
                         }}
                       >
-                        {rev.content}
+                        {rev.content.length > 10
+                          ? rev.content.slice(0, 10) + "..."
+                          : rev.content}
                       </Typography>
                       <Typography
                         variant="caption"
@@ -216,12 +219,17 @@ function Mid5HourXChange() {
           )}
 
           {tabValue === 1 && (
-            <Grid container spacing={3}>
+            <Grid
+              container
+              spacing={3}
+              justifyContent="flex-start"
+              sx={{ ml: 1 }}
+            >
               {recentBoards.map((board) => (
-                <Grid item key={board.id} xs={12} sm={4} md={4}>
+                <Grid item key={board.id} xs={2} sm={2} md={2}>
                   <Card
                     sx={{
-                      width: "100%",
+                      width: "270px",
                       height: CARD_HEIGHT,
                       borderRadius: 2,
                       boxShadow: 1,
@@ -240,7 +248,7 @@ function Mid5HourXChange() {
                         variant="subtitle2"
                         sx={{ fontWeight: "bold", mb: 1 }}
                       >
-                        커뮤니티 게시글
+                        커뮤니티
                       </Typography>
                       <Typography
                         variant="body1"
@@ -253,7 +261,9 @@ function Mid5HourXChange() {
                           mb: 1,
                         }}
                       >
-                        {board.title}
+                        {board.title.length > 10
+                          ? board.title.slice(0, 10) + "..."
+                          : board.title}
                       </Typography>
                       <Typography
                         variant="caption"
