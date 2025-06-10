@@ -117,14 +117,14 @@ export default function AdvertisementList() {
                       onClick={() =>
                         navigate(`/myPage/advertisement/modify/${ad.id}`)
                       }
-                      sx={{ color: "secondary.main" }}
+                      sx={{ color: "primary.main" }}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => handleDelete(ad.id)}
-                      sx={{ color: "secondary.main" }}
+                      sx={{ color: "primary.main" }}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>

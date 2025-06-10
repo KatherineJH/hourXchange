@@ -1,57 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box,
   Card,
   CardHeader,
   CardMedia,
   CardContent,
-  CardActions,
-  Collapse,
   Avatar,
   IconButton,
   Typography,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import AdvertisementCard from "../advertisement/AdvertisementCard";
-import { getProductTags } from "../../api/productApi";
 
-export default function ProductGrid({
-  products,
-  favorite,
-  onToggleFavorite,
-  expandedId,
-  onToggleExpand,
-}) {
+export default function ProductGrid({ products, favorite, onToggleFavorite }) {
   const navigate = useNavigate();
-  const [tagsMap, setTagsMap] = useState({});
-
-  useEffect(() => {
-    const fetchAllTags = async () => {
-      const newMap = {};
-      await Promise.all(
-        products.map(async (product) => {
-          if (!product.id) return;
-          try {
-            const tags = await getProductTags(product.id);
-            newMap[product.id] = tags;
-          } catch (err) {
-            console.error(
-              `Failed to fetch tags for product ${product.id}`,
-              err
-            );
-            newMap[product.id] = [];
-          }
-        })
-      );
-      setTagsMap(newMap);
-    };
-
-    fetchAllTags();
-  }, [products]);
 
   return (
     <Box
@@ -66,6 +30,7 @@ export default function ProductGrid({
       }}
     >
       {products.map((product) => {
+        console.log(product);
         if (product.type === "ad") {
           return <AdvertisementCard key={`ad-${product.id}`} ad={product} />;
         }
@@ -137,8 +102,7 @@ export default function ProductGrid({
                 카테고리 : {product.category?.categoryName}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                시작 시간:{" "}
-                {new Date(product.startedAt).toLocaleDateString("ko-KR")}
+                날짜 : {new Date(product.startedAt).toLocaleDateString("ko-KR")}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 타입:{" "}
@@ -150,33 +114,32 @@ export default function ProductGrid({
               </Typography>
 
               {/* 태그 렌더링 */}
-              {Array.isArray(tagsMap?.[product.id]) &&
-                tagsMap[product.id].length > 0 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 1,
-                      mt: 1,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    {tagsMap[product.id].map((tag, idx) => (
-                      <Box
-                        key={idx}
-                        sx={{
-                          backgroundColor: "secondary.main",
-                          color: "#fff",
-                          padding: "4px 10px",
-                          borderRadius: "16px",
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        {tag}
-                      </Box>
-                    ))}
-                  </Box>
-                )}
+              {Array.isArray(product.tags) && product.tags.length > 0 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 1,
+                    mt: 1,
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  {product.tags.map((tag, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        backgroundColor: "secondary.main",
+                        color: "#fff",
+                        padding: "4px 10px",
+                        borderRadius: "16px",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      {tag}
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </CardContent>
           </Card>
         );

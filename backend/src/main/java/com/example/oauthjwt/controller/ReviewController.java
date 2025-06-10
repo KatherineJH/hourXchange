@@ -34,6 +34,12 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
+    @GetMapping
+    public ResponseEntity<List<ReviewResponse>> getAllReviews() {
+        List<ReviewResponse> reviews = reviewService.getAllReviews();
+        return ResponseEntity.ok(reviews);
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id, @RequestBody @Valid ReviewRequest request,

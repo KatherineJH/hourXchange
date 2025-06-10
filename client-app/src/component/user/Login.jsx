@@ -63,8 +63,8 @@ export default function EmailLoginForm() {
   };
 
   // ← 이 부분만 변경
-  const leftAds = ads.slice(0, 3);
-  const rightAds = ads.slice(3, 6);
+  const leftAds = ads.slice(0, 2);
+  const rightAds = ads.slice(2, 4);
 
   return (
     <Box

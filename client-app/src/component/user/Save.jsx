@@ -50,8 +50,8 @@ export default function Save() {
   const [ads, setAds] = useState([]);
 
   // 광고를 4개씩 분할해서 좌·우에 뿌리기 위함
-  const leftAds = ads.slice(0, 3);
-  const rightAds = ads.slice(3, 6);
+  const leftAds = ads.slice(0, 2);
+  const rightAds = ads.slice(2, 4);
 
   // 회원가입 폼 핸들링
   const handleChange = (e) => {

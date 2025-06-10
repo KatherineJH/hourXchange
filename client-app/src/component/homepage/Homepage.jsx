@@ -50,8 +50,23 @@ export default function Homepage() {
   const { pathname } = useLocation(); // 현재 경로
   const user = useSelector((state) => state.auth);
   const [openModal, setOpenModal] = useState(true);
+  const [noShowChecked, setNoShowChecked] = useState(false);
+
+  useEffect(() => {
+    const expire = Number(localStorage.getItem("homepageAdNoShowUntil"));
+    const now = new Date().getTime();
+    if (now < expire) {
+      setOpenModal(false);
+    } else {
+      setOpenModal(true);
+    }
+  }, []);
 
   const handleCloseModal = () => {
+    if (noShowChecked) {
+      const expireDate = new Date().getTime() + 3 * 24 * 60 * 60 * 1000;
+      localStorage.setItem("homepageAdNoShowUntil", expireDate);
+    }
     setOpenModal(false);
   };
 
@@ -132,7 +147,7 @@ export default function Homepage() {
             left: 35,
             zIndex: 1300,
             width: 320,
-            height: 300,
+            height: 320,
             bgcolor: "background.paper",
             borderRadius: 2,
             boxShadow: 5,
@@ -143,6 +158,17 @@ export default function Homepage() {
           <Box sx={{ width: "100%", mb: 1 }}>
             <CarouselAd />
           </Box>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={noShowChecked}
+                onChange={(e) => setNoShowChecked(e.target.checked)}
+              />
+            }
+            label="3일 동안 이 창 보지 않기"
+            sx={{ display: "block" }}
+          />
 
           {/* 닫기 버튼 */}
           <Box sx={{ textAlign: "center" }}>

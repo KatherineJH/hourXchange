@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getList, getListWithKeyword } from "../../api/productApi.js";
+import ListTable from "../product/ListTable.jsx";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

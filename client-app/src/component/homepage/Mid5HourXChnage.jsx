@@ -10,8 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import {
-  getMyTransactionList,
-  getReviewById,
+  getAllReviews,
 } from "../../api/transactionApi.js";
 import { getAllBoards } from "../../api/boardApi.js";
 
@@ -31,21 +30,13 @@ function Mid5HourXChange() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const txRes = await getMyTransactionList();
-        const txList = txRes.data || [];
-        const txWithReview = txList.filter((tx) => tx.reviewId);
-
-        const reviewPromises = txWithReview.map(async (tx) => {
-          const reviewRes = await getReviewById(tx.reviewId);
-          return {
-            id: tx.reviewId,
-            content: reviewRes.content,
-            date: reviewRes.createdAt || tx.completedAt || tx.createdAt,
-          };
-        });
-
-        const fetched = await Promise.all(reviewPromises);
-        setReviews(fetched);
+        const reviewList = await getAllReviews();
+        const mapped = reviewList.map((r) => ({
+          id: r.id,
+          content: r.content,
+          date: r.createdAt || new Date(),
+        }));
+        setReviews(mapped);
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
         setReviews([]);

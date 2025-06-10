@@ -40,8 +40,8 @@ export default function CarouselAd() {
     return {
       display: "flex",
       transition: "transform 0.5s ease-in-out",
-      transform: `translateX(-${currentIndex * 100}%)`, // 고정된 너비에 맞춰 수정
-      width: `${images.length * 100}%`, // 고정된 비율로 처리
+      transform: `translateX(-${currentIndex * 100}%)`, // ✅ 고정된 너비에 맞춰 수정
+      width: `${images.length * 100}%`, // ✅ 고정된 비율로 처리
     };
   };
 
@@ -81,7 +81,7 @@ export default function CarouselAd() {
               onClick={() => handleImageClick(image.linkTo)}
               sx={{
                 flexShrink: 0,
-                width: `${200 / images.length}%`, // ❗ 기존 사용자 설정 유지
+                width: `${200 / images.length}%`, //기존 사용자 설정 유지
                 height: "100%",
                 objectFit: "cover",
                 borderRadius: 1,
@@ -97,23 +97,21 @@ export default function CarouselAd() {
                 zIndex: 2,
               }}
             >
-              <Button
-                size="small"
-                variant="contained"
-                sx={{
-                  bgcolor: "#ff7043",
-                  borderRadius: "999%",
-                  whiteSpace: "normal",
-                  "&:hover": { bgcolor: "primary.main" },
-                }}
-                onClick={() => navigate(image.linkTo)}
-              >
-                {image.linkTo.includes("donation")
-                  ? "기부하러 가기 →"
-                  : image.linkTo.includes("volunteer")
-                    ? "봉사하러 가기 →"
-                    : "보러 가기 →"}
-              </Button>
+              {index === 0 && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    bgcolor: "#ff7043",
+                    borderRadius: "999%",
+                    whiteSpace: "normal",
+                    "&:hover": { bgcolor: "primary.main" },
+                  }}
+                  onClick={() => navigate("/product/donation")}
+                >
+                  봉사하러 가기 →
+                </Button>
+              )}
             </Box>
           </Box>
         ))}
