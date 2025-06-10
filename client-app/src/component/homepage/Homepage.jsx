@@ -13,11 +13,10 @@ import {
   getTopByProgress,
   getTopByViews,
 } from "../../api/donationApi.js";
-import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
+import { Button, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
-import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -178,9 +177,6 @@ export default function Homepage() {
           </Box>
         </Box>
       )}
-
-      <h1>🏠 Home Page</h1>
-      <TopDonatorsChart />
 
       <CustomHeader text={"거의 모집이 완료된 기부"} />
       <DonationCardList

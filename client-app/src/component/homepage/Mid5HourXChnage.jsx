@@ -35,7 +35,7 @@ function Mid5HourXChange() {
           date: r.createdAt || new Date(),
           stars: r.stars,
         }));
-        setReviews(mapped);
+        setReviews(mapped.slice(0, 5));
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
         setReviews([]);
