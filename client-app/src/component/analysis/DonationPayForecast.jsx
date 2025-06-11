@@ -32,7 +32,7 @@ const DonationPayForecast = () => {
   const [to, setTo] = useState(null);
   const [minDate, setMinDate] = useState(null);
   const [maxDate, setMaxDate] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState(7);
+  const [selectedPeriod, setSelectedPeriod] = useState(30);
 
   useEffect(() => {
     const fetchDateRange = async () => {
