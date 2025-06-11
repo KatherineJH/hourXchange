@@ -129,9 +129,9 @@ export default function DonationEdit() {
             await putUpdateDonation(id, data);
             alert('모금 정보가 수정되었습니다.');
             navigate(readPath);
-        } catch (err) {
-            console.error(err);
-            alert('수정 중 오류가 발생했습니다.');
+        } catch (error) {
+            console.error(error);
+            alert(error.response.data.message);
         }
     };
 

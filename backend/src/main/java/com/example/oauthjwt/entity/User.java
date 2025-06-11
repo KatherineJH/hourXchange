@@ -93,4 +93,10 @@ public class User {
     public void subtractCredit(int credit) {
         this.wallet.subtractCredit(credit);
     }
+
+    public User setUpdateValue(UserRequest userRequest) {
+        this.username = userRequest.getUsername();
+        this.birthdate = userRequest.getBirthdate();
+        return this;
+    }
 }

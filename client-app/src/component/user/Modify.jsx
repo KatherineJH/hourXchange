@@ -33,6 +33,7 @@ export default function Modify() {
       console.log("현재 사용자 정보:", res);
       setUserData(res);
       setForm({
+        id: res.id,
         username: res.username,
         birthdate: res.birthdate,
         address: res.address || {
@@ -70,9 +71,10 @@ export default function Modify() {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (id) => {
     try {
-      await updateUser(form);
+      const response = await updateUser(id, form);
+      console.log(response);
       alert("정보가 성공적으로 수정되었습니다.");
     } catch (e) {
       console.error("수정 실패:", e);
@@ -149,7 +151,7 @@ export default function Modify() {
             onChange={handleDetailAddressChange}
             fullWidth
           />
-          <Button variant="contained" onClick={handleSubmit}>
+          <Button variant="contained" onClick={() => handleSubmit(form.id)}>
             수정하기
           </Button>
         </Stack>

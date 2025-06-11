@@ -37,8 +37,10 @@ export const fetchUser = async () => {
 }
 
 // 사용자 정보 업데이트
-export const updateUser = async (userData) => {
-  const response = await api.put("/api/user/update", userData);
+export const updateUser = async (id, userData) => {
+  console.log(id);
+  console.log(userData);
+  const response = await api.put("/api/user/update/" + id, userData);
   return response.data;
 };
 // 사용자 비밀번호 변경
