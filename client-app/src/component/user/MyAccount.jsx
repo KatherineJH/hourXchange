@@ -22,15 +22,13 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getWalletHistory } from "../../api/walletApi";
 import {
   getMyTransactionList,
   getReviewListByReceiverId,
-  getReviewTagsByReceiverId,
 } from "../../api/transactionApi";
 import { getFavoriteList } from "../../api/productApi";
-import { getMyInfo, getUserById } from "../../api/userApi";
-import { getDaily, getWeekly, getMyWeekdayVisits } from "../../api/visitLogApi";
+import { getUserById } from "../../api/userApi";
+import { getMyWeekdayVisits } from "../../api/visitLogApi";
 
 const COLORS = [
   "#ff6384",
@@ -58,33 +56,15 @@ export default function MyAccount() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          walletRes,
-          transactionRes,
-          favoriteRes,
-          reviewTagRes,
-          userRes,
-          reviewRes,
-          dailyRes,
-          weekdayRes,
-        ] = await Promise.all([
-          getWalletHistory(),
-          getMyTransactionList(),
-          getFavoriteList(),
-          getReviewTagsByReceiverId(user.id),
-          getUserById(user.id),
-          getReviewListByReceiverId(user.id),
-          getDaily(),
-          getMyWeekdayVisits(),
-        ]);
-
-        setReviewCount(reviewRes.length);
-        setReviewAvg(
-          reviewRes.length === 0
-            ? 0
-            : reviewRes.reduce((sum, r) => sum + r.stars, 0) / reviewRes.length
-        );
-
+        const [transactionRes, favoriteRes, reviewRes, userRes, weekdayRes] =
+          await Promise.all([
+            getMyTransactionList(),
+            getFavoriteList(),
+            getReviewListByReceiverId(user.id),
+            getUserById(user.id),
+            getMyWeekdayVisits(),
+          ]);
+        // 거래 상태 분포
         const allStatuses = [
           "PENDING",
           "REQUESTED",
@@ -102,12 +82,18 @@ export default function MyAccount() {
           .map((s) => ({ status: s, count: statusMap[s] }))
           .filter((d) => d.count > 0);
         setTransactionStatusData(chartData);
-
+        // 크레딧, 리뷰, 찜
+        setCredit(userRes.wallet?.credit || 0);
+        setReviewCount(reviewRes.length);
+        setReviewAvg(
+          reviewRes.length === 0
+            ? 0
+            : reviewRes.reduce((sum, r) => sum + r.stars, 0) / reviewRes.length
+        );
         setTransactionCount(transactionRes.data.length);
-        setCredit(walletRes.length > 0 ? walletRes[0].balance : 0);
         setFavoriteCount(favoriteRes.data.length);
+        // 유저 정보
         setUserInfo(userRes);
-        setDailyVisits(dailyRes);
         setMyWeekdayVisits(weekdayRes);
       } catch (err) {
         console.error("데이터 로딩 실패", err);

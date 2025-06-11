@@ -51,3 +51,14 @@ export const simulateDonation = async (features, varName, valueRange) => {
   });
   return response.data;
 };
+
+// Elasticsearch 수동 인덱싱 요청 (관리자 전용)
+export const triggerManualIndexing = async () => {
+  try {
+    const response = await api.post("/api/search/index");
+    return response.data; // { message: "Indexing complete!" }
+  } catch (error) {
+    console.error("인덱싱 요청 실패:", error.response?.data || error.message);
+    throw error; // 호출한 쪽에서 에러 핸들링할 수 있도록 재던짐
+  }
+};

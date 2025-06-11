@@ -93,6 +93,7 @@ openapi:
   key: ${OPENAPI_KEY}
 
 ip:
+  elastic: ${ELASTIC_SERVER}
   backend: ${BACKEND_SERVER}
   frontend: ${FRONTEND_SERVER}
 
