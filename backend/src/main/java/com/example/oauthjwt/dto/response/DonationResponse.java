@@ -48,16 +48,23 @@ public class DonationResponse {
 
     private List<String> images = new ArrayList<>(); // 이미지 리스트
 
+    private String proofUrl;
+
+    private LocalDateTime proofUploadedAt;
+
     public static DonationResponse toDto(Donation donation) {
         return DonationResponse.builder().id(donation.getId()).purpose(donation.getPurpose())
                 .currentAmount(donation.getCurrentAmount()).targetAmount(donation.getTargetAmount())
                 .title(donation.getTitle()).description(donation.getDescription()).startDate(donation.getStartDate())
                 .endDate(donation.getEndDate()).createdAt(donation.getCreatedAt()).viewCount(donation.getViewCount())
                 .author(UserResponse.toDto(donation.getAuthor()))
-                .status(donation.getStatus().toString().equals(DonationStatus.ONGOING.toString())
-                        ? "진행중"
-                        : donation.getStatus().toString().equals(DonationStatus.COMPLETED.toString()) ? "완료" : "취소")
+                .status(donation.getStatus().toString().equals(DonationStatus.ONGOING.toString()) ? "진행중"
+                        : donation.getStatus().toString().equals(DonationStatus.ENDED.toString()) ? "종료"
+                        : donation.getStatus().toString().equals(DonationStatus.COMPLETED.toString()) ? "완료"
+                        : donation.getStatus().toString().equals(DonationStatus.CANCELLED.toString()) ? "취소" : "")
                 .images(donation.getImages().stream().map(DonationImage::getImgUrl).collect(Collectors.toList()))
+                .proofUrl(donation.getProofUrl())
+                .proofUploadedAt(donation.getProofUploadedAt())
                 .build();
     }
 

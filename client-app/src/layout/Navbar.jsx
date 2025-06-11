@@ -54,15 +54,15 @@ const menuItems = [
   {
     text: "기부 참여",
     icon: <VolunteerActivismIcon color="error" fontSize="large" />,
-    subMenu: [
-      { text: "기부모집", to: "/donation/list" },
-      { text: "기부해요", to: "/product/donation" },
-    ],
+    to: "/donation/list",
   },
   {
-    text: "봉사해요",
+    text: "기부, 봉사 조회",
     icon: <EmojiPeopleIcon color="warning" fontSize="large" />,
-    to: "/product/volunteer",
+    subMenu: [
+      { text: "기부해요", to: "/product/donation" },
+      { text: "봉사해요", to: "/product/volunteer" },
+    ],
   },
 ];
 

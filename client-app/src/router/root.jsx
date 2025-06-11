@@ -79,7 +79,7 @@ const root = createBrowserRouter([
       {
         path: "myPage",
         element: (
-            <ProtectedRoute roles={['ROLE_USER']}>
+            <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
               <MyPage />
             </ProtectedRoute>
         ),

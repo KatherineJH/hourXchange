@@ -14,7 +14,7 @@ import {
     TextField
 } from '@mui/material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getDonation, putDeleteDonation } from '../../api/donationApi.js';
+import { getDonation, putCancelDonation } from '../../api/donationApi.js';
 import { postDonationHistory } from '../../api/donationHistoryApi.js';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
@@ -74,12 +74,12 @@ export default function DonationDetail() {
     const handleDelete = async () => {
         if (!window.confirm('정말 삭제하시겠습니까?')) return;
         try {
-            await putDeleteDonation(id);
+            await putCancelDonation(id);
             alert('삭제되었습니다.');
             navigate(listPath);
-        } catch (err) {
-            console.error(err);
-            alert('삭제 중 오류가 발생했습니다.');
+        } catch (error) {
+            console.error(error);
+            alert(error.response.data.message);
         }
     };
 
@@ -172,9 +172,29 @@ export default function DonationDetail() {
                             </Typography>
                         </Box>
                     </Box>
-                    <Box>
-                        <ShareQrButton/>
-                    </Box>
+                    {donation.proofUrl ?<>
+                            <Typography variant="subtitle2" sx={{ mt:2 }}>증빙</Typography>
+                            <Box
+                                key={donation.proofUrl}
+                                component="img"
+                                src={donation.proofUrl}
+                                alt={`Donation Image ${donation.proofUrl}`}
+                                sx={{
+                                    width: imageSize,
+                                    height: imageSize,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    border: 1,
+                                    borderColor: 'grey.300',
+                                    flex: '0 0 auto'
+                                }}
+                            />
+                        </> :
+                        <Box>
+                            <ShareQrButton/>
+                        </Box>
+                    }
+
                     {/* 기부하기 버튼 */}
                     <Box sx={{ display:'flex', justifyContent:'flex-end', mt:3 }}>
                         <Button variant="contained" onClick={() => setOpenModal(true)}>

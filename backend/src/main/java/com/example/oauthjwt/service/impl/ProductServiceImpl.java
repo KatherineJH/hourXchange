@@ -220,6 +220,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"productFindAll", "searchProducts"}, allEntries = true)
     public ProductResponse delete(CustomUserDetails userDetails, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));

@@ -15,6 +15,7 @@ const DonationList = lazy(() => import("../component/admin/DonationList.jsx"))
 const ReadDonation            = lazy(() => import("../component/donation/Read.jsx"))
 const RegisterDonation        = lazy(() => import("../component/donation/DonationForm.jsx"))
 const ModifyDonation          = lazy(() => import("../component/donation/Modify.jsx"))
+const ModifyUser         = lazy(() => import("../component/user/Modify.jsx"))
 const UserAnalysisPage        = lazy(() => import("../component/analysis/UserAnalysisPage.jsx"));
 const UserDetailPage          = lazy(() => import("../component/analysis/UserDetailPage.jsx"));
 const ListTable = lazy(() => import("../component/donation/ListTable.jsx"));
@@ -93,6 +94,10 @@ const adminPageRouter = () => [
   {
     path: "userAnalysis",
     element: <UserAnalysisPage />,
+  },
+  {
+    path: "user/modify/:id",
+    element: <ModifyUser />,
   },
   {
     path: "user/:id",
