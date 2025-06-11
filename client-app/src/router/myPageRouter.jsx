@@ -13,9 +13,10 @@ const MyBoardPage = lazy(() => import("../component/board/MyBoardPage.jsx"));
 const Chat = lazy(() => import("../component/chat/ChatContainer.jsx"));
 const Favorites = lazy(() => import("../component/product/Favorites.jsx"));
 const MyWallet = lazy(() => import("../component/payment/Wallet.jsx"));
-const MyDonationList = lazy(
+const MyDonationHistoryList = lazy(
   () => import("../component/donation/MyDonationHistoryList.jsx")
 );
+const MyDonationList = lazy(() => import("../component/donation/MyDonationList.jsx"));
 const AdvertisementForm = lazy(
   () => import("../component/advertisement/AdvertisementForm.jsx")
 );
@@ -55,6 +56,10 @@ const myPageRouter = () => [
   {
     path: "donation",
     element: <MyDonationList />,
+  },
+  {
+    path: "donationHistory",
+    element: <MyDonationHistoryList />,
   },
   {
     path: "advertisement/register",

@@ -44,4 +44,12 @@ public class Address {
         return Address.builder().zonecode(item.getZipCode()).roadAddress(item.getAddr())
                 .detailAddress(item.getAddrDetail()).build();
     }
+
+    public Address setUpdateValue(AddressRequest addressRequest) {
+        this.zonecode = addressRequest.getZonecode();
+        this.roadAddress = addressRequest.getRoadAddress();
+        this.jibunAddress = addressRequest.getJibunAddress();
+        this.detailAddress = addressRequest.getDetailAddress();
+        return this;
+    }
 }

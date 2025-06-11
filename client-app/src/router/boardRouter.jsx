@@ -20,7 +20,7 @@ const board = () => {
     {
       path: "save",
       element: (
-          <ProtectedRoute roles={['ROLE_USER']}>
+          <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
             <SaveBoard />
           </ProtectedRoute>
       ), // 게시글 작성
@@ -28,7 +28,7 @@ const board = () => {
     {
       path: "update/:id",
       element: (
-          <ProtectedRoute roles={['ROLE_USER']}>
+          <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
             <SaveBoard />
           </ProtectedRoute>
       ), // SaveBoard 재활용

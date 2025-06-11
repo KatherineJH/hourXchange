@@ -10,7 +10,7 @@ const userRouter = () => [
   {
     path: "favorites",
     element: (
-        <ProtectedRoute roles={['ROLE_USER']}>
+        <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
           <Favorites />
         </ProtectedRoute>
     ),
@@ -18,7 +18,7 @@ const userRouter = () => [
   {
     path: "chat",
     element: (
-        <ProtectedRoute roles={['ROLE_USER']}>
+        <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
           <Chat />
         </ProtectedRoute>
     ),

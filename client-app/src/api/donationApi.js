@@ -17,8 +17,8 @@ export const putUpdateDonation = async (id, data) => {
     return response
 }
 
-export const putDeleteDonation = async (id) => {
-    const response  = await api.put(apiServerUrl + "delete/" + id);
+export const putCancelDonation = async (id) => {
+    const response  = await api.put(apiServerUrl + "cancel/" + id);
 
     return response
 }
@@ -33,6 +33,42 @@ export const getList = async (page, size) => {
     const response = await api.get(apiServerUrl + "list", {
         params: { page, size },
     });
+    return response;
+};
+
+export const getMyDonation = async () => {
+    const response = await api.get(apiServerUrl + "my");
+
+    return response;
+};
+
+export const putEndDonation = async (id) => {
+    const response = await api.put(apiServerUrl + "end/" + id);
+
+    return response;
+};
+
+export const putCompleteDonation = async (id, url) => {
+    const response = await api.put(apiServerUrl + "complete/" + id,
+        url,
+        {
+            headers: {
+                'Content-Type': 'text/plain'    // text/plain으로 명시
+            }
+        });
+
+    return response;
+};
+
+export const putUpdateDonationProof = async (id, url) => {
+    const response = await api.put(apiServerUrl + "updateProof/" + id,
+        url,
+        {
+            headers: {
+                'Content-Type': 'text/plain'    // text/plain으로 명시
+            }
+        });
+
     return response;
 };
 
