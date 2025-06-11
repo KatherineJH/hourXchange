@@ -172,7 +172,7 @@ export default function UserList() {
                                     key={item.id}
                                     hover
                                     sx={{ cursor: 'pointer' }}
-                                    // onClick={() => navigate(`/donation/read/${item.id}`)}
+                                    onClick={() => navigate(`/admin/user/modify/${item.id}`)}
                                 >
                                     <TableCell>{item.id}</TableCell>
                                     <TableCell>{item.email}</TableCell>

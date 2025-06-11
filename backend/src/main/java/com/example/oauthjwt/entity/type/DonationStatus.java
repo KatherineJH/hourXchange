@@ -1,6 +1,6 @@
 package com.example.oauthjwt.entity.type;
 
 public enum DonationStatus {
-    ONGOING, COMPLETED, CANCELLED
-    // 진행중, 완료, 취소
+    ONGOING, ENDED, COMPLETED, CANCELLED
+    // 진행중, 종료, 완료, 취소
 }

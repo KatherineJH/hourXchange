@@ -3,6 +3,7 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.example.oauthjwt.dto.request.UserRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.oauthjwt.dto.condition.UserSearchCondition;
@@ -74,5 +76,18 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getUserFeatures(@PathVariable Long userId) {
         Map<String, Object> features = userService.getFeaturesByUserId(userId);
         return ResponseEntity.ok(features);
+    }
+
+    @PutMapping("/update/{userId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    public ResponseEntity<UserResponse> update(@PathVariable Long userId,
+                                               @RequestBody UserRequest userRequest,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info(userId);
+        log.info(userRequest);
+
+        UserResponse result = userService.update(userId, userRequest, userDetails);
+
+        return ResponseEntity.ok(result);
     }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.entity.type.DonationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +48,9 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
 
         Donation donation = donationRepository.findById(donationHistoryRequest.getDonationId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부모집 정보가 존재하지 않습니다."));
+        if(!donation.getStatus().equals(DonationStatus.ONGOING)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "기부모집이 진행중이 아닙니다.");
+        }
         if (donation.getCurrentAmount() + donationHistoryRequest.getAmount() > donation.getTargetAmount()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "목표액 이상으로 기부하실 수 없습니다.");
         }

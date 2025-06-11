@@ -36,7 +36,7 @@ public class ProductController {
     private final LocationUtil locationUtil;
 
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
@@ -62,7 +62,7 @@ public class ProductController {
     }
 
     @PutMapping("/modify/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> update(@PathVariable Long productId,
             @RequestBody @Valid ProductRequest productRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
@@ -73,7 +73,7 @@ public class ProductController {
     }
 
     @PutMapping("/delete/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> delete(@PathVariable Long productId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 로직

@@ -11,7 +11,7 @@ const donationRouter = () => {
         {
             path: "register",
             element: (
-                <ProtectedRoute roles={['ROLE_USER']}>
+                <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
                     <Register />
                 </ProtectedRoute>
             ),
@@ -27,7 +27,7 @@ const donationRouter = () => {
         {
             path: "modify/:id",
             element: (
-                <ProtectedRoute roles={['ROLE_USER']}>
+                <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
                     <Modify />
                 </ProtectedRoute>
             ),

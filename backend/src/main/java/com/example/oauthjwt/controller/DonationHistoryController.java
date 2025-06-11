@@ -32,7 +32,7 @@ public class DonationHistoryController {
     private final LocationUtil locationUtil;
 
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<DonationHistoryResponse> createDonationHistory(
             @RequestBody @Valid DonationHistoryRequest donationHistoryRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {

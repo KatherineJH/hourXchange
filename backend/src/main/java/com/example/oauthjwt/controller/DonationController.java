@@ -3,6 +3,10 @@ package com.example.oauthjwt.controller;
 import java.util.List;
 
 import com.example.oauthjwt.util.LocationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +34,7 @@ public class DonationController {
     private final LocationUtil locationUtil;
 
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<DonationResponse> createDonation(@RequestBody @Valid DonationRequest donationRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(donationRequest);
@@ -60,6 +64,18 @@ public class DonationController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Page<DonationResponse>> findAllMyDonation(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size,
+                                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // 로직 실행
+        Page<DonationResponse> result = donationService.findAllMyDonation(pageable, userDetails);
+        // 반환
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/search/list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PageResult<DonationResponse>> search(@RequestParam(defaultValue = "0") int page,
@@ -71,7 +87,7 @@ public class DonationController {
     }
 
     @PutMapping("/modify/{donationId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<DonationResponse> updateDonation(@PathVariable Long donationId,
             @RequestBody @Valid DonationRequest donationRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -81,13 +97,39 @@ public class DonationController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/delete/{donationId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<List<DonationHistoryResponse>> deleteDonation(@PathVariable Long donationId,
+    @PutMapping("/cancel/{donationId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<List<DonationHistoryResponse>> cancelDonation(@PathVariable Long donationId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<DonationHistoryResponse> result = donationService.delete(donationId, userDetails);
+        List<DonationHistoryResponse> result = donationService.cancel(donationId, userDetails);
         return ResponseEntity.ok(result);
     }
+
+    @PutMapping("/end/{donationId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<DonationResponse> endDonation(@PathVariable Long donationId){
+        DonationResponse result = donationService.end(donationId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/complete/{donationId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<DonationResponse> completeDonation(@PathVariable Long donationId,
+                                                             @RequestBody String url){
+        log.info(url);
+        DonationResponse result = donationService.complete(donationId, url);
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/updateProof/{donationId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<DonationResponse> updateDonationProof(@PathVariable Long donationId,
+                                                             @RequestBody String url){
+        log.info(url);
+        DonationResponse result = donationService.updateDonationProof(donationId, url);
+        return ResponseEntity.ok(result);
+    }
+
 
     // 목표 대비 진행률 상위 n개
     @GetMapping("/top-progress")
