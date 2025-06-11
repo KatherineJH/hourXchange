@@ -216,6 +216,39 @@ function Header() {
                       height: 50,
                     }}
                   />
+                  {suggestions.length > 0 && (
+                    <Paper
+                      sx={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        zIndex: 1000,
+                        maxHeight: 200,
+                        overflowY: "auto",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <List dense>
+                        {suggestions.map((item, index) => (
+                          <ListItem disablePadding key={item}>
+                            <ListItemButton
+                              selected={index === highlightedIndex}
+                              onClick={() => {
+                                setSearchInput(item);
+                                navigate(
+                                  `/main/search?keyword=${encodeURIComponent(item)}`
+                                );
+                                setSuggestions([]);
+                              }}
+                            >
+                              <ListItemText primary={item} />
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Paper>
+                  )}
                 </Box>
               </Box>
 
