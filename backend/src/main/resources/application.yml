@@ -93,6 +93,7 @@ openapi:
   key: ${OPENAPI_KEY}
 
 ip:
+  elastic: ${ELASTIC_SERVER}
   backend: ${BACKEND_SERVER}
   frontend: ${FRONTEND_SERVER}
 
@@ -100,7 +101,7 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: https://${FRONTEND_SERVER}
+  frontend: http://${FRONTEND_SERVER}
   elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
   flask: http://${FLASK_SERVER}:${FLASK_PORT}
 

@@ -16,15 +16,15 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 
 @Configuration
 public class ElasticsearchConfig {
-    @Value("${ip.backend}")
-    String ipBackend;
+    @Value("${ip.elastic}")
+    String ipElastic;
 
     @Value("${port.elastic}")
     int portElastic;
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-        RestClient restClient = RestClient.builder(new HttpHost(ipBackend, portElastic, "http") // 포트 9200, HTTP 사용
+        RestClient restClient = RestClient.builder(new HttpHost(ipElastic, portElastic, "http") // 포트 9200, HTTP 사용
         ).build();
 
         // 커스텀 ObjectMapper 생성
