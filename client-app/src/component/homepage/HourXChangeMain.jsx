@@ -8,6 +8,7 @@ import Mid1HourXChange from "./Mid1HourXChange.jsx";
 import Mid3HourXChange from "./Mid3HourXChange.jsx";
 import Mid4HourXChange from "./Mid4HourXChange.jsx";
 import Mid5HourXChange from "./Mid5HourXChnage.jsx";
+import BackToTopButton from "../common/BackToTopButton.jsx";
 
 export default function HourXChangeMain() {
   return (
@@ -20,6 +21,7 @@ export default function HourXChangeMain() {
       <Mid4HourXChange />
       <Mid5HourXChange />
       <TopHourXChange />
+      <BackToTopButton/>
       <Footer />
     </>
   );
