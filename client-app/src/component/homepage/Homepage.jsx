@@ -13,11 +13,11 @@ import {
   getTopByProgress,
   getTopByViews,
 } from "../../api/donationApi.js";
-import { Button, Modal, Box, Checkbox, FormControlLabel } from "@mui/material";
+import { Button, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
-import TopDonatorsChart from "../common/TopDonatorChart.jsx";
+import { useHasEmail } from "../../assets/useCustomAuth.js";
 
 const modalStyle = {
   position: "absolute",
@@ -48,7 +48,7 @@ export default function Homepage() {
     (p) => !selectedCategory || p.category?.categoryName === selectedCategory
   );
   const { pathname } = useLocation(); // 현재 경로
-  const user = useSelector((state) => state.auth);
+  const isLoggedIn = useHasEmail();
   const [openModal, setOpenModal] = useState(true);
   const [noShowChecked, setNoShowChecked] = useState(false);
 
@@ -81,7 +81,7 @@ export default function Homepage() {
   }, []);
 
   useEffect(() => {
-    if (!user.email) return;
+    if (!isLoggedIn) return;
 
     getFavoriteList()
       .then((response) => {
@@ -144,12 +144,15 @@ export default function Homepage() {
           sx={{
             position: "fixed",
             bottom: "2rem",
-            left: 35,
+            left: "50%",
+            top: "50%",
             zIndex: 1300,
-            width: 320,
-            height: 320,
+            width: 350,
+            height: 350,
+            transform: "translate(-50%, -50%)",
             bgcolor: "background.paper",
             borderRadius: 2,
+            opacity: 0.92,
             boxShadow: 5,
             p: 1,
           }}
@@ -178,9 +181,6 @@ export default function Homepage() {
           </Box>
         </Box>
       )}
-
-      <h1>🏠 Home Page</h1>
-      <TopDonatorsChart />
 
       <CustomHeader text={"거의 모집이 완료된 기부"} />
       <DonationCardList

@@ -15,6 +15,7 @@ import {
   getAdvertisementDetail,
   deleteAdvertisement,
 } from "../../api/advertisementApi.js";
+import { useSelector } from "react-redux";
 
 export default function AdvertisementDetail() {
   const { id } = useParams();
@@ -23,6 +24,7 @@ export default function AdvertisementDetail() {
   const [adData, setAdData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     getAdvertisementDetail(id)
@@ -70,6 +72,31 @@ export default function AdvertisementDetail() {
     );
   }
 
+  const handleWatchClick = async () => {
+    if (!user?.id) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch(`/api/advertisement/${id}/watch`, {});
+
+      if (response.ok) {
+        alert("광고 시청 완료! 크레딧이 지급되었습니다.");
+      } else if (response.status === 401) {
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+      } else {
+        const text = await response.text();
+        alert("시청 실패: " + text);
+      }
+    } catch (err) {
+      console.error("광고 시청 중 오류:", err);
+      alert("오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 2 }}>
       <Typography variant="h4" gutterBottom>
@@ -105,7 +132,7 @@ export default function AdvertisementDetail() {
 
       {adData.ownerName && (
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          작성자: {adData.ownerName}
+          받는 크레딧 : {adData.hours}
         </Typography>
       )}
       {adData.createdAt && (
@@ -113,9 +140,15 @@ export default function AdvertisementDetail() {
           등록일: {new Date(adData.createdAt).toLocaleDateString("ko-KR")}
         </Typography>
       )}
+      {/* <Typography ariant="body2" color="text.secondary">
+        작성자: {adData.ownerName}
+      </Typography> */}
 
       <Box sx={{ display: "flex", gap: 1, mt: 3 }}>
-        <Button variant="text" onClick={() => navigate("/product/all")}>
+        <Button variant="contained" onClick={handleWatchClick}>
+          광고 시청하기
+        </Button>
+        <Button variant="contained" onClick={() => navigate("/product/all")}>
           목록으로
         </Button>
       </Box>

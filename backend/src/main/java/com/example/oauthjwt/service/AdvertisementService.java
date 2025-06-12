@@ -22,4 +22,6 @@ public interface AdvertisementService {
     AdvertisementResponse deleteAdvertisement(Long advertisementId, CustomUserDetails userDetails);
 
     Page<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails, Pageable pageable);
+
+    AdvertisementResponse watchAdvertisement(Long advertisementId, CustomUserDetails userDetails);
 }

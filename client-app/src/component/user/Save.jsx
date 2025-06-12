@@ -135,18 +135,16 @@ export default function Save() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 0,
+            gap: 15,
             alignItems: "center",
-            position: "sticky",
+            position: { xs: "static", md: "sticky" },
             mt: 20,
             height: "100%",
           }}
         >
-          <Box>
-            {leftAds.map((ad, index) => (
-              <UserAdvertisement key={`left-${index}`} ad={ad} />
-            ))}
-          </Box>
+          {leftAds.map((ad, index) => (
+            <UserAdvertisement key={`left-${index}`} ad={ad} />
+          ))}
         </Box>
 
         <Box
@@ -155,7 +153,7 @@ export default function Save() {
             display: "flex",
             justifyContent: "center",
             alignContent: "center",
-            mt: { xs: 4, md: 20 }, // md 이상에서 20(spacing) = 160px
+            mt: { xs: 4, md: 15 }, // md 이상에서 20(spacing) = 160px
           }}
         >
           <Card
@@ -279,9 +277,9 @@ export default function Save() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 0,
+            gap: 15,
             alignItems: "center",
-            position: "sticky",
+            position: { xs: "static", md: "sticky" },
             top: theme.spacing(20), // 중앙 폼의 mt:20 (=160px)과 동일
             mt: { xs: 0, md: 0 },
           })}
