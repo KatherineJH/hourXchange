@@ -67,7 +67,7 @@ export default function AiChatbotPopup({ open, onClose }) {
                 bottom: 88,
                 right: 24,
                 width: 600,
-                height: 500,
+                height: 600,
                 zIndex: 1300,
                 pointerEvents: 'auto'
             }}
