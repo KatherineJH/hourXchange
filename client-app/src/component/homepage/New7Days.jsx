@@ -1,6 +1,7 @@
 // src/component/homepage/New7Days.jsx
 import React from "react";
 import ProductGrid from "../common/ProductGrid";
+import { Typography } from "@mui/material";
 
 export default function New7Days({
   selectedCategory,
@@ -21,13 +22,15 @@ export default function New7Days({
 
   const deduplicated = deduplicateByUser(filtered);
 
-  // console.log("🔥 New7Days 전체:", products.length);
-  // console.log("🔥 필터링 조건 (7일 이내 + 카테고리):", filtered.map((p) => p.title));
-  // console.log("🔥 중복 제거 후:", deduplicated.map((p) => p.title));
+  // console.log("New7Days 전체:", products.length);
+  // console.log("필터링 조건 (7일 이내 + 카테고리):", filtered.map((p) => p.title));
+  // console.log("중복 제거 후:", deduplicated.map((p) => p.title));
 
   return (
     <div>
-      <h2>🔥 최근 7일 내 올라온 상품</h2>
+      <Typography variant="h6" gutterBottom>
+        🔥 최근 7일 내 올라온 상품
+      </Typography>
       <ProductGrid
         products={deduplicated}
         favorite={favorite}
