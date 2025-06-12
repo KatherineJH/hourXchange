@@ -23,10 +23,10 @@ public class CommonController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final Set<String> allowedTables = Set.of("address", "advertisement", "board", "boardimage",
-            "category", "chat_messages", "chat_room_users", "chat_rooms", "comment", "donation", "donationhistory",
-            "donationimage", "favorite", "orders", "payment", "paymentitem", "product", "review", "reviewtag",
-            "serviceproduct", "spimage", "thumbsup", "transaction", "user", "visitlog", "wallet", "wallethistory");
+    private static final Set<String> allowedTables = Set.of("Address", "Advertisement", "Board", "BoardImage",
+            "Category", "chat_messages", "chat_room_users", "chat_rooms", "Comment", "Donation", "DonationHistory",
+            "DonationImage", "Favorite", "Orders", "Payment", "PaymentItem", "Product", "Review", "ReviewTag",
+            "ProductImage", "ThumbsUp", "Transaction", "User", "VisitLog", "Wallet", "WalletHistory");
 
     /**
      * 지정된 테이블에서 첫 번째 또는 마지막 row를 조회. 해당 컨트롤러는 서비스와 레포지토리를 따로 사용하지 않음으로, 예외적으로 예외처리를
@@ -43,7 +43,7 @@ public class CommonController {
      */
     @GetMapping("/row")
     public Map<String, Object> getFirstOrLastRow(@RequestParam String table, @RequestParam String position) {
-        if (!allowedTables.contains(table.toLowerCase())) {
+        if (!allowedTables.contains(table)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid table name.");
         }
         if (!position.equalsIgnoreCase("first") && !position.equalsIgnoreCase("last")) {

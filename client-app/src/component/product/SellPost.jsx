@@ -11,7 +11,8 @@ import ListTable from "./ListTable";
 import CategoryNav from "../../layout/CategoryNav";
 import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
-import AdvertisementCard from "../advertisement/AdvertisementCard"; // 광고 카드 컴포넌트 (예시)
+import AdvertisementCard from "../advertisement/AdvertisementCard";
+import {useHasEmail} from "../../assets/useCustomAuth.js"; // 광고 카드 컴포넌트 (예시)
 
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
@@ -60,9 +61,11 @@ export default function SellPost() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const selectedCategory = params.get("category");
+    const isLoggedIn = useHasEmail();
 
   // 찜 목록 가져오기
   useEffect(() => {
+      if (!isLoggedIn) return;
     getFavoriteList()
       .then((response) => setFavorite(response.data || []))
       .catch(console.error);

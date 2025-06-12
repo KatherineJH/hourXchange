@@ -26,7 +26,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     private final UserRepository userRepository;
 
     @Override
-    public Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
+    public AdvertisementResponse createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails) {
         User owner = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
@@ -34,10 +34,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         boolean existsByTitle = advertisementRepository.existsByTitle(advertisementRequest.getTitle());
         if (existsByTitle) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 제목입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 제목입니다.");
         }
 
-        return advertisementRepository.save(advertisement);
+        return AdvertisementResponse.toDto(advertisementRepository.save(advertisement));
     }
 
     @Override
@@ -93,10 +93,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementResponse> findMyAdvertisements(CustomUserDetails userDetails, Pageable pageable) {
-        // Long userId = userDetails.getUser().getId();
-        // List<Advertisement> advertisementList =
-        // advertisementRepository.findAllByOwnerId(userId);
-        // advertisementList.forEach(ad -> ad.getImages().size());
         User user = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
         return advertisementRepository.findByOwner(user, pageable).map(AdvertisementResponse::toDto);

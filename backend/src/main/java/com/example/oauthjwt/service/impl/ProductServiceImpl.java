@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
         if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) {
             for (String url : productRequest.getImages()) {
                 if (productImageRepository.existsByImgUrl(url)) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미지 주소가 중복되었습니다.");
                 }
                 images.add(ProductImage.builder().imgUrl(url).build());
             }
@@ -121,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
             productImageRepository.deleteAllByProductId(product.getId());
             for (String url : productRequest.getImages()) {
                 if (productImageRepository.existsByImgUrl(url)) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 주소가 중복되었습니다.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미지 주소가 중복되었습니다.");
                 }
                 if (url != null && !url.isEmpty()) {
                     images.add(ProductImage.builder().imgUrl(url).product(product).build());
@@ -220,6 +220,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"productFindAll", "searchProducts"}, allEntries = true)
     public ProductResponse delete(CustomUserDetails userDetails, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제품이 존재하지 않습니다."));

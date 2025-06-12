@@ -17,7 +17,8 @@ import { Button, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
 import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
-import { useHasEmail } from "../../assets/useCustomAuth.js";
+import {useHasEmail} from "../../assets/useCustomAuth.js";
+import TopDonatorsChart from "../common/TopDonatorChart.jsx";
 
 const modalStyle = {
   position: "absolute",

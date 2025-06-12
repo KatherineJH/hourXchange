@@ -10,7 +10,7 @@ import com.example.oauthjwt.service.impl.CustomUserDetails;
 
 public interface AdvertisementService {
 
-    Advertisement createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
+    AdvertisementResponse createAdvertisement(AdvertisementRequest advertisementRequest, CustomUserDetails userDetails);
 
     AdvertisementResponse findAdvertisementDetail(Long advertisementId);
 

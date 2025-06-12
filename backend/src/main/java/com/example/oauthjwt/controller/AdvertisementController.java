@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ import com.example.oauthjwt.service.impl.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @Log4j2
@@ -25,22 +29,14 @@ import lombok.extern.log4j.Log4j2;
 public class AdvertisementController {
 
     private final AdvertisementService advertisementService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createAdvertisement(@AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid AdvertisementRequest advertisementRequest) {
-        log.info(advertisementRequest);
-        // 인증한 유저의 id 값으로 할당
-
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-        }
-
-        log.info(advertisementRequest.toString());
-        Advertisement ad = advertisementService.createAdvertisement(advertisementRequest, userDetails);
-        AdvertisementResponse response = AdvertisementResponse.toDto(ad);
-        return ResponseEntity.ok(response);
+        AdvertisementResponse response = advertisementService.createAdvertisement(advertisementRequest, userDetails);
+        return ResponseEntity.created(locationUtil.createdLocation(response.getId())).body(response);
     }
 
     @GetMapping("/all")

@@ -21,7 +21,9 @@ feature_cols = [
 ]
 
 def load_and_preprocess_data():
-    engine = create_engine("mysql+pymysql://root:root@localhost/db_hourxchange?charset=utf8mb4")
+    # engine = create_engine("mysql+pymysql://root:root@localhost/db_hourxchange?charset=utf8mb4") # 로컬 테스트용
+    engine = create_engine(
+    "mysql+pymysql://user_hourxchange:1234@hourxchange-db-server.cv8iom24qoo9.ap-northeast-2.rds.amazonaws.com:3306/db_hourxchange?charset=utf8mb4")
 
     query = """
     SELECT
@@ -38,27 +40,27 @@ def load_and_preprocess_data():
         COALESCE(r.review_count, 0) AS review_count,
         COALESCE(r.avg_stars_given, 0) AS avg_stars_given,
         COALESCE(SUBSTRING(a.jibunAddress, 1, 2), '기타') AS region
-    FROM user u
-    LEFT JOIN address a ON u.id = a.user_id
+    FROM User u
+    LEFT JOIN Address a ON u.id = a.user_id
     LEFT JOIN (
         SELECT userId, COUNT(*) AS visit_count, COUNT(DISTINCT url) AS distinct_url_count
-        FROM visitlog WHERE userId IS NOT NULL GROUP BY userId
+        FROM VisitLog WHERE userId IS NOT NULL GROUP BY userId
     ) v ON u.id = v.userId
     LEFT JOIN (
         SELECT userId, COUNT(*) AS payment_count, SUM(amount) AS total_payment_amount
-        FROM payment WHERE status = 'paid' GROUP BY userId
+        FROM Payment WHERE status = 'paid' GROUP BY userId
     ) p ON u.id = p.userId
     LEFT JOIN (
         SELECT user_id, COUNT(*) AS donation_count, -SUM(amount) AS total_donation_amount
-        FROM donationhistory GROUP BY user_id
+        FROM DonationHistory GROUP BY user_id
     ) d ON u.id = d.user_id
     LEFT JOIN (
         SELECT user_id, COUNT(*) AS transaction_count
-        FROM transaction WHERE status = 'COMPLETED' GROUP BY user_id
+        FROM Transaction WHERE status = 'COMPLETED' GROUP BY user_id
     ) t ON u.id = t.user_id
     LEFT JOIN (
         SELECT reviewer_id, COUNT(*) AS review_count, AVG(stars) AS avg_stars_given
-        FROM review GROUP BY reviewer_id
+        FROM Review GROUP BY reviewer_id
     ) r ON u.id = r.reviewer_id;
     """
 

@@ -13,7 +13,7 @@ const serviceProductRouter = () => {
     {
       path: "list",
       element: (
-          <ProtectedRoute roles={['ROLE_USER']}>
+          <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
             <List />
           </ProtectedRoute>
       ),
@@ -21,7 +21,7 @@ const serviceProductRouter = () => {
     {
       path: "my",
       element: (
-          <ProtectedRoute roles={['ROLE_USER']}>
+          <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
             <MyList />
           </ProtectedRoute>
       ),

@@ -2,6 +2,7 @@ package com.example.oauthjwt.controller;
 
 import java.util.List;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,16 +33,17 @@ import lombok.extern.log4j.Log4j2;
 public class ProductController {
     private final ProductService productService;
     private final ReviewService reviewService;
+    private final LocationUtil locationUtil;
 
     @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> save(@RequestBody @Valid ProductRequest productRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
         // 로직 실행
         ProductResponse result = productService.save(productRequest, userDetails);
         // 저장된 값 반환
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
 
     @GetMapping("/{productId}")
@@ -60,7 +62,7 @@ public class ProductController {
     }
 
     @PutMapping("/modify/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> update(@PathVariable Long productId,
             @RequestBody @Valid ProductRequest productRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info(productRequest);
@@ -71,7 +73,7 @@ public class ProductController {
     }
 
     @PutMapping("/delete/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<ProductResponse> delete(@PathVariable Long productId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 로직
@@ -117,9 +119,7 @@ public class ProductController {
             @RequestParam(defaultValue = "126.97429553373962") double swLng,
             @RequestParam(defaultValue = "37.56899604971747") double neLat,
             @RequestParam(defaultValue = "126.9812890557788") double neLng) {
-        log.info("prams swLat:{} swLng:{} neLat:{} neLng:{}", swLat, swLng, neLat, neLng);
         List<ProductResponse> productResponseList = productService.findAllWithPosition(swLat, swLng, neLat, neLng);
-        log.info("productResponseList:{}", productResponseList);
         return ResponseEntity.ok(productResponseList);
     }
 

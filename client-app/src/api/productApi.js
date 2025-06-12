@@ -96,8 +96,3 @@ export const getUserTags = async (userId) => {
   const response = await api.get(apiServerUrl + `user/${userId}/tags`);
   return response.data;
 };
-// 상품 태그 불러오기
-export const getProductTags = async (productId) => {
-  const response = await api.get(apiServerUrl + `${productId}/tags`);
-  return response.data;
-};

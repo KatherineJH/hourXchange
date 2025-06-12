@@ -42,9 +42,7 @@ export default function TransactionList() {
                 startDate: params.startDate?.format('YYYY-MM-DD') ?? null,
                 endDate:   params.endDate?.format('YYYY-MM-DD')   ?? null,
             };
-            console.log(formattedParams);
             const response = await getSearch(page, size, formattedParams);
-            console.log(response.data.content)
             setServerData(response.data.content);
             setTotalPages(response.data.totalPages);
         }catch(error){
@@ -176,7 +174,7 @@ export default function TransactionList() {
                                 <TableRow
                                     key={item.id}
                                     hover
-                                    sx={{ cursor: 'pointer' }}
+                                    // sx={{ cursor: 'pointer' }}
                                     // onClick={() => navigate(`/donation/read/${item.id}`)}
                                 >
                                     <TableCell>{item.id}</TableCell>

@@ -3,9 +3,12 @@ package com.example.oauthjwt.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.oauthjwt.entity.type.UserRole;
+import com.example.oauthjwt.repository.AddressRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,15 +32,16 @@ import lombok.extern.log4j.Log4j2;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
 
     @Override
     public UserResponse signup(UserRequest userRequest) {
         // 유니크 항목 검사
         if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일이 중복되었습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이메일이 중복되었습니다.");
         }
         if (userRepository.existsByUsername(userRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "닉네임이 중복되었습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "닉네임이 중복되었습니다.");
         }
 
         // 객체 생성
@@ -106,7 +110,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
         return UserResponse.toDto(user);
     }
 
@@ -152,5 +157,35 @@ public class UserServiceImpl implements UserService {
         features.put("region", String.valueOf(row[11])); // 지역코드용 텍스트 ("서울" 등)
 
         return features;
+    }
+
+    @Override
+    public UserResponse update(Long userId, UserRequest userRequest, CustomUserDetails userDetails) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));
+        if (userRepository.existsByUsername(userRequest.getUsername())
+                && !user.getUsername().equals(userRequest.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "닉네임이 중복되었습니다.");
+        }
+        if(!userDetails.getUser().getRole().equals(UserRole.ROLE_ADMIN)){
+            if(!userId.equals(userDetails.getUser().getId())){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저를 수정할 권한이 없습니다.");
+            }
+        }
+        log.info(userRequest);
+        AddressRequest addressRequest = userRequest.getAddress();
+        if (addressRequest != null && !addressRequest.isEmpty()) {
+            Optional<Address> address = addressRepository.findByUser(user);
+            if (address.isPresent()) {
+                address.get().setUpdateValue(addressRequest);
+            }else{
+                Address newAddress = Address.of(addressRequest);
+                newAddress.setUser(user);
+                user.setAddress(newAddress);
+            }
+        }
+        User result = userRepository.save(user.setUpdateValue(userRequest));
+
+        return UserResponse.toDto(result);
     }
 }

@@ -53,7 +53,13 @@ public class Donation {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private DonationStatus status;
+    private DonationStatus status; // 상태
+
+    @Column
+    private String proofUrl; // 증빙 사진 url
+
+    @Column
+    private LocalDateTime proofUploadedAt; // 증빙 일자
 
     @Builder.Default
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -85,11 +91,25 @@ public class Donation {
         return this;
     }
 
-    public Donation setDelete() {
+    public Donation setCancelled() {
         this.status = DonationStatus.CANCELLED;
         this.currentAmount = 0;
         return this;
     }
+
+    public Donation setEnded() {
+        this.status = DonationStatus.ENDED;
+        return this;
+    }
+
+    public Donation setCompleted(String url) {
+        this.proofUrl = url;
+        this.proofUploadedAt = LocalDateTime.now();
+        this.status = DonationStatus.COMPLETED;
+        return this;
+    }
+
+
 
     public void addTime(int amount) {
         this.currentAmount += amount;
@@ -99,4 +119,6 @@ public class Donation {
         this.viewCount++;
         return this;
     }
+
+
 }

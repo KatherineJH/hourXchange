@@ -12,15 +12,11 @@ export const postSave = async (data) => {
 // 이메일 로그인 액션
 export const loginUser = async (formData) => {
   try {
-    console.log(formData.get("email"));
-    console.log(formData.get("password"));
     const response = await api.post("/api/auth/login", formData);
-    console.log(response);
     return response.data;
   } catch (error) {
     console.log(error);
     throw error;
-    // return error.response?.data || "로그인 실패";
   }
 }
 
@@ -36,20 +32,15 @@ export const logoutUser = async () => {
 
 // 사용자 정보 조회 액션
 export const fetchUser = async () => {
-  // try {
     const response = await api.get("/api/auth/me");
-    console.log(response);
     return response.data;
-  // } catch (error) {
-  //   throw error.response?.data
-  //   // return typeof error.response?.data === "string"
-  //   //     ? error.response.data : error.response?.data?.message || "사용자 정보 조회 실패";
-  // }
 }
 
 // 사용자 정보 업데이트
-export const updateUser = async (userData) => {
-  const response = await api.put("/api/user/update", userData);
+export const updateUser = async (id, userData) => {
+  console.log(id);
+  console.log(userData);
+  const response = await api.put("/api/user/update/" + id, userData);
   return response.data;
 };
 // 사용자 비밀번호 변경

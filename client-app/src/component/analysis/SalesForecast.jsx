@@ -37,8 +37,8 @@ const SalesForecast = () => {
   useEffect(() => {
     const fetchDateRange = async () => {
       try {
-        const firstRow = await getRowFromTable("payment", "first");
-        const lastRow = await getRowFromTable("payment", "last");
+        const firstRow = await getRowFromTable("Payment", "first");
+        const lastRow = await getRowFromTable("Payment", "last");
 
         const extractDate = (row) =>
           row.paidAt || row.period || row.created_at || row.date;

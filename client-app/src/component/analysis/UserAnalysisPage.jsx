@@ -9,9 +9,10 @@ import {
   MenuItem,
   Stack,
   Pagination,
+  Button,
 } from "@mui/material";
 import { getAllUsers } from "../../api/userApi";
-import { getAllUserGrades } from "../../api/analysisApi";
+import { getAllUserGrades, triggerManualIndexing } from "../../api/analysisApi";
 import UserAnalysisTable from "./UserAnalysisTable";
 
 const gradeMap = {
@@ -31,6 +32,16 @@ const UserAnalysisPage = () => {
 
   const [page, setPage] = useState(0);
   const size = 10;
+
+  const handleManualIndexing = async () => {
+    try {
+      const result = await triggerManualIndexing();
+      alert(result.message || "수동 인덱싱 완료!");
+    } catch (err) {
+      console.error("인덱싱 실패:", err);
+      alert("수동 인덱싱 실패");
+    }
+  };
 
   useEffect(() => {
     const fetchCombinedData = async () => {
@@ -83,6 +94,16 @@ const UserAnalysisPage = () => {
         <Typography variant="h5" gutterBottom>
           🧑‍💼 회원 분석 테이블
         </Typography>
+        {/* 수동 인덱싱 버튼 추가 */}
+        <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleManualIndexing}
+          >
+            수동 인덱싱 실행 (관리자 전용)
+          </Button>
+        </Box>
 
         <FormControl size="small" sx={{ minWidth: 180, mb: 2 }}>
           <InputLabel>등급 필터</InputLabel>

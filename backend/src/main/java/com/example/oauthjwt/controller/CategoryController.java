@@ -1,5 +1,6 @@
 package com.example.oauthjwt.controller;
 
+import com.example.oauthjwt.util.LocationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import lombok.extern.log4j.Log4j2;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final LocationUtil locationUtil;
     // 전체 조회
     @GetMapping("/list")
     public ResponseEntity<Page<CategoryResponse>> findAll(@RequestParam(defaultValue = "0") int page,
@@ -38,7 +40,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> create(@RequestParam String categoryName) {
         CategoryResponse result = categoryService.addCategory(categoryName);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.created(locationUtil.createdLocation(result.getId())).body(result);
     }
     // 조회
     @GetMapping("/{id}")
