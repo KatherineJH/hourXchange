@@ -81,7 +81,7 @@ public class SecurityConfig {
                         "/api/donation/list/all", "/api/product/list/all", "/api/donationHistory/topDonator", "/api/donation/list",
                         "/api/board/all", "/api/product/listMap", "/api/product/list", "/api/reviews/list", "api/search/**"
                 ).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/product/**", "/api/donation/**").permitAll()
                 // 그 외 요청은 인증 필요
                 .anyRequest().authenticated());
 
