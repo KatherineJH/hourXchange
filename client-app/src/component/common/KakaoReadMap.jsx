@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import KakaoMapLoader from './KakaoMapLoader';
 
 const containerStyle = { width: '100%', height: '400px' };
 
@@ -43,7 +44,12 @@ function KakaoReadMap({ serverData }) {
         };
     }, [serverData]);
 
-    return <div ref={mapRef} style={containerStyle} />;
+    return (
+    <>
+      <KakaoMapLoader /> 
+      <div ref={mapRef} style={containerStyle} />
+    </>
+  );
 }
 
 export default KakaoReadMap;

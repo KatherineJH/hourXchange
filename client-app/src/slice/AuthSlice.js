@@ -39,6 +39,7 @@ const authSlice = createSlice({
           username: action.payload.username,
           name: action.payload.name,
           role: action.payload.role,
+          wallet: action.payload.wallet,
         };
       })
     // 로그아웃
@@ -59,6 +60,7 @@ const authSlice = createSlice({
           username: action.payload.username,
           name: action.payload.name,
           role: action.payload.role,
+          wallet: action.payload.wallet, 
         };
         state.loading = false
       })
