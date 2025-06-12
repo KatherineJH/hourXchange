@@ -19,7 +19,6 @@ import {
 import {
   AccountCircle,
   Notifications as NotificationsIcon,
-  FavoriteBorder,
 } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
@@ -46,7 +45,16 @@ function Header() {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
-  // console.log(user);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const threshold = 80; // 배너 높이(px) 기준
+      setIsSticky(window.scrollY >= threshold);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logoutUserAsync())
@@ -134,7 +142,7 @@ function Header() {
     <>
       <Box sx={{ flexGrow: 1 }}>
         <AppBar
-          position="static"
+          position={isSticky ? "fixed" : "static"}
           elevation={0}
           sx={{
             borderRadius: "30px",
