@@ -1,6 +1,7 @@
 // src/components/common/KakaoListMap.jsx
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import KakaoMapLoader from './KakaoMapLoader';
 
 const containerStyle = { width: '100%', height: '600px' };
 
@@ -172,5 +173,10 @@ export default function KakaoListMap({ serverData, center, onViewportChange }) {
         }
     }, [serverData]);
 
-    return <div ref={mapRef} style={containerStyle} />;
+    return (
+    <>
+      <KakaoMapLoader /> 
+      <div ref={mapRef} style={containerStyle} />
+    </>
+  );
 }

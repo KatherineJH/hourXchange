@@ -1,5 +1,6 @@
 // src/components/KakaoSaveMap.jsx
 import React, { useEffect, useRef } from 'react';
+import KakaoMapLoader from './KakaoMapLoader';
 
 // 맵이 처음 로드될 때 사용할 기본 좌표 (서울 강남구 논현동)
 // 출처: 카카오 지도 API 공식 문서 – 기본 좌표 설정 예시
@@ -140,7 +141,12 @@ function KakaoSaveMap({ saveData, setSaveData }) {
         }
     }, [saveData.lat, saveData.lng]);
 
-    return <div ref={mapRef} style={{ width: '100%', height: '400px' }} />;
+    return (
+    <>
+      <KakaoMapLoader /> 
+      <div ref={mapRef} style={{ width: '100%', height: '400px' }} />
+    </>
+  );
 }
 
 export default KakaoSaveMap;
