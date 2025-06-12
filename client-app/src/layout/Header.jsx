@@ -297,7 +297,11 @@ function Header() {
         >
           {user.email ? (
             <>
-              <MenuItem disabled>{user.name}님, 환영합니다</MenuItem>
+              <MenuItem disabled>
+                {user.name}님, 환영합니다
+                <br />
+                잔액: {user.wallet?.credit ?? 0} 크레딧
+              </MenuItem>
               {user.role === "ROLE_ADMIN" ? (
                 <MenuItem onClick={handleMoveToAdminPage}>
                   어드민페이지
