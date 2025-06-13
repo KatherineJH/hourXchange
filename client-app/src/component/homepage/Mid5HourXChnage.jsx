@@ -1,3 +1,4 @@
+// src/component/yourPath/Mid5HourXChange.jsx
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -7,8 +8,13 @@ import {
   CircularProgress,
   Button,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { getAllReviews } from "../../api/transactionApi.js";
 import { getAllBoards } from "../../api/boardApi.js";
 
@@ -17,11 +23,17 @@ function Mid5HourXChange() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Redux auth slice에서 user 정보 추출
+  const { user } = useSelector((state) => state.auth);
+
   const [tabValue, setTabValue] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [recentBoards, setRecentBoards] = useState([]);
   const [boardsLoading, setBoardsLoading] = useState(true);
+
+  // 로그인 모달 오픈 상태
+  const [openLoginModal, setOpenLoginModal] = useState(false);
 
   const CARD_HEIGHT = "200px";
 
@@ -29,7 +41,6 @@ function Mid5HourXChange() {
     const fetchReviews = async () => {
       try {
         const response = await getAllReviews(0, 5);
-        console.log(response.content);
         setReviews(response.content);
       } catch (error) {
         console.error("리뷰 목록 불러오기 실패:", error);
@@ -73,7 +84,12 @@ function Mid5HourXChange() {
     );
   }
 
+  // ③ 게시글 클릭 시 로그인 체크
   const goToDetail = (boardId) => {
+    if (!user?.email) {
+      setOpenLoginModal(true);
+      return;
+    }
     let basePath = "/board";
     if (location.pathname.startsWith("/myPage")) {
       basePath = "/myPage/board";
@@ -83,8 +99,18 @@ function Mid5HourXChange() {
     navigate(`${basePath}/${boardId}`);
   };
 
+  // 모달 닫기
+  const handleClose = () => {
+    setOpenLoginModal(false);
+  };
+  // 로그인 페이지로 이동
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
   return (
     <Box sx={{ backgroundColor: "#F7F7F7", py: 6 }}>
+      {/* 헤더 */}
       <Box sx={{ textAlign: "center", mb: 4 }}>
         <Typography variant="h3" sx={{ fontWeight: 700 }}>
           리뷰 & 최근 커뮤니티
@@ -94,6 +120,7 @@ function Mid5HourXChange() {
         </Typography>
       </Box>
 
+      {/* 탭 버튼 */}
       <Box
         sx={{
           display: "inline-flex",
@@ -135,25 +162,19 @@ function Mid5HourXChange() {
         </Button>
       </Box>
 
+      {/* 콘텐츠 */}
       <Stack
         direction="row"
         alignItems="flex-start"
         spacing={2}
-        sx={{
-          maxWidth: "5000px",
-          px: { xs: 2, md: 4 },
-        }}
+        sx={{ maxWidth: "5000px", px: { xs: 2, md: 4 } }}
       >
         <Box sx={{ flexGrow: 1, margin: 0 }}>
+          {/* 리뷰 탭 */}
           {tabValue === 0 && (
-            <Grid
-              container
-              spacing={3}
-              justifyContent="flex-start"
-              sx={{ ml: 1 }}
-            >
+            <Grid container spacing={3} sx={{ ml: 1 }}>
               {reviews.map((rev) => (
-                <Grid item key={rev.reviewId} xs={2} sm={2} md={2}>
+                <Grid item key={rev.reviewId} xs={12} sm={6} md={4} lg={2}>
                   <Card
                     sx={{
                       width: "270px",
@@ -169,27 +190,14 @@ function Mid5HourXChange() {
                     }}
                   >
                     <Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold" }}
                       >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          참여후기
-                        </Typography>
-                        <img
-                          src="/deer.png"
-                          alt="deer"
-                          style={{ width: 60, opacity: 0.6 }}
-                        />
-                      </Box>
+                        참여후기
+                      </Typography>
                       <Typography>
-                        {rev.content.length > 10
+                        {rev.content.length > 20
                           ? rev.content.slice(0, 20) + "..."
                           : rev.content}
                       </Typography>
@@ -198,11 +206,7 @@ function Mid5HourXChange() {
                         variant="caption"
                         sx={{ color: "text.secondary" }}
                       >
-                        {new Date(rev.createdAt).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })}
+                        {new Date(rev.createdAt).toLocaleDateString("ko-KR")}
                       </Typography>
                     </Box>
                   </Card>
@@ -211,15 +215,11 @@ function Mid5HourXChange() {
             </Grid>
           )}
 
+          {/* 게시글 탭 */}
           {tabValue === 1 && (
-            <Grid
-              container
-              spacing={3}
-              justifyContent="flex-start"
-              sx={{ ml: 1 }}
-            >
+            <Grid container spacing={3} sx={{ ml: 1 }}>
               {recentBoards.map((board) => (
-                <Grid item key={board.id} xs={2} sm={2} md={2}>
+                <Grid item key={board.id} xs={12} sm={6} md={4} lg={2}>
                   <Card
                     sx={{
                       width: "270px",
@@ -237,32 +237,19 @@ function Mid5HourXChange() {
                     onClick={() => goToDetail(board.id)}
                   >
                     <Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold" }}
                       >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          커뮤니티
-                        </Typography>
-                        <img
-                          src="/deer.png"
-                          alt="deer"
-                          style={{ width: 60, opacity: 0.6 }}
-                        />
-                      </Box>
+                        커뮤니티
+                      </Typography>
                       <Typography>
                         {board.title.length > 10
                           ? board.title.slice(0, 10) + "..."
                           : board.title}
                       </Typography>
                       <Typography>
-                        {board.description.length > 10
+                        {board.description.length > 20
                           ? board.description.slice(0, 20) + "..."
                           : board.description}
                       </Typography>
@@ -270,11 +257,7 @@ function Mid5HourXChange() {
                         variant="caption"
                         sx={{ color: "text.secondary" }}
                       >
-                        {new Date(board.createdAt).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })}
+                        {new Date(board.createdAt).toLocaleDateString("ko-KR")}
                       </Typography>
                     </Box>
                   </Card>
@@ -284,6 +267,20 @@ function Mid5HourXChange() {
           )}
         </Box>
       </Stack>
+
+      {/* ④ 로그인 유도 모달 */}
+      <Dialog open={openLoginModal} onClose={handleClose}>
+        <DialogTitle>로그인이 필요합니다</DialogTitle>
+        <DialogContent>
+          커뮤니티 게시글을 보려면 로그인이 필요해요.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>취소</Button>
+          <Button variant="contained" onClick={handleLogin}>
+            로그인 하러가기
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
