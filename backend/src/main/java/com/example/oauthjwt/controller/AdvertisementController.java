@@ -78,4 +78,14 @@ public class AdvertisementController {
         advertisementService.deleteAdvertisement(advertisementId, userDetails);
     }
 
+    //광고 시청 후 트레딧 지급
+    @PostMapping("/{advertisementId}/watch")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> watchAdvertisement(@PathVariable Long advertisementId,
+                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        AdvertisementResponse response = advertisementService.watchAdvertisement(advertisementId,userDetails);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

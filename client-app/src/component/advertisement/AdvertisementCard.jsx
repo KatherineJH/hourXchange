@@ -18,7 +18,7 @@ export default function AdvertisementCard({ ad }) {
       sx={{
         maxWidth: 345, // 가로 345px
         width: "100%",
-        height: 400, // 세로 400px
+        height: 420, // 세로 400px
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",

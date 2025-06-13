@@ -89,13 +89,8 @@ public class ChatController {
     public ResponseEntity<ChatRoomInfoResponse> getChatRoomInfo(@PathVariable Long chatRoomId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         ChatRoom chatRoom = chatService.findById(chatRoomId);
-
         String transactionStatus = chatService.getTransactionStatusByChatRoomId(chatRoomId);
-
-        ChatRoomInfoResponse response = ChatRoomInfoResponse.builder().chatRoomId(chatRoom.getId())
-                .ownerId(chatRoom.getProduct().getOwner().getId()).transactionStatus(transactionStatus).build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ChatRoomInfoResponse.toDto(chatRoom, transactionStatus));
     }
 
     @PatchMapping("/request/{chatRoomId}")

@@ -56,7 +56,7 @@ function SaveBoard() {
       return;
     }
 
-    // ✅ 저장 시에도 작성자 체크
+    // 저장 시에도 작성자 체크
     if (id && user && boardAuthorId !== user.id) {
       alert("작성자만 수정할 수 있습니다.");
       navigate("/board/list");

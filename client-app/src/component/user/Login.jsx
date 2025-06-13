@@ -60,7 +60,8 @@ export default function EmailLoginForm() {
           return {};
         } catch (error) {
           console.error("로그인 실패:", error);
-          const errorMessage = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
+          const errorMessage =
+            "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
           alert(errorMessage);
           return { error: errorMessage };
         }
@@ -69,7 +70,6 @@ export default function EmailLoginForm() {
     }
   };
 
-  // ← 이 부분만 변경
   const leftAds = ads.slice(0, 2);
   const rightAds = ads.slice(2, 4);
 
@@ -86,15 +86,15 @@ export default function EmailLoginForm() {
         overflowY: "auto",
       }}
     >
-      {/* 왼쪽 광고 (1개) */}
+      {/* 왼쪽 광고  */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 0,
+          gap: 15,
           alignItems: "center",
-          position: "sticky",
+          position: { xs: "static", md: "sticky" },
           top: 170,
         }}
       >
@@ -160,9 +160,9 @@ export default function EmailLoginForm() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 0,
+          gap: 15,
           alignItems: "center",
-          position: "sticky",
+          position: { xs: "static", md: "sticky" },
           mt: 20,
           height: "100%",
         }}
