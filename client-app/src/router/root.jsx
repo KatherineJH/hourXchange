@@ -4,7 +4,6 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import Main from "../page/Main.jsx";
 import AdminPageMain from "../page/AdminPageMain.jsx";
 import MyPage from "../page/MyPage.jsx";
-
 import NotFound from "../component/common/NotFound.jsx";
 import ErrorPage from "../component/common/ErrorPage.jsx";
 import board from "./boardRouter.jsx"; // 게시판 관련 라우터
@@ -22,8 +21,8 @@ import mainRouter from "./mainRouter.jsx";
 import ProtectedRoute from "../component/common/ProtectedRoute.jsx";
 import PublicRoute from "../component/common/PublicRoute.jsx";
 import Unauthorized from "../component/common/Unauthorized.jsx";
-
 import advertisementRouter from "./advertisementRouter.jsx";
+import ChatRoom from "../component/chat/ChatRoom.jsx";
 
 const root = createBrowserRouter([
   {
@@ -38,17 +37,17 @@ const root = createBrowserRouter([
       {
         path: "login",
         element: (
-            <PublicRoute>
-              <EmailLoginForm />
-            </PublicRoute>
+          <PublicRoute>
+            <EmailLoginForm />
+          </PublicRoute>
         ),
       },
       {
         path: "save",
         element: (
-            <PublicRoute>
-              <Save />
-            </PublicRoute>
+          <PublicRoute>
+            <Save />
+          </PublicRoute>
         ),
       },
       {
@@ -77,11 +76,25 @@ const root = createBrowserRouter([
         children: paymentRouter(),
       },
       {
+        path: "chat-room",
+        element: (
+          <ProtectedRoute roles={["ROLE_USER", "ROLE_ADMIN"]}>
+            <MyPage />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: ":chatRoomId",
+            element: <ChatRoom />,
+          },
+        ],
+      },
+      {
         path: "myPage",
         element: (
-            <ProtectedRoute roles={['ROLE_USER', 'ROLE_ADMIN']}>
-              <MyPage />
-            </ProtectedRoute>
+          <ProtectedRoute roles={["ROLE_USER", "ROLE_ADMIN"]}>
+            <MyPage />
+          </ProtectedRoute>
         ),
         children: myPageRouter(),
       },
@@ -93,9 +106,9 @@ const root = createBrowserRouter([
       {
         path: "admin",
         element: (
-            <ProtectedRoute roles={['ROLE_ADMIN']}>
-              <AdminPageMain />
-            </ProtectedRoute>
+          <ProtectedRoute roles={["ROLE_ADMIN"]}>
+            <AdminPageMain />
+          </ProtectedRoute>
         ),
         children: adminPageRouter(),
       },
