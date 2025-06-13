@@ -48,7 +48,7 @@ spring:
             client-name: naver
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
+            redirect-uri: "https://api.hourxchange.kr/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             scope: name,email
           google:
@@ -56,7 +56,7 @@ spring:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
+            redirect-uri: "https://api.hourxchange.kr/login/oauth2/code/google"
             authorization-grant-type: authorization_code
             scope: profile,email
           github:
@@ -64,7 +64,7 @@ spring:
             client-name: gitHub
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
-            redirect-uri: "http://localhost:8080/login/oauth2/code/github"
+            redirect-uri: "http://localhost:8282/login/oauth2/code/github"
             authorization-grant-type: authorization_code
             scope: user:email
 
@@ -101,7 +101,7 @@ port:
   elastic: ${ELASTIC_PORT}
 
 url:
-  frontend: http://${FRONTEND_SERVER}
+  frontend: https://${FRONTEND_SERVER}
   elastic: http://${ELASTIC_SERVER}:${ELASTIC_PORT}
   flask: http://${FLASK_SERVER}:${FLASK_PORT}
 
