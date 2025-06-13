@@ -1,6 +1,7 @@
 // src/component/homepage/HighRanked.jsx
 import React from "react";
 import ProductGrid from "../common/ProductGrid";
+import { Typography } from "@mui/material";
 
 export default function HighRanked({
   selectedCategory,
@@ -37,7 +38,9 @@ export default function HighRanked({
 
   return (
     <div style={{ padding: "1rem" }}>
-      <h2>🌟 최근 한 달간 신뢰 기반 인기 상품</h2>
+            <Typography variant="h6" gutterBottom>
+              🌟 최근 한 달간 신뢰 기반 인기 상품
+            </Typography>
       <ProductGrid
         products={deduplicated}
         favorite={favorite}
