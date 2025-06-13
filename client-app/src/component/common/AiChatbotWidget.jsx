@@ -14,8 +14,8 @@ export default function ChatbotWidget() {
                 onClick={() => setOpen(o => !o)}
                 sx={{
                     position: 'fixed',
-                    bottom: 200,
-                    right: 50,
+                    bottom: 24,
+                    right: 24,
                     bgcolor: 'primary.main',
                     '&:hover': { bgcolor: 'primary.dark' },
                     width: 56,

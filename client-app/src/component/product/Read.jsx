@@ -294,7 +294,7 @@ function Read() {
                 size="large"
                 onClick={handleChatClick}
               >
-                문의하기
+                채팅하기
               </Button>
             )}
           </Box>
