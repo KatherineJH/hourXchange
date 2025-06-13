@@ -145,12 +145,15 @@ export default function Homepage() {
           sx={{
             position: "fixed",
             bottom: "2rem",
-            left: 35,
+            left: "50%",
+            top: "50%",
             zIndex: 1300,
-            width: 320,
-            height: 320,
+            width: 350,
+            height: 350,
+            transform: "translate(-50%, -50%)",
             bgcolor: "background.paper",
             borderRadius: 2,
+            opacity: 0.92,
             boxShadow: 5,
             p: 1,
           }}
