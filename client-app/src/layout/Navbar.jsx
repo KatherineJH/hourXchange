@@ -30,11 +30,7 @@ const menuItems = [
   {
     text: "재능나눔",
     icon: <StoreIcon color="primary" fontSize="large" />,
-    subMenu: [
-      { text: "전체 보기", to: "/product/all" },
-      { text: "삽니다", to: "/product/buy" },
-      { text: "팝니다", to: "/product/sell" },
-    ],
+    to: "/product/all",
   },
   {
     text: "지역별",
@@ -172,7 +168,7 @@ function Navbar({ onClickAny, forceCloseMenu }) {
                   item.subMenu ? handleClick(e, item.text) : navigate(item.to)
                 }
                 sx={{
-                  px:4,
+                  px: 4,
                   py: 1,
                   borderRadius: 2,
                   textAlign: "center",
