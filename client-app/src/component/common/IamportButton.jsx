@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import {postTransaction} from "../../api/paymentApi.js";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchUserAsync} from "../../slice/AuthSlice.js";
 
 const iamportKey = import.meta.env.VITE_IAMPORT_KEY;
 
 export default function IamportButton({ productName, amount }) {
     const [loading, setLoading] = useState(false);
     const {user} = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
 
     const handlePayment = () => {
         const IMP = window.IMP;
@@ -31,6 +33,7 @@ export default function IamportButton({ productName, amount }) {
                     const response = await postTransaction(impResponse);
                     console.log('검증 완료:', response.data);
                     alert('결제 성공!');
+                    dispatch(fetchUserAsync());
                     // TODO: 결제 완료 화면으로 이동
                 } catch (err) {
                     console.error('검증 오류:', err);

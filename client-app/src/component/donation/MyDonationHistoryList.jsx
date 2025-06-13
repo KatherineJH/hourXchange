@@ -81,7 +81,7 @@ export default function MyDonationHistoryList() {
                   key={item.id}
                   hover
                   sx={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/donation/read/${item.id}`)}
+                  onClick={() => navigate(`/donation/read/${item.donation.id}`)}
                 >
                   <TableCell>{item.id}</TableCell>
                   <TableCell>{item.donation.title}</TableCell>

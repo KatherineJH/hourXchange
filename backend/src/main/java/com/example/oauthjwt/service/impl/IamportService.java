@@ -75,9 +75,7 @@ public class IamportService {
         if (!response.get("merchant_uid").equals(data.get("merchant_uid"))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 정보가 일치하지 않습니다.");
         }
-
         log.info(data);
-
         // 응답에서 payment 정보 반환
         return paymentService.save(response);
     }

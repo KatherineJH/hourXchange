@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.oauthjwt.entity.type.DonationStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,7 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = {"donationFindAll", "donationSearch"}, allEntries = true)
     public DonationHistoryResponse createDonationHistory(DonationHistoryRequest donationHistoryRequest, Long userId) {
         User donator = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."));

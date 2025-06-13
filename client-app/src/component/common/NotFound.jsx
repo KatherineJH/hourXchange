@@ -42,7 +42,7 @@ export default function NotFoundPage() {
                 페이지를 찾을 수 없습니다
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                요청하신 페이지가 삭제되었거나, 사용 권한이 없거나, 주소를 잘못 입력하셨습니다.
+                요청하신 페이지가 삭제되었거나, 주소를 잘못 입력하셨습니다.
             </Typography>
 
             <Button

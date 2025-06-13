@@ -17,12 +17,14 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getDonation, putCancelDonation } from '../../api/donationApi.js';
 import { postDonationHistory } from '../../api/donationHistoryApi.js';
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import ShareQrButton from "../common/ShareQrButton.jsx";
+import {fetchUserAsync} from "../../slice/AuthSlice.js";
 
 export default function DonationDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { pathname } = useLocation();
     const { user } = useSelector(state => state.auth);
 
@@ -65,6 +67,7 @@ export default function DonationDetail() {
             setSelectedHours(null);
             setCustomHours('');
             fetchDonation();
+            dispatch(fetchUserAsync());
         } catch (error) {
             console.error(error);
             alert(error.response.data.message);
@@ -197,7 +200,11 @@ export default function DonationDetail() {
 
                     {/* 기부하기 버튼 */}
                     <Box sx={{ display:'flex', justifyContent:'flex-end', mt:3 }}>
-                        <Button variant="contained" onClick={() => setOpenModal(true)}>
+                        <Button variant="contained" onClick={() =>
+                            user.email ? setOpenModal(true) :
+                                confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?') ?
+                                    navigate("/login", {state: { from: pathname }, replace: true}) : null}
+                        >
                             기부하기
                         </Button>
                     </Box>

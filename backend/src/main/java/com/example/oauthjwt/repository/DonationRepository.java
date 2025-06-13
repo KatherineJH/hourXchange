@@ -50,4 +50,6 @@ public interface DonationRepository extends JpaRepository<Donation, Long>, Donat
     List<Donation> findTopByCreatedAt(DonationStatus status, LocalDate today, Pageable limit);
 
     Page<Donation> findByAuthorId(Long authorId, Pageable pageable);
+
+    Page<Donation> findAllByStatus(DonationStatus status, Pageable pageable);
 }

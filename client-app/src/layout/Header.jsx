@@ -212,7 +212,7 @@ function Header() {
                 >
                   <SearchIcon fontSize="small" />
                   <InputBase
-                    placeholder="검색"
+                    placeholder="시간으로 거래하고 싶은 상품을 검색해보세요!"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={handleSearchKey}

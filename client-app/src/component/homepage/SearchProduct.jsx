@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import ListTable from "../product/ListTable";
+import SearchListTable from "../product/SearchListTable";
 import { Box } from "@mui/material";
 
 function SearchProduct() {
@@ -25,8 +25,8 @@ function SearchProduct() {
         mt: 4,
       }}
     >
-      <h2 style={{ margin: "1rem 0" }}>🔍 "{searchKeyword}" 검색 결과</h2>
-      <ListTable keyword={searchKeyword} />
+      <h2>🔍 "{searchKeyword}" 검색 결과</h2>
+      <SearchListTable keyword={searchKeyword} />
     </Box>
   );
 }
