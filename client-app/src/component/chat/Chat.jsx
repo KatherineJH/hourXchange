@@ -114,7 +114,7 @@ function Chat({ chatRooms, chatError, navigate }) {
                             {room.name}
                           </Typography>
                         }
-                        secondary={`게시자: ${room.product.owner.name} - ${providerKor}`}
+                        secondary={`게시자: ${room.product.owner.name}(${providerKor})`}
                       />
                     </ListItemButton>
                     {idx < chatRooms.length - 1 && <Divider />}

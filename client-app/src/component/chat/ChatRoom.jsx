@@ -98,14 +98,33 @@ const ChatRoom = () => {
 
   // 거래 요청/수락 핸들러
   const handleRequestClick = async () => {
+    if (!roomInfo || !roomInfo.product || !user || !user.wallet) {
+      alert("필요한 정보가 누락되었습니다.");
+      return;
+    }
+    const isBuyer =
+      user.id !== roomInfo.product.owner.id &&
+      roomInfo.product.providerType === "SELLER";
+    const creditRequired = roomInfo.product.hours;
+    const currentCredit = user.wallet.credit;
+
+    const insufficientCredit = currentCredit < creditRequired;
+    if (isBuyer && insufficientCredit) {
+      alert(
+        `크레딧이 부족합니다. (${creditRequired}시간 필요, 보유 ${currentCredit}시간)\n충전 후 거래를 요청해주세요.`
+      );
+      return;
+    }
+
     try {
       await requestTransaction(roomId);
       setRoomInfo((r) => ({ ...r, transactionStatus: "REQUESTED" }));
-      alert("요청이 완료되었습니다!");
+      alert("거래 요청이 완료되었습니다!");
     } catch {
       alert("요청 중 오류가 발생했습니다.");
     }
   };
+
   const handleAcceptClick = async () => {
     try {
       await acceptTransaction(roomId);
