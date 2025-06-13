@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getFavoriteList, getList, postFavorite } from "../../api/productApi";
 import New7Days from "./New7Days";
 import HighRanked from "./HighRanked";
-import NearMe from "./NearMe";
 import ListTable from "../product/ListTable";
 import CustomHeader from "../common/CustomHeader.jsx";
 import DonationCardList from "../donation/DonationCardList.jsx";
@@ -15,10 +14,9 @@ import {
 } from "../../api/donationApi.js";
 import { Button, Box, Checkbox, FormControlLabel } from "@mui/material";
 import CarouselAd from "../advertisement/CarouselAd.jsx";
-import { useSelector } from "react-redux";
 import CategoryNav from "../../layout/CategoryNav.jsx";
-import {useHasEmail} from "../../assets/useCustomAuth.js";
-import TopDonatorsChart from "../common/TopDonatorChart.jsx";
+import { useHasEmail } from "../../assets/useCustomAuth.js";
+import PopularBoard from "./PopularBoard.jsx";
 
 const modalStyle = {
   position: "absolute",
@@ -138,7 +136,9 @@ export default function Homepage() {
   }, []);
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <Box
+      sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+    >
       {/* 왼쪽 아래 팝업 영역 */}
       {openModal && (
         <Box
@@ -218,7 +218,7 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
-      <NearMe
+      <PopularBoard
         selectedCategory={selectedCategory}
         products={filteredProducts}
         favorite={favorite}
@@ -226,8 +226,8 @@ export default function Homepage() {
         expandedId={expandedProductId}
         onToggleExpand={handleExpandClick}
       />
-      <CategoryNav />
-      <ListTable category={selectedCategory} />
-    </div>
+      {/* <CategoryNav />
+      <ListTable category={selectedCategory} /> */}
+    </Box>
   );
 }

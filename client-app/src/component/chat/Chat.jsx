@@ -2,16 +2,17 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import {
-    Avatar,
-    Box,
-    Typography,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    CircularProgress,
-    Divider,
-    Paper, ListItemButton,
+  Avatar,
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  CircularProgress,
+  Divider,
+  Paper,
+  ListItemButton,
 } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
@@ -78,39 +79,48 @@ function Chat({ chatRooms, chatError, navigate }) {
             </Typography>
           ) : (
             <List disablePadding>
-              {chatRooms.map((room, idx) => (
-                <React.Fragment key={room.id}>
-                  <ListItemButton
-                    onClick={() =>
-                      navigate(`${pathPrefix}/chat-room/${room.id}`)
-                    }
-                    sx={{
-                      borderRadius: 2,
-                      mb: 1,
-                      px: 2,
-                      py: 1.5,
-                      "&:hover": {
-                        backgroundColor: "rgba(0,0,0,0.04)",
-                      },
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "primary.main" }}>
-                        <ChatBubbleOutlineIcon fontSize="small" />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {room.name}
-                        </Typography>
+              {chatRooms.map((room, idx) => {
+                const providerKor =
+                  room.product.providerType === "BUYER"
+                    ? "구매자"
+                    : room.product.providerType === "SELLER"
+                      ? "판매자"
+                      : "알 수 없음";
+
+                return (
+                  <React.Fragment key={room.id}>
+                    <ListItemButton
+                      onClick={() =>
+                        navigate(`${pathPrefix}/chat-room/${room.id}`)
                       }
-                      secondary={`상품 ID: ${room.productId}`}
-                    />
-                  </ListItemButton>
-                  {idx < chatRooms.length - 1 && <Divider />}{" "}
-                </React.Fragment>
-              ))}
+                      sx={{
+                        borderRadius: 2,
+                        mb: 1,
+                        px: 2,
+                        py: 1.5,
+                        "&:hover": {
+                          backgroundColor: "rgba(0,0,0,0.04)",
+                        },
+                      }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar sx={{ bgcolor: "primary.main" }}>
+                          <ChatBubbleOutlineIcon fontSize="small" />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {room.name}
+                          </Typography>
+                        }
+                        secondary={`게시자: ${room.product.owner.name} - ${providerKor}`}
+                      />
+                    </ListItemButton>
+                    {idx < chatRooms.length - 1 && <Divider />}
+                  </React.Fragment>
+                );
+              })}
             </List>
           )}
         </Box>

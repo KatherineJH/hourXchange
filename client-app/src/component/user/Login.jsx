@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Box, Typography, TextField, Link as MuiLink } from "@mui/material";
 import { SignInPage } from "@toolpad/core/SignInPage";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import {useNavigate, Link as RouterLink, useLocation} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
 import { getAdvertisement } from "../../api/advertisementApi.js";
@@ -15,6 +15,13 @@ export default function EmailLoginForm() {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [ads, setAds] = useState([]);
+    const location = useLocation();
+    // Save → 로그인에서 받는 from 이 문자열일 수도 있으니
+    const rawFrom = location.state?.from;
+    const from =
+        typeof rawFrom === "string"
+            ? rawFrom
+            : rawFrom?.pathname || "/";
 
   useEffect(() => {
     getAdvertisement()
@@ -49,7 +56,7 @@ export default function EmailLoginForm() {
 
           console.log("로그인 성공 응답:", response);
           alert("로그인 성공!");
-          navigate("/");
+            navigate(from, { replace: true });
           return {};
         } catch (error) {
           console.error("로그인 실패:", error);
@@ -111,7 +118,7 @@ export default function EmailLoginForm() {
               signUpLink: () => (
                 <Typography sx={{ textAlign: "center", mt: 2 }}>
                   계정이 없으신가요?{" "}
-                  <MuiLink component={RouterLink} to="/save" underline="hover">
+                  <MuiLink component={RouterLink} to="/save" state={{ from }} underline="hover">
                     Sign up
                   </MuiLink>
                 </Typography>
