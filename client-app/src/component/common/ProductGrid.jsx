@@ -85,6 +85,7 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
               height="160"
               image={product.images?.[0] || "/default.png"}
               alt={product.title}
+              onError={(e) => (e.target.src = "/default.png")}
               onClick={() => navigate(`/product/read/${product.id}`)}
               sx={{ cursor: "pointer", objectFit: "cover" }}
             />

@@ -69,8 +69,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementResponse> findAllAdvertisements(Pageable pageable) {
-        // List<Advertisement> advertisementList = advertisementRepository.findAll();
-        // advertisementList.forEach(ad -> ad.getImages().size());
         return advertisementRepository.findAll(pageable).map(AdvertisementResponse::toDto);
     }
 
@@ -98,5 +96,22 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         User user = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
         return advertisementRepository.findByOwner(user, pageable).map(AdvertisementResponse::toDto);
+    }
+
+    @Override
+    @Transactional
+    public AdvertisementResponse watchAdvertisement(Long advertisementId, CustomUserDetails userDetails) {
+        User user = userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
+        Advertisement advertisement = advertisementRepository.findById(advertisementId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"광고가 존재하지 않습니다."));
+
+        int credit = advertisement.getHours().intValue();
+        user.addCredit(credit);
+
+        userRepository.save(user);
+
+        return AdvertisementResponse.toDto(advertisement);
     }
 }

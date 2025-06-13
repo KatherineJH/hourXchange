@@ -40,8 +40,8 @@ export default function CarouselAd() {
     return {
       display: "flex",
       transition: "transform 0.5s ease-in-out",
-      transform: `translateX(-${currentIndex * 100}%)`, // ✅ 고정된 너비에 맞춰 수정
-      width: `${images.length * 100}%`, // ✅ 고정된 비율로 처리
+      transform: `translateX(-${currentIndex * 100}%)`, // 고정된 너비에 맞춰 수정
+      width: `${images.length * 100}%`, // 고정된 비율로 처리
     };
   };
 
@@ -78,7 +78,6 @@ export default function CarouselAd() {
               component="img"
               src={image.src}
               alt={image.alt}
-              onClick={() => handleImageClick(image.linkTo)}
               sx={{
                 flexShrink: 0,
                 width: `${200 / images.length}%`, //기존 사용자 설정 유지
@@ -102,12 +101,25 @@ export default function CarouselAd() {
                   size="small"
                   variant="contained"
                   sx={{
-                    bgcolor: "#ff7043",
-                    borderRadius: "999%",
+                    bgcolor: "",
                     whiteSpace: "normal",
-                    "&:hover": { bgcolor: "primary.main" },
+                    // "&:hover": { bgcolor: "" },
                   }}
                   onClick={() => navigate("/product/donation")}
+                >
+                  기부하러 가기 →
+                </Button>
+              )}
+              {index === 1 && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    bgcolor: "",
+                    whiteSpace: "normal",
+                    // "&:hover": { bgcolor: "" },
+                  }}
+                  onClick={() => navigate("/product/volunteer")}
                 >
                   봉사하러 가기 →
                 </Button>

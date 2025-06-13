@@ -12,7 +12,7 @@ import { getFavoriteList, postFavorite } from "../../api/productApi";
 import { getAdvertisement } from "../../api/advertisementApi";
 import AdvertisementCard from "../advertisement/AdvertisementCard";
 import CategoryNav from "../../layout/CategoryNav";
-import {useHasEmail} from "../../assets/useCustomAuth.js";
+import { useHasEmail } from "../../assets/useCustomAuth.js";
 
 const PAGE_SIZE = 4;
 const AD_INTERVAL = 3;
@@ -51,6 +51,7 @@ export default function AllPost() {
   const [cardRowCount, setCardRowCount] = useState(1);
   const [advertisements, setAdvertisements] = useState([]);
   const [shuffledAds, setShuffledAds] = useState([]);
+  const [providerFilter, setProviderFilter] = useState("ALL");
 
   const carouselImages = [
     "https://images.unsplash.com/photo-1582826310241-0cd9cc92dbb1?w=1200",
@@ -73,7 +74,7 @@ export default function AllPost() {
 
   const location = useLocation();
   const selectedCategory = new URLSearchParams(location.search).get("category");
-    const isLoggedIn = useHasEmail();
+  const isLoggedIn = useHasEmail();
 
   // 1) 찜 목록 가져오기
   useEffect(() => {
@@ -125,7 +126,15 @@ export default function AllPost() {
   };
 
   // 6) 페이징된 상품 목록
-  const shownProducts = visibleProducts.slice(0, cardRowCount * PAGE_SIZE);
+  // const shownProducts = visibleProducts.slice(0, cardRowCount * PAGE_SIZE);
+  // const shouldInjectAds = shownProducts.length >= AD_INTERVAL;
+  // 6) 페이징된 상품 목록
+  const filteredProducts =
+    providerFilter === "ALL"
+      ? visibleProducts
+      : visibleProducts.filter((p) => p.providerType === providerFilter);
+
+  const shownProducts = filteredProducts.slice(0, cardRowCount * PAGE_SIZE);
   const shouldInjectAds = shownProducts.length >= AD_INTERVAL;
 
   // 7) 상품 + 광고 섞기
@@ -156,7 +165,8 @@ export default function AllPost() {
   // 8) 상품+광고가 섞인 itemsWithAds에서 화면에 실질 렌더링할 개수만큼 자르기
   const DISPLAY_COUNT = PAGE_SIZE + Math.floor(PAGE_SIZE / AD_INTERVAL);
   const displayedItems = itemsWithAds.slice(0, cardRowCount * DISPLAY_COUNT);
-  const hasMore = shownProducts.length < visibleProducts.length;
+  // const hasMore = shownProducts.length < visibleProducts.length;
+  const hasMore = shownProducts.length < filteredProducts.length;
 
   return (
     <Box
@@ -164,36 +174,6 @@ export default function AllPost() {
     >
       {/* 카테고리 네비게이션 */}
       <CategoryNav />
-      {/* 상품 + 광고 그리드 */}
-      <Box sx={{ mt: 3 }}>
-        <ProductGrid
-          products={displayedItems}
-          favorite={favorite}
-          onToggleFavorite={handleClickFavorite}
-          expandedId={expandedProductId}
-          onToggleExpand={handleExpandClick}
-        />
-        {/* “더 보기” 버튼 */}
-        {hasMore && (
-          <Box display="flex" justifyContent="center" mt={2}>
-            <Button
-              variant="outlined"
-              onClick={() => setCardRowCount((c) => c + 1)}
-              sx={{ borderRadius: 2 }}
-            >
-              더 보기
-            </Button>
-          </Box>
-        )}
-      </Box>
-
-      {/* 리스트 테이블 */}
-      <Box>
-        <ListTable
-          category={selectedCategory}
-          onVisibleItemsChange={setVisibleProducts}
-        />
-      </Box>
       {/* 슬라이더(이미지 캐러셀) */}
       <Box
         sx={{
@@ -237,6 +217,59 @@ export default function AllPost() {
             </Box>
           ))}
         </Slider>
+      </Box>
+      {/* ProviderType 필터링 버튼 */}
+      <Box display="flex" justifyContent="flex-end" width="100%" p={2} gap={1}>
+        <Button
+          variant={providerFilter === "ALL" ? "contained" : "outlined"}
+          onClick={() => setProviderFilter("ALL")}
+          sx={{ borderRadius: 2 }}
+        >
+          전체보기
+        </Button>
+        <Button
+          variant={providerFilter === "BUYER" ? "contained" : "outlined"}
+          onClick={() => setProviderFilter("BUYER")}
+          sx={{ borderRadius: 2 }}
+        >
+          삽니다
+        </Button>
+        <Button
+          variant={providerFilter === "SELLER" ? "contained" : "outlined"}
+          onClick={() => setProviderFilter("SELLER")}
+          sx={{ borderRadius: 2 }}
+        >
+          팝니다
+        </Button>
+      </Box>
+      {/* 상품 + 광고 그리드 */}
+      <Box sx={{ mt: 3 }}>
+        <ProductGrid
+          products={displayedItems}
+          favorite={favorite}
+          onToggleFavorite={handleClickFavorite}
+          expandedId={expandedProductId}
+          onToggleExpand={handleExpandClick}
+        />
+        {/* “더 보기” 버튼 */}
+        {hasMore && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="outlined"
+              onClick={() => setCardRowCount((c) => c + 1)}
+              sx={{ borderRadius: 2 }}
+            >
+              더 보기
+            </Button>
+          </Box>
+        )}
+      </Box>
+      {/* 리스트 테이블 */}
+      <Box>
+        <ListTable
+          category={selectedCategory}
+          onVisibleItemsChange={setVisibleProducts}
+        />
       </Box>
     </Box>
   );

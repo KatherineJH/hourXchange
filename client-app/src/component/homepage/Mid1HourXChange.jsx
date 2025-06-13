@@ -10,9 +10,10 @@ function Mid1HourXChange() {
     <Box
       sx={{
         display: "flex",
+        flexDirection: { xs: "column", md: "row" },
         justifyContent: "center",
         alignItems: "center",
-        gap: 2,
+        gap: 4,
         px: 4,
         py: 10,
         backgroundColor: "#FFFFFF",
@@ -69,56 +70,67 @@ function Mid1HourXChange() {
         </Button>
       </Box>
 
-      {/* motion 적용: 스크롤 등장 시 */}
+      {/* 오른쪽 캐릭터 + 블롭 (반응형) */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: true, amount: 0.4 }} // 한 번만 실행, 40% 보이면 발동
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 1 }}
         style={{
+          width: "100%",
+          maxWidth: 360,
+          aspectRatio: "1 / 1",
           position: "relative",
-          width: 360,
-          height: 360,
+          flexShrink: 0,
         }}
       >
-        {/* 블롭 */}
+        {/* 이미지 & 블롭 컨테이너 */}
         <Box
           sx={{
-            position: "absolute",
-            top: "-10%",
-            left: "-10%",
-            width: "120%",
-            height: "120%",
-            zIndex: 0,
+            position: "relative",
+            width: "100%",
+            height: "100%",
           }}
         >
-          <svg
-            viewBox="0 0 200 200"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ width: "100%", height: "100%" }}
+          {/* 블롭 */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 0,
+            }}
           >
-            <path
-              fill="#f07b5a"
-              d="M34,-41.6C46.8,-37.5,61.9,-31.2,70.2,-19.6C78.4,-7.9,79.8,9.3,76,25.8C72.2,42.4,63.2,58.5,49.6,66.1C36.1,73.7,18,72.9,0.7,71.9C-16.6,70.9,-33.2,69.7,-47.8,62.4C-62.4,55.1,-75.1,41.8,-72.7,28.5C-70.4,15.1,-53,1.8,-43,-9.3C-33,-20.5,-30.4,-29.3,-24.4,-35.7C-18.5,-42,-9.2,-45.9,0.7,-46.8C10.6,-47.7,21.2,-45.7,34,-41.6Z"
-              transform="translate(100 100)"
-            />
-          </svg>
-        </Box>
+            <svg
+              viewBox="0 0 200 200"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ width: "100%", height: "100%" }}
+            >
+              <path
+                fill="#f07b5a"
+                d="M34,-41.6C46.8,-37.5,61.9,-31.2,70.2,-19.6C78.4,-7.9,79.8,9.3,76,25.8C72.2,42.4,63.2,58.5,49.6,66.1C36.1,73.7,18,72.9,0.7,71.9C-16.6,70.9,-33.2,69.7,-47.8,62.4C-62.4,55.1,-75.1,41.8,-72.7,28.5C-70.4,15.1,-53,1.8,-43,-9.3C-33,-20.5,-30.4,-29.3,-24.4,-35.7C-18.5,-42,-9.2,-45.9,0.7,-46.8C10.6,-47.7,21.2,-45.7,34,-41.6Z"
+                transform="translate(100 100)"
+              />
+            </svg>
+          </Box>
 
-        {/* 캐릭터 이미지 */}
-        <Box
-          component="img"
-          src="/hour2friends.png"
-          alt="HourXChange 캐릭터"
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "80%",
-            zIndex: 1,
-          }}
-        />
+          {/* 캐릭터 이미지 */}
+          <Box
+            component="img"
+            src="/hour2friends.png"
+            alt="HourXChange 캐릭터"
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "70%",
+              zIndex: 1,
+            }}
+          />
+        </Box>
       </motion.div>
     </Box>
   );
