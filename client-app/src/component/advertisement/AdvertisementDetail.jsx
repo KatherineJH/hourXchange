@@ -8,6 +8,8 @@ import {
   Card,
   CardMedia,
   CardContent,
+  Modal,
+  Paper,
 } from "@mui/material";
 
 // 바뀐 import: ../api → ../../api
@@ -25,6 +27,7 @@ export default function AdvertisementDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.auth.user);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     getAdvertisementDetail(id)
@@ -74,7 +77,7 @@ export default function AdvertisementDetail() {
 
   const handleWatchClick = async () => {
     if (!user?.id) {
-      alert("로그인이 필요합니다.");
+      setOpenModal(true);
       return;
     }
 
@@ -140,14 +143,53 @@ export default function AdvertisementDetail() {
           등록일: {new Date(adData.createdAt).toLocaleDateString("ko-KR")}
         </Typography>
       )}
-      {/* <Typography ariant="body2" color="text.secondary">
-        작성자: {adData.ownerName}
-      </Typography> */}
 
       <Box sx={{ display: "flex", gap: 1, mt: 3 }}>
         <Button variant="contained" onClick={handleWatchClick}>
           광고 시청하기
         </Button>
+        <Modal open={openModal} onClose={() => setOpenModal(false)}>
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 350,
+              p: 3,
+              outline: "none",
+            }}
+          >
+            <Typography variant="h6" gutterBotton>
+              로그인이 필요합니다.
+            </Typography>
+            <Typography variant="body2" mb={3} sx={{ pt: 2 }}>
+              광고를 시청하려면 로그인을 해주세요.
+            </Typography>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}
+            >
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setOpenModal(false);
+                  navigate("/login");
+                }}
+              >
+                로그인 하러 가기
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setOpenModal(false);
+                  navigate("/save");
+                }}
+              >
+                회원가입 하러 가기
+              </Button>
+            </Box>
+          </Paper>
+        </Modal>
         <Button variant="contained" onClick={() => navigate("/product/all")}>
           목록으로
         </Button>
