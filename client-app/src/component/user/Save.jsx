@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useNavigate, Link as RouterLink, useLocation } from "react-router-dom";
 import DaumPostcode from "react-daum-postcode";
 import {
   Box,
@@ -53,6 +53,11 @@ export default function Save() {
   const leftAds = ads.slice(0, 2);
   const rightAds = ads.slice(2, 4);
 
+  const location = useLocation();
+  // Save → 로그인에서 받는 from 이 문자열일 수도 있으니
+  const rawFrom = location.state?.from;
+  const from = typeof rawFrom === "string" ? rawFrom : rawFrom?.pathname || "/";
+
   // 회원가입 폼 핸들링
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,7 +101,7 @@ export default function Save() {
     try {
       await postSave(saveData);
       alert("회원가입이 완료되었습니다.");
-      navigate("/login", { replace: true });
+      navigate("/login", { state: { from }, replace: true });
     } catch (error) {
       console.error(error);
       alert(error.response.data.message);
