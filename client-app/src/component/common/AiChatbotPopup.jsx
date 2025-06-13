@@ -64,10 +64,10 @@ export default function AiChatbotPopup({ open, onClose }) {
         <Box
             sx={{
                 position: 'fixed',
-                bottom: 264,
-                right: 50,
+                bottom: 88,
+                right: 24,
                 width: 600,
-                height: 600,
+                height: 500,
                 zIndex: 1300,
                 pointerEvents: 'auto'
             }}

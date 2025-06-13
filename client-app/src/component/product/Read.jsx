@@ -53,16 +53,6 @@ function Read() {
   }, [id]);
 
   const handleChatClick = async () => {
-    console.log(auth.user.email);
-    if(!auth.user.email){
-      alert('로그인이 필요합니다.')
-// state.from에 현재 위치를 담아서 로그인 후 복귀하도록 전달
-      navigate("/login", {
-        state: { from: location },
-        replace: true
-      });
-      return;
-    }
     try {
       const chatRoom = await initiateChat(serverData.id, auth.user.id);
       const transactionData = { productId: serverData.id, status: "PENDING" };
@@ -293,7 +283,7 @@ function Read() {
                 size="large"
                 onClick={handleChatClick}
               >
-                문의하기
+                채팅하기
               </Button>
             )}
           </Box>

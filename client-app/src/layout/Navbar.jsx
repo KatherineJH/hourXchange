@@ -37,9 +37,19 @@ const menuItems = [
     ],
   },
   {
+    text: "시간충전",
+    icon: <AccessTimeIcon color="secondary" fontSize="large" />,
+    to: "/payment/buy",
+  },
+  {
     text: "지역별",
     icon: <LocationOnIcon color="action" fontSize="large" />,
     to: "/product/list",
+  },
+  {
+    text: "커뮤니티",
+    icon: <ForumIcon color="disabled" fontSize="large" />,
+    to: "/board/list",
   },
   {
     text: "기부 참여",
@@ -53,16 +63,6 @@ const menuItems = [
       { text: "기부해요", to: "/product/donation" },
       { text: "봉사해요", to: "/product/volunteer" },
     ],
-  },
-  {
-    text: "커뮤니티",
-    icon: <ForumIcon color="disabled" fontSize="large" />,
-    to: "/board/list",
-  },
-  {
-    text: "시간충전",
-    icon: <AccessTimeIcon color="secondary" fontSize="large" />,
-    to: "/payment/buy",
   },
 ];
 
