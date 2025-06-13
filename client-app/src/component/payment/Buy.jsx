@@ -15,8 +15,9 @@ import {
 } from '@mui/material';
 import IamportButton from '../common/IamportButton.jsx';
 import { getList } from '../../api/paymentItemApi.js';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {postOrder, postVerify} from "../../api/paymentApi.js";
+import {fetchUserAsync} from "../../slice/AuthSlice.js";
 
 export default function PackagePaymentScreen() {
     // 서버에서 받아올 패키지 리스트: [{ id, name, time, price }, ...]
@@ -30,6 +31,8 @@ export default function PackagePaymentScreen() {
     const [modalPkg, setModalPkg] = useState(null);
 
     const { user } = useSelector((state) => state.auth);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         getList()
@@ -61,6 +64,7 @@ export default function PackagePaymentScreen() {
             const verifyResponse = await postVerify(orderResponse.data); // api 서버
             console.log(verifyResponse)
             alert(verifyResponse.data.paymentItemName + '상품이 결제되었습니다.');
+            dispatch(fetchUserAsync());
         }catch(error){
             console.log(error);
         }
