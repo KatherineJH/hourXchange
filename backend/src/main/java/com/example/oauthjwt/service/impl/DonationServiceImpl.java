@@ -116,6 +116,9 @@ public class DonationServiceImpl implements DonationService {
     public DonationResponse getDonation(Long donationId, String userKey) {
         Donation result = donationRepository.findById(donationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "기부 정보가 존재하지 않습니다."));
+        if(result.getStatus().equals(DonationStatus.CANCELLED)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 처리된 기부 모집입니다.");
+        }
 
         String key = "view donationId: " + donationId + ", by: " + userKey;
 
@@ -137,7 +140,7 @@ public class DonationServiceImpl implements DonationService {
     public PageResult<DonationResponse> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 최신순 정렬
 
-        Page<Donation> donationPage = donationRepository.findAll(pageable);
+        Page<Donation> donationPage = donationRepository.findAllByStatus(DonationStatus.ONGOING, pageable);
 
         List<DonationResponse> content = donationPage.getContent().stream().map(DonationResponse::toDto)
                 .collect(Collectors.toList());
