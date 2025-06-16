@@ -1,5 +1,6 @@
 // MyPage에서 거래 내역을 보여주는 컴포넌트
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   getMyTransactionList,
   postReview,
@@ -44,6 +45,7 @@ function MyList() {
   const [reviewText, setReviewText] = useState("");
   const [reviewStars, setReviewStars] = useState(null);
 
+  const auth = useSelector((state) => state.auth);
   const handleMarkAsCompleted = async (transactionId) => {
     try {
       await patchCompleteTransaction(transactionId);
@@ -54,6 +56,25 @@ function MyList() {
     } catch (error) {
       console.error("❌ 거래 완료 실패:", error);
       alert("거래 완료에 실패했습니다.");
+    }
+  };
+
+  // 상대방 이름 구하기
+  const getOpponentName = (item) => {
+    const myId = auth.user?.id;
+    return item.user.id === myId ? item.product.owner.name : item.user.name;
+  };
+
+  // 내가 돈 받는 사람인지 확인하는 함수
+  const isReceiver = (item) => {
+    const myId = auth.user?.id;
+    const providerType = item.product.providerType;
+    const isOwner = myId === item.product.owner.id;
+
+    if (providerType === "SELLER") {
+      return isOwner; // 판매자는 돈 받는 사람
+    } else {
+      return !isOwner; // 구매글이면 요청자(user)가 돈 받음
     }
   };
 
@@ -123,7 +144,7 @@ function MyList() {
   useEffect(() => {
     getMyTransactionList()
       .then((response) => {
-        console.log("✅ 내 트랜잭션 데이터:", response.data);
+        console.log("내 트랜잭션 데이터:", response.data);
         setServerDataList(response.data);
       })
       .catch((error) => {
@@ -170,7 +191,7 @@ function MyList() {
                       {new Date(item.createdAt).toLocaleString("ko-KR")}
                     </TableCell>
                     <TableCell>
-                      {item.status === "ACCEPTED" && (
+                      {item.status === "ACCEPTED" && !isReceiver(item) && (
                         <Button
                           variant="outlined"
                           size="small"

@@ -35,6 +35,12 @@ export async function acceptTransaction(chatRoomId) {
 // 채팅방 정보 가져오기 (거래 상태, 오너 ID)
 export async function fetchChatRoomInfo(chatRoomId) {
   const res = await api.get(`/api/chat/room-info/${chatRoomId}`);
-  console.log("🐛 채팅방 상세정보:", res.data); // 로깅 추가
+  console.log("채팅방 상세정보:", res.data); // 로깅 추가
   return res.data; // { chatRoomId, ownerId, transactionStatus } 형태
+}
+
+// 채팅방의 이전 메시지 불러오기
+export async function fetchChatMessages(chatRoomId) {
+  const res = await api.get(`/api/chat/messages/${chatRoomId}`);
+  return res.data; // ChatMessageResponse[] 형태
 }

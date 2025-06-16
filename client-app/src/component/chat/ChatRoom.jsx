@@ -5,6 +5,7 @@ import {
   acceptTransaction,
   fetchChatRoomInfo,
   requestTransaction,
+  fetchChatMessages,
 } from "../../api/chatApi";
 import api from "../../api/Api.js";
 import {
@@ -50,6 +51,11 @@ const ChatRoom = () => {
     fetchChatRoomInfo(roomId)
       .then((info) => setRoomInfo(info))
       .catch(() => console.error("채팅방 정보 로드 실패"));
+
+    // 이전 채팅 메시지 불러오기
+    fetchChatMessages(roomId)
+      .then((msgs) => setMessages(msgs))
+      .catch(() => console.error("이전 메시지 불러오기 실패"));
 
     // 2) JWT 토큰 받아서 STOMP 클라이언트 설정
     api
