@@ -1,6 +1,10 @@
 // src/layout/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Modal from "@mui/material/Modal";
+import Button from "@mui/material/Button";
+
 import {
   Box,
   Grid,
@@ -68,6 +72,8 @@ function Navbar({ onClickAny, forceCloseMenu }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // 960px 이하
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const { user } = useSelector((state) => state.auth);
 
   const handleClick = (event, menuKey) => {
     setAnchorEl(event.currentTarget);
@@ -104,9 +110,11 @@ function Navbar({ onClickAny, forceCloseMenu }) {
               onClick={(e) => {
                 if (item.subMenu) {
                   handleClick(e, item.text);
+                } else if (item.text === "시간충전" && !user?.email) {
+                  setOpenModal(true); // 로그인 안했으면 모달 열기
                 } else {
                   navigate(item.to);
-                  if (typeof onClickAny === "function") onClickAny(); // <— Drawer 닫기
+                  if (typeof onClickAny === "function") onClickAny(); // Drawer 닫기
                 }
               }}
               sx={{
@@ -164,9 +172,15 @@ function Navbar({ onClickAny, forceCloseMenu }) {
             <Grid item xs={4} sm={2} md={1.7} key={item.text}>
               <Paper
                 elevation={2}
-                onClick={(e) =>
-                  item.subMenu ? handleClick(e, item.text) : navigate(item.to)
-                }
+                onClick={(e) => {
+                  if (item.subMenu) {
+                    handleClick(e, item.text);
+                  } else if (item.text === "시간충전" && !user?.email) {
+                    setOpenModal(true);
+                  } else {
+                    navigate(item.to);
+                  }
+                }}
                 sx={{
                   px: 4,
                   py: 1,
@@ -231,6 +245,48 @@ function Navbar({ onClickAny, forceCloseMenu }) {
           ))}
         </Grid>
       )}
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Paper
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 350,
+            p: 3,
+            outline: "none",
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            로그인이 필요합니다.
+          </Typography>
+          <Typography variant="body2" sx={{ pt: 2, mb: 3 }}>
+            시간 크레딧 충전 기능을 이용하려면 로그인 해주세요.
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                setOpenModal(false);
+                navigate("/login");
+              }}
+            >
+              로그인 하러 가기
+            </Button>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                setOpenModal(false);
+                navigate("/save");
+              }}
+            >
+              회원가입 하러 가기
+            </Button>
+          </Box>
+        </Paper>
+      </Modal>
     </Box>
   );
 }

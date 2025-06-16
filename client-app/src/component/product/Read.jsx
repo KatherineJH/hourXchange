@@ -55,28 +55,6 @@ function Read() {
       .catch((error) => console.log(error));
   }, [id]);
 
-  // const handleChatClick = async () => {
-  //   console.log(auth.user.email);
-  //   if (!auth.user.email) {
-  //     if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
-  //       // state.from에 현재 위치를 담아서 로그인 후 복귀하도록 전달
-  //       navigate("/login", {
-  //         state: { from: location },
-  //         replace: true,
-  //       });
-  //     }
-  //     return;
-  //   }
-  //   try {
-  //     const chatRoom = await initiateChat(serverData.id, auth.user.id);
-  //     const transactionData = { productId: serverData.id, status: "PENDING" };
-  //     await postSave(transactionData);
-  //     navigate(`${pathPrefix}/chat-room/${chatRoom.id}`);
-  //   } catch (error) {
-  //     console.error("채팅방 생성 실패", error);
-  //   }
-  // };
-
   const handleChatClick = async () => {
     console.log(auth.user.email);
     if (!auth.user.email) {
@@ -154,6 +132,10 @@ function Read() {
                   component="img"
                   src={url}
                   alt={`preview-${idx}`}
+                  onError={(e) => {
+                    e.target.onerror = null; // 무한 루프 방지
+                    e.target.src = "/default.png";
+                  }}
                   sx={{
                     width: IMAGE_SIZE,
                     height: IMAGE_SIZE,
@@ -346,7 +328,10 @@ function Read() {
                   variant="contained"
                   onClick={() => {
                     setOpenModal(false);
-                    navigate("/login");
+                    navigate("/login", {
+                      state: { from: location },
+                      replace: true,
+                    });
                   }}
                 >
                   로그인 하러 가기
@@ -355,7 +340,10 @@ function Read() {
                   variant="contained"
                   onClick={() => {
                     setOpenModal(false);
-                    navigate("/save");
+                    navigate("/save", {
+                      state: { from: location },
+                      replace: true,
+                    });
                   }}
                 >
                   회원가입 하러 가기
