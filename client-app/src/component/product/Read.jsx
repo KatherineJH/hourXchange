@@ -313,16 +313,11 @@ function Read() {
                 size="large"
                 onClick={handleChatClick}
               >
-                채팅하기
+                문의하기
               </Button>
             )}
           </Box>
-          <Modal
-            open={openModal}
-            onClose={() => setOpenModal(false)}
-            aria-labelledby="login-modal-title"
-            aria-describedby="login-modal-description"
-          >
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
             <Paper
               sx={{
                 position: "absolute",
