@@ -78,7 +78,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/api/advertisement/**", "/login/oauth2/code/**", "/error").permitAll()
                 .requestMatchers(
                         "/api/category/list", "/api/donation/recent", "/api/donation/top-progress", "/api/donation/top-views",
-                        "/api/donation/list/all", "/api/product/list/all", "/api/donationHistory/topDonator", "/api/donation/list",
+                        "/api/donation/list/all", "/api/product/list/all", "/api/donationHistory/topDonator", "/api/donation/list", "/api/auth/dev/password",
                         "/api/board/all", "/api/product/listMap", "/api/product/list", "/api/reviews/list", "/api/search/**", "/api/dialogflow/query"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/product/**", "/api/donation/**").permitAll()
