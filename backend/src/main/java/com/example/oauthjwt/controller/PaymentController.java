@@ -36,7 +36,7 @@ public class PaymentController {
 
     /** 클라이언트 콜백으로부터 imp_uid, merchant_uid 를 받아 검증 */
     @PostMapping("/iamport/transaction")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<PaymentResponse> iamportTransaction(@RequestBody Map<String, String> data) {
         // 결제 정보 검증
         PaymentResponse result = iamportService.transaction(data);
