@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Box,
   Card,
@@ -16,6 +17,9 @@ import AdvertisementCard from "../advertisement/AdvertisementCard";
 
 export default function ProductGrid({ products, favorite, onToggleFavorite }) {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
+  const isLoggedIn = !!user;
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
     <Box
@@ -38,6 +42,7 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
         return (
           <Card
             key={`product-${product.id}`}
+            onClick={() => navigate(`/product/read/${product.id}`)}
             sx={{
               maxWidth: 345,
               width: "100%",
@@ -56,7 +61,14 @@ export default function ProductGrid({ products, favorite, onToggleFavorite }) {
               }
               action={
                 <IconButton
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation(); // 카드 클릭 방지
+
+                    if (!isLoggedIn) {
+                      alert("로그인 후 찜할 수 있습니다.");
+                      return;
+                    }
+
                     const isFavorited = favorite.some(
                       (f) => f.product.id === product.id
                     );

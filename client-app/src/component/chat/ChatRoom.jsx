@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   acceptTransaction,
   fetchChatRoomInfo,
   requestTransaction,
+  fetchChatMessages,
 } from "../../api/chatApi";
 import api from "../../api/Api.js";
 import {
@@ -16,6 +17,8 @@ import {
   CircularProgress,
   Card,
   CardContent,
+  Modal,
+  Paper,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import SendIcon from "@mui/icons-material/Send";
@@ -27,11 +30,13 @@ const IMAGE_SIZE = 300;
 const ChatRoom = () => {
   const { chatRoomId } = useParams();
   const roomId = Number(chatRoomId);
+  const navigate = useNavigate();
 
   const [status, setStatus] = useState("🔌 연결 시도 중...");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [roomInfo, setRoomInfo] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const clientRef = useRef(null);
   // 스크롤 컨테이너를 Card에 붙입니다.
@@ -50,6 +55,11 @@ const ChatRoom = () => {
     fetchChatRoomInfo(roomId)
       .then((info) => setRoomInfo(info))
       .catch(() => console.error("채팅방 정보 로드 실패"));
+
+    // 이전 채팅 메시지 불러오기
+    fetchChatMessages(roomId)
+      .then((msgs) => setMessages(msgs))
+      .catch(() => console.error("이전 메시지 불러오기 실패"));
 
     // 2) JWT 토큰 받아서 STOMP 클라이언트 설정
     api
@@ -110,9 +120,7 @@ const ChatRoom = () => {
 
     const insufficientCredit = currentCredit < creditRequired;
     if (isBuyer && insufficientCredit) {
-      alert(
-        `크레딧이 부족합니다. (${creditRequired}시간 필요, 보유 ${currentCredit}시간)\n충전 후 거래를 요청해주세요.`
-      );
+      setOpenModal(true);
       return;
     }
 
@@ -191,6 +199,51 @@ const ChatRoom = () => {
                 요청
               </Button>
             )}
+            <Modal open={openModal} onClose={() => setOpenModal(false)}>
+              <Paper
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 350,
+                  p: 3,
+                  outline: "none",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  크레딧이 필요합니다.
+                </Typography>
+                <Typography variant="body2" mb={3} sx={{ pt: 2 }}>
+                  크레딧을 충전해 주세요.
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setOpenModal(false);
+                      navigate("/payment/buy");
+                    }}
+                  >
+                    시간 충전 하러 가기
+                  </Button>
+                  {/* <Button
+                    variant="contained"
+                    onClick={() => {
+                      setOpenModal(false);
+                    }}
+                  >
+                    닫기
+                  </Button> */}
+                </Box>
+              </Paper>
+            </Modal>
             {/* 수락자: 내가 상품 주인인 경우 */}
             {user.id === roomInfo.ownerId && (
               <Button

@@ -15,6 +15,8 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Modal,
+  Button,
 } from "@mui/material";
 import {
   AccountCircle,
@@ -23,8 +25,8 @@ import {
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAsync, logoutUserAsync } from "../slice/AuthSlice.js";
-import { replace, useLocation, useNavigate } from "react-router-dom";
+import { logoutUserAsync } from "../slice/AuthSlice.js";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
 import { useCustomDebounce } from "../assets/useCustomDebounce.js";
 
@@ -40,16 +42,17 @@ function Header() {
   const selectedKeyword = params.get("keyword") || "";
 
   const [suggestions, setSuggestions] = useState([]);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1); // 선택된 인덱스
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [isSticky, setIsSticky] = useState(false);
+  const [openNotificationModal, setOpenNotificationModal] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
-  const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const threshold = 80; // 배너 높이(px) 기준
+      const threshold = 80;
       setIsSticky(window.scrollY >= threshold);
     };
     window.addEventListener("scroll", handleScroll);
@@ -74,9 +77,15 @@ function Header() {
     navigate("/save");
     setAnchorEl(null);
   };
+  const handleMoveToMyPage = () => navigate("/myPage");
+  const handleMoveToAdminPage = () => navigate("/admin");
 
-  const handleMoveToMyPage = () => {
-    navigate("/myPage");
+  const handleNotificationClick = () => {
+    if (!user?.email) {
+      setOpenNotificationModal(true);
+    } else {
+      navigate("/myPage/chat");
+    }
   };
 
   useEffect(() => {
@@ -129,14 +138,9 @@ function Header() {
   };
 
   useEffect(() => {
-    // 쿼리파라미터로 넘어온 keyword를 keyword 상태로 반영
     setKeyword(selectedKeyword);
-    setSearchInput(selectedKeyword); // input에도 반영
+    setSearchInput(selectedKeyword);
   }, [selectedKeyword]);
-
-  const handleMoveToAdminPage = () => {
-    navigate("/admin");
-  };
 
   return (
     <>
@@ -144,18 +148,13 @@ function Header() {
         <AppBar
           position={isSticky ? "fixed" : "static"}
           elevation={0}
-          sx={{
-            borderRadius: "30px",
-            mx: "auto",
-            my: 1.5,
-            px: 2,
-          }}
+          sx={{ borderRadius: "30px", mx: "auto", my: 1.5, px: 2 }}
         >
           <Toolbar>
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column", md: "row" }, // 작은 화면이면 세로 정렬
+                flexDirection: { xs: "column", md: "row" },
                 justifyContent: "space-between",
                 alignItems: "center",
                 width: "100%",
@@ -164,28 +163,26 @@ function Header() {
                 px: { xs: 1, sm: 2 },
               }}
             >
-              {/* 왼쪽 묶음: 로고 + 검색창 */}
+              {/* 로고 + 검색창 */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   gap: 2,
-                  flex: 1, // 왼쪽 공간 확보
-                  minWidth: 0, // 검색창 줄어들도록 허용
+                  flex: 1,
+                  minWidth: 0,
                 }}
               >
-                {/* 로고 + 제목 */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Box
                     component="img"
                     src="/hourPanda.png"
                     alt="logo"
-                    sx={{ height: 48, width: "auto", cursor: "pointer" }}
+                    sx={{ height: 48, cursor: "pointer" }}
                     onClick={() => navigate("/")}
                   />
                   <Typography
                     variant="h5"
-                    component="div"
                     sx={{
                       fontWeight: "bold",
                       cursor: "pointer",
@@ -196,7 +193,6 @@ function Header() {
                     HourXChange
                   </Typography>
                 </Box>
-
                 {/* 검색창 */}
                 <Box
                   sx={{
@@ -259,8 +255,7 @@ function Header() {
                   )}
                 </Box>
               </Box>
-
-              {/* 오른쪽 묶음: 아이콘들 */}
+              {/* 오른쪽 아이콘 */}
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 2, ml: 2 }}
               >
@@ -274,7 +269,7 @@ function Header() {
                 <IconButton
                   size="large"
                   color="inherit"
-                  onClick={() => navigate("/myPage/chat")}
+                  onClick={handleNotificationClick}
                 >
                   <Badge badgeContent={17} color="error">
                     <NotificationsIcon />
@@ -328,6 +323,52 @@ function Header() {
           )}
         </Menu>
       </Box>
+      {/* 알림용 모달 - 로그인 유도 */}
+      <Modal
+        open={openNotificationModal}
+        onClose={() => setOpenNotificationModal(false)}
+      >
+        <Paper
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 350,
+            p: 3,
+            outline: "none",
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            로그인이 필요합니다.
+          </Typography>
+          <Typography variant="body2" sx={{ pt: 2, mb: 3 }}>
+            채팅 기능을 이용하려면 로그인을 해주세요.
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                setOpenNotificationModal(false);
+                navigate("/login");
+              }}
+            >
+              로그인 하러 가기
+            </Button>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                setOpenNotificationModal(false);
+                navigate("/save");
+              }}
+            >
+              회원가입 하러 가기
+            </Button>
+          </Box>
+        </Paper>
+      </Modal>
     </>
   );
 }

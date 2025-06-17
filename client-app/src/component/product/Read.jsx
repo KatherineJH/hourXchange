@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import {getRead, putDelete} from "../../api/productApi.js";
+import { getRead, putDelete } from "../../api/productApi.js";
 import { postSave } from "../../api/transactionApi.js";
 import { initiateChat } from "../../api/chatApi";
 import {
@@ -11,6 +11,8 @@ import {
   Typography,
   Divider,
   Button,
+  Modal,
+  Paper,
 } from "@mui/material";
 
 import KakaoReadMap from "../common/KakaoReadMap.jsx";
@@ -36,6 +38,7 @@ function Read() {
   const { id } = useParams();
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth);
+  const [openModal, setOpenModal] = useState(false);
 
   const location = useLocation();
   const pathPrefix = location.pathname.startsWith("/admin")
@@ -54,14 +57,8 @@ function Read() {
 
   const handleChatClick = async () => {
     console.log(auth.user.email);
-    if(!auth.user.email){
-      if(confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')){
-        // state.from에 현재 위치를 담아서 로그인 후 복귀하도록 전달
-        navigate("/login", {
-          state: { from: location },
-          replace: true
-        });
-      }
+    if (!auth.user.email) {
+      setOpenModal(true);
       return;
     }
     try {
@@ -77,13 +74,13 @@ function Read() {
   const handleDeleteClick = async (id) => {
     try {
       const response = await putDelete(id);
-      console.log(response)
-      alert("삭제가 완료 되었습니다.")
-      navigate('/')
-    }catch (error){
-      console.log(error)
+      console.log(response);
+      alert("삭제가 완료 되었습니다.");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
     }
-  }
+  };
 
   return (
     <Box sx={{ mt: 4, maxWidth: "700px", mx: "auto" }}>
@@ -135,6 +132,10 @@ function Read() {
                   component="img"
                   src={url}
                   alt={`preview-${idx}`}
+                  onError={(e) => {
+                    e.target.onerror = null; // 무한 루프 방지
+                    e.target.src = "/default.png";
+                  }}
                   sx={{
                     width: IMAGE_SIZE,
                     height: IMAGE_SIZE,
@@ -281,9 +282,9 @@ function Read() {
                   수정하기
                 </Button>
                 <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={() => handleDeleteClick(serverData.id)}
+                  variant="outlined"
+                  size="large"
+                  onClick={() => handleDeleteClick(serverData.id)}
                 >
                   삭제하기
                 </Button>
@@ -294,10 +295,62 @@ function Read() {
                 size="large"
                 onClick={handleChatClick}
               >
-                채팅하기
+                문의하기
               </Button>
             )}
           </Box>
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
+            <Paper
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 350,
+                p: 3,
+                outline: "none",
+              }}
+            >
+              <Typography variant="h6" gutterBotton>
+                로그인이 필요합니다.
+              </Typography>
+              <Typography variant="body2" mb={3} sx={{ pt: 2 }}>
+                채팅을 이용하려면 로그인을 해주세요.
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setOpenModal(false);
+                    navigate("/login", {
+                      state: { from: location },
+                      replace: true,
+                    });
+                  }}
+                >
+                  로그인 하러 가기
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setOpenModal(false);
+                    navigate("/save", {
+                      state: { from: location },
+                      replace: true,
+                    });
+                  }}
+                >
+                  회원가입 하러 가기
+                </Button>
+              </Box>
+            </Paper>
+          </Modal>
         </CardContent>
       </Card>
     </Box>

@@ -1,10 +1,12 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Typed from "typed.js";
 
 function TopHourXChange() {
   const typedRef = useRef(null);
   const typedInstance = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     typedInstance.current = new Typed(typedRef.current, {
@@ -28,7 +30,7 @@ function TopHourXChange() {
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "third.main", // MUI theme에서 정의한 색상
-        height: 500,
+        height: 600,
         overflow: "hidden",
       }}
     >
@@ -52,9 +54,19 @@ function TopHourXChange() {
           textAlign: "center",
           lineHeight: 1.5,
           whiteSpace: "pre-line",
-          minHeight: "6em",
+          minHeight: "5em",
         }}
       />
+
+      {/* 홈으로 가기 */}
+      <Button
+        size="large"
+        variant="contained"
+        sx={{ mr: 2 }}
+        onClick={() => navigate("/main")}
+      >
+        홈페이지 살펴보기
+      </Button>
     </Box>
   );
 }

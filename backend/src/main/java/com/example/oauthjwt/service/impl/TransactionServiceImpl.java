@@ -150,29 +150,36 @@ public class TransactionServiceImpl implements TransactionService {
         int hours = product.getHours();
 
         User owner = product.getOwner();
-        User opponent = product.getOwner();
+//        User opponent = product.getOwner();
 
-        // 트랜잭션 상태 변경
+        // 1. 요청자 찾기 (글쓴이가 아닌 트랜잭션 참여자)
         List<Transaction> transactions = transactionRepository.findByChatRoomId(chatRoomId);
-        for (Transaction transaction : transactions) {
-            if (transaction.getStatus() == TransactionStatus.REQUESTED) {
-                transaction.setStatus(TransactionStatus.ACCEPTED);
-                transactionRepository.save(transaction);
+        User requester = transactions.stream()
+                .map(Transaction::getUser)
+                .filter(user -> !user.getId().equals(owner.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "요청자가 존재하지 않습니다."));
+
+        // 2. 트랜잭션 상태 변경 (REQUESTED → ACCEPTED)
+        boolean updated = false;
+        for (Transaction tx : transactions) {
+            if (tx.getStatus() == TransactionStatus.REQUESTED) {
+                tx.setStatus(TransactionStatus.ACCEPTED);
+                transactionRepository.save(tx);
+                updated = true;
             }
         }
 
-        // 크레딧 차감 로직 ONLY
-        try {
-            if (type == ProviderType.SELLER) {
-                opponent.subtractCredit(hours);
-                walletHistoryRepository.save(WalletHistory.of(opponent, product, WalletATM.SPEND, hours));
+        if (!updated) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "요청된 거래 상태가 존재하지 않아 수락할 수 없습니다.");
+        }
 
-            } else if (type == ProviderType.BUYER) {
-                owner.subtractCredit(hours);
-                walletHistoryRepository.save(WalletHistory.of(owner, product, WalletATM.SPEND, hours));
-            }
+        // 3. 크레딧 차감: 요청자만 차감
+        try {
+            requester.subtractCredit(hours);
+            walletHistoryRepository.save(WalletHistory.of(requester, product, WalletATM.SPEND, hours));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "요청자의 크레딧이 부족합니다.");
         }
     }
 
