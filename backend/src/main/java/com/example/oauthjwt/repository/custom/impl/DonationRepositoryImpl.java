@@ -45,7 +45,7 @@ public class DonationRepositoryImpl implements DonationRepositoryCustom {
             builder.and(donation.endDate.before(condition.getEndDate()));
         }
         // 실제 데이터 쿼리
-        List<Donation> result = queryFactory.selectFrom(donation).where(builder).offset(pageable.getOffset())
+        List<Donation> result = queryFactory.selectFrom(donation).where(builder).orderBy(donation.id.desc()).offset(pageable.getOffset())
                 .limit(pageable.getPageSize()).fetch();
         // 전체 개수 쿼리
         long total = queryFactory.selectFrom(donation).where(builder).fetchCount();
