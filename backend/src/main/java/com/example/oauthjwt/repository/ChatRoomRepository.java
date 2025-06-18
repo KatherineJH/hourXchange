@@ -15,6 +15,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
                 SELECT DISTINCT cr FROM ChatRoom cr
                 JOIN cr.chatRoomUsers cru
                 WHERE cru.user.id = :userId
+                ORDER BY cr.createdAt DESC
             """)
     List<ChatRoom> findChatRoomsByUserId(@Param("userId") Long userId);
 

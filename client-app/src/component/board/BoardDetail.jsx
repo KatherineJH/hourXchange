@@ -80,7 +80,9 @@ function BoardDetail() {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box
+      sx={{ width: "100%", maxWidth: 1220, mx: "auto", px: { xs: 1, sm: 2 } }}
+    >
       <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
           <Box
