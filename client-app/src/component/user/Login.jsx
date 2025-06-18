@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUserAsync } from "../../slice/AuthSlice.js";
 import { getAdvertisement } from "../../api/advertisementApi.js";
 import { useState, useEffect } from "react";
-import UserAdvertisement from "../advertisement/UserAdvertisement.jsx";
+import AdvertisementCard from "../advertisement/AdvertisementCard.jsx";
 
 export default function EmailLoginForm() {
   const navigate = useNavigate();
@@ -90,14 +90,12 @@ export default function EmailLoginForm() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 15,
           alignItems: "center",
           position: { xs: "static", md: "sticky" },
-          top: 170,
         }}
       >
         {leftAds.map((ad, index) => (
-          <UserAdvertisement key={`left-${index}`} ad={ad} />
+          <AdvertisementCard key={`left-${index}`} ad={ad} />
         ))}
       </Box>
 
@@ -163,15 +161,13 @@ export default function EmailLoginForm() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 15,
           alignItems: "center",
           position: { xs: "static", md: "sticky" },
-          mt: 20,
           height: "100%",
         }}
       >
         {rightAds.map((ad, index) => (
-          <UserAdvertisement key={`right-${index}`} ad={ad} />
+          <AdvertisementCard key={`right-${index}`} ad={ad} />
         ))}
       </Box>
     </Box>
