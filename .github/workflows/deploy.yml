@@ -84,6 +84,7 @@ jobs:
           VITE_UPLOAD_PRESET: ${{ secrets.VITE_UPLOAD_PRESET }}
           VITE_KAKAO_MAP_KEY: ${{ secrets.VITE_KAKAO_MAP_KEY }}
           VITE_OPENAPI_KEY: ${{ secrets.VITE_OPENAPI_KEY }}
+          VITE_IAMPORT_KEY: ${{ secrets.VITE_IAMPORT_KEY }}
 
       - name: S3에 배포
         uses: jakejarvis/s3-sync-action@v0.5.1
