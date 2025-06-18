@@ -31,7 +31,7 @@ public class AdvertisementController {
     private final AdvertisementService advertisementService;
     private final LocationUtil locationUtil;
 
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createAdvertisement(@AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid AdvertisementRequest advertisementRequest) {
