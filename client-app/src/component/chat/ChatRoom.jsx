@@ -23,7 +23,7 @@ import {
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import SendIcon from "@mui/icons-material/Send";
 import uploadToCloudinary from "../../assets/uploadToCloudinary.js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const IMAGE_SIZE = 300;
 
@@ -43,6 +43,7 @@ const ChatRoom = () => {
   const messageBoxRef = useRef(null);
   const fileInputRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   // 방 정보 로드 및 WebSocket 연결
   useEffect(() => {
@@ -128,6 +129,7 @@ const ChatRoom = () => {
       await requestTransaction(roomId);
       setRoomInfo((r) => ({ ...r, transactionStatus: "REQUESTED" }));
       alert("거래 요청이 완료되었습니다!");
+      dispatch(fetchUserAsync());
     } catch {
       alert("요청 중 오류가 발생했습니다.");
     }
@@ -138,6 +140,7 @@ const ChatRoom = () => {
       await acceptTransaction(roomId);
       setRoomInfo((r) => ({ ...r, transactionStatus: "ACCEPTED" }));
       alert("거래가 수락되었습니다!");
+      dispatch(fetchUserAsync());
     } catch {
       alert("수락 중 오류가 발생했습니다.");
     }

@@ -120,7 +120,7 @@ export default function PackagePaymentScreen() {
 
                                 {isSelected && (
                                     <Box sx={{ p: 2 }}>
-                                        {user.role === 'ROLE_ADMIN' ? (
+                                        {user.role === 'ROLE_USER' ? (
                                             <IamportButton
                                                 orderId={orderId}
                                                 productName={name}
