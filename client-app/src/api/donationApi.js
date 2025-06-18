@@ -1,5 +1,5 @@
 // src/api/donationApi.js
-import axios from 'axios';
+// import axios from 'axios';
 import qs from 'qs';
 import api from "./Api.js";
 
@@ -132,13 +132,13 @@ export const getListWithKeyword = async (keyword, page = 0, size = 10) => {
     return response;
 };
 
-
-const API_URL = '/openapi/service/rest/ContributionGroupService';
+// const API_URL = '/openapi/service/rest/ContributionGroupService';
 
 export const getCntrProgramList = async (params) => {
+    console.log(params);
     // 예시: 올바른 파라미터 key 사용
-    const response = await axios.get(
-        `${API_URL}/getCntrProgramList`,
+    const response = await api.get(
+        apiServerUrl + 'getCntrProgramList',
         {
             params: {
                 serviceKey: params.serviceKey,
@@ -156,5 +156,6 @@ export const getCntrProgramList = async (params) => {
             paramsSerializer: p => qs.stringify(p, { encode: false })
         }
     );
+    console.log(response);
     return response;
 };

@@ -54,7 +54,7 @@ function MyList() {
       const refreshed = await getMyTransactionList();
       setServerDataList(refreshed.data);
     } catch (error) {
-      console.error("❌ 거래 완료 실패:", error);
+      console.error("거래 완료 실패:", error);
       alert("거래 완료에 실패했습니다.");
     }
   };
@@ -85,11 +85,11 @@ function MyList() {
     if (transaction.reviewId) {
       try {
         const review = await getReviewById(transaction.reviewId);
-        console.log("✅ 리뷰 조회 성공:", review);
+        console.log("리뷰 조회 성공:", review);
         setReviewText(review.content);
         setReviewStars(review.stars);
       } catch (err) {
-        console.error("❌ 리뷰 조회 실패:", err);
+        console.error("리뷰 조회 실패:", err);
       }
     } else {
       setReviewText("");
@@ -121,11 +121,11 @@ function MyList() {
           selectedTransaction.reviewId,
           reviewRequest
         );
-        console.log("✅ 리뷰 수정 성공:", response);
+        console.log("리뷰 수정 성공:", response);
         alert("리뷰가 수정되었습니다.");
       } else {
         const response = await postReview(reviewRequest);
-        console.log("✅ 리뷰 등록 성공:", response);
+        console.log("리뷰 등록 성공:", response);
         alert("리뷰가 저장되었습니다.");
         // 선택된 트랜잭션에 reviewId 업데이트 (리뷰 다시 열 때 편하게 하려고)
         setSelectedTransaction({
@@ -134,10 +134,9 @@ function MyList() {
         });
       }
     } catch (err) {
-      console.error("❌ 리뷰 저장 실패:", err);
+      console.error("리뷰 저장 실패:", err);
       alert("리뷰 저장에 실패했습니다.");
     }
-
     handleCloseModal();
   };
 
@@ -148,7 +147,7 @@ function MyList() {
         setServerDataList(response.data);
       })
       .catch((error) => {
-        console.error("❌ 트랜잭션 목록 불러오기 실패:", error);
+        console.error("트랜잭션 목록 불러오기 실패:", error);
       });
   }, []);
 
