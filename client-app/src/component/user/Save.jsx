@@ -14,8 +14,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { postSave } from "../../api/authApi.js";
-import UserAdvertisement from "../advertisement/UserAdvertisement.jsx";
 import { getAdvertisement } from "../../api/advertisementApi.js";
+import AdvertisementCard from "../advertisement/AdvertisementCard.jsx";
 
 const Card = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -140,15 +140,15 @@ export default function Save() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 15,
+          
             alignItems: "center",
             position: { xs: "static", md: "sticky" },
-            mt: 20,
+            
             height: "100%",
           }}
         >
           {leftAds.map((ad, index) => (
-            <UserAdvertisement key={`left-${index}`} ad={ad} />
+            <AdvertisementCard key={`left-${index}`} ad={ad} />
           ))}
         </Box>
 
@@ -282,15 +282,12 @@ export default function Save() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 15,
             alignItems: "center",
             position: { xs: "static", md: "sticky" },
-            top: theme.spacing(20), // 중앙 폼의 mt:20 (=160px)과 동일
-            mt: { xs: 0, md: 0 },
           })}
         >
           {rightAds.map((ad, index) => (
-            <UserAdvertisement key={`right-${index}`} ad={ad} />
+            <AdvertisementCard key={`right-${index}`} ad={ad} />
           ))}
         </Box>
       </Box>
