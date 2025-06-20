@@ -8,6 +8,7 @@ import {
   fetchChatMessages,
 } from "../../api/chatApi";
 import api from "../../api/Api.js";
+import { fetchUserAsync } from "../../slice/AuthSlice.js";
 import {
   Box,
   Typography,

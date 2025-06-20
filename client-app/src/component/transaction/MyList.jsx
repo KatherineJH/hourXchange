@@ -135,6 +135,13 @@ function MyList() {
       }
     } catch (err) {
       console.error("리뷰 저장 실패:", err);
+      // 서버에서 보낸 에러 메시지를 로그로 출력
+      if (err.response) {
+        console.log("서버 응답 상태 코드:", err.response.status);
+        console.log("서버 응답 메시지:", err.response.data);
+      } else {
+        console.log("네트워크 또는 알 수 없는 에러:", err.message);
+      }
       alert("리뷰 저장에 실패했습니다.");
     }
     handleCloseModal();
