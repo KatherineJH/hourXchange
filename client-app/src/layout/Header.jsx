@@ -28,11 +28,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUserAsync } from "../slice/AuthSlice.js";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAutocompleteSuggestions } from "../api/productApi.js";
+import { fetchChatRooms } from "../api/chatApi.js";
 import { useCustomDebounce } from "../assets/useCustomDebounce.js";
 
 function Header() {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [chatRoomCount, setChatRoomCount] = useState(0);
   const dispatch = useDispatch();
 
   const [keyword, setKeyword] = useState("");
@@ -49,6 +51,20 @@ function Header() {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
+
+  useEffect(() => {
+  const loadChatRooms = async () => {
+    try {
+      if (user?.email) {
+        const res = await fetchChatRooms();
+        setChatRoomCount(res.length);  // 채팅방 개수
+      }
+    } catch (err) {
+      console.error("채팅방 정보를 불러오는 데 실패했습니다", err);
+    }
+  };
+  loadChatRooms();
+}, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -271,7 +287,7 @@ function Header() {
                   color="inherit"
                   onClick={handleNotificationClick}
                 >
-                  <Badge badgeContent={17} color="error">
+                  <Badge badgeContent={chatRoomCount} color="error">
                     <NotificationsIcon />
                   </Badge>
                 </IconButton>
