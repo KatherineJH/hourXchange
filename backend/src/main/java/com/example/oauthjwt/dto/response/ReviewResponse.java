@@ -26,7 +26,12 @@ public class ReviewResponse {
                 .reviewId(review.getId())
                 .content(review.getContent())
                 .stars(review.getStars())
-                .tags(review.getTags().stream().map(ReviewTag::getTag).collect(Collectors.toList()))
+//                .tags(review.getTags().stream().map(ReviewTag::getTag).collect(Collectors.toList()))
+                .tags(
+                        review.getTags() != null
+                                ? review.getTags().stream().map(ReviewTag::getTag).collect(Collectors.toList())
+                                : List.of()
+                )
                 .createdAt(review.getCreatedAt())
                 .build();
     }
